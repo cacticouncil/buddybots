@@ -25,7 +25,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#include "../idlib/precompiled.h"
+#include "precompiled.h"
 #pragma hdrstop
 
 #include "TypeInfoGen.h"
@@ -812,6 +812,10 @@ void idTypeInfoGen::CreateTypeInfo( const char *path ) {
 		fileName = fileSystem->RelativePathToOSPath( files->GetFile( i ) );
 
 		common->Printf( "processing '%s' for type info...\n", fileName.c_str() );
+
+		if(!strstr( fileName.c_str(), "precompiled.h" )) {
+			fileName = fileSystem->RelativePathToOSPath(va("../%s/idLib/precompiled.h", SOURCE_CODE_BASE_FOLDER));
+		}
 
 		if ( !src.LoadFile( fileName, true ) ) {
 			common->Warning( "couldn't load %s", fileName.c_str() );
