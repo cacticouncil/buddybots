@@ -222,7 +222,9 @@
     <ClCompile Include="d3xp\gamesys\SaveGame.cpp" />
     <ClCompile Include="d3xp\gamesys\SysCmds.cpp" />
     <ClCompile Include="d3xp\gamesys\SysCvar.cpp" />
-    <ClCompile Include="d3xp\gamesys\TypeInfo.cpp" />
+    <ClCompile Include="d3xp\gamesys\TypeInfo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="d3xp\physics\Clip.cpp" />
     <ClCompile Include="d3xp\physics\Force.cpp" />
     <ClCompile Include="d3xp\physics\Force_Constant.cpp" />
