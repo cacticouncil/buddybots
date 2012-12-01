@@ -2568,7 +2568,7 @@ bool idDeclModelDef::ParseAnim( idLexer &src, int numDefaultAnims ) {
 
 	// parse any frame commands or animflags
 	if ( src.CheckTokenString( "{" ) ) {
-		while( 1 ) {
+		while(true) {
 			if( !src.ReadToken( &token ) ) {
 				src.Warning( "Unexpected end of file" );
 				MakeDefault();
@@ -2652,7 +2652,7 @@ bool idDeclModelDef::Parse( const char *text, const int textLength ) {
 	src.SkipUntilString( "{" );
 
 	numDefaultAnims = 0;
-	while( 1 ) {
+	while(true) {
 		if ( !src.ReadToken( &token ) ) {
 			break;
 		}

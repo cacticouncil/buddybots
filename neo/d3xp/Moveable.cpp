@@ -1351,5 +1351,6 @@ bool idExplodingBarrel::ClientReceiveEvent( int event, int time, const idBitMsg 
 			return idBarrel::ClientReceiveEvent( event, time, msg );
 		}
 	}
-	return false;
+	//Unreachable
+	//return false;
 }

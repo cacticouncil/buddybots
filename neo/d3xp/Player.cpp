@@ -7627,8 +7627,8 @@ bool idPlayer::CanGive( const char *statname, const char *value ) {
 	} else {
 		return inventory.CanGive( this, spawnArgs, statname, value, &idealWeapon );
 	}
-
-	return false;
+	//Unreachable
+	//return false;
 }
 
 /*
@@ -8181,7 +8181,7 @@ void idPlayer::Damage( idEntity *inflictor, idEntity *attacker, const idVec3 &di
 			damage = 1;
 		}
 
-		int oldHealth = health;
+		//int oldHealth = health;
 		health -= damage;
 
 		if ( health <= 0 ) {
@@ -9816,7 +9816,8 @@ bool idPlayer::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
 			return idActor::ClientReceiveEvent( event, time, msg );
 		}
 	}
-	return false;
+	//Unreachable
+	//return false;
 }
 
 /*

@@ -1141,5 +1141,6 @@ bool idLight::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
 			return idEntity::ClientReceiveEvent( event, time, msg );
 		}
 	}
-	return false;
+	//Unreachable
+	//return false;
 }

@@ -1253,7 +1253,7 @@ void idTrigger_Flag::Spawn( void ) {
 
 void idTrigger_Flag::Event_Touch( idEntity *other, trace_t *trace ) {
 
-	bool bTrigger = false;
+	//bool bTrigger = false;
 	idItemTeam * flag = NULL;
 
 	if ( player ) {

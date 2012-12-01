@@ -931,8 +931,8 @@ bool idEntity::DoDormantTests( void ) {
 		fl.hasAwakened = true;		// only go dormant when area closed off now, not just out of PVS
 		return false;
 	}
-
-	return false;
+	//Unreachable
+	//return false;
 }
 
 /*
@@ -5018,7 +5018,8 @@ bool idEntity::ClientReceiveEvent( int event, int time, const idBitMsg &msg ) {
 			return false;
 		}
 	}
-	return false;
+	//Unreachable
+	//return false;
 }
 
 #ifdef _D3XP
@@ -5499,7 +5500,8 @@ bool idAnimatedEntity::ClientReceiveEvent( int event, int time, const idBitMsg &
 			return idEntity::ClientReceiveEvent( event, time, msg );
 		}
 	}
-	return false;
+	//Unreachable
+	//return false;
 }
 
 /*

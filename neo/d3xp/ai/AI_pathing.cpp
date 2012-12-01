@@ -534,7 +534,7 @@ bool GetPathNodeDelta( pathNode_t *node, const obstacle_t *obstacles, const idVe
 	numPoints = obstacles[node->obstacle].winding.GetNumPoints();
 
 	// get delta along the current edge
-	while( 1 ) {
+	while(true) {
 		edgeNum = ( node->edgeNum + node->dir ) % numPoints;
 		node->delta = obstacles[node->obstacle].winding[edgeNum] - node->pos;
 		if ( node->delta.LengthSqr() > 0.01f ) {
