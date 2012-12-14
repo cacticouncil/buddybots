@@ -404,7 +404,12 @@ public:
 	virtual void			Show( void );
 
 	void					Init( void );
+#ifdef AFI_BOTS
+	virtual void					PrepareForRestart( void );
+#else
 	void					PrepareForRestart( void );
+#endif
+
 	virtual void			Restart( void );
 	void					LinkScriptVariables( void );
 	void					SetupWeaponEntity( void );

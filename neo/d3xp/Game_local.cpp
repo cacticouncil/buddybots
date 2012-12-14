@@ -375,6 +375,12 @@ void idGameLocal::Init( void ) {
 
 	smokeParticles = new idSmokeParticles;
 
+#ifdef AFI_BOTS // TinMan: Initialize bot framework
+	BotManager::PrintInfo();
+	BotManager::Initialize();
+#endif 
+
+
 	// set up the aas
 	dict = FindEntityDefDict( "aas_types" );
 	if ( !dict ) {
@@ -456,6 +462,10 @@ void idGameLocal::Shutdown( void ) {
 	animationLib.Shutdown();
 
 	Printf( "--------------------------------------\n" );
+
+#ifdef AFI_BOTS	// Clear on shutdown
+	BotManager::Initialize();
+#endif
 
 #ifdef GAME_DLL
 
@@ -1323,6 +1333,10 @@ void idGameLocal::InitFromNewMap( const char *mapName, idRenderWorld *renderWorl
 	animationLib.FlushUnusedAnims();
 
 	gamestate = GAMESTATE_ACTIVE;
+
+#ifdef AFI_BOTS // sb - add queued bots to the map
+	 BotManager::InitBotsFromMapRestart();
+#endif 
 
 	Printf( "--------------------------------------\n" );
 }

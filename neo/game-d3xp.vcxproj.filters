@@ -16,6 +16,9 @@
     <Filter Include="Script">
       <UniqueIdentifier>{2024018a-67e2-4afd-8499-38ccbe8fc1aa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Bots">
+      <UniqueIdentifier>{57a1a680-5536-41f1-810a-5d16845b717b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="d3xp\ai\AAS.cpp">
@@ -172,6 +175,12 @@
     <ClCompile Include="d3xp\Trigger.cpp" />
     <ClCompile Include="d3xp\Weapon.cpp" />
     <ClCompile Include="d3xp\WorldSpawn.cpp" />
+    <ClCompile Include="d3xp\bot\BotPlayer.cpp">
+      <Filter>Bots</Filter>
+    </ClCompile>
+    <ClCompile Include="d3xp\bot\BotManager.cpp">
+      <Filter>Bots</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3xp\ai\AAS.h">
@@ -306,6 +315,12 @@
     <ClInclude Include="d3xp\Trigger.h" />
     <ClInclude Include="d3xp\Weapon.h" />
     <ClInclude Include="d3xp\WorldSpawn.h" />
+    <ClInclude Include="d3xp\bot\BotPlayer.h">
+      <Filter>Bots</Filter>
+    </ClInclude>
+    <ClInclude Include="d3xp\bot\BotManager.h">
+      <Filter>Bots</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="d3xp\Game.def" />

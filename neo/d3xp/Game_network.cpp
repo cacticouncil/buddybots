@@ -316,8 +316,15 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( GAME_RELIABLE_MESSAGE_INIT_DECL_REMAP );
 	networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 
-	// spawn the player
+#ifdef AFI_BOTS // spawn bot on server
+	if ( BotManager::IsClientBot( clientNum ) ) {
+		BotManager::SpawnBot( clientNum );
+	} else {
+		SpawnPlayer( clientNum );
+	}
+#else
 	SpawnPlayer( clientNum );
+#endif
 	if ( clientNum == localClientNum ) {
 		mpGame.EnterGame( clientNum );
 	}
@@ -328,6 +335,11 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 	outMsg.WriteByte( clientNum );
 	outMsg.WriteLong( spawnIds[ clientNum ] );
+#ifdef AFI_BOTS // sb - tell the clients that it is not a bot spawning 
+	outMsg.WriteBits( BotPlayer::IsClientBot( clientNum ), 1 );
+	if ( BotPlayer::IsClientBot( clientNum ) )
+		outMsg.WriteShort( BotPlayer::GetBotDefNumber( clientNum ) );
+#endif
 	networkSystem->ServerSendReliableMessage( -1, outMsg );
 }
 
@@ -391,6 +403,11 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum ) {
 		outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 		outMsg.WriteByte( i );
 		outMsg.WriteLong( spawnIds[ i ] );
+#ifdef AFI_BOTS // let ClientProcessReliableMessage know if it's a bot
+		outMsg.WriteBits( BotPlayer::IsClientBot( i ), 1 );
+		if ( BotPlayer::IsClientBot( i ) )
+			outMsg.WriteShort( BotPlayer::GetBotDefNumber( i ) );
+#endif
 		networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 	}
 
@@ -601,6 +618,10 @@ void idGameLocal::ServerWriteSnapshot( int clientNum, int sequence, idBitMsg &ms
 	idRandom tagRandom;
 	tagRandom.SetSeed( random.RandomInt() );
 	msg.WriteLong( tagRandom.GetSeed() );
+#endif
+
+#ifdef AFI_BOTS
+	BotManager::WriteUserCmdsToSnapshot(msg);
 #endif
 
 	// create the snapshot
@@ -1022,6 +1043,10 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 	tagRandom.SetSeed( msg.ReadLong() );
 #endif
 
+#ifdef AFI_BOTS
+	BotManager::ReadUserCmdsFromSnapshot(msg);
+#endif
+
 	// read all entities from the snapshot
 	for ( i = msg.ReadBits( GENTITYNUM_BITS ); i != ENTITYNUM_NONE; i = msg.ReadBits( GENTITYNUM_BITS ) ) {
 
@@ -1356,8 +1381,19 @@ void idGameLocal::ClientProcessReliableMessage( int clientNum, const idBitMsg &m
 		case GAME_RELIABLE_MESSAGE_SPAWN_PLAYER: {
 			int client = msg.ReadByte();
 			int spawnId = msg.ReadLong();
+#ifdef AFI_BOTS // sb - check to see if reliable message is to spawn bot or player
+			bool isBot = msg.ReadBits(1); // this has to be outside of the if below because it is always written it always needs to be read right?
+			if ( !entities[ client ] ) {
+				if ( isBot ) {
+					BotManager::SetBotDefNumber( client, (int)msg.ReadShort() );
+					BotManager::SpawnBot( client );
+				} else {
+					SpawnPlayer( client );
+				}
+#else
 			if ( !entities[ client ] ) {
 				SpawnPlayer( client );
+#endif
 				entities[ client ]->FreeModelDef();
 			}
 			// fix up the spawnId to match what the server says
@@ -1564,6 +1600,45 @@ gameReturn_t idGameLocal::ClientPrediction( int clientNum, const usercmd_t *clie
 	}
 	return ret;
 }
+
+#ifdef AFI_BOTS // TinMan: Get Bot input
+/*
+===============
+idGameLocal::GetBotInput
+TinMan: Engine calls this on fake clients, so push your usercmds
+TinMan: I think I would rather have had a SetBotInput or some way to push bot usercmd into the normal gamelocal.usercmds.
+===============
+*/
+void idGameLocal::GetBotInput( int clientNum, usercmd_t &userCmd ) {
+	idEntity * client = entities[ clientNum ];
+	if ( !client ) {
+		//Error( va( "idGameLocal::GetBotInput - invalid client %i\n", clientNum ) );
+		return;
+	}
+
+	if ( !BotPlayer::IsClientBot( clientNum ) ) {
+		//Error( va( "idGameLocal::GetBotInput - not a fake client %i\n", clientNum ) );
+		return;
+	}
+
+
+	//BotPlayer * bot = static_cast< BotPlayer * >(client);
+	if ( !BotPlayer::GetUserCmd( clientNum ) ) {
+		//Error( va( "idGameLocal::GetBotInput - invald usercmd %i\n", clientNum ) );
+		return;
+	}
+
+
+	userCmd.angles[0] = BotManager::GetUserCmd( clientNum )->angles[0];
+	userCmd.angles[1] = BotManager::GetUserCmd( clientNum )->angles[1];
+	userCmd.angles[2] = BotManager::GetUserCmd( clientNum )->angles[2];
+	userCmd.forwardmove = BotManager::GetUserCmd( clientNum )->forwardmove;
+	userCmd.rightmove = BotManager::GetUserCmd( clientNum )->rightmove;
+	userCmd.upmove =	BotManager::GetUserCmd( clientNum )->upmove;
+	userCmd.buttons =	BotManager::GetUserCmd( clientNum )->buttons;
+	userCmd.impulse =	BotManager::GetUserCmd( clientNum )->impulse;
+}
+#endif
 
 /*
 ===============

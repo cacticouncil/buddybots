@@ -416,8 +416,13 @@ public:
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
-	// ---------------------- Public idGameLocal Interface -------------------
+	#ifdef AFI_BOTS // TinMan: GetBotInput - Obviously don't want plcaeholder error out
+	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
+#else
+	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };
+#endif
 
+	// ---------------------- Public idGameLocal Interface -------------------
 	void					Printf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
 	void					DPrintf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
 	void					Warning( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
@@ -804,5 +809,11 @@ const int	CINEMATIC_SKIP_DELAY	= SEC2MS( 2.0f );
 #include "script/Script_Compiler.h"
 #include "script/Script_Interpreter.h"
 #include "script/Script_Thread.h"
+
+#ifdef AFI_BOTS
+#include "bot/BotManager.h"
+#include "bot/BotPlayer.h"
+#endif
+
 
 #endif	/* !__GAME_LOCAL_H__ */
