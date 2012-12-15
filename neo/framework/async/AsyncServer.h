@@ -93,6 +93,9 @@ typedef struct challenge_s {
 
 typedef enum {
 	SCS_FREE,			// can be reused for a new connection
+#ifdef AFI_BOTS
+	SCS_FAKE,
+#endif
 	SCS_ZOMBIE,			// client has been disconnected, but don't reuse connection for a couple seconds
 	SCS_PUREWAIT,		// client needs to update it's pure checksums before we can go further
 	SCS_CONNECTED,		// client is connected
@@ -158,6 +161,9 @@ public:
 	int					GetNumIdleClients( void ) const;
 	int					GetLocalClientNum( void ) const { return localClientNum; }
 
+#ifdef AFI_BOTS
+	int					ConnectFakeClient();
+#endif
 	void				RunFrame( void );
 	void				ProcessConnectionLessMessages( void );
 	void				RemoteConsoleOutput( const char *string );

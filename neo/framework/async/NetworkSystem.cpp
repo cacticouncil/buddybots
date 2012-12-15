@@ -213,3 +213,10 @@ float idNetworkSystem::ClientGetIncomingPacketLoss( void ) {
 	}
 	return 0.0f;
 }
+
+int idNetworkSystem::ServerConnectBot( void ) {
+	if( idAsyncNetwork::server.IsActive() ) {
+		return idAsyncNetwork::ServerConnectBot();
+	}
+	return -1;
+}

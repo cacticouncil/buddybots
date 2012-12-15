@@ -190,6 +190,13 @@ public:
 	virtual bool				DownloadRequest( const char *IP, const char *guid, const char *paks, char urls[ MAX_STRING_CHARS ] ) = 0;
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] ) = 0;
+
+#ifdef AFI_BOTS
+	virtual void				GetBotInput(int clientNum, usercmd_t& userCmd);
+#else
+	virtual void				GetBotInput( int clientNum,usercmd_t& userCmd ) = 0;
+#endif
+
 };
 
 extern idGame *					game;

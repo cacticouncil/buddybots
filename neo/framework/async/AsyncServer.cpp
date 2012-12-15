@@ -335,6 +335,13 @@ void idAsyncServer::ExecuteMapChange( void ) {
 				clients[ i ].clientState = SCS_PUREWAIT;
 			}
 		}
+#ifdef AFI_BOTS
+		//Just mark the bots as free spaces, when the game reloads on
+		//the server the commands to create the bots will be sent again.
+		else if ( SCS_FAKE == clients[i].clientState) {
+			clients[i].clientState = SCS_FREE;
+		}
+#endif
 	}
 
 	// setup the game pak checksums
@@ -818,9 +825,15 @@ void idAsyncServer::CheckClientTimeouts( void ) {
 	for ( i = 0; i < MAX_ASYNC_CLIENTS; i++ ) {
 		serverClient_t &client = clients[i];
 
+#ifdef AFI_BOTS
+		if ( i == localClientNum ||  SCS_FAKE == client.clientState ) {
+			continue;
+		}
+#else
 		if ( i == localClientNum ) {
 			continue;
 		}
+#endif
 
 		if ( client.lastPacketTime > serverTime ) {
 			client.lastPacketTime = serverTime;
@@ -2459,6 +2472,19 @@ void idAsyncServer::RunFrame( void ) {
 		// sample input for the local client
 		LocalClientInput();
 
+#ifdef AFI_BOTS
+		//Update bot input from game through GetBotInput()
+		usercmd_t* currentFrameCmds = userCmds[gameFrame & ( MAX_USERCMD_BACKUP -1 ) ];
+		for(unsigned int iClient = 0; iClient < MAX_ASYNC_CLIENTS; ++iClient) {
+			serverClient_t& client = clients[iClient];
+			if( SCS_FAKE == client.clientState) {
+				usercmd_t& botCmd = currentFrameCmds[iClient];
+				game->GetBotInput(iClient,botCmd);
+				
+			}
+		}
+#endif
+
 		// duplicate usercmds for clients if no new ones are available
 		DuplicateUsercmds( gameFrame, gameTime );
 
@@ -2480,9 +2506,15 @@ void idAsyncServer::RunFrame( void ) {
 	for ( i = 0; i < MAX_ASYNC_CLIENTS; i++ ) {
 		serverClient_t &client = clients[i];
 
+#ifdef AFI_BOTS
+		if( SCS_FAKE == client.clientState || SCS_FREE == client.clientState || i == localClientNum ){
+			continue;
+		}
+#else
 		if ( client.clientState == SCS_FREE || i == localClientNum ) {
 			continue;
 		}
+#endif
 
 		// modify maximum rate if necesary
 		if ( idAsyncNetwork::serverMaxClientRate.IsModified() ) {
@@ -2823,3 +2855,31 @@ void idAsyncServer::ProcessDownloadRequestMessage( const netadr_t from, const id
 		serverPort.SendPacket( from, outMsg.GetData(), outMsg.GetSize() );
 	}
 }
+
+#ifdef AFI_BOTS
+
+int idAsyncServer::ConnectFakeClient() {
+	int botClientNum = -1;
+	int botId = -1;
+	int botRate = -1;
+	for(unsigned int iClient = 0; iClient < MAX_ASYNC_CLIENTS; ++iClient) {
+
+		serverClient_t& clientSpot =  clients[iClient];
+
+		if(clientSpot.clientState == SCS_FREE) {
+			botClientNum = iClient;
+			botId = Sys_Milliseconds() & CONNECTIONLESS_MESSAGE_ID_MASK;
+			botRate = 666;
+			InitClient(botClientNum,botId,botRate);
+
+			//Overriding InitClient clientState set
+			clientSpot.clientState = SCS_FAKE;
+			return botClientNum;
+		}
+	}
+	return botClientNum;
+
+
+}
+
+#endif

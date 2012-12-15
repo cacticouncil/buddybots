@@ -317,8 +317,8 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 
 #ifdef AFI_BOTS // spawn bot on server
-	if ( BotManager::IsClientBot( clientNum ) ) {
-		BotManager::SpawnBot( clientNum );
+	if ( afiBotManager::IsClientBot( clientNum ) ) {
+		afiBotManager::SpawnBot( clientNum );
 	} else {
 		SpawnPlayer( clientNum );
 	}
@@ -336,9 +336,9 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( clientNum );
 	outMsg.WriteLong( spawnIds[ clientNum ] );
 #ifdef AFI_BOTS // sb - tell the clients that it is not a bot spawning 
-	outMsg.WriteBits( BotPlayer::IsClientBot( clientNum ), 1 );
-	if ( BotPlayer::IsClientBot( clientNum ) )
-		outMsg.WriteShort( BotPlayer::GetBotDefNumber( clientNum ) );
+	outMsg.WriteBits( afiBotManager::IsClientBot( clientNum ), 1 );
+	if ( afiBotManager::IsClientBot( clientNum ) )
+		outMsg.WriteShort( afiBotManager::GetBotDefNumber( clientNum ) );
 #endif
 	networkSystem->ServerSendReliableMessage( -1, outMsg );
 }
@@ -404,9 +404,9 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum ) {
 		outMsg.WriteByte( i );
 		outMsg.WriteLong( spawnIds[ i ] );
 #ifdef AFI_BOTS // let ClientProcessReliableMessage know if it's a bot
-		outMsg.WriteBits( BotPlayer::IsClientBot( i ), 1 );
-		if ( BotPlayer::IsClientBot( i ) )
-			outMsg.WriteShort( BotPlayer::GetBotDefNumber( i ) );
+		outMsg.WriteBits( afiBotManager::IsClientBot( i ), 1 );
+		if ( afiBotManager::IsClientBot( i ) )
+			outMsg.WriteShort( afiBotManager::GetBotDefNumber( i ) );
 #endif
 		networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 	}
@@ -620,9 +620,6 @@ void idGameLocal::ServerWriteSnapshot( int clientNum, int sequence, idBitMsg &ms
 	msg.WriteLong( tagRandom.GetSeed() );
 #endif
 
-#ifdef AFI_BOTS
-	BotManager::WriteUserCmdsToSnapshot(msg);
-#endif
 
 	// create the snapshot
 	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
@@ -1043,9 +1040,6 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 	tagRandom.SetSeed( msg.ReadLong() );
 #endif
 
-#ifdef AFI_BOTS
-	BotManager::ReadUserCmdsFromSnapshot(msg);
-#endif
 
 	// read all entities from the snapshot
 	for ( i = msg.ReadBits( GENTITYNUM_BITS ); i != ENTITYNUM_NONE; i = msg.ReadBits( GENTITYNUM_BITS ) ) {
@@ -1385,8 +1379,8 @@ void idGameLocal::ClientProcessReliableMessage( int clientNum, const idBitMsg &m
 			bool isBot = msg.ReadBits(1); // this has to be outside of the if below because it is always written it always needs to be read right?
 			if ( !entities[ client ] ) {
 				if ( isBot ) {
-					BotManager::SetBotDefNumber( client, (int)msg.ReadShort() );
-					BotManager::SpawnBot( client );
+					afiBotManager::SetBotDefNumber( client, (int)msg.ReadShort() );
+					afiBotManager::SpawnBot( client );
 				} else {
 					SpawnPlayer( client );
 				}
@@ -1616,27 +1610,27 @@ void idGameLocal::GetBotInput( int clientNum, usercmd_t &userCmd ) {
 		return;
 	}
 
-	if ( !BotPlayer::IsClientBot( clientNum ) ) {
+	if ( !afiBotManager::IsClientBot( clientNum ) ) {
 		//Error( va( "idGameLocal::GetBotInput - not a fake client %i\n", clientNum ) );
 		return;
 	}
 
 
 	//BotPlayer * bot = static_cast< BotPlayer * >(client);
-	if ( !BotPlayer::GetUserCmd( clientNum ) ) {
+	if ( !afiBotManager::GetUserCmd( clientNum ) ) {
 		//Error( va( "idGameLocal::GetBotInput - invald usercmd %i\n", clientNum ) );
 		return;
 	}
 
 
-	userCmd.angles[0] = BotManager::GetUserCmd( clientNum )->angles[0];
-	userCmd.angles[1] = BotManager::GetUserCmd( clientNum )->angles[1];
-	userCmd.angles[2] = BotManager::GetUserCmd( clientNum )->angles[2];
-	userCmd.forwardmove = BotManager::GetUserCmd( clientNum )->forwardmove;
-	userCmd.rightmove = BotManager::GetUserCmd( clientNum )->rightmove;
-	userCmd.upmove =	BotManager::GetUserCmd( clientNum )->upmove;
-	userCmd.buttons =	BotManager::GetUserCmd( clientNum )->buttons;
-	userCmd.impulse =	BotManager::GetUserCmd( clientNum )->impulse;
+	userCmd.angles[0] = afiBotManager::GetUserCmd( clientNum )->angles[0];
+	userCmd.angles[1] = afiBotManager::GetUserCmd( clientNum )->angles[1];
+	userCmd.angles[2] = afiBotManager::GetUserCmd( clientNum )->angles[2];
+	userCmd.forwardmove = afiBotManager::GetUserCmd( clientNum )->forwardmove;
+	userCmd.rightmove = afiBotManager::GetUserCmd( clientNum )->rightmove;
+	userCmd.upmove =	afiBotManager::GetUserCmd( clientNum )->upmove;
+	userCmd.buttons =	afiBotManager::GetUserCmd( clientNum )->buttons;
+	userCmd.impulse =	afiBotManager::GetUserCmd( clientNum )->impulse;
 }
 #endif
 

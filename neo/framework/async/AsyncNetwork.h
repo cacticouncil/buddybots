@@ -149,6 +149,10 @@ public:
 	static bool				IsActive( void ) { return ( server.IsActive() || client.IsActive() ); }
 	static void				RunFrame( void );
 
+#ifdef AFI_BOTS
+	static int				ServerConnectBot();
+#endif
+
 	static void				WriteUserCmdDelta( idBitMsg &msg, const usercmd_t &cmd, const usercmd_t *base );
 	static void				ReadUserCmdDelta( const idBitMsg &msg, usercmd_t &cmd, const usercmd_t *base );
 

@@ -356,7 +356,11 @@ public:
 	virtual void			SwitchTeam( int clientNum, int team );
 
 	virtual bool			DownloadRequest( const char *IP, const char *guid, const char *paks, char urls[ MAX_STRING_CHARS ] );
-
+#ifdef AFI_BOTS
+	virtual void				GetBotInput( int clientNum, usercmd_t& userCmd ) {common->Printf("ERROR BOT INPUT REQUESTED!\n");}
+#else
+	virtual void				GetBotInput( int clientNum, usercmd_t& userCmd ) {common->Printf("ERROR BOT INPUT REQUESTED!\n");}
+#endif
 	// ---------------------- Public idGameLocal Interface -------------------
 
 	void					Printf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
