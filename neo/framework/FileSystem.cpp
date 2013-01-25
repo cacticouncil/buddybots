@@ -394,6 +394,11 @@ public:
 	virtual void			FindMapScreenshot( const char *path, char *buf, int len );
 	virtual bool			FilenameCompare( const char *s1, const char *s2 ) const;
 
+#ifdef AFI_BOTS
+	virtual idList<idFile_InZip*>* GetFilesInZip(const char* pakFile);
+	virtual void FreeFilesInList(idList<idFile_InZip*>* deleteMe);
+#endif
+
 	static void				Dir_f( const idCmdArgs &args );
 	static void				DirTree_f( const idCmdArgs &args );
 	static void				Path_f( const idCmdArgs &args );
@@ -4215,3 +4220,37 @@ void idFileSystemLocal::FindMapScreenshot( const char *path, char *buf, int len 
 		}
 	}
 }
+
+#ifdef AFI_BOTS
+idList<idFile_InZip*>* idFileSystemLocal::GetFilesInZip(const char* pakFile) {
+	idList<idFile_InZip*>*	outputFileList = NULL; 
+	pack_t*					loadedPakFile;
+
+	loadedPakFile = LoadZipFile(pakFile);
+	
+	if(!loadedPakFile) {
+		return outputFileList;
+	}
+	
+	outputFileList = new idList<idFile_InZip*>;
+
+	for(int iFile = 0; iFile < loadedPakFile->numfiles; ++iFile) {
+		idFile_InZip* file;
+
+		file = ReadFileFromZip(loadedPakFile,(&loadedPakFile->buildBuffer[iFile]),(&loadedPakFile->buildBuffer[iFile])->name);
+
+		outputFileList->Append(file);
+	}
+
+	return outputFileList;
+
+}
+
+void idFileSystemLocal::FreeFilesInList(idList<idFile_InZip*>* deleteMe) {
+
+	(*deleteMe).DeleteContents(true);
+
+	delete deleteMe;
+	deleteMe = NULL;
+}
+#endif

@@ -143,7 +143,7 @@ extern "C" gameExport_t *GetGameAPI( gameImport_t *import ) {
 	idLib::common				= common;
 	idLib::cvarSystem			= cvarSystem;
 	idLib::fileSystem			= fileSystem;
-
+	
 	// setup export interface
 	gameExport.version = GAME_API_VERSION;
 	gameExport.game = game;
@@ -317,10 +317,23 @@ void idGameLocal::Init( void ) {
 	Printf( "gamename: %s\n", GAME_VERSION );
 	Printf( "gamedate: %s\n", __DATE__ );
 
+#ifdef AFI_BOTS 
+	//Initialize bot framework and load bot information
+	afiBotManager::PrintInfo();
+	afiBotManager::Initialize();
+
+	//Load all bot brains
+	LoadBrains();
+#endif 
+
 	// register game specific decl types
 	declManager->RegisterDeclType( "model",				DECL_MODELDEF,		idDeclAllocator<idDeclModelDef> );
 	declManager->RegisterDeclType( "export",			DECL_MODELEXPORT,	idDeclAllocator<idDecl> );
 
+#ifdef AFI_BOTS
+	//Loaded bot def files will all be put into a folder together.
+	declManager->RegisterDeclFolder( "loadedBots/def",				".def",				DECL_ENTITYDEF );
+#endif
 	// register game specific decl folders
 	declManager->RegisterDeclFolder( "def",				".def",				DECL_ENTITYDEF );
 	declManager->RegisterDeclFolder( "fx",				".fx",				DECL_FX );
@@ -375,10 +388,7 @@ void idGameLocal::Init( void ) {
 
 	smokeParticles = new idSmokeParticles;
 
-#ifdef AFI_BOTS // TinMan: Initialize bot framework
-	afiBotManager::PrintInfo();
-	afiBotManager::Initialize();
-#endif 
+
 
 
 	// set up the aas
@@ -403,6 +413,177 @@ void idGameLocal::Init( void ) {
 	Printf( "--------------------------------------\n" );
 }
 
+#ifdef AFI_BOTS
+
+void idGameLocal::LoadBrains() {
+	idFileList* brainPaks;
+	int			iBrainPak;
+	int			numBrainPaks;
+	char		dllPath[MAX_OSPATH];
+	char		fileName[MAX_OSPATH];
+
+
+	//List all the pakFiles in the folder where the botPaks should be.
+	brainPaks = fileSystem->ListFiles("botPaks",".pk4",true,true);
+
+	numBrainPaks = brainPaks->GetNumFiles();
+
+	for(iBrainPak = 0; iBrainPak < numBrainPaks; ++iBrainPak) {
+		idStr botName;
+		idStr authorName;
+		//Information we need to load and copy bots def file
+		unsigned char* defBuffer = NULL;
+		idStr defFileName;
+		int   defFileSize = -1;
+		//Information we need to load and copy bots dll file
+		unsigned char* dllBuffer = NULL;
+		idStr dllFileName;
+		int   dllFileSize = -1;
+
+
+		idStr currentBrainPak = brainPaks->GetFile(iBrainPak);
+		
+		//Generate the OS path to the pakFile
+		idStr fullBrainPath = fileSystem->RelativePathToOSPath(currentBrainPak,"fs_basepath");
+
+		//Unzip that pakFile and return a list of all the Files that exist within that pakFile
+		idList<idFile_InZip*>* filesInZip = fileSystem->GetFilesInZip(fullBrainPath.c_str());
+
+		for(int iFile = 0; iFile < ((*filesInZip)).Num(); ++iFile) {
+			//A student should submit a .def file, which contains the basic information
+			//needed to spawn their bot, and a dll that contains the actual decision making code
+			//for their bot.
+			idStr	fileName;
+			fileName = ((*filesInZip)[iFile])->GetName();
+
+			//If we find the .def or .dll in this pakFile we need actually read and load these
+			//files.
+			if( fileName.CheckExtension(".def") ) {
+				defFileName = fileName;
+				defFileSize = ((*filesInZip)[iFile])->Length();
+				defBuffer = new unsigned char[defFileSize];
+				((*filesInZip)[iFile])->Read((void*)defBuffer,defFileSize);
+			}
+			else if( fileName.CheckExtension(".dll") ) {
+				dllFileName = fileName;
+				dllFileSize = ((*filesInZip)[iFile])->Length();
+				dllBuffer = new unsigned char[dllFileSize];
+				((*filesInZip)[iFile])->Read((void*)dllBuffer,dllFileSize);
+
+			}
+		}
+		
+		if(!dllBuffer || !defBuffer) {
+			Error(".dll or .def file not found in %s pak file\n",currentBrainPak.c_str());
+		}
+
+		//Use the idParser to run through the entityDef and determine the bots name, and who created it.
+		//This information is used later when we want to spawn a bot to link the entityDef we are spawning
+		//to the botBrain class defined in the dll.
+		//Since the entityDef spawns the afiBotPlayer class not the derived botBrain class.
+		ParseForBotName((void*) defBuffer,defFileSize,defFileName,botName,authorName);
+
+		//Create BotInfo struct, extract and load dll, and add botInfo to BotManager
+		botInfo_t * botInfo = new botInfo_t();
+
+		botInfo->botName = botName;
+		botInfo->authorName = authorName;
+
+		//Write the .def file to a folder where all the loaded bot entityDefs will be, so they can be loaded into the game later.
+		fileSystem->WriteFile(va("loadedBots/def/%s",defFileName.c_str()),defBuffer,defFileSize);
+		//Write the .dll file into its own folder for the bot, so we don't overwrite previously loaded dlls.
+		fileSystem->WriteFile(va("loadedBots/%s/%s",botName.c_str(),dllFileName.c_str()),dllBuffer,dllFileSize);
+
+		//Load the dll from the extracted path.
+		const char*  finalDllPath = fileSystem->RelativePathToOSPath( va( "loadedBots/%s/%s",botName.c_str(),dllFileName.c_str() ) );
+		int brainDLL = sys->DLL_Load(finalDllPath);
+		if ( !brainDLL ) {
+			Error("Brain DLL not loaded for %s\n",botName.c_str());
+		}
+		botInfo->dllHandle = brainDLL;
+		CreateBotBrain_t CreateBrain = (CreateBotBrain_t) sys->DLL_GetProcAddress(brainDLL,"CreateBrain");
+		if( !CreateBrain ) {
+			sys->DLL_Unload(brainDLL);
+			botInfo->dllHandle = 0;
+			Error("CreateBrain Function not found in %s dll\n",botName.c_str());
+		}
+
+		botInfo->brain = CreateBrain();
+
+
+		afiBotManager::AddBotInfo(botInfo);
+
+		delete[] defBuffer;
+		delete[] dllBuffer;
+		//Memory created on the engine heap must also be freed on the engine heap
+		fileSystem->FreeFilesInList(filesInZip);
+		
+
+	}
+
+	fileSystem->FreeFileList(brainPaks);
+	
+}
+
+void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName ) {
+	idDict		botProfile;
+	idParser	parser;
+
+	//First load the file into the parser from memory
+	if ( !parser.LoadMemory((const char *)defBuffer,bufferLength,name) ) {
+		//Error
+		Warning("Failed to Load %s into memory\n",name);
+		return;
+	}
+
+	parser.SetFlags(LEXFL_NOSTRINGCONCAT);
+
+	Printf("Loaded %s into memory\n",name);
+
+	idToken keyToken, valueToken;
+	bool beginToken = false;
+
+	while ( parser.ReadToken( &keyToken ) ) {
+			if ( !beginToken ) {
+				if ( keyToken.Cmp( "{" ) == 0 ) {
+					beginToken = true;
+				}
+				continue;
+			}
+
+			if ( keyToken.Cmp( "}" ) == 0 ) {
+				break;
+			}
+
+			if ( !parser.ReadToken( &valueToken ) || valueToken.Cmp( "}" ) == 0 ) {
+				break;
+			}
+
+			botProfile.Set( keyToken.c_str(), valueToken.c_str() );
+		}
+
+	//Bots must have the "name" key, and "author" key defined in the entityDef to
+	//be considered a valid bot.
+	bool hasName = botProfile.GetString("name","",botName);
+	bool hasAuthor = botProfile.GetString("author","",authorName);
+
+	if( hasName && hasAuthor ) {
+		Printf("Loading bot %s by %s.\n",botName.c_str(),authorName.c_str());
+		return;
+	}
+	
+	//If we made it down here there was a problem parsing this def file
+	if(!hasName) {
+		Warning("Bot does not have a name. Please fill out \"name\" key/value pair in entityDef %s\n",name);
+	}
+
+	if(!hasAuthor) {
+		Warning("Bot does not have a author. Please fill out \"author\" key/value pair in entityDef %s\n",name);
+	}
+
+}
+
+#endif
 /*
 ===========
 idGameLocal::Shutdown
@@ -463,8 +644,8 @@ void idGameLocal::Shutdown( void ) {
 
 	Printf( "--------------------------------------\n" );
 
-#ifdef AFI_BOTS	// Clear on shutdown
-	afiBotManager::Initialize();
+#ifdef AFI_BOTS	
+	afiBotManager::Shutdown(); //Clear on shutdown
 #endif
 
 #ifdef GAME_DLL

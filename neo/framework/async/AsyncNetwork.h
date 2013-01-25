@@ -150,6 +150,7 @@ public:
 	static void				RunFrame( void );
 
 #ifdef AFI_BOTS
+	//Connect a bot to a running server.
 	static int				ServerConnectBot();
 #endif
 

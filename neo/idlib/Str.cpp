@@ -30,7 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #if !defined( ID_REDIRECT_NEWDELETE ) && !defined( MACOS_X )
-	#define USE_STRING_DATA_ALLOCATOR
+#ifdef AFI_BOTS
+	//#define USE_STRING_DATA_ALLOCATOR
+#else
+	  #define USE_STRING_DATA_ALLOCATOR
+#endif
 #endif
 
 #ifdef USE_STRING_DATA_ALLOCATOR

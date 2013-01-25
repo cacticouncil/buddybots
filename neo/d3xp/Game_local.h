@@ -108,6 +108,7 @@ void gameError( const char *fmt, ... );
 #include "Pvs.h"
 #include "MultiplayerGame.h"
 
+
 //============================================================================
 
 const int MAX_GAME_MESSAGE_SIZE		= 8192;
@@ -416,8 +417,11 @@ public:
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
-	#ifdef AFI_BOTS // TinMan: GetBotInput - Obviously don't want plcaeholder error out
+#ifdef AFI_BOTS
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
+	void					LoadBrains( void ); //Brainssssssssssssssssssss
+	void					ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName );
+
 #else
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };
 #endif
@@ -639,9 +643,8 @@ private:
 };
 
 //============================================================================
-
-extern idGameLocal			gameLocal;
-extern idAnimManager		animationLib;
+ extern idGameLocal			gameLocal;
+ extern idAnimManager		animationLib;
 
 //============================================================================
 
@@ -813,6 +816,7 @@ const int	CINEMATIC_SKIP_DELAY	= SEC2MS( 2.0f );
 #ifdef AFI_BOTS
 #include "bot/BotManager.h"
 #include "bot/BotPlayer.h"
+
 #endif
 
 

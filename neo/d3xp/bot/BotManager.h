@@ -1,25 +1,33 @@
+/*
+===========================================================================
+File: BotManager.h
+Author: John Wileczek
+Description: Bot client management involving adding, removing, and event
+dispatch to bots.
+===========================================================================
+*/
 #ifndef BOTMANAGER_H_
 #define BOTMANAGER_H_
 
 #include "../Game_local.h"
+class afiBotBrain;
 
-/*
-===============================================================================
-
-	afiBotManager
-	Bot client management
-
-===============================================================================
-*/
+typedef afiBotBrain* (*CreateBotBrain_t)(void);
 
 typedef struct botInfo_s {
-	bool		inUse;
-	int			clientNum;
-	int			entityNum;
-	idCmdArgs	cmdArgs;
-	botInfo_s()
-	{
-		inUse = false;
+	idStr				botName;
+	idStr				authorName;
+	afiBotBrain*		brain;
+	
+	int					dllHandle;
+	int					clientNum;
+	int					entityNum;
+	idCmdArgs			cmdArgs;
+	botInfo_s() {
+		brain = NULL;
+		botName = "";
+		authorName = "";
+		dllHandle = 0;
 		clientNum = -1;
 		entityNum = -1;
 		cmdArgs.Clear();
@@ -27,11 +35,19 @@ typedef struct botInfo_s {
 	
 } botInfo_t;
 
+/*
+===============================================================================
+
+	afiBotManager
+	Responsible for the loading,adding,removing, and event dispatch for bots.
+
+===============================================================================
+*/
 class afiBotManager {
 public:
-	// Bot Inteface
 	static void				PrintInfo( void );
 	static void				Initialize( void );
+	static void				Shutdown( void );
 	static void				UpdateUserInfo( void );
 
 	static void				Cmd_BotInfo_f( const idCmdArgs& args );
@@ -47,27 +63,29 @@ public:
 	static idStr			GetBotClassname( int clientNum );
 	static void				SpawnBot( int clientNum );
 	static void				OnDisconnect( int clientNum );
-//
+
 	static void				InitBotsFromMapRestart();
 	static idCmdArgs *		GetPersistArgs( int clientNum );
 	static usercmd_t *		GetUserCmd( int clientNum );
 	static void				SetUserCmd( int clientNum, usercmd_t * usrCmd );
 	static void				WriteUserCmdsToSnapshot(idBitMsg& msg);
 	static void				ReadUserCmdsFromSnapshot(const idBitMsg& msg);
-
-
+	static void				AddBotInfo(botInfo_t* newBotInfo);
+	static afiBotBrain*		SpawnBrain(idStr botName, int clientNum);
 							afiBotManager();
 							~afiBotManager();
 
 protected:
-	static usercmd_t		botCmds[MAX_CLIENTS];
+	static usercmd_t			botCmds[MAX_CLIENTS];
 private:
-	static botInfo_t		botInfo[MAX_CLIENTS];
-	static int				numQueBots;
-	static idCmdArgs		cmdQue[MAX_CLIENTS];
-	static idCmdArgs		persistArgs[MAX_CLIENTS];
-	static bool				botSpawned[MAX_CLIENTS];
-	static int				botEntityDefNumber[MAX_CLIENTS];
+	static idList<botInfo_t*>	loadedBots;
+	static int					numQueBots;
+	static idCmdArgs			cmdQue[MAX_CLIENTS];
+	static idCmdArgs			persistArgs[MAX_CLIENTS];
+	static bool					botSpawned[MAX_CLIENTS];
+	static int					botEntityDefNumber[MAX_CLIENTS];
+	static afiBotBrain*			brainFastList[MAX_CLIENTS];
+	
 };
 
 

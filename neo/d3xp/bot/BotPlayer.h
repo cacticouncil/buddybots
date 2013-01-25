@@ -1,3 +1,12 @@
+/*
+===========================================================================
+File: BotPlayer.h
+Author: John Wileczek
+Description: Fake client 'body' implementation of bot. Responsible for
+translating input received from afiBotBrain to usercmd_t to be sent over
+the network.
+===========================================================================
+*/
 #ifndef BOTPLAYER_H_
 #define BOTPLAYER_H_
 
@@ -5,42 +14,17 @@
 
 extern idCVar bot_debugBot;
 
+
+#include "BotBrain.h"
+
 /*
 ===============================================================================
 
-	BotPlayer
+	afiBotPlayer
 	Basic fake client, and 'body' of the bot.
 	This class will also contain basic navigation and translation of input to usercmd_t
 ===============================================================================
 */
-
-enum aiViewType_t {
-	VIEW_DIR,
-	VIEW_POS
-};
-
-enum aiMoveFlag_t {
-		NULLMOVE = 0,
-		CROUCH,
-		JUMP,
-		WALK,
-		RUN
-	};
-	// Tex: Actions/Commands
-	struct aiCommands_t {
-		bool attack;
-		bool zoom;
-	};
-	// Tex: all input
-	struct aiInput_t {
-		idVec3				viewDirection;
-		aiViewType_t		viewType;
-		idVec3				moveDirection;
-		float				moveSpeed;
-		aiMoveFlag_t		moveFlag;
-		aiCommands_t		commands;
-	};
-
 class afiBotPlayer : public idPlayer {
 public:
 	CLASS_PROTOTYPE( afiBotPlayer );
@@ -70,6 +54,8 @@ protected:
 protected:
 	aiInput_t				aiInput;
 	usercmd_t				botcmd;
+
+	afiBotBrain*			brain;
 };
 
 
