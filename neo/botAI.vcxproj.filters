@@ -27,9 +27,6 @@
     <ClCompile Include="botAI\Boitano.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="d3xp\bot\BotBrain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="BotExport.def">
@@ -48,6 +45,9 @@
     </ClInclude>
     <ClInclude Include="d3xp\bot\BotBrain.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="d3xp\bot\BotManager.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

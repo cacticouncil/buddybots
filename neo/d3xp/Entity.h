@@ -238,6 +238,10 @@ public:
 	idSoundEmitter *		GetSoundEmitter( void ) const;
 	void					FreeSoundEmitter( bool immediate );
 
+#ifdef AFI_BOTS
+	float					DistanceTo		( idEntity* ent );
+	float					DistanceTo		( const idVec3& pos ) const;
+#endif
 	// entity binding
 	virtual void			PreBind( void );
 	virtual void			PostBind( void );
@@ -479,7 +483,15 @@ private:
 	void					Event_GuiNamedEvent(int guiNum, const char *event);
 #endif
 };
+#ifdef AFI_BOTS
+ID_INLINE float idEntity::DistanceTo ( idEntity* ent ) {
+	return DistanceTo ( ent->GetPhysics()->GetOrigin() ); 
+}
 
+ID_INLINE float idEntity::DistanceTo ( const idVec3& pos ) const {
+	return (pos - GetPhysics()->GetOrigin()).LengthFast ( ); 
+}
+#endif
 /*
 ===============================================================================
 

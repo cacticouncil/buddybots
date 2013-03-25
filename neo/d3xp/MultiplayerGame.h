@@ -433,11 +433,19 @@ private:
 	void			DumpTourneyLine( void );
 	void			SuddenRespawn( void );
 
+#ifndef AFI_BOTS
 #ifdef CTF
 	void			FindTeamFlags( void );
 #endif
+#endif
    
 public:
+
+#ifdef AFI_BOTS
+#ifdef CTF
+	void			FindTeamFlags( void );
+#endif
+#endif
 
 #ifdef CTF    
 	idItemTeam *	GetTeamFlag( int team );

@@ -405,7 +405,7 @@ public:
 
 	void					Init( void );
 #ifdef AFI_BOTS
-	virtual void					PrepareForRestart( void );
+	virtual void			PrepareForRestart( void );
 #else
 	void					PrepareForRestart( void );
 #endif
@@ -615,9 +615,13 @@ private:
 	jointHandle_t			hipJoint;
 	jointHandle_t			chestJoint;
 	jointHandle_t			headJoint;
-
+#ifdef AFI_BOTS
+protected:
 	idPhysics_Player		physicsObj;			// player physics
-
+private:
+#else
+	idPhysics_Player		physicsObj;			// player physics
+#endif
 	idList<aasLocation_t>	aasLocation;		// for AI tracking the player
 
 	int						bobFoot;

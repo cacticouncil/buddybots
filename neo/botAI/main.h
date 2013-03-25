@@ -3,11 +3,10 @@
 
 
 
-#include "../d3xp/Game_local.h"
 #include "../d3xp/bot/BotBrain.h"
+//#include "../d3xp/bot/BotManager.h"
 
-
-extern "C" afiBotBrain* (*CreateBrain_t)(void);
+extern "C" afiBotBrain* (*CreateBrain_t)(botImport_t* dllSetup);
 
 
 #endif

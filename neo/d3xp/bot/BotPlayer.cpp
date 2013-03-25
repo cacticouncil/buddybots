@@ -22,6 +22,7 @@ idCVar	bot_debugBot( "bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOC
 CLASS_DECLARATION( idPlayer, afiBotPlayer )
 END_CLASS
 
+
 afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset( &botcmd, 0, sizeof( botcmd ) );
 	memset( &aiInput, 0, sizeof( aiInput ) );
@@ -31,6 +32,25 @@ afiBotPlayer::afiBotPlayer() : idPlayer() {
 afiBotPlayer::~afiBotPlayer() {
 }
 
+void afiBotPlayer::SetAAS() {
+	aas = gameLocal.GetAAS( "aas48" ); // TinMan: Hard coded the bots aas size
+	if ( aas ) {
+		const idAASSettings *settings = aas->GetSettings();
+		if ( settings ) {
+			// TinMan: *todo* why isn't physics bounds returning something nice?
+			/*if ( !ValidForBounds( settings, physicsObject->GetBounds() ) ) {
+				gameLocal.Error( "%s cannot use use_aas %s\n", name.c_str(), use_aas.c_str() );
+			}*/
+			float height = settings->maxStepHeight;
+			physicsObj.SetMaxStepHeight( height );
+			return;
+		} else {
+			aas = NULL;
+		}
+	}
+	
+	gameLocal.Error( "Bot cannot find AAS file for map\n" ); // TinMan: No aas, no play.
+}
 
 void afiBotPlayer::Spawn() {
 	if ( gameLocal.isClient ) {
@@ -73,6 +93,10 @@ void afiBotPlayer::Restart( void ) {
 
 void afiBotPlayer::Think( void ) {
 	idPlayer::Think();
+
+	aiInput = brain->Think();
+
+	ProcessInput();
 }
 
 void afiBotPlayer::ClearInput( void ) {
@@ -111,7 +135,7 @@ void afiBotPlayer::ProcessMove( void ) {
 
 	//aiInput.moveSpeed = pm_speed.GetFloat(); //the speed scaling below relies on speed being set each frame else it will whittle it down to 0, since the navigation state doesn't seem to be using fine grained speed control (human players don't exactly have it anyway) just using max.
 	float inspeed = aiInput.moveSpeed;
-	int maxSpeed = 0;//pm_speed.GetFloat(); //this may not work for speed? TEST
+	int maxSpeed = 160.0f;//pm_speed.GetFloat(); //this may not work for speed? TEST
 	aiInput.moveSpeed = idMath::ClampFloat( -maxSpeed, maxSpeed, aiInput.moveSpeed );
 	aiInput.moveSpeed = aiInput.moveSpeed * 127 / maxSpeed; //Scale from [0, 400] to [0, 127]
 
@@ -122,7 +146,6 @@ void afiBotPlayer::ProcessMove( void ) {
 	botcmd.forwardmove = ( forward * aiInput.moveDirection ) * aiInput.moveSpeed;
 	botcmd.rightmove	= ( right * aiInput.moveDirection ) * aiInput.moveSpeed;		
 	botcmd.upmove		= abs( forward.z ) * aiInput.moveDirection.z * aiInput.moveSpeed;
-	aiInput.moveSpeed = inspeed;
 	// MoveFlags
 	aiMoveFlag_t moveFlag = aiInput.moveFlag;
 	if ( moveFlag == JUMP ) {
@@ -144,6 +167,34 @@ void afiBotPlayer::ProcessCommands( void ) {
 	if ( commands->attack ) { 
 		botcmd.buttons |= BUTTON_ATTACK;
 	}
+	
+	if( commands->zoom ) {
+		botcmd.buttons |= BUTTON_ZOOM;
+	}
 }
+
+idEntity* afiBotPlayer::FindNearestItem( idStr item )
+{
+	idEntity* entity;
+	for (int i = 0; i < MAX_GENTITIES; ++i)
+	{
+		entity = gameLocal.entities[i];
+
+		if (entity)
+		{
+			
+			if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type)))
+			{
+				if (idStr::FindText(entity->name,item.c_str(), false) == 0)
+				{
+					return entity;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+
 
 #endif

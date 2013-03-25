@@ -247,9 +247,11 @@
     <ClCompile Include="d3xp\anim\Anim_Blend.cpp" />
     <ClCompile Include="d3xp\anim\Anim_Import.cpp" />
     <ClCompile Include="d3xp\anim\Anim_Testmodel.cpp" />
+    <ClCompile Include="d3xp\bot\BotAASBuild.cpp" />
     <ClCompile Include="d3xp\bot\BotBrain.cpp" />
     <ClCompile Include="d3xp\bot\BotManager.cpp" />
     <ClCompile Include="d3xp\bot\BotPlayer.cpp" />
+    <ClCompile Include="d3xp\bot\BotPlayer_navigation.cpp" />
     <ClCompile Include="d3xp\gamesys\Class.cpp" />
     <ClCompile Include="d3xp\gamesys\DebugGraph.cpp" />
     <ClCompile Include="d3xp\gamesys\Event.cpp" />
@@ -321,6 +323,7 @@
     <ClInclude Include="d3xp\ai\AI.h" />
     <ClInclude Include="d3xp\anim\Anim.h" />
     <ClInclude Include="d3xp\anim\Anim_Testmodel.h" />
+    <ClInclude Include="d3xp\bot\BotAASBuild.h" />
     <ClInclude Include="d3xp\bot\BotBrain.h" />
     <ClInclude Include="d3xp\bot\BotManager.h" />
     <ClInclude Include="d3xp\bot\BotPlayer.h" />

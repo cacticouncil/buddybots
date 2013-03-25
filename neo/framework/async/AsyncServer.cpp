@@ -442,7 +442,11 @@ idAsyncServer::IsClientInGame
 ==================
 */
 bool idAsyncServer::IsClientInGame( int clientNum ) const {
+#ifdef AFI_BOTS
+	return ( clients[clientNum].clientState >= SCS_INGAME || clients[clientNum].clientState == SCS_FAKE );
+#else
 	return ( clients[clientNum].clientState >= SCS_INGAME );
+#endif
 }
 
 /*
@@ -867,6 +871,7 @@ void idAsyncServer::SendPrintBroadcast( const char *string ) {
 	msg.WriteByte( SERVER_RELIABLE_MESSAGE_PRINT );
 	msg.WriteString( string );
 
+	//TODO AFI_BOTS: You may need to send print messages to Fake Clients.
 	for ( i = 0; i < MAX_ASYNC_CLIENTS; i++ ) {
 		if ( clients[i].clientState >= SCS_CONNECTED ) {
 			SendReliableMessage( i, msg );
@@ -2477,6 +2482,7 @@ void idAsyncServer::RunFrame( void ) {
 		usercmd_t* currentFrameCmds = userCmds[gameFrame & ( MAX_USERCMD_BACKUP -1 ) ];
 		for(unsigned int iClient = 0; iClient < MAX_ASYNC_CLIENTS; ++iClient) {
 			serverClient_t& client = clients[iClient];
+
 			if( SCS_FAKE == client.clientState) {
 				usercmd_t& botCmd = currentFrameCmds[iClient];
 				game->GetBotInput(iClient,botCmd);

@@ -2615,7 +2615,10 @@ void idMultiplayerGame::AddChatLine( const char *fmt, ... ) {
 	va_start( argptr, fmt );
 	vsprintf( temp, fmt, argptr );
 	va_end( argptr );
-	
+
+#ifdef AFI_BOTS
+	afiBotManager::ProcessChat( temp );
+#endif
 	gameLocal.Printf( "%s\n", temp.c_str() );
 
 	chatHistory[ chatHistoryIndex % NUM_CHAT_NOTIFY ].line = temp;
@@ -3230,6 +3233,16 @@ void idMultiplayerGame::ServerStartVote( int clientNum, vote_flags_t voteIndex, 
 	voteValue = value;
 	voteTimeOut = gameLocal.time + 20000;
 	// mark players allowed to vote - only current ingame players, players joining during vote will be ignored
+#ifdef AFI_BOTS
+
+	for ( i = 0; i < gameLocal.numClients; i++ ) {
+		if ( gameLocal.entities[ i ] && gameLocal.entities[ i ]->IsType( idPlayer::Type ) && !afiBotManager::IsClientBot(i) ) {
+			playerState[ i ].vote = ( i == clientNum ) ? PLAYER_VOTE_YES : PLAYER_VOTE_WAIT;
+		} else {
+			playerState[i].vote = PLAYER_VOTE_NONE;
+		}
+	}
+#else
 	for ( i = 0; i < gameLocal.numClients; i++ ) {
 		if ( gameLocal.entities[ i ] && gameLocal.entities[ i ]->IsType( idPlayer::Type ) ) {
 			playerState[ i ].vote = ( i == clientNum ) ? PLAYER_VOTE_YES : PLAYER_VOTE_WAIT;
@@ -3237,6 +3250,7 @@ void idMultiplayerGame::ServerStartVote( int clientNum, vote_flags_t voteIndex, 
 			playerState[i].vote = PLAYER_VOTE_NONE;
 		}
 	}
+#endif
 }
 
 /*
@@ -4219,7 +4233,10 @@ idItemTeam * idMultiplayerGame::GetTeamFlag( int team ) {
 		return NULL;
 
 	// TODO : just call on map start
+	//jw: Someone at id forgot to finish their todo!
+#ifndef AFI_BOTS
 	FindTeamFlags();
+#endif
 
 	return teamFlags[team];
 }
@@ -4267,7 +4284,6 @@ flagStatus_t idMultiplayerGame::GetFlagStatus( int team ) {
 
     idItemTeam *teamFlag = GetTeamFlag( team );
     //assert( teamFlag != NULL );
-
 	if ( teamFlag != NULL ) {
 		if ( teamFlag->carried == false && teamFlag->dropped == false )
 	        return FLAGSTATUS_INBASE;

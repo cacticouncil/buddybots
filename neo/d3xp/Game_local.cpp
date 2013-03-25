@@ -56,7 +56,9 @@ idRenderWorld *				gameRenderWorld = NULL;		// all drawing is done to this world
 idSoundWorld *				gameSoundWorld = NULL;		// all audio goes to this world
 
 static gameExport_t			gameExport;
-
+#ifdef AFI_BOTS
+static botImport_t			dllSetup;
+#endif
 // global animation lib
 idAnimManager				animationLib;
 
@@ -431,6 +433,7 @@ void idGameLocal::LoadBrains() {
 	for(iBrainPak = 0; iBrainPak < numBrainPaks; ++iBrainPak) {
 		idStr botName;
 		idStr authorName;
+		idStr botType;
 		//Information we need to load and copy bots def file
 		unsigned char* defBuffer = NULL;
 		idStr defFileName;
@@ -474,7 +477,7 @@ void idGameLocal::LoadBrains() {
 		}
 		
 		if(!dllBuffer || !defBuffer) {
-			Error(".dll or .def file not found in %s pak file\n",currentBrainPak.c_str());
+			Warning(".dll or .def file not found in %s pak file\n",currentBrainPak.c_str());
 		}
 
 		//Use the idParser to run through the entityDef and determine the bots name, and who created it.
@@ -507,8 +510,11 @@ void idGameLocal::LoadBrains() {
 			botInfo->dllHandle = 0;
 			Error("CreateBrain Function not found in %s dll\n",botName.c_str());
 		}
-
-		botInfo->brain = CreateBrain();
+		dllSetup.sys = sys;
+		dllSetup.common = common;
+		dllSetup.cmdSystem = cmdSystem;
+		dllSetup.cvarSystem = cvarSystem;
+		botInfo->brain = CreateBrain(&dllSetup);
 
 
 		afiBotManager::AddBotInfo(botInfo);
@@ -1112,7 +1118,9 @@ Initializes all map variables common to both save games and spawned games.
 ===================
 */
 void idGameLocal::LoadMap( const char *mapName, int randseed ) {
+#ifndef AFI_BOTS // cusTom3 - aas extensions - moved to where used below, then moved out for MOD_BOTS
 	int i;
+#endif
 	bool sameMap = (mapFile && idStr::Icmp(mapFileName, mapName) == 0);
 
 	// clear the sound system
@@ -1214,10 +1222,12 @@ void idGameLocal::LoadMap( const char *mapName, int randseed ) {
 	playerPVS.i = -1;
 	playerConnectedAreas.i = -1;
 
+#ifndef AFI_BOTS // cusTom3 - aas extensions - moved to later in InitFromNewMap so entities are spawned
 	// load navigation system for all the different monster sizes
 	for( i = 0; i < aasNames.Num(); i++ ) {
 		aasList[ i ]->Init( idStr( mapFileName ).SetFileExtension( aasNames[ i ] ).c_str(), mapFile->GetGeometryCRC() );
 	}
+#endif
 
 	// clear the smoke particle free list
 	smokeParticles->Init();
@@ -1506,16 +1516,34 @@ void idGameLocal::InitFromNewMap( const char *mapName, idRenderWorld *renderWorl
 
 	MapPopulate();
 
+#ifdef AFI_BOTS 
+	// cusTom3 - aas extensions - moved here from LoadMap so entities are spawned for botaas calculations
+	// load navigation system for all the different monster sizes
+	int i;
+	for( i = 0; i < aasNames.Num(); i++ ) {
+		aasList[ i ]->Init( idStr( mapFileName ).SetFileExtension( aasNames[ i ] ).c_str(), mapFile->GetGeometryCRC() );
+	}
+#endif
+
 	mpGame.Reset();
 
 	mpGame.Precache();
+
+#ifdef AFI_BOTS 
+#ifdef CTF
+	//Fixing that todo that id didn't get around to.
+	if( mpGame.IsGametypeFlagBased() ) {
+		mpGame.FindTeamFlags();
+	}
+#endif
+#endif
 
 	// free up any unused animations
 	animationLib.FlushUnusedAnims();
 
 	gamestate = GAMESTATE_ACTIVE;
 
-#ifdef AFI_BOTS // sb - add queued bots to the map
+#ifdef AFI_BOTS
 	 afiBotManager::InitBotsFromMapRestart();
 #endif 
 

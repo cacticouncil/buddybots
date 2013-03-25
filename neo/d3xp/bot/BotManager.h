@@ -10,9 +10,12 @@ dispatch to bots.
 #define BOTMANAGER_H_
 
 #include "../Game_local.h"
-class afiBotBrain;
+#include "../MultiplayerGame.h"
 
-typedef afiBotBrain* (*CreateBotBrain_t)(void);
+class afiBotBrain;
+class idEntity;
+
+typedef afiBotBrain* (*CreateBotBrain_t)(botImport_t* dllSetup);
 
 typedef struct botInfo_s {
 	idStr				botName;
@@ -43,35 +46,38 @@ typedef struct botInfo_s {
 
 ===============================================================================
 */
-class afiBotManager {
+class  afiBotManager {
 public:
-	static void				PrintInfo( void );
-	static void				Initialize( void );
-	static void				Shutdown( void );
-	static void				UpdateUserInfo( void );
+	 static void				PrintInfo( void );
+	 static void				Initialize( void );
+	 static void				Shutdown( void );
+	 static void				UpdateUserInfo( void );
 
-	static void				Cmd_BotInfo_f( const idCmdArgs& args );
-	static void				Cmd_AddBot_f( const idCmdArgs& args );
-	static void				Cmd_RemoveBot_f( const idCmdArgs& args );
-	static void				Cmd_RemoveAllBots_f( const idCmdArgs & args );
-	static void				AddBot( const idCmdArgs& args );
-	static void				DropABot( void );
-	static void				RemoveBot( int clientNum );
-	static int				IsClientBot( int clientNum );
-	static void				SetBotDefNumber( int clientNum, int botDefNumber );
-	static int				GetBotDefNumber( int clientNum );
-	static idStr			GetBotClassname( int clientNum );
-	static void				SpawnBot( int clientNum );
-	static void				OnDisconnect( int clientNum );
+	 static void				Cmd_BotInfo_f( const idCmdArgs& args );
+	 static void				Cmd_AddBot_f( const idCmdArgs& args );
+	 static void				Cmd_RemoveBot_f( const idCmdArgs& args );
+	 static void				Cmd_RemoveAllBots_f( const idCmdArgs & args );
+	 static void				AddBot( const idCmdArgs& args );
+	 static void				DropABot( void );
+	 static void				RemoveBot( int clientNum );
+	 static int				IsClientBot( int clientNum );
+	 static void				SetBotDefNumber( int clientNum, int botDefNumber );
+	 static int				GetBotDefNumber( int clientNum );
+	 static idStr			GetBotClassname( int clientNum );
+	 static void				SpawnBot( int clientNum );
+	 static void				OnDisconnect( int clientNum );
+	
+	 static int				GetFlag(int team,idEntity** outFlag);
 
-	static void				InitBotsFromMapRestart();
-	static idCmdArgs *		GetPersistArgs( int clientNum );
-	static usercmd_t *		GetUserCmd( int clientNum );
-	static void				SetUserCmd( int clientNum, usercmd_t * usrCmd );
-	static void				WriteUserCmdsToSnapshot(idBitMsg& msg);
-	static void				ReadUserCmdsFromSnapshot(const idBitMsg& msg);
-	static void				AddBotInfo(botInfo_t* newBotInfo);
-	static afiBotBrain*		SpawnBrain(idStr botName, int clientNum);
+	 static void				ProcessChat(const char* text);
+	 static void				InitBotsFromMapRestart();
+	 static idCmdArgs *		GetPersistArgs( int clientNum );
+	 static usercmd_t *		GetUserCmd( int clientNum );
+	 static void				SetUserCmd( int clientNum, usercmd_t * usrCmd );
+	 static void				WriteUserCmdsToSnapshot(idBitMsg& msg);
+	 static void				ReadUserCmdsFromSnapshot(const idBitMsg& msg);
+	 static void				AddBotInfo(botInfo_t* newBotInfo);
+	 static afiBotBrain*		SpawnBrain(idStr botName, int clientNum);
 							afiBotManager();
 							~afiBotManager();
 
@@ -87,6 +93,7 @@ private:
 	static afiBotBrain*			brainFastList[MAX_CLIENTS];
 	
 };
+
 
 
 #endif 

@@ -9,7 +9,8 @@ Description: Defines the basic interface that bot brains should follow.
 #define BOTBRAIN_H_
 
 class afiBotPlayer;
-
+class idAAS;
+class idPhysics_Player;
 
 enum aiViewType_t {
 	VIEW_DIR,
@@ -53,8 +54,8 @@ struct aiInput_t {
 class afiBotBrain
 {
 public:
-								afiBotBrain();
-	virtual						~afiBotBrain();
+	//							afiBotBrain();
+	//virtual						~afiBotBrain();
 
 	//Pure Virtual Bot Interface
 	virtual void				Destroy() = 0;
@@ -70,11 +71,19 @@ public:
 	//virtual void OnDeath();
 
 	//Accessors and Mutators
+	void						SetAAS( void );
 	void						SetUserInfo(idDict* userInfo);
 	void						SetBody(afiBotPlayer* newBody);
+	void						SetPhysics(idPhysics_Player* _physicsObject);
 protected:
+
+
 	//Pointer to the fake client body of the bot.
 	afiBotPlayer*				body;
+	idPhysics_Player*			physicsObject;
+	// navigation
+	idAAS *						aas;
+	int							travelFlags;
 
 	//This will be the same spawn dict as the body
 	//so the student can fill the one entityDef and

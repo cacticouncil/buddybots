@@ -28,11 +28,11 @@ idList<botInfo_t*> afiBotManager::loadedBots;
 afiBotBrain*	afiBotManager::brainFastList[MAX_CLIENTS];
 
 
-void afiBotManager::PrintInfo( void ) {
+ void afiBotManager::PrintInfo( void ) {
 	common->Printf("AFI Bots Initialized\n");
 }
 
-void afiBotManager::Initialize( void ) {
+ void afiBotManager::Initialize( void ) {
 	for ( int i = 0; i < MAX_CLIENTS; i++ ) {
 		cmdQue[i].Clear();
 		persistArgs[i].Clear();
@@ -45,7 +45,7 @@ void afiBotManager::Initialize( void ) {
 	
 }
 
-void afiBotManager::Shutdown( void ) {
+ void afiBotManager::Shutdown( void ) {
 	for ( int i = 0; i < MAX_CLIENTS; i++ ) {
 		cmdQue[i].Clear();
 		persistArgs[i].Clear();
@@ -65,11 +65,23 @@ void afiBotManager::Shutdown( void ) {
 	
 }
 
-void afiBotManager::AddBotInfo(botInfo_t* newBotInfo) {
+ int afiBotManager::GetFlag(int team,idEntity** outFlag) {
+#ifdef CTF
+	*outFlag = gameLocal.mpGame.GetTeamFlag(team);
+#endif
+
+#ifdef CTF
+	return gameLocal.mpGame.GetFlagStatus(team);
+#else
+	return -1;
+#endif
+}
+
+ void afiBotManager::AddBotInfo(botInfo_t* newBotInfo) {
 	loadedBots.Append(newBotInfo);
 }
 
-void afiBotManager::UpdateUserInfo( void ) {
+ void afiBotManager::UpdateUserInfo( void ) {
 	assert( !gameLocal.isClient );
 	for ( int i = MAX_CLIENTS - 1; i >= 0; i-- ) {
 		if ( gameLocal.entities[i] && gameLocal.entities[i]->IsType( afiBotPlayer::Type ) ) {
@@ -78,7 +90,7 @@ void afiBotManager::UpdateUserInfo( void ) {
 	}
 }
 
-void afiBotManager::Cmd_AddBot_f( const idCmdArgs& args ) {
+ void afiBotManager::Cmd_AddBot_f( const idCmdArgs& args ) {
 	if ( gameLocal.isClient ) { // !gameLocal.isServer isn't valid soon enough for some reason
 		gameLocal.Printf( "Bots may only be added on server\n" );
 		return;
@@ -114,7 +126,7 @@ void afiBotManager::Cmd_AddBot_f( const idCmdArgs& args ) {
 	AddBot( args );
 }
 
-void afiBotManager::AddBot( const idCmdArgs& args ) {
+ void afiBotManager::AddBot( const idCmdArgs& args ) {
 	idStr classname = args.Argv( 1 );
 	if ( !classname.Length() ) {
 		gameLocal.Printf( "No bot def specified." );
@@ -149,7 +161,7 @@ void afiBotManager::AddBot( const idCmdArgs& args ) {
 	gameLocal.Printf( "Bot added.\n" );
 }
 
-void afiBotManager::Cmd_RemoveBot_f( const idCmdArgs& args ) {
+ void afiBotManager::Cmd_RemoveBot_f( const idCmdArgs& args ) {
 	if ( !gameLocal.isMultiplayer ) {
 		gameLocal.Printf( "This isn't multiplayer, so there no bots to remove, so yeah, you're mental.\n" );
 		return;
@@ -173,7 +185,7 @@ void afiBotManager::Cmd_RemoveBot_f( const idCmdArgs& args ) {
 	}
 }
 
-void afiBotManager::Cmd_RemoveAllBots_f( const idCmdArgs & args ) {
+ void afiBotManager::Cmd_RemoveAllBots_f( const idCmdArgs & args ) {
 	if ( !gameLocal.isMultiplayer ) {
 		gameLocal.Printf( "RemoveAllBots can only be used in a multiplayer game\n" );
 		return;
@@ -189,7 +201,7 @@ void afiBotManager::Cmd_RemoveAllBots_f( const idCmdArgs & args ) {
 	}
 }
 
-void afiBotManager::DropABot( void ) {
+ void afiBotManager::DropABot( void ) {
 	if ( !gameLocal.isMultiplayer ) {
 		gameLocal.Printf( "DropABot can only be used in a multiplayer game\n" );
 		return;
@@ -209,7 +221,7 @@ void afiBotManager::DropABot( void ) {
 	}
 }
 
-void afiBotManager::RemoveBot( int clientNum ) {
+ void afiBotManager::RemoveBot( int clientNum ) {
 	//persistArgs[ clientNum ].Clear();
 	//botSpawned[ clientNum ] = false;
 	if ( gameLocal.entities[ clientNum ] && gameLocal.entities[ clientNum ]->IsType( afiBotPlayer::Type ) ) {
@@ -218,11 +230,11 @@ void afiBotManager::RemoveBot( int clientNum ) {
 	}
 }
 
-int afiBotManager::IsClientBot( int clientNum ) {
+ int afiBotManager::IsClientBot( int clientNum ) {
 	return botSpawned[clientNum];
 }
 
-void afiBotManager::SetBotDefNumber( int clientNum, int botDefNumber ) {
+ void afiBotManager::SetBotDefNumber( int clientNum, int botDefNumber ) {
 	botEntityDefNumber[clientNum] = botDefNumber;
 }
 
@@ -318,7 +330,9 @@ void afiBotManager::SpawnBot( int clientNum ) {
 	afiBotBrain* brain = SpawnBrain(botName,clientNum);
 
 	//Link the brain,body, and spawnDict.
-	brain->SetBody((afiBotPlayer*)ent);
+	brain->SetAAS();
+	brain->SetBody( (afiBotPlayer*)ent );
+	brain->SetPhysics( ( idPhysics_Player* )( ( afiBotPlayer* )ent )->GetPhysics() );
 	brain->Spawn(&spawnDict);
 
 
@@ -348,6 +362,10 @@ afiBotBrain* afiBotManager::SpawnBrain(idStr botName,int clientNum) {
 	return returnBrain;
 }
 
+void afiBotManager::ProcessChat(const char* text) {
+
+
+}
 /*
 ===================
 afiBotManager::OnDisconnect

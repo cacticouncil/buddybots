@@ -311,7 +311,6 @@ public:
 	virtual void				MapEntityTranslate( const char *name, const idVec3 &v ) const;
 
 };
-
 extern idGameEdit *				gameEdit;
 
 
@@ -351,6 +350,26 @@ typedef struct {
 	idGameEdit *				gameEdit;				// interface for in-game editing
 
 } gameExport_t;
+
+#ifdef AFI_BOTS
+struct botImport_t {
+	int							version;				// API version
+	idSys *						sys;					// non-portable system services
+	idCommon *					common;					// common
+	idCmdSystem *				cmdSystem;				// console command system
+	idCVarSystem *				cvarSystem;				// console variable system
+	idFileSystem *				fileSystem;				// file system
+	idNetworkSystem *			networkSystem;			// network system
+	idRenderSystem *			renderSystem;			// render system
+	idSoundSystem *				soundSystem;			// sound system
+	idRenderModelManager *		renderModelManager;		// render model manager
+	idUserInterfaceManager *	uiManager;				// user interface manager
+	idDeclManager *				declManager;			// declaration manager
+	idAASFileManager *			AASFileManager;			// AAS file manager
+	idCollisionModelManager *	collisionModelManager;	// collision model manager
+	idGame*						game;
+};
+#endif
 
 extern "C" {
 typedef gameExport_t * (*GetGameAPI_t)( gameImport_t *import );

@@ -53,7 +53,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;AFI_BOTS;_DEBUG;_WINDOWS;_USRDLL;_D3XP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;BOTDLL;AFI_BOTS;_DEBUG;_WINDOWS;_USRDLL;_D3XP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>precompiled.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -85,7 +85,6 @@
     <ClCompile Include="botAI\Boitano.cpp" />
     <ClCompile Include="botAI\main.cpp" />
     <ClCompile Include="botAI\YourBotBrain.cpp" />
-    <ClCompile Include="d3xp\bot\BotBrain.cpp" />
     <ClCompile Include="idlib\precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -98,6 +97,7 @@
     <ClInclude Include="botAI\main.h" />
     <ClInclude Include="botAI\YourBotBrain.h" />
     <ClInclude Include="d3xp\bot\BotBrain.h" />
+    <ClInclude Include="d3xp\bot\BotManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="idlib.vcxproj">

@@ -17,6 +17,77 @@ extern idCVar bot_debugBot;
 
 #include "BotBrain.h"
 
+
+struct botMoveState_t {
+	botMoveState_t();
+
+	struct movementFlags_s {
+
+		bool		done				:1;
+		bool		moving				:1;
+		bool		crouching			:1;
+		bool		running				:1;
+		bool		blocked				:1;
+		bool		obstacleInPath		:1;
+		bool		goalUnreachable		:1;
+		bool		onGround			:1;
+		bool		flyTurning			:1;
+
+		bool		idealRunning		:1;
+
+		bool		disabled			:1;
+		bool		ignoreObstacles		:1;
+		bool		allowPushMovables	:1;
+		
+		bool		noRun				:1;
+		bool		noWalk				:1;
+		bool		noTurn				:1;
+		bool		noGravity			:1;
+		bool		noRangedInterrupt	:1;
+	} flags;
+
+	moveType_t				moveType;
+	moveCommand_t			moveCommand;
+	moveStatus_t			moveStatus;
+	idVec3					moveDest;
+	idVec3					moveDir;
+
+	int						toAreaNum;
+	int						startTime;
+	int						duration;
+	float					speed;
+	float					range;
+	float					wanderYaw;
+	int						nextWanderTime;
+	int						blockTime;
+	idEntityPtr<idEntity>	obstacle;
+	idVec3					lastMoveOrigin;
+	int						lastMoveTime;
+	int						anim;
+
+	int						travelFlags;
+
+	float					kickForce;
+	float					blockedRadius;
+	int						blockedMoveTime;
+	int						blockedAttackTime;
+
+	float					current_yaw;
+	
+	idVec3					goalPos;
+	int						goalArea;
+	idEntityPtr<idEntity>	goalEntity;
+	idVec3					goalEntityOrigin;
+
+	idVec3					seekPos;
+	idVec3					addVelocity;
+
+	aasPath_t				lastPath;
+	aasPath_t				path;
+
+	idVec3					lastValidPos;
+	
+};
 /*
 ===============================================================================
 
@@ -46,15 +117,41 @@ public:
 public:
 	void					ClearInput( void );
 	void					ProcessInput( void );
+
+	virtual idEntity*		FindNearestItem( idStr item );
+
+	//Movement
+	void						SetAAS( void );
+
+	virtual void			Move( void );
+
+	virtual bool			GetMovePos( idVec3 &seekPos, idReachability** seekReach );
+	void					CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &newPos, idReachability* goalReach=0  );
+	void					BlockedFailSafe( void );
+	virtual void			MoveTo( const idVec3 &pos, float speed );
+	virtual bool			MoveToPosition ( const idVec3 &pos, float range );
+	virtual bool			MoveToEntity( idEntity* entity );
+	virtual bool			MoveToPlayer( idPlayer *player );
+	virtual idEntity*		MoveToNearest( idStr item );
+	virtual bool			PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
+	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;
+	virtual bool			ReachedPos( const idVec3 &pos, const moveCommand_t moveCommand, float range  = 0.0f ) const;
+
+	virtual bool			StartMove ( moveCommand_t command, const idVec3& goalOrigin, int goalArea, idEntity* goalEntity, float range );
+	virtual void			StopMove( moveStatus_t status );
 protected:
+
+	virtual void			DrawRoute( void ) const;
+
 	void					UpdateViewAngles( void );
 	void					ProcessMove( void );
 	void					ProcessCommands( void );
 
 protected:
+	botMoveState_t			move;
 	aiInput_t				aiInput;
 	usercmd_t				botcmd;
-
+	idAAS *					aas; 
 	afiBotBrain*			brain;
 };
 

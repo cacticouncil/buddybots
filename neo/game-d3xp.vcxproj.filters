@@ -184,6 +184,12 @@
     <ClCompile Include="d3xp\bot\BotBrain.cpp">
       <Filter>Bots</Filter>
     </ClCompile>
+    <ClCompile Include="d3xp\bot\BotPlayer_navigation.cpp">
+      <Filter>Bots</Filter>
+    </ClCompile>
+    <ClCompile Include="d3xp\bot\BotAASBuild.cpp">
+      <Filter>Bots</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3xp\ai\AAS.h">
@@ -325,6 +331,9 @@
       <Filter>Bots</Filter>
     </ClInclude>
     <ClInclude Include="d3xp\bot\BotBrain.h">
+      <Filter>Bots</Filter>
+    </ClInclude>
+    <ClInclude Include="d3xp\bot\BotAASBuild.h">
       <Filter>Bots</Filter>
     </ClInclude>
   </ItemGroup>
