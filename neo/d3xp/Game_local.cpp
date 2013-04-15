@@ -476,45 +476,56 @@ void idGameLocal::LoadBrains() {
 			}
 		}
 		
-		if(!dllBuffer || !defBuffer) {
-			Warning(".dll or .def file not found in %s pak file\n",currentBrainPak.c_str());
+		if(!dllBuffer && !defBuffer) {
+			Warning(".dll and .def file not found in %s pak file\n",currentBrainPak.c_str());
 		}
 
 		//Use the idParser to run through the entityDef and determine the bots name, and who created it.
 		//This information is used later when we want to spawn a bot to link the entityDef we are spawning
 		//to the botBrain class defined in the dll.
 		//Since the entityDef spawns the afiBotPlayer class not the derived botBrain class.
-		ParseForBotName((void*) defBuffer,defFileSize,defFileName,botName,authorName);
+		ParseForBotName((void*) defBuffer,defFileSize,defFileName,botName,authorName,botType);
 
 		//Create BotInfo struct, extract and load dll, and add botInfo to BotManager
 		botInfo_t * botInfo = new botInfo_t();
 
 		botInfo->botName = botName;
 		botInfo->authorName = authorName;
-
+		if(botType.Icmp("Code") == 0) {
+			botInfo->botType = BotType::CODE;
+		}
+		else if( botType.Icmp("Script") == 0 ) {
+			botInfo->botType = BotType::SCRIPT;
+		}
+		else if( botType.Icmp("Dll") == 0) {
+			botInfo->botType = BotType::DLL;
+		}
 		//Write the .def file to a folder where all the loaded bot entityDefs will be, so they can be loaded into the game later.
 		fileSystem->WriteFile(va("loadedBots/def/%s",defFileName.c_str()),defBuffer,defFileSize);
 		//Write the .dll file into its own folder for the bot, so we don't overwrite previously loaded dlls.
-		fileSystem->WriteFile(va("loadedBots/%s/%s",botName.c_str(),dllFileName.c_str()),dllBuffer,dllFileSize);
+		if(botInfo->botType == BotType::DLL) {
+			fileSystem->WriteFile(va("loadedBots/%s/%s",botName.c_str(),dllFileName.c_str()),dllBuffer,dllFileSize);
 
-		//Load the dll from the extracted path.
-		const char*  finalDllPath = fileSystem->RelativePathToOSPath( va( "loadedBots/%s/%s",botName.c_str(),dllFileName.c_str() ) );
-		int brainDLL = sys->DLL_Load(finalDllPath);
-		if ( !brainDLL ) {
-			Error("Brain DLL not loaded for %s\n",botName.c_str());
+
+			//Load the dll from the extracted path.
+			const char*  finalDllPath = fileSystem->RelativePathToOSPath( va( "loadedBots/%s/%s",botName.c_str(),dllFileName.c_str() ) );
+			int brainDLL = sys->DLL_Load(finalDllPath);
+			if ( !brainDLL ) {
+				Error("Brain DLL not loaded for %s\n",botName.c_str());
+			}
+			botInfo->dllHandle = brainDLL;
+			CreateBotBrain_t CreateBrain = (CreateBotBrain_t) sys->DLL_GetProcAddress(brainDLL,"CreateBrain");
+			if( !CreateBrain ) {
+				sys->DLL_Unload(brainDLL);
+				botInfo->dllHandle = 0;
+				Error("CreateBrain Function not found in %s dll\n",botName.c_str());
+			}
+			dllSetup.sys = sys;
+			dllSetup.common = common;
+			dllSetup.cmdSystem = cmdSystem;
+			dllSetup.cvarSystem = cvarSystem;
+			botInfo->brain = CreateBrain(&dllSetup);
 		}
-		botInfo->dllHandle = brainDLL;
-		CreateBotBrain_t CreateBrain = (CreateBotBrain_t) sys->DLL_GetProcAddress(brainDLL,"CreateBrain");
-		if( !CreateBrain ) {
-			sys->DLL_Unload(brainDLL);
-			botInfo->dllHandle = 0;
-			Error("CreateBrain Function not found in %s dll\n",botName.c_str());
-		}
-		dllSetup.sys = sys;
-		dllSetup.common = common;
-		dllSetup.cmdSystem = cmdSystem;
-		dllSetup.cvarSystem = cvarSystem;
-		botInfo->brain = CreateBrain(&dllSetup);
 
 
 		afiBotManager::AddBotInfo(botInfo);
@@ -531,7 +542,7 @@ void idGameLocal::LoadBrains() {
 	
 }
 
-void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName ) {
+void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName, idStr& botType ) {
 	idDict		botProfile;
 	idParser	parser;
 
@@ -572,8 +583,9 @@ void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const 
 	//be considered a valid bot.
 	bool hasName = botProfile.GetString("name","",botName);
 	bool hasAuthor = botProfile.GetString("author","",authorName);
+	bool hasType = botProfile.GetString("bot_type","",botType);
 
-	if( hasName && hasAuthor ) {
+	if( hasName && hasAuthor && hasType ) {
 		Printf("Loading bot %s by %s.\n",botName.c_str(),authorName.c_str());
 		return;
 	}
@@ -585,6 +597,10 @@ void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const 
 
 	if(!hasAuthor) {
 		Warning("Bot does not have a author. Please fill out \"author\" key/value pair in entityDef %s\n",name);
+	}
+
+	if(!hasType) {
+		Warning("Bot does not have a type. Please fill out \"botType\" key/value pair in entityDef %s\n",name);
 	}
 
 }

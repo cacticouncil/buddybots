@@ -420,7 +420,7 @@ public:
 #ifdef AFI_BOTS
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
 	void					LoadBrains( void ); //Brainssssssssssssssssssss
-	void					ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName );
+	void					ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName, idStr& botType );
 
 #else
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };

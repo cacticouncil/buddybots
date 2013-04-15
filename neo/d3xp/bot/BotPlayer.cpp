@@ -27,20 +27,18 @@ afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset( &botcmd, 0, sizeof( botcmd ) );
 	memset( &aiInput, 0, sizeof( aiInput ) );
 	brain = NULL;
+	proto_MoveGoalSet = false;
 }
 
 afiBotPlayer::~afiBotPlayer() {
 }
 
 void afiBotPlayer::SetAAS() {
-	aas = gameLocal.GetAAS( "aas48" ); // TinMan: Hard coded the bots aas size
+	aas = gameLocal.GetAAS( "aas48" );
 	if ( aas ) {
 		const idAASSettings *settings = aas->GetSettings();
 		if ( settings ) {
-			// TinMan: *todo* why isn't physics bounds returning something nice?
-			/*if ( !ValidForBounds( settings, physicsObject->GetBounds() ) ) {
-				gameLocal.Error( "%s cannot use use_aas %s\n", name.c_str(), use_aas.c_str() );
-			}*/
+			
 			float height = settings->maxStepHeight;
 			physicsObj.SetMaxStepHeight( height );
 			return;
@@ -94,8 +92,22 @@ void afiBotPlayer::Restart( void ) {
 void afiBotPlayer::Think( void ) {
 	idPlayer::Think();
 
-	aiInput = brain->Think();
+	if(brain != NULL) {
+		aiInput = brain->Think();
+	}
+	if(!proto_MoveGoalSet) {
+		proto_MoveGoalSet = true;
+		SetAAS();
+		idEntity* flag;
+		afiBotManager::GetFlag(0,&flag);
+		int goalArea = PointReachableAreaNum(flag->GetPhysics()->GetOrigin());
+		StartMove(flag->GetPhysics()->GetOrigin(),goalArea,flag,8);
+	}
 
+	Move();
+
+	aiInput.moveDirection = move.moveDir;
+	aiInput.moveSpeed = move.speed;
 	ProcessInput();
 }
 

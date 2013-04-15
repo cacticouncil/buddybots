@@ -135,9 +135,9 @@ public:
 	virtual idEntity*		MoveToNearest( idStr item );
 	virtual bool			PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
 	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;
-	virtual bool			ReachedPos( const idVec3 &pos, const moveCommand_t moveCommand, float range  = 0.0f ) const;
+	virtual bool			ReachedPos( const idVec3 &pos,float range  = 0.0f ) const;
 
-	virtual bool			StartMove ( moveCommand_t command, const idVec3& goalOrigin, int goalArea, idEntity* goalEntity, float range );
+	virtual bool			StartMove ( const idVec3& goalOrigin, int goalArea, idEntity* goalEntity, float range );
 	virtual void			StopMove( moveStatus_t status );
 protected:
 
@@ -148,6 +148,7 @@ protected:
 	void					ProcessCommands( void );
 
 protected:
+	bool					proto_MoveGoalSet;
 	botMoveState_t			move;
 	aiInput_t				aiInput;
 	usercmd_t				botcmd;

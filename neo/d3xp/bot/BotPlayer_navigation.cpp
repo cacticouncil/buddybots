@@ -122,9 +122,9 @@ Initialize a new movement by setting up the movement structure
 // TODO: this would be distributed in the FSM?
 =====================
 */
-bool afiBotPlayer::StartMove ( moveCommand_t command, const idVec3& goalOrigin, int goalArea, idEntity* goalEntity, float range ) {
+bool afiBotPlayer::StartMove (const idVec3& goalOrigin, int goalArea, idEntity* goalEntity, float range ) {
 	// If we are already there then we are done
-	if ( ReachedPos( goalOrigin, command ) ) {
+	if ( ReachedPos( goalOrigin) ) {
 		StopMove( MOVE_STATUS_DONE );
 		return true;
 	}
@@ -134,7 +134,6 @@ bool afiBotPlayer::StartMove ( moveCommand_t command, const idVec3& goalOrigin, 
 	move.seekPos = move.goalPos = move.moveDest	= goalOrigin;
 	move.toAreaNum			= goalArea;
 	move.goalEntity			= goalEntity;
-	move.moveCommand		= command;
 	move.moveStatus			= MOVE_STATUS_MOVING;
 	move.speed				= 400.0f;
 	move.startTime			= gameLocal.time;
@@ -187,28 +186,10 @@ void afiBotPlayer::StopMove( moveStatus_t status ) {
 BotPlayer::ReachedPos
 =====================
 */
-bool afiBotPlayer::ReachedPos( const idVec3 &pos, const moveCommand_t moveCommand, float range ) const {
+bool afiBotPlayer::ReachedPos( const idVec3 &pos, float range ) const {
+	
 	// When moving towards the enemy just see if our bounding box touches the desination
-	// TODO: cusTom3 - enemy implementation later
-	//if ( moveCommand == MOVE_TO_ENEMY ) {
-	//	if ( !enemy.ent || GetPhysics()->GetAbsBounds().IntersectsBounds( enemy.ent->GetPhysics()->GetAbsBounds().Expand( range ) ) ) {
-	//		return true;
-	//	}
-	//	return false;
-	//}
-
-	// TODO: sb - i started using move.toAreaNum differently than idAI i think
-	//// Excluded z height when determining reached
-	//if ( move.toAreaNum > 0 ) {
-	//	assert( false ); // just seeing if this is used by bots, don't think it is
-	//	if ( PointReachableAreaNum( GetPhysics()->GetOrigin() ) == move.toAreaNum ) {
-	//		idBounds bnds;
-	//		bnds = idBounds ( idVec3(-range,-range,-4096.0f), idVec3(range,range,4096.0f) );
-	//		bnds.TranslateSelf( GetPhysics()->GetOrigin() );	
-	//		return bnds.ContainsPoint( pos );
-	//	}
-	//}
-				
+			
 	idBounds bnds;
 	bnds = idBounds ( idVec3(-range,-range,-16.0f), idVec3(range,range,64.0f) );
 	bnds.TranslateSelf( GetPhysics()->GetOrigin() );	
@@ -239,7 +220,7 @@ bool afiBotPlayer::MoveToPosition ( const idVec3 &pos, float range ) {
 	}
 	
 	// Start moving
-	return StartMove( MOVE_TO_POSITION, goal, goalAreaNum, NULL, range );
+	return StartMove( goal, goalAreaNum, NULL, range );
 }
 /*
 =====================
@@ -260,15 +241,10 @@ BotPlayer::Move
 */
 void afiBotPlayer::Move( void ) {
 
-	// TODO: cusTom3 - look at this - soon damn it
-	//if ( ai_useRVMasterMove.GetBool ( ) ) {
-	//	RVMasterMove();
-	//	return;
-	//}
 	idReachability*	goalReach;
 
 	move.obstacle = NULL;
-	if ( ReachedPos( move.moveDest, move.moveCommand, move.range ) ) {
+	if ( ReachedPos( move.moveDest, move.range ) ) {
 		StopMove( MOVE_STATUS_DONE );
 	} else { 
 		move.moveStatus = MOVE_STATUS_MOVING;
@@ -294,7 +270,7 @@ void afiBotPlayer::Move( void ) {
 	if ( ai_debugMove.GetBool() ) { // AnimMove : GREEN / RED Bounds & Move Dest
 	//	gameRenderWorld->DebugLine(		colorCyan, oldorigin, org, 5000 );
 		gameRenderWorld->DebugBounds( colorRed, GetPhysics()->GetBounds(), GetPhysics()->GetOrigin(), gameLocal.msec );
-		if (!ReachedPos( move.moveDest, move.moveCommand, move.range )) {
+		if (!ReachedPos( move.moveDest, move.range )) {
 			gameRenderWorld->DebugBounds( colorRed, GetPhysics()->GetBounds(), move.moveDest, gameLocal.msec );
 			// gameRenderWorld->DebugArrow( colorRed, org, move.moveDest, 4, gameLocal.msec );
 			// TODO: team stuff - gameRenderWorld->DebugArrow(	(team==0)?(colorGreen):(colorRed), org, move.moveDest, 4, gameLocal.msec );
@@ -310,7 +286,6 @@ BotPlayer::PointReachableAreaNum
 =====================
 */
 int afiBotPlayer::PointReachableAreaNum( const idVec3 &pos ) const {
-	// using this will let me change it later ;)
 	return aas->PointReachableAreaNum( pos,  aas->GetSettings()->boundingBoxes[0], AREA_REACHABLE_WALK );
 }
 
@@ -364,54 +339,18 @@ bool afiBotPlayer::GetMovePos( idVec3 &seekPos, idReachability** seekReach ) {
  	}
  	// RAVEN END
 
-	// TODO: most likely getting rid of moveCommand?
-	//switch( move.moveCommand ) {
-	//	case MOVE_NONE :
-	//		seekPos = move.moveDest;
-	//		return false;
-
-	//	case MOVE_FACE_ENEMY :
-	//	case MOVE_FACE_ENTITY :
-	//		seekPos = move.moveDest;
-	//		return false;
-
-	//	case MOVE_TO_POSITION_DIRECT :
-	//		seekPos = move.moveDest;
-	//		if ( ReachedPos( move.moveDest, move.moveCommand ) ) {
-	//			StopMove( MOVE_STATUS_DONE );
-	//		}
-	//		return false;
-	//
-	//	case MOVE_SLIDE_TO_POSITION :
-	//		seekPos = org;
-	//		return false;
-	//		
-	//	case MOVE_TO_ENTITY:
-	//		MoveToEntity( move.goalEntity.GetEntity(), move.range );
-	//		break;
-	//		
-	//	case MOVE_TO_ENEMY:
-	//		if ( !MoveToEnemy() && combat.tacticalCurrent == AITACTICAL_MELEE ) {
-	//			StopMove( MOVE_STATUS_DEST_UNREACHABLE );
-	//			return false;
-	//		}
-	//		break;
-	//}
+	
 
 	move.moveStatus = MOVE_STATUS_MOVING;
 	result = false;
 	
-	// TODO: cusTom3 - wander
-	//if ( move.moveCommand == MOVE_WANDER ) {
-	//	move.moveDest = org + viewAxis[ 0 ] * physicsObj.GetGravityAxis() * 256.0f;
-	//} else {
-	// TODO: cusTom3 - initialize move
-		if ( ReachedPos( move.moveDest, move.moveCommand, move.range ) ) {
+	
+		if ( ReachedPos( move.moveDest, move.range ) ) {
 			StopMove( MOVE_STATUS_DONE );
 			seekPos	= org;
 			return false;
 		}
-	//}
+	
 
 	if ( aas && move.toAreaNum ) {
 		areaNum	= PointReachableAreaNum( org );
@@ -492,24 +431,6 @@ void afiBotPlayer::CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &seekPo
 		move.obstacle			= 0;
 		seekPos					= goalPos;
 	}
-
-	// cdr: Alternate Routes Bug
-	// If An Obstacle Remains, And The Seek Pos Is Fairly Farr Off Of The Straight Line Path, Then Mark The Reach As Blocked
-	//-----------------------------------------------------------------------------------------------------------------------
-	/* TinMan: *off* 
-	if (move.fl.obstacleInPath && goalReach && !(goalReach->travelType&TFL_INVALID) && seekPos.Dist2XY(goalPos)>100.0f) {
-		float scale;
-		float dist;
-
-		dist = seekPos.DistToLineSeg(physicsObj.GetOrigin(), goalPos, scale);
-		if (scale<0.95f && dist>50.0f) {
-			aiManager.MarkReachBlocked(aas, goalReach, path.allObstacles);
-		}
- 	}
-	*/
-
-	// TinMan: *off* TestTeammateCollisions(playerEnt);
-
 
 
 	//if ( DebugFilter(ai_showObstacleAvoidance) ) {

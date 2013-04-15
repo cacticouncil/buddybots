@@ -17,6 +17,8 @@ class idEntity;
 
 typedef afiBotBrain* (*CreateBotBrain_t)(botImport_t* dllSetup);
 
+enum	BotType { CODE,SCRIPT,DLL };
+
 typedef struct botInfo_s {
 	idStr				botName;
 	idStr				authorName;
@@ -25,6 +27,7 @@ typedef struct botInfo_s {
 	int					dllHandle;
 	int					clientNum;
 	int					entityNum;
+	int					botType;
 	idCmdArgs			cmdArgs;
 	botInfo_s() {
 		brain = NULL;
@@ -34,6 +37,7 @@ typedef struct botInfo_s {
 		clientNum = -1;
 		entityNum = -1;
 		cmdArgs.Clear();
+		botType = BotType::CODE;
 	}
 	
 } botInfo_t;
@@ -60,26 +64,27 @@ public:
 	 static void				AddBot( const idCmdArgs& args );
 	 static void				DropABot( void );
 	 static void				RemoveBot( int clientNum );
-	 static int				IsClientBot( int clientNum );
+	 static int					IsClientBot( int clientNum );
 	 static void				SetBotDefNumber( int clientNum, int botDefNumber );
-	 static int				GetBotDefNumber( int clientNum );
-	 static idStr			GetBotClassname( int clientNum );
+	 static int					GetBotDefNumber( int clientNum );
+	 static idStr				GetBotClassname( int clientNum );
 	 static void				SpawnBot( int clientNum );
 	 static void				OnDisconnect( int clientNum );
 	
-	 static int				GetFlag(int team,idEntity** outFlag);
+	 static int					GetFlag(int team,idEntity** outFlag);
 
 	 static void				ProcessChat(const char* text);
 	 static void				InitBotsFromMapRestart();
-	 static idCmdArgs *		GetPersistArgs( int clientNum );
-	 static usercmd_t *		GetUserCmd( int clientNum );
+	 static idCmdArgs *			GetPersistArgs( int clientNum );
+	 static usercmd_t *			GetUserCmd( int clientNum );
 	 static void				SetUserCmd( int clientNum, usercmd_t * usrCmd );
 	 static void				WriteUserCmdsToSnapshot(idBitMsg& msg);
 	 static void				ReadUserCmdsFromSnapshot(const idBitMsg& msg);
 	 static void				AddBotInfo(botInfo_t* newBotInfo);
 	 static afiBotBrain*		SpawnBrain(idStr botName, int clientNum);
-							afiBotManager();
-							~afiBotManager();
+	 static botInfo_t*			FindBotProfile(idStr botName);
+								afiBotManager();
+								~afiBotManager();
 
 protected:
 	static usercmd_t			botCmds[MAX_CLIENTS];

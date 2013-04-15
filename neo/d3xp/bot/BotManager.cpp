@@ -324,33 +324,35 @@ void afiBotManager::SpawnBot( int clientNum ) {
 
 	//Grab the name of the bot from the loaded entityDef
 	idStr botName = spawnDict.GetString("name");
-
+	botInfo_t* botProfile = FindBotProfile(botName);
 	//Return a clone of the actually loaded bot brain to run for the game.
 	//Returns a clone so we can have multiple instances of a loadedBot in a running game.
-	afiBotBrain* brain = SpawnBrain(botName,clientNum);
+	if(botProfile && botProfile->botType == BotType::DLL) {
+		afiBotBrain* brain = SpawnBrain(botName,clientNum);
 
-	//Link the brain,body, and spawnDict.
-	brain->SetAAS();
-	brain->SetBody( (afiBotPlayer*)ent );
-	brain->SetPhysics( ( idPhysics_Player* )( ( afiBotPlayer* )ent )->GetPhysics() );
-	brain->Spawn(&spawnDict);
+		//Link the brain,body, and spawnDict.
+		brain->SetAAS();
+		brain->SetBody( (afiBotPlayer*)ent );
+		brain->SetPhysics( ( idPhysics_Player* )( ( afiBotPlayer* )ent )->GetPhysics() );
+		brain->Spawn(&spawnDict);
+	}
 
+	//((afiBotPlayer*)ent)->SetAAS();
 
 	gameLocal.mpGame.SpawnPlayer( clientNum );
 }
 
 afiBotBrain* afiBotManager::SpawnBrain(idStr botName,int clientNum) {
 	afiBotBrain*	returnBrain = NULL;
-	int				iBotInfo = 0;
-	int				numLoadedBots;
+	botInfo_t*		loadedBotProfile = NULL;
 
-	numLoadedBots = loadedBots.Num();
-	for(iBotInfo = 0; iBotInfo < numLoadedBots; ++iBotInfo) {
-		idStr loadedName = loadedBots[iBotInfo]->botName;
+	loadedBotProfile = FindBotProfile(botName);
 
-		if( 0 == botName.Cmp(loadedName.c_str()) ) {
+	if( loadedBotProfile != NULL ) {
+
+		if( 0 == botName.Cmp(loadedBotProfile->botName.c_str()) ) {
 			//Found Bot, make a clone of the loaded brain.
-			returnBrain = loadedBots[iBotInfo]->brain->Clone();
+			returnBrain = loadedBotProfile->brain->Clone();
 			
 			//Place a reference to the spawnedBrain in the fast list
 			//so we can easily dispatch event functions later on
@@ -360,6 +362,23 @@ afiBotBrain* afiBotManager::SpawnBrain(idStr botName,int clientNum) {
 	}
 
 	return returnBrain;
+}
+
+botInfo_t*  afiBotManager::FindBotProfile(idStr botName) {
+	botInfo_t* botProfile = NULL;
+	int numLoadedBots;
+	int iBotProfile = 0;
+
+	numLoadedBots = loadedBots.Num();
+	for(iBotProfile = 0; iBotProfile < numLoadedBots; ++iBotProfile) {
+		idStr loadedName = loadedBots[iBotProfile]->botName;
+
+		if(0 == botName.Cmp(loadedName.c_str()) ) {
+			botProfile = loadedBots[iBotProfile];
+			return botProfile;
+		}
+	}
+	return botProfile;
 }
 
 void afiBotManager::ProcessChat(const char* text) {
