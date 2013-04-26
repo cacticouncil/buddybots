@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Game_local.h"
 
+
 #ifdef GAME_DLL
 
 idSys *						sys = NULL;
@@ -3475,7 +3476,7 @@ idGameLocal::SpawnEntityType
 idEntity *idGameLocal::SpawnEntityType( const idTypeInfo &classdef, const idDict *args, bool bIsClientReadSnapshot ) {
 	idClass *obj;
 
-#if _DEBUG
+#ifdef _DEBUG
 	if ( isClient ) {
 		assert( bIsClientReadSnapshot );
 	}

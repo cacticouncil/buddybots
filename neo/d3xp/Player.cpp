@@ -40,6 +40,13 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+#ifdef AFI_BOTS
+
+//TODO BOOST_PYTHON_MODULE(idPlayer)
+
+
+#endif
+
 // distance between ladder rungs (actually is half that distance, but this sounds better)
 const int LADDER_RUNG_DISTANCE = 32;
 

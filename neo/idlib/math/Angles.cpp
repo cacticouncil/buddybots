@@ -33,6 +33,12 @@ If you have questions concerning this license or the applicable additional terms
 
 idAngles ang_zero( 0.0f, 0.0f, 0.0f );
 
+#ifdef AFI_BOTS
+
+//TODO BOOST_PYTHON_MODULE(idAngles)
+
+
+#endif
 
 /*
 =================

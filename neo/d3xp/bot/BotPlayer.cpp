@@ -15,6 +15,8 @@ the network.
 #include "BotPlayer.h"
 
 
+
+
 idCVar	bot_debugBot( "bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOCHEAT, "debug a specific bot -1 disable, -2 all bots, otherwise clientnum", -2, MAX_CLIENTS );
 
 
@@ -22,6 +24,12 @@ idCVar	bot_debugBot( "bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOC
 CLASS_DECLARATION( idPlayer, afiBotPlayer )
 END_CLASS
 
+#ifdef AFI_BOTS
+
+//TODO BOOST_PYTHON_MODULE(afiBotPlayer)
+
+
+#endif
 
 afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset( &botcmd, 0, sizeof( botcmd ) );

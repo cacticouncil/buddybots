@@ -13,6 +13,12 @@ Description: Defines the basic interface that bot brains should follow.
 #include "../Game_local.h"
 #include "../physics/Physics_Player.h"
 
+#ifdef AFI_BOTS
+
+//TODO BOOST_PYTHON_MODULE(afiBotBrain)
+
+
+#endif
 
 
 

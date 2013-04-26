@@ -814,6 +814,7 @@ const int	CINEMATIC_SKIP_DELAY	= SEC2MS( 2.0f );
 #include "script/Script_Thread.h"
 
 #ifdef AFI_BOTS
+
 #include "bot/BotManager.h"
 #include "bot/BotPlayer.h"
 

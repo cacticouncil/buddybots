@@ -14,6 +14,7 @@ dispatch to bots.
 #include "BotManager.h"
 #include "BotBrain.h"
 
+
 afiBotManager	afiBotManagerLocal;
 afiBotManager *	BotManager = &afiBotManagerLocal;
 
@@ -27,6 +28,12 @@ usercmd_t		afiBotManager::botCmds[MAX_CLIENTS];
 idList<botInfo_t*> afiBotManager::loadedBots;
 afiBotBrain*	afiBotManager::brainFastList[MAX_CLIENTS];
 
+#ifdef AFI_BOTS
+
+//TODO BOOST_PYTHON_MODULE(afiBotManager)
+
+
+#endif
 
  void afiBotManager::PrintInfo( void ) {
 	common->Printf("AFI Bots Initialized\n");

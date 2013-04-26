@@ -39,6 +39,14 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+#ifdef AFI_BOTS
+
+//TODO BOOST_PYTHON_MODULE(idEntity)
+
+
+#endif
+
+
 // overridable events
 const idEventDef EV_PostSpawn( "<postspawn>", NULL );
 const idEventDef EV_FindTargets( "<findTargets>", NULL );

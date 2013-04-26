@@ -58,6 +58,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #else
 
+
 #include "../tools/comafx/StdAfx.h"
 
 #endif
@@ -105,6 +106,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 
 //-----------------------------------------------------
+#include <boost/python.hpp>
+using namespace boost::python;
 
 // non-portable system services
 #include "../sys/sys_public.h"
