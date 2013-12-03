@@ -415,12 +415,23 @@ public:
 
 	virtual bool			DownloadRequest( const char *IP, const char *guid, const char *paks, char urls[ MAX_STRING_CHARS ] );
 
-	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
+	virtual void			GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
 #ifdef AFI_BOTS
+	object					main;
+	object					globalNamespace;
+
+	void					HandlePythonError();
+	
+	//Function necessary to hook into entity spawning.
+	void					SetSpawnArgs(const idDict& args);
+
+	//Function called by the server when it needs the usercmd for the current frame.
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
+
+	//Functions called during init of game to load and validate the bot definitions.
 	void					LoadBrains( void ); //Brainssssssssssssssssssss
-	void					ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName, idStr& botType );
+	void					ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName, idStr& botType,idStr& botSpawnClass );
 
 #else
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };

@@ -14,6 +14,7 @@ dispatch to bots.
 
 class afiBotBrain;
 class idEntity;
+class afiBotPlayer;
 
 typedef afiBotBrain* (*CreateBotBrain_t)(botImport_t* dllSetup);
 
@@ -23,8 +24,9 @@ typedef struct botInfo_s {
 	idStr				botName;
 	idStr				authorName;
 	afiBotBrain*		brain;
+	object				botClassInstance;
+	object				scriptInstances[MAX_CLIENTS];
 	
-	int					dllHandle;
 	int					clientNum;
 	int					entityNum;
 	int					botType;
@@ -33,11 +35,19 @@ typedef struct botInfo_s {
 		brain = NULL;
 		botName = "";
 		authorName = "";
-		dllHandle = 0;
 		clientNum = -1;
 		entityNum = -1;
 		cmdArgs.Clear();
-		botType = BotType::CODE;
+		botType = CODE;
+	}
+
+	~botInfo_s() {
+		
+		brain = NULL;
+		botName = "";
+		authorName = "";
+		clientNum = -1;
+		entityNum = -1;
 	}
 	
 } botInfo_t;
@@ -56,6 +66,7 @@ public:
 	 static void				Initialize( void );
 	 static void				Shutdown( void );
 	 static void				UpdateUserInfo( void );
+	 static void				ConsolePrint(const char* string);
 
 	 static void				Cmd_BotInfo_f( const idCmdArgs& args );
 	 static void				Cmd_AddBot_f( const idCmdArgs& args );
@@ -71,8 +82,8 @@ public:
 	 static void				SpawnBot( int clientNum );
 	 static void				OnDisconnect( int clientNum );
 	
-	 static int					GetFlag(int team,idEntity** outFlag);
-
+	 static idEntity*			GetFlag(int team);
+	 static int					GetFlagStatus(int team);
 	 static void				ProcessChat(const char* text);
 	 static void				InitBotsFromMapRestart();
 	 static idCmdArgs *			GetPersistArgs( int clientNum );
@@ -83,6 +94,7 @@ public:
 	 static void				AddBotInfo(botInfo_t* newBotInfo);
 	 static afiBotBrain*		SpawnBrain(idStr botName, int clientNum);
 	 static botInfo_t*			FindBotProfile(idStr botName);
+	 static botInfo_t*			FindBotProfileByIndex(int clientNum);
 								afiBotManager();
 								~afiBotManager();
 
@@ -96,7 +108,6 @@ private:
 	static bool					botSpawned[MAX_CLIENTS];
 	static int					botEntityDefNumber[MAX_CLIENTS];
 	static afiBotBrain*			brainFastList[MAX_CLIENTS];
-	
 };
 
 

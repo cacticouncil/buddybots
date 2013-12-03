@@ -120,6 +120,7 @@ public:
 
 	virtual idEntity*		FindNearestItem( idStr item );
 
+	void					SetBrain(afiBotBrain* newBrain);
 	//Movement
 	void						SetAAS( void );
 
@@ -135,6 +136,11 @@ public:
 	virtual idEntity*		MoveToNearest( idStr item );
 	virtual bool			PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
 	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;
+	void					Attack(void);
+	void					Jump(void);
+	void					LookInDirection(const idVec3& dir);
+	void					LookAtPosition(const idVec3& pos);
+
 	virtual bool			ReachedPos( const idVec3 &pos,float range  = 0.0f ) const;
 
 	virtual bool			StartMove ( const idVec3& goalOrigin, int goalArea, idEntity* goalEntity, float range );
@@ -148,7 +154,13 @@ protected:
 	void					ProcessCommands( void );
 
 protected:
-	bool					proto_MoveGoalSet;
+	idAngles				lastViewAngles;
+	idAngles				idealViewAngles;
+	float					arcHalf;
+	float					arcDistance;	
+	idVec3					lastLookAtPosition;
+	float					aimRate;
+
 	botMoveState_t			move;
 	aiInput_t				aiInput;
 	usercmd_t				botcmd;

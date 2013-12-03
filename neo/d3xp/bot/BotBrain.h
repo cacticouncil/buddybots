@@ -51,6 +51,7 @@ struct aiInput_t {
 	from idEntity if we want to make use of DoomScript and TypeInfo of the brain
 ===============================================================================
 */
+
 class afiBotBrain
 {
 public:
@@ -58,12 +59,9 @@ public:
 	//virtual						~afiBotBrain();
 
 	//Pure Virtual Bot Interface
-	virtual void				Destroy() = 0;
 	virtual aiInput_t			Think() = 0;
-	virtual void				Spawn(idDict* userInfo) = 0;
+	virtual void				Spawn() = 0;
 	virtual void				Restart() = 0;
-	virtual afiBotBrain*		Clone() = 0;
-
 	//TODO: Event Handling functions.
 	//virtual void OnPain(idEntity* inflictor, idEntity* attacker, int damage);
 	//virtual void OnDisconnect();
@@ -72,14 +70,15 @@ public:
 
 	//Accessors and Mutators
 	void						SetAAS( void );
-	void						SetUserInfo(idDict* userInfo);
 	void						SetBody(afiBotPlayer* newBody);
 	void						SetPhysics(idPhysics_Player* _physicsObject);
-protected:
+public:
 
-
+	afiBotPlayer*				GetBody();
+	idPhysics_Player*			GetPhysics();
 	//Pointer to the fake client body of the bot.
 	afiBotPlayer*				body;
+	object						scriptBody;
 	idPhysics_Player*			physicsObject;
 	// navigation
 	idAAS *						aas;
@@ -88,13 +87,25 @@ protected:
 	//This will be the same spawn dict as the body
 	//so the student can fill the one entityDef and
 	//have access to those pairs in the brain.
-	idDict						botInfo;
+	dict						botDict;
 
 	aiInput_t					bodyInput;
 
 
 
 private:
+
+};
+
+class afiBotBrainWrapper : public afiBotBrain,public wrapper<afiBotBrain> {
+public:
+
+	virtual aiInput_t Think();
+
+	virtual void Spawn();
+
+	virtual void Restart();
+
 
 };
 

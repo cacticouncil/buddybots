@@ -111,6 +111,23 @@ public:
 	idAngles			GetAngles( const char *key, const char *defaultString = NULL ) const;
 	idMat3				GetMatrix( const char *key, const char *defaultString = NULL ) const;
 
+	const char *		GetStringWrap( const char *key) const;
+	float				GetFloatWrap( const char *key) const;
+	int					GetIntWrap( const char *key) const;
+	bool				GetBoolWrap( const char *key) const;
+	idVec3				GetVectorWrap( const char *key) const;
+	idVec2				GetVec2Wrap( const char *key) const;
+	idAngles			GetAnglesWrap( const char *key) const;
+	
+	const char *		(idDict::*getString)( const char *, const char *) const;
+	float				(idDict::*getFloat)( const char *, const char *) const;
+	int					(idDict::*getInt)( const char *, const char *) const;
+	bool				(idDict::*getBool)( const char *, const char *) const;
+	idVec3				(idDict::*getVec3)( const char *, const char *) const;
+	idVec2				(idDict::*getVec2)( const char *, const char *) const;
+	idAngles			(idDict::*getAngles)( const char *, const char *) const;
+	
+
 	bool				GetString( const char *key, const char *defaultString, const char **out ) const;
 	bool				GetString( const char *key, const char *defaultString, idStr &out ) const;
 	bool				GetFloat( const char *key, const char *defaultString, float &out ) const;

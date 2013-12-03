@@ -22,8 +22,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TypeInfo", "typeinfo.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Game", "game.vcxproj", "{49BEC5C6-B964-417A-851E-808886B57430}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "botAI", "botAI.vcxproj", "{E7A9D707-8264-4539-A0D4-83C714FDF691}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug with inlines and memory log|Win32 = Debug with inlines and memory log|Win32
@@ -119,20 +117,6 @@ Global
 		{49BEC5C6-B964-417A-851E-808886B57430}.Dedicated Release|Win32.Build.0 = Dedicated Release|Win32
 		{49BEC5C6-B964-417A-851E-808886B57430}.Release|Win32.ActiveCfg = Release|Win32
 		{49BEC5C6-B964-417A-851E-808886B57430}.Release|Win32.Build.0 = Release|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Debug with inlines and memory log|Win32.ActiveCfg = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Debug with inlines and memory log|Win32.Build.0 = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Debug with inlines|Win32.ActiveCfg = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Debug with inlines|Win32.Build.0 = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Debug|Win32.ActiveCfg = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Debug|Win32.Build.0 = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Dedicated Debug with inlines|Win32.ActiveCfg = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Dedicated Debug with inlines|Win32.Build.0 = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Dedicated Debug|Win32.ActiveCfg = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Dedicated Debug|Win32.Build.0 = Debug|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Dedicated Release|Win32.ActiveCfg = Release|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Dedicated Release|Win32.Build.0 = Release|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Release|Win32.ActiveCfg = Release|Win32
-		{E7A9D707-8264-4539-A0D4-83C714FDF691}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -145,6 +129,5 @@ Global
 		{49BEC5C6-B964-417A-851E-808886B574F1} = {1E2B3940-65F8-4D8F-9EEE-85E94EBBC6DF}
 		{0BC6FCC9-C65E-4B1F-9A58-0B9399987C9F} = {1E2B3940-65F8-4D8F-9EEE-85E94EBBC6DF}
 		{49BEC5C6-B964-417A-851E-808886B57430} = {1E2B3940-65F8-4D8F-9EEE-85E94EBBC6DF}
-		{E7A9D707-8264-4539-A0D4-83C714FDF691} = {1E2B3940-65F8-4D8F-9EEE-85E94EBBC6DF}
 	EndGlobalSection
 EndGlobal

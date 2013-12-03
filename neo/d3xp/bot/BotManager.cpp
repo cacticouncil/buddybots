@@ -15,29 +15,47 @@ dispatch to bots.
 #include "BotBrain.h"
 
 
-afiBotManager	afiBotManagerLocal;
-afiBotManager *	BotManager = &afiBotManagerLocal;
+afiBotManager				afiBotManagerLocal;
+afiBotManager *				BotManager = &afiBotManagerLocal;
 
 
-int				afiBotManager::numQueBots = 0;
-int				afiBotManager::botEntityDefNumber[MAX_CLIENTS];
-bool			afiBotManager::botSpawned[MAX_CLIENTS];
-idCmdArgs		afiBotManager::cmdQue[MAX_CLIENTS];
-idCmdArgs		afiBotManager::persistArgs[MAX_CLIENTS];
-usercmd_t		afiBotManager::botCmds[MAX_CLIENTS];
-idList<botInfo_t*> afiBotManager::loadedBots;
-afiBotBrain*	afiBotManager::brainFastList[MAX_CLIENTS];
+int							afiBotManager::numQueBots = 0;
+int							afiBotManager::botEntityDefNumber[MAX_CLIENTS];
+bool						afiBotManager::botSpawned[MAX_CLIENTS];
+idCmdArgs					afiBotManager::cmdQue[MAX_CLIENTS];
+idCmdArgs					afiBotManager::persistArgs[MAX_CLIENTS];
+usercmd_t					afiBotManager::botCmds[MAX_CLIENTS];
+idList<botInfo_t*>			afiBotManager::loadedBots;
+afiBotBrain*				afiBotManager::brainFastList[MAX_CLIENTS];
 
 #ifdef AFI_BOTS
 
-//TODO BOOST_PYTHON_MODULE(afiBotManager)
+BOOST_PYTHON_MODULE(afiBotManager) {
 
+	enum_<flagStatus_t>("flagStatus_t")
+		.value("FLAGSTATUS_INBASE",FLAGSTATUS_INBASE)
+		.value("FLAGSTATUS_TAKEN",FLAGSTATUS_TAKEN)
+		.value("FLAGSTATUS_STRAY",FLAGSTATUS_STRAY)
+		;
 
+	class_<afiBotManager>("afiBotManager")
+	.def("GetFlag",&afiBotManager::GetFlag,return_internal_reference<>())
+	.def("GetFlagStatus",&afiBotManager::GetFlagStatus)
+	.def("ConsolePrint",&afiBotManager::ConsolePrint)
+	.staticmethod("GetFlag")
+	.staticmethod("GetFlagStatus")
+	.staticmethod("ConsolePrint")
+	;
+}
 #endif
 
  void afiBotManager::PrintInfo( void ) {
 	common->Printf("AFI Bots Initialized\n");
 }
+
+ void afiBotManager::ConsolePrint(const char* string) {
+	 gameLocal.Printf(string);
+ }
 
  void afiBotManager::Initialize( void ) {
 	for ( int i = 0; i < MAX_CLIENTS; i++ ) {
@@ -60,29 +78,46 @@ afiBotBrain*	afiBotManager::brainFastList[MAX_CLIENTS];
 		botEntityDefNumber[i] = 0;
 		brainFastList[i] = NULL;
 	}
-	//Unload each of the loaded Dlls
-	for(int iBot = 0; iBot < loadedBots.Num(); ++iBot) {
-		sys->DLL_Unload(loadedBots[iBot]->dllHandle);
-	}
 	
-	//delete the memory for both the list and each of the botInformation structures
-	//added to it.
-	loadedBots.DeleteContents(true);
+	
+	//delete the memory for both the list, python is handling the cleanup of
+	// bot information.
+	loadedBots.Clear();
 	memset( &botCmds, 0, sizeof( botCmds ) );
 	
 }
 
- int afiBotManager::GetFlag(int team,idEntity** outFlag) {
+ botInfo_t* afiBotManager::FindBotProfileByIndex(int clientNum) {
+	 botInfo_t* returnProfile = NULL;
+	 int numProfiles = 0;
+	 if(clientNum > MAX_CLIENTS) {
+		 return returnProfile;
+	 }
+
+	 numProfiles = loadedBots.Num();
+	 for(unsigned int iProfile = 0; iProfile < numProfiles; ++iProfile) {
+		 if(loadedBots[iProfile]->clientNum == clientNum) {
+			 returnProfile = loadedBots[iProfile];
+			 break;
+		 }
+	 }
+	 return returnProfile;
+ }
+
+ idEntity* afiBotManager::GetFlag(int team) {
 #ifdef CTF
-	*outFlag = gameLocal.mpGame.GetTeamFlag(team);
+	 idEntity* theFlag = gameLocal.mpGame.GetTeamFlag(team);
+	return theFlag;
 #endif
 
-#ifdef CTF
-	return gameLocal.mpGame.GetFlagStatus(team);
-#else
-	return -1;
-#endif
 }
+
+ int afiBotManager::GetFlagStatus(int team) {
+
+#ifdef CTF
+	 return gameLocal.mpGame.GetFlagStatus(team);
+#endif
+ }
 
  void afiBotManager::AddBotInfo(botInfo_t* newBotInfo) {
 	loadedBots.Append(newBotInfo);
@@ -105,6 +140,14 @@ afiBotBrain*	afiBotManager::brainFastList[MAX_CLIENTS];
 	
 	// Detour addbot commands for next idGameLocal::InitFromMapRestart,
 	//    the Clients will be ready at that point
+	idStr classname = args.Argv(1);
+	botInfo_t* botProfile = NULL;
+	botProfile = FindBotProfile(classname);
+	if(botProfile == NULL) {
+		gameLocal.Warning(va("No Loaded Bot Profile Named: %s \n",classname));
+		return;
+	}
+
 	if ( gameLocal.GameState() != GAMESTATE_ACTIVE ) {
 		if(numQueBots < MAX_CLIENTS) {
 			common->Printf( "QUEUE SUCCESS: Adding Bot to Que\n" );
@@ -274,6 +317,8 @@ Equivalent of gamelocal spawnplayer except it loads from cmdargs
 void afiBotManager::SpawnBot( int clientNum ) {
 	idDict spawnDict;
 	idStr classname;
+	afiBotPlayer * playerBody;
+	afiBotBrain* brain;
 
 	gameLocal.DPrintf( "SpawnBot: %i\n", clientNum );
 
@@ -314,38 +359,59 @@ void afiBotManager::SpawnBot( int clientNum ) {
 		}
 	}
 
-	idEntity *ent;
+
 	//Spawn the afiBotPlayer from the entityDef
-	if ( !gameLocal.SpawnEntityDef( spawnDict, &ent ) || !gameLocal.entities[ clientNum ] ) {
-		gameLocal.Error( "Failed to spawn Bot as '%s'", spawnDict.GetString( "classname" ) );
-	}
-	
-	//Ensure that we actually created a idPlayer. No tricksie other spawnclasses allowed here.
-	if ( !ent->IsType( idPlayer::Type ) ){
-		gameLocal.Error( "'%s' spawned the bot as a '%s'.  Bot spawnclass must be a subclass of idPlayer.", spawnDict.GetString( "classname" ), ent->GetClassname() );
-	}
-	
-	if ( clientNum >= gameLocal.numClients ) {
-		gameLocal.numClients = clientNum + 1; 
-	}
-
 	//Grab the name of the bot from the loaded entityDef
-	idStr botName = spawnDict.GetString("name");
+	idStr botName = spawnDict.GetString("scriptclass");
 	botInfo_t* botProfile = FindBotProfile(botName);
-	//Return a clone of the actually loaded bot brain to run for the game.
-	//Returns a clone so we can have multiple instances of a loadedBot in a running game.
-	if(botProfile && botProfile->botType == BotType::DLL) {
-		afiBotBrain* brain = SpawnBrain(botName,clientNum);
 
-		//Link the brain,body, and spawnDict.
-		brain->SetAAS();
-		brain->SetBody( (afiBotPlayer*)ent );
-		brain->SetPhysics( ( idPhysics_Player* )( ( afiBotPlayer* )ent )->GetPhysics() );
-		brain->Spawn(&spawnDict);
+	//Must be called the for the CallSpawn() function to operate properly.
+	//Game spawns one entity at a time and uses single spawnArgs to spawn the entity.
+	gameLocal.SetSpawnArgs(spawnDict);
+	
+	if( botProfile ) {
+		botProfile->clientNum = clientNum;
+		//If we are a script bot then the bot instances will be created from python.
+		if(botProfile->botType == SCRIPT) {
+			brain = SpawnBrain(botName,clientNum);
+
+			object botPlayerClass = gameLocal.globalNamespace["afiBotPlayer"];
+			brain->scriptBody = botPlayerClass();
+			playerBody = extract<afiBotPlayer*>(ptr(brain->scriptBody));
+
+			if ( clientNum >= gameLocal.numClients ) {
+				gameLocal.numClients = clientNum + 1; 
+			}
+
+			//Create a boost python dictionary
+			brain->botDict = dict();
+
+			//Copy from our dictonary to python dictonary
+			//now this may be a little finiky because all values are stored as
+			//strings, and there is no way with simple parsing to determine the
+			//actual dataType of the value stored, so it is up to the user to know
+			//and use the appropriate library function to translate (i.e. atof(), atoi() etc.)
+			int numPairs = spawnDict.GetNumKeyVals();
+			for( int iPair = 0; iPair < numPairs; ++iPair ) {
+				const idKeyValue* keyVal = spawnDict.GetKeyVal(iPair);
+				brain->botDict[keyVal->GetKey().c_str()] = keyVal->GetValue().c_str();
+			}
+
+			//Necessary part of entity spawning process to initialize all the variables
+			//from the hierarchy.
+			playerBody->CallSpawn();
+		
+			//Link all the necessary components between brain and body.
+			brain->SetBody( playerBody );
+			brain->SetPhysics( ( idPhysics_Player* )playerBody->GetPhysics() );
+			playerBody->SetAAS();
+			brain->SetAAS();
+			playerBody->SetBrain(brain);
+			//Call the script spawn function after entity has been created.
+			brain->Spawn();
+		}
 	}
-
-	//((afiBotPlayer*)ent)->SetAAS();
-
+	//Let the networked game know that a bot spawned.
 	gameLocal.mpGame.SpawnPlayer( clientNum );
 }
 
@@ -358,8 +424,13 @@ afiBotBrain* afiBotManager::SpawnBrain(idStr botName,int clientNum) {
 	if( loadedBotProfile != NULL ) {
 
 		if( 0 == botName.Cmp(loadedBotProfile->botName.c_str()) ) {
-			//Found Bot, make a clone of the loaded brain.
-			returnBrain = loadedBotProfile->brain->Clone();
+			try {
+				loadedBotProfile->scriptInstances[clientNum] = loadedBotProfile->botClassInstance();
+				returnBrain = extract<afiBotBrain*>(loadedBotProfile->scriptInstances[clientNum].ptr());
+			}
+			catch(...) {
+				gameLocal.HandlePythonError();
+			}
 			
 			//Place a reference to the spawnedBrain in the fast list
 			//so we can easily dispatch event functions later on
@@ -380,7 +451,7 @@ botInfo_t*  afiBotManager::FindBotProfile(idStr botName) {
 	for(iBotProfile = 0; iBotProfile < numLoadedBots; ++iBotProfile) {
 		idStr loadedName = loadedBots[iBotProfile]->botName;
 
-		if(0 == botName.Cmp(loadedName.c_str()) ) {
+		if(0 == botName.Icmp(loadedName.c_str()) ) {
 			botProfile = loadedBots[iBotProfile];
 			return botProfile;
 		}

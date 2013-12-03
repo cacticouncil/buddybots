@@ -106,6 +106,10 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 
 //-----------------------------------------------------
+#if defined(_DEBUG)
+//#define BOOST_DEBUG_PYTHON
+
+#endif
 #include <boost/python.hpp>
 using namespace boost::python;
 

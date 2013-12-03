@@ -97,7 +97,7 @@ BotPlayer::MoveToEntity
 */
 bool afiBotPlayer::MoveToEntity( idEntity* entity )
 {
-	return MoveToPosition( entity->GetPhysics()->GetOrigin(), entity->GetPhysics()->GetBounds().GetRadius() );
+	return MoveToPosition( entity->GetPhysics()->GetOrigin(), entity->GetPhysics()->GetBounds().GetRadius()*0.5f );
 }
 /*
 ===================

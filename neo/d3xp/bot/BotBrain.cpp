@@ -13,31 +13,95 @@ Description: Defines the basic interface that bot brains should follow.
 #include "../Game_local.h"
 #include "../physics/Physics_Player.h"
 
-#ifdef AFI_BOTS
-
-//TODO BOOST_PYTHON_MODULE(afiBotBrain)
 
 
-#endif
+BOOST_PYTHON_MODULE(afiBotBrain) {
+	import("idDict");
+	import("idVec3");
+	import("afiBotPlayer");
 
+	enum_<aiViewType_t>("aiViewType_t")
+		.value("VIEW_DIR",VIEW_DIR)
+		.value("VIEW_POS",VIEW_POS)
+		;
 
+	enum_<aiMoveFlag_t>("aiMoveFlag_t")
+		.value("NULLMOVE",NULLMOVE)
+		.value("CROUCH",CROUCH)
+		.value("JUMP",JUMP)
+		.value("WALK",WALK)
+		.value("RUN",RUN)
+		;
 
-/*afiBotBrain::afiBotBrain() {
-	body = NULL;
-	memset( &bodyInput, 0, sizeof( bodyInput ) );
+	class_<aiCommands_t>("aiCommands_t")
+		.def_readwrite("attack",&aiCommands_t::attack)
+		.def_readwrite("zoom",&aiCommands_t::zoom)
+		;
+	class_<aiInput_t>("aiInput_t")
+		.def_readwrite("viewDirection",&aiInput_t::viewDirection)
+		.def_readwrite("viewType",&aiInput_t::viewType)
+		.def_readwrite("moveDirection",&aiInput_t::moveDirection)
+		.def_readwrite("moveSpeed",&aiInput_t::moveSpeed)
+		.def_readwrite("moveFlag",&aiInput_t::moveFlag)
+		.def_readwrite("commands",&aiInput_t::commands)
+		;
+
+	class_<afiBotBrainWrapper,boost::noncopyable>("afiBotBrain")
+		.def("Think",pure_virtual(&afiBotBrain::Think))
+		.def("Spawn",pure_virtual(&afiBotBrain::Spawn))
+		.def("Restart",pure_virtual(&afiBotBrain::Restart))
+		.add_property("body",
+					 make_function(&afiBotBrain::GetBody,return_internal_reference<>()))
+		.def_readonly("physicsObject",&afiBotBrain::physicsObject)
+		;
 }
 
-afiBotBrain::~afiBotBrain() {
 
-}*/
+aiInput_t afiBotBrainWrapper::Think()  {
+	object scriptResult;
+	aiInput_t scriptInput;
+	try {
+		scriptResult = this->get_override("Think")();
+	} catch(...) {
+		gameLocal.HandlePythonError();
+	}
+	scriptInput = extract<aiInput_t>(scriptResult);
+	return scriptInput;
+}
+
+
+void afiBotBrainWrapper::Spawn() {
+	try {
+		this->get_override("Spawn")(botDict);
+	}
+	catch(...) {
+		gameLocal.HandlePythonError();
+	}
+}
+
+void afiBotBrainWrapper::Restart() {
+	try {
+		this->get_override("Restart")();
+	}
+	catch(...) {
+		gameLocal.HandlePythonError();
+	}
+}
+
 
 void afiBotBrain::SetBody(afiBotPlayer* newBody) {
 	body = newBody;
 }
 
-void afiBotBrain::SetUserInfo(idDict* userInfo) {
-	botInfo.TransferKeyValues(*userInfo);
+afiBotPlayer* afiBotBrain::GetBody() {
+	return body;
 }
+
+idPhysics_Player* afiBotBrain::GetPhysics() {
+	return physicsObject;
+}
+
+
 
 void afiBotBrain::SetAAS() {
 	aas = gameLocal.GetAAS( "aas48" );

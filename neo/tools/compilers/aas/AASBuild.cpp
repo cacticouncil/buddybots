@@ -658,7 +658,7 @@ bool idAASBuild::Build( const idStr &fileName, const idAASSettings *settings ) {
 	name.SetFileExtension( "map" );
 
 	mapFile = new idMapFile;
-	if ( !mapFile->Parse( name ) ) {
+	if ( !mapFile->Parse( name,false,true ) ) {
 		delete mapFile;
 		common->Error( "Couldn't load map file: '%s'", name.c_str() );
 		return false;

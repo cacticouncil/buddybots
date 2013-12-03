@@ -239,8 +239,11 @@ public:
 	void					FreeSoundEmitter( bool immediate );
 
 #ifdef AFI_BOTS
-	float					DistanceTo		( idEntity* ent );
-	float					DistanceTo		( const idVec3& pos ) const;
+	//Returns the entity's origin position if the entity has a physics object
+	//Otherwise the function will return zero_vector
+	idVec3					GetPosition( void );
+	float					DistanceTo( idEntity* ent ) const;
+	float					DistanceTo( const idVec3 pos ) const;
 #endif
 	// entity binding
 	virtual void			PreBind( void );
@@ -484,11 +487,11 @@ private:
 #endif
 };
 #ifdef AFI_BOTS
-ID_INLINE float idEntity::DistanceTo ( idEntity* ent ) {
+ID_INLINE float idEntity::DistanceTo ( idEntity* ent ) const {
 	return DistanceTo ( ent->GetPhysics()->GetOrigin() ); 
 }
 
-ID_INLINE float idEntity::DistanceTo ( const idVec3& pos ) const {
+ID_INLINE float idEntity::DistanceTo ( const idVec3 pos ) const {
 	return (pos - GetPhysics()->GetOrigin()).LengthFast ( ); 
 }
 #endif
