@@ -52,6 +52,34 @@ typedef struct botInfo_s {
 	
 } botInfo_t;
 
+class botWorkerThread {
+	friend class afiBotManager;
+
+public:
+								botWorkerThread(condition_variable* conditional_variable,mutex* thread_mutex );
+								~botWorkerThread( );
+	void						InitializeForFrame( unsigned int endUpdateIndex );
+	void						RunWork( );
+	void						AddUpdateTask( afiBotBrain* newTask );
+protected:
+
+private:
+	bool						CheckWorkTime( );
+	bool						LookForMoreWork( );
+	void						RemoveFailedBot( int removeIndex );
+
+	afiBotBrain*				packedUpdateArray[MAX_CLIENTS];
+	atomic<int>					currentUpdateTask;
+	atomic<int>					endUpdateTask;
+	int							currentFrameTime;
+	int							deltaTime;
+	thread						threadObj;
+	idTimer						workTimer;
+	//Thread control variables manipulated by thread or bot manager
+	condition_variable*			threadConditional;
+	mutex*						threadMutex;
+};
+
 /*
 ===============================================================================
 
@@ -81,6 +109,14 @@ public:
 	 static idStr				GetBotClassname( int clientNum );
 	 static void				SpawnBot( int clientNum );
 	 static void				OnDisconnect( int clientNum );
+
+	 //Thread related functions
+	 static void				InitializeThreadsForFrame( );
+	 static void				LaunchThreadsForFrame( );
+	 static void				WaitForThreadsTimed(  );
+	 static bool				isGameEnding();
+	 static void				IncreaseThreadUpdateCount();
+	 static void				DecreaseThreadUpdateCount();
 	
 	 static idEntity*			GetFlag(int team);
 	 static int					GetFlagStatus(int team);
@@ -101,8 +137,25 @@ public:
 protected:
 	static usercmd_t			botCmds[MAX_CLIENTS];
 private:
+	static void					DistributeWorkToThreads( );
+	
 	static idList<botInfo_t*>	loadedBots;
+	static unsigned int			numBots;
 	static int					numQueBots;
+
+	//Worker thread control variables
+	static unsigned int			workerThreadCount;
+	static condition_variable	workerThreadDoneWorkConditional;
+	static mutex				workerThreadDoneWorkMutex;
+	static condition_variable	workerThreadUpdateConditional;
+	static mutex				workerThreadMutex;
+	static botWorkerThread**	workerThreadArray;
+	static atomic<bool>			gameEnd;
+
+	static unsigned int			threadUpdateCount;
+	
+
+
 	static idCmdArgs			cmdQue[MAX_CLIENTS];
 	static idCmdArgs			persistArgs[MAX_CLIENTS];
 	static bool					botSpawned[MAX_CLIENTS];

@@ -70,6 +70,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -152,9 +153,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <PreBuildEvent>
-      <Command>cd $(SolutionDir)\..
-"build\Win32\$(Configuration)\TypeInfo.exe" d3xp
-</Command>
+      <Command>call "$(SolutionDir)runTypeInfo.bat" "$(SolutionDir)..\build\Win32\$(Configuration)"</Command>
     </PreBuildEvent>
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -253,6 +252,7 @@
     <ClCompile Include="d3xp\bot\BotAASBuild.cpp" />
     <ClCompile Include="d3xp\bot\BotBrain.cpp" />
     <ClCompile Include="d3xp\bot\BotManager.cpp" />
+    <ClCompile Include="d3xp\bot\BotManager_thread.cpp" />
     <ClCompile Include="d3xp\bot\BotPlayer.cpp" />
     <ClCompile Include="d3xp\bot\BotPlayer_navigation.cpp" />
     <ClCompile Include="d3xp\gamesys\Class.cpp" />

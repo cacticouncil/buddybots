@@ -371,6 +371,8 @@ void idGameLocal::Init( void ) {
 	//Initialize Python
 	Py_Initialize();
 
+	PyEval_InitThreads();
+
 	//Grab the main module and globalNamespace
 	main = import("__main__");
 
@@ -479,8 +481,6 @@ void idGameLocal::LoadBrains() {
 	idFileList* brainPaks;
 	int			iBrainPak;
 	int			numBrainPaks;
-	char		dllPath[MAX_OSPATH];
-	char		fileName[MAX_OSPATH];
 
 
 	//List all the pakFiles in the folder where the botPaks should be.
@@ -2845,6 +2845,9 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		// set the user commands for this frame
 		memcpy( usercmds, clientCmds, numClients * sizeof( usercmds[ 0 ] ) );
 
+		afiBotManager::InitializeThreadsForFrame();
+
+
 		// free old smoke particles
 		smokeParticles->FreeSmokes();
 
@@ -2857,8 +2860,14 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		// create a merged pvs for all players
 		SetupPlayerPVS();
 
+		afiBotManager::LaunchThreadsForFrame();
+
 		// sort the active entity list
 		SortActiveEntityList();
+
+		
+		//TODO: Wait for adequate amount of time for threads to finish thinking
+		afiBotManager::WaitForThreadsTimed();
 
 		timer_think.Clear();
 		timer_think.Start();

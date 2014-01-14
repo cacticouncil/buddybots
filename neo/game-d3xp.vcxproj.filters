@@ -190,6 +190,9 @@
     <ClCompile Include="d3xp\bot\BotAASBuild.cpp">
       <Filter>Bots</Filter>
     </ClCompile>
+    <ClCompile Include="d3xp\bot\BotManager_thread.cpp">
+      <Filter>Bots</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="d3xp\ai\AAS.h">

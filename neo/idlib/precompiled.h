@@ -106,6 +106,16 @@ If you have questions concerning this license or the applicable additional terms
 #include <math.h>
 
 //-----------------------------------------------------
+#include <atomic>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
+using std::mutex;
+using std::condition_variable;
+using std::thread;
+using std::atomic;
+
 #if defined(_DEBUG)
 //#define BOOST_DEBUG_PYTHON
 

@@ -14,19 +14,29 @@ dispatch to bots.
 #include "BotManager.h"
 #include "BotBrain.h"
 
+#define						THINK_SLICE 1.0
+
 
 afiBotManager				afiBotManagerLocal;
 afiBotManager *				BotManager = &afiBotManagerLocal;
 
-
+unsigned int				afiBotManager::numBots = 0;
 int							afiBotManager::numQueBots = 0;
 int							afiBotManager::botEntityDefNumber[MAX_CLIENTS];
 bool						afiBotManager::botSpawned[MAX_CLIENTS];
+atomic<bool>				afiBotManager::gameEnd = false;
+unsigned int				afiBotManager::threadUpdateCount = 0;
 idCmdArgs					afiBotManager::cmdQue[MAX_CLIENTS];
 idCmdArgs					afiBotManager::persistArgs[MAX_CLIENTS];
 usercmd_t					afiBotManager::botCmds[MAX_CLIENTS];
 idList<botInfo_t*>			afiBotManager::loadedBots;
 afiBotBrain*				afiBotManager::brainFastList[MAX_CLIENTS];
+botWorkerThread**			afiBotManager::workerThreadArray = nullptr;
+unsigned int				afiBotManager::workerThreadCount = std::thread::hardware_concurrency();
+condition_variable			afiBotManager::workerThreadDoneWorkConditional;
+mutex						afiBotManager::workerThreadDoneWorkMutex;
+mutex						afiBotManager::workerThreadMutex;
+condition_variable			afiBotManager::workerThreadUpdateConditional;
 
 #ifdef AFI_BOTS
 
@@ -49,12 +59,118 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 }
 #endif
 
+
+
  void afiBotManager::PrintInfo( void ) {
 	common->Printf("AFI Bots Initialized\n");
 }
 
  void afiBotManager::ConsolePrint(const char* string) {
 	 gameLocal.Printf(string);
+ }
+
+ bool afiBotManager::isGameEnding( ) {
+	 return gameEnd;
+ }
+
+ void afiBotManager::IncreaseThreadUpdateCount( ) {
+	 std::unique_lock<mutex> threadLock(workerThreadDoneWorkMutex);
+	 threadUpdateCount++;
+	 threadLock.unlock();
+ }
+
+ void afiBotManager::DecreaseThreadUpdateCount( ) {
+	 std::unique_lock<mutex> threadLock(workerThreadDoneWorkMutex);
+	 threadUpdateCount--;
+	 workerThreadDoneWorkConditional.notify_one();
+	 threadLock.unlock();
+ }
+
+ void afiBotManager::LaunchThreadsForFrame( ) {
+
+	 if(gameLocal.GameState() != GAMESTATE_ACTIVE || numBots == 0)
+		 return;
+
+	 std::unique_lock<mutex> threadLock(workerThreadMutex);
+	 workerThreadUpdateConditional.notify_all();
+	 threadLock.unlock();
+ }
+
+ void afiBotManager::WaitForThreadsTimed(  ) {
+
+	 if(gameLocal.GameState() != GAMESTATE_ACTIVE || numBots == 0)
+		 return;
+	 double milliseconds = numBots*THINK_SLICE;
+	 std::unique_lock<mutex> threadLock(workerThreadDoneWorkMutex);
+	 auto now = std::chrono::system_clock::now();
+	 auto timeToWait = std::chrono::milliseconds((int)milliseconds*1000);
+	 workerThreadDoneWorkConditional.wait_until(threadLock, now + timeToWait, [&]() {if(threadUpdateCount <= 0) return true; return false;});
+	 threadLock.unlock();
+
+ }
+
+ void afiBotManager::InitializeThreadsForFrame( ) {
+
+	 if(gameLocal.GameState() != GAMESTATE_ACTIVE || numBots == 0)
+		 return;
+
+	 if( numBots == 1) {
+		 for(unsigned int iClient = 0; iClient < MAX_CLIENTS; ++iClient) {
+			 if(IsClientBot(iClient)) {
+				 workerThreadArray[0]->packedUpdateArray[0] = brainFastList[iClient];
+				 workerThreadArray[0]->currentUpdateTask = 0;
+				 workerThreadArray[0]->endUpdateTask = 1;
+				 IncreaseThreadUpdateCount();
+				 return;
+
+			 }
+		 }
+	 }
+
+	 //Attempt to calculate the amount of updates per thread that should occur to 
+	 int idealTasksPerThread = max(numBots / workerThreadCount,1);
+	 unsigned int threadToFill = 0;
+	 unsigned int iClient = 0;
+	 unsigned int botsAdded = 0;
+	 unsigned int idealReached = 0;
+
+
+	 //First pass loop to fill all threads to idealTaskCount
+	 while(botsAdded < numBots) {
+		 if(idealReached == workerThreadCount) {
+			 for(threadToFill = 0; botsAdded < numBots;iClient++ ) {
+				 if(IsClientBot(iClient)) {
+					 workerThreadArray[threadToFill]->packedUpdateArray[workerThreadArray[threadToFill]->endUpdateTask] = brainFastList[iClient];
+					 workerThreadArray[threadToFill]->endUpdateTask++;
+					 threadToFill++;
+					 botsAdded++;
+				 }
+			 }
+			 break;
+		 }
+		 while(workerThreadArray[threadToFill]->endUpdateTask < idealTasksPerThread) {
+			 if(botsAdded > numBots) {
+				 break;
+			 }
+			 if(IsClientBot(iClient)) {
+				 if(workerThreadArray[threadToFill]->endUpdateTask == -1) {
+					 IncreaseThreadUpdateCount();
+					 workerThreadArray[threadToFill]->endUpdateTask = 0;
+					 workerThreadArray[threadToFill]->currentUpdateTask = 0;
+				 }
+				 workerThreadArray[threadToFill]->packedUpdateArray[workerThreadArray[threadToFill]->endUpdateTask] = brainFastList[iClient];
+				 workerThreadArray[threadToFill]->endUpdateTask++;
+				 botsAdded++;
+			 }
+			 if(workerThreadArray[threadToFill]->endUpdateTask >= idealTasksPerThread) {
+				 idealReached++;
+			 }
+
+			 iClient++;
+		 }
+		 threadToFill++;
+	 }
+
  }
 
  void afiBotManager::Initialize( void ) {
@@ -67,6 +183,16 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 	}
 	loadedBots.Clear();
 	memset( &botCmds, 0, sizeof( botCmds ) );
+
+	if(workerThreadCount <= 1) {
+		workerThreadCount = 2;
+	}
+	//Initialize Worker threads based on count
+	workerThreadArray = new botWorkerThread*[workerThreadCount];
+	for(unsigned int iThread = 0; iThread < workerThreadCount; ++iThread) {
+
+		workerThreadArray[iThread] = new botWorkerThread(&workerThreadUpdateConditional,&workerThreadMutex);
+	}
 	
 }
 
@@ -78,18 +204,30 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 		botEntityDefNumber[i] = 0;
 		brainFastList[i] = NULL;
 	}
-	
+	numBots = 0;
+	workerThreadMutex.lock();
+	gameEnd = true;
+	workerThreadUpdateConditional.notify_all();
+	workerThreadMutex.unlock();
 	
 	//delete the memory for both the list, python is handling the cleanup of
 	// bot information.
-	loadedBots.Clear();
+	loadedBots.DeleteContents(true);
 	memset( &botCmds, 0, sizeof( botCmds ) );
-	
+
+	//clean up the worker thread memory
+	//Might need a function here to wait for safe thread shutdown.
+	for(unsigned int iThread = 0; iThread < workerThreadCount; ++iThread) {
+		delete workerThreadArray[iThread];
+		workerThreadArray[iThread] = nullptr;
+	}
+	delete[] workerThreadArray;
+	workerThreadArray = nullptr;
 }
 
  botInfo_t* afiBotManager::FindBotProfileByIndex(int clientNum) {
 	 botInfo_t* returnProfile = NULL;
-	 int numProfiles = 0;
+	 unsigned int numProfiles = 0;
 	 if(clientNum > MAX_CLIENTS) {
 		 return returnProfile;
 	 }
@@ -200,6 +338,7 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 
 	persistArgs[clientNum] = args;
 	botSpawned[clientNum] = true;
+	numBots++;
 
 	// Index num of the bots def is saved so it can be sent to clients in order to spawn the right bot class
 	SetBotDefNumber( clientNum, botDef->Index() );
@@ -503,7 +642,7 @@ void afiBotManager::InitBotsFromMapRestart( void ) {
 			numQueBots++;
 		}
 	}
-
+	numBots = 0;
 	// Add bots from command line or config Que - 
 	if ( numQueBots ) {
 		for ( int i = 0; i < MAX_CLIENTS; i++ ) {
@@ -576,7 +715,6 @@ afiBotManager::~afiBotManager
 */
 afiBotManager::~afiBotManager() {
 
-	Shutdown();
 }
 
 #endif

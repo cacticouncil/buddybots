@@ -134,12 +134,12 @@ void afiBotPlayer::Restart( void ) {
 void afiBotPlayer::Think( void ) {
 	idPlayer::Think();
 
-	if(brain != NULL) {
-		aiInput_t temp = brain->Think();
-		if(temp.moveFlag != NULLMOVE) {
-			aiInput = temp;
-		}
-	}
+	//if(brain != NULL) {
+		//aiInput_t temp = brain->Think();
+		//f(temp.moveFlag != NULLMOVE) {
+			//aiInput = temp;
+		//}
+	//}
 	
 
 	Move();
