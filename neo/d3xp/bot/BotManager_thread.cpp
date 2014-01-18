@@ -3,10 +3,12 @@
 #include "BotBrain.h"
 #include "BotPlayer.h"
 
-botWorkerThread::botWorkerThread(condition_variable* conditional_variable, mutex* thread_mutex ) : endUpdateTask(-1), currentUpdateTask(-1) {
+botWorkerThread::botWorkerThread(condition_variable* conditional_variable, mutex* thread_mutex, PyInterpreterState* mainState ) : endUpdateTask(-1), currentUpdateTask(-1) {
 	for(unsigned int iClient = 0; iClient < MAX_CLIENTS; iClient++) {
 		packedUpdateArray[iClient] = NULL;
 	}
+	threadState = NULL;
+	interpState = mainState;
 	threadMutex = thread_mutex;
 	threadConditional = conditional_variable;
 	threadObj = thread(&botWorkerThread::RunWork,this);
@@ -39,9 +41,12 @@ void botWorkerThread::AddUpdateTask( afiBotBrain* newTask ) {
 void botWorkerThread::RunWork( ) {
 
 	//Any One time thread init stuff should happen here
-	std::unique_lock<mutex> threadLock(*threadMutex,std::defer_lock);
-
-
+	std::unique_lock<mutex> threadLock(*threadMutex);
+	threadState = PyThreadState_New(interpState);
+	PyEval_RestoreThread(threadState);
+	threadState = PyEval_SaveThread();
+	afiBotManager::SetThreadState(threadState,this);
+	threadLock.unlock();
 	while(true) {
 
 		threadLock.lock();
@@ -54,13 +59,16 @@ void botWorkerThread::RunWork( ) {
 
 		do {
 			workTimer.Clear();
+
+			PyEval_RestoreThread(threadState);
+			
 			workTimer.Start();
-
-			Py_BEGIN_ALLOW_THREADS
 			packedUpdateArray[currentUpdateTask]->Think();
-			Py_END_ALLOW_THREADS
-
 			workTimer.Stop();
+
+			threadState = PyEval_SaveThread();
+	
+
 			
 			double workTime = workTimer.Milliseconds();
 			if( workTime > 1.0f ) {
@@ -103,3 +111,4 @@ bool botWorkerThread::LookForMoreWork( ) {
 void botWorkerThread::RemoveFailedBot( int removeIndex ) {
 
 }
+

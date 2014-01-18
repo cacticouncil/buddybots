@@ -111,6 +111,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <mutex>
 #include <condition_variable>
 #include <chrono>
+#include <unordered_map>
 using std::mutex;
 using std::condition_variable;
 using std::thread;

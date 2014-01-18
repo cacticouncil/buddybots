@@ -24,7 +24,7 @@ idCVar	bot_debugBot( "bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOC
 CLASS_DECLARATION( idPlayer, afiBotPlayer )
 END_CLASS
 
-#ifdef AFI_BOTS
+
 
 
 BOOST_PYTHON_MODULE(afiBotPlayer) {
@@ -38,15 +38,15 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 	class_<afiBotPlayer>("afiBotPlayer")
 		.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>())
 		.def("MoveTo",&afiBotPlayer::MoveTo)
-		.def("MoveToPosition",&afiBotPlayer::MoveToPosition)
-		.def("MoveToEntity",&afiBotPlayer::MoveToEntity)
-		.def("MoveToPlayer",&afiBotPlayer::MoveToPlayer)
+		.def("MoveToPosition",&afiBotPlayer::MoveToPosition,release_gil_policy())
+		.def("MoveToEntity",&afiBotPlayer::MoveToEntity,release_gil_policy())
+		.def("MoveToPlayer",&afiBotPlayer::MoveToPlayer,release_gil_policy())
 		.def("Attack",&afiBotPlayer::Attack)
 		.def("Jump",&afiBotPlayer::Jump)
 		.def("LookInDirection",&afiBotPlayer::LookInDirection)
 		.def("LookAtPosition",&afiBotPlayer::LookAtPosition)
 		.def("MoveToNearest",&afiBotPlayer::MoveToNearest,return_value_policy<reference_existing_object>())
-		.def("PathToGoal",&afiBotPlayer::PathToGoal)
+		.def("PathToGoal",&afiBotPlayer::PathToGoal,release_gil_policy())
 		.def("ReachedPos",&afiBotPlayer::ReachedPos)
 		.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>())
 		.def_readonly("health",&afiBotPlayer::health)
@@ -56,7 +56,7 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 }
 
 
-#endif
+
 
 afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset( &botcmd, 0, sizeof( botcmd ) );
@@ -232,7 +232,7 @@ void afiBotPlayer::ProcessMove( void ) {
 	angles.ToVectors( &forward, &right, NULL );
 
 	//aiInput.moveSpeed = pm_speed.GetFloat(); //the speed scaling below relies on speed being set each frame else it will whittle it down to 0, since the navigation state doesn't seem to be using fine grained speed control (human players don't exactly have it anyway) just using max.
-	float inspeed = aiInput.moveSpeed;
+	//float inspeed = aiInput.moveSpeed;
 	int maxSpeed = 160.0f;//pm_speed.GetFloat(); //this may not work for speed? TEST
 	aiInput.moveSpeed = idMath::ClampFloat( -maxSpeed, maxSpeed, aiInput.moveSpeed );
 	aiInput.moveSpeed = aiInput.moveSpeed * 127 / maxSpeed; //Scale from [0, 400] to [0, 127]

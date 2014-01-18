@@ -159,7 +159,7 @@ BotPlayer::StopMove
 =====================
 */
 void afiBotPlayer::StopMove( moveStatus_t status ) {
-	moveCommand_t oldCommand = move.moveCommand;
+	//moveCommand_t oldCommand = move.moveCommand;
 
 	move.flags.done			= true;
 	move.flags.moving			= false;

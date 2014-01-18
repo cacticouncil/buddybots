@@ -426,7 +426,7 @@ void BotAASBuild::AddTransporterReachabilities( void ) {
 			if ( ent->spawnArgs.GetString( "target", "", &targetName ) ) {
 				idEntity *target = gameLocal.FindEntity( targetName );
 				if ( target && target->IsType( idPlayerStart::Type ) ) {
-					int startArea, targetArea, startCluster, targetCluster;
+					int startArea, targetArea, startCluster = -1, targetCluster = -1;
 					bool needsPortal = false;
 					// get the areas the trigger multi bounds is in (just origin for now)
 					startArea = aas->PointReachableAreaNum( ent->GetPhysics()->GetOrigin(), DefaultBotBounds(), travelFlags );
@@ -576,7 +576,7 @@ idReachability * BotAASBuild::AllocReachability( void ) {
 	r->areaTravelTimes = NULL;
 	r->fromAreaNum = 0;
 	r->next = NULL;
-	r->number = -1;
+	r->number = 0;
 	r->rev_next = NULL;
 	r->toAreaNum = 0;
 	r->travelTime = 1;
@@ -604,7 +604,8 @@ void BotAASBuild::CreateReachability( const idVec3 &start, const idVec3 &end, in
 	idReachability *reach;
 	
 	// add the reach to the end of the start areas reachability list 
-	if ( reach = file->areas[fromAreaNum].reach ) {
+	reach = file->areas[fromAreaNum].reach;
+	if ( reach ) {
 		// get to the last reach in the list - he he
 		for ( ; reach->next; reach = reach->next ) {}
 		reach->next = r;
@@ -623,7 +624,9 @@ void BotAASBuild::CreateReachability( const idVec3 &start, const idVec3 &end, in
 	r->travelTime = 1; // TODO: distance calculation here 
 	r->edgeNum = 0; // TODO: elevator height here, portal wouldn't share edge either? make parameter if needed?
 	r->areaTravelTimes = NULL;
-	if( reach = file->areas[toAreaNum].rev_reach ) {
+
+	reach = file->areas[toAreaNum].rev_reach;
+	if( reach ) {
 		// get to the end of the rev_reach list
 		for ( ; reach->rev_next; reach = reach->rev_next ) {}
 		reach->rev_next = r;

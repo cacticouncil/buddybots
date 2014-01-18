@@ -56,7 +56,7 @@ class botWorkerThread {
 	friend class afiBotManager;
 
 public:
-								botWorkerThread(condition_variable* conditional_variable,mutex* thread_mutex );
+								botWorkerThread(condition_variable* conditional_variable,mutex* thread_mutex,PyInterpreterState* mainState );
 								~botWorkerThread( );
 	void						InitializeForFrame( unsigned int endUpdateIndex );
 	void						RunWork( );
@@ -78,7 +78,12 @@ private:
 	//Thread control variables manipulated by thread or bot manager
 	condition_variable*			threadConditional;
 	mutex*						threadMutex;
+	PyThreadState*				threadState;
+	PyInterpreterState*			interpState;
 };
+
+typedef std::unordered_map<PyThreadState*,botWorkerThread*> threadMap_t;
+
 
 /*
 ===============================================================================
@@ -117,6 +122,8 @@ public:
 	 static bool				isGameEnding();
 	 static void				IncreaseThreadUpdateCount();
 	 static void				DecreaseThreadUpdateCount();
+	 static void				SetThreadState(PyThreadState* state,botWorkerThread* saveThread);
+	 static void				UpdateThreadState(PyThreadState* state);
 	
 	 static idEntity*			GetFlag(int team);
 	 static int					GetFlagStatus(int team);
@@ -138,6 +145,7 @@ protected:
 	static usercmd_t			botCmds[MAX_CLIENTS];
 private:
 	static void					DistributeWorkToThreads( );
+	static void					InitializePython( );
 	
 	static idList<botInfo_t*>	loadedBots;
 	static unsigned int			numBots;
@@ -150,10 +158,10 @@ private:
 	static condition_variable	workerThreadUpdateConditional;
 	static mutex				workerThreadMutex;
 	static botWorkerThread**	workerThreadArray;
+	static threadMap_t			workerThreadMap;
 	static atomic<bool>			gameEnd;
-
 	static unsigned int			threadUpdateCount;
-	
+	static PyInterpreterState*	interpreterState;
 
 
 	static idCmdArgs			cmdQue[MAX_CLIENTS];
@@ -162,6 +170,39 @@ private:
 	static int					botEntityDefNumber[MAX_CLIENTS];
 	static afiBotBrain*			brainFastList[MAX_CLIENTS];
 };
+
+namespace boost { namespace python {
+
+struct release_gil_policy {
+
+	template<class ArgumentPackage>
+	static bool precall(ArgumentPackage const&)
+	{
+		PyThreadState* state = PyEval_SaveThread();
+		afiBotManager::UpdateThreadState(state);
+
+		return true;
+	}
+
+	template<class ArgumentPackage>
+	static PyObject* postcall(ArgumentPackage const&, PyObject* result) {
+
+		PyThreadState* state = PyThreadState_Get();
+		PyEval_RestoreThread(state);
+		return result;
+	}
+
+	typedef default_result_converter result_converter;
+	typedef PyObject* argument_package;
+
+	template<class Sig>
+	struct extract_return_type : mpl::front<Sig>
+	{
+	};
+private:
+};
+}
+}
 
 
 

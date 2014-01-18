@@ -185,18 +185,7 @@ void TestGameAPI( void ) {
 }
 
 
-#ifdef AFI_BOTS
 
-//extern module initfunctions
-extern "C" void initafiBotPlayer();
-extern "C" void initafiBotManager();
-extern "C" void initafiBotBrain();
-extern "C" void initidDict();
-extern "C" void initidEntity();
-extern "C" void initidVec2();
-extern "C" void initidVec3();
-extern "C" void initidAngles();
-#endif
 /*
 ===========
 idGameLocal::idGameLocal
@@ -338,49 +327,7 @@ void idGameLocal::Init( void ) {
 	afiBotManager::PrintInfo();
 	afiBotManager::Initialize();
 	
-	int result = PyImport_AppendInittab("idAngles",initidAngles);
-	if( result == -1) {
-		Error("Failed to Init afiBotPlayer Module");
-	}
-	if(PyImport_AppendInittab("idVec2",initidVec2) == -1) {
-		Error("Failed to Init afiBotPlayer Module");
-	}
-	if(PyImport_AppendInittab("idVec3",initidVec3) == -1) {
-		Error("Failed to Init afiBotPlayer Module");
-	}
-	if(PyImport_AppendInittab("idDict",initidDict) == -1) {
-		Error("Failed to Init afiBotPlayer Module");
-	}
-
-	if(PyImport_AppendInittab("idEntity",initidEntity) == -1) {
-		Error("Failed to Init afiBotPlayer Module");
-	}
-
-	if(PyImport_AppendInittab("afiBotManager",initafiBotManager) == -1) {
-		Error("Failed to Init afiBotPlayer Module");
-	}
-
-	if(PyImport_AppendInittab("afiBotPlayer",initafiBotPlayer) == -1) {
-		Error("Failed to Init afiBotPlayer Module");
-	}
-
-	if(PyImport_AppendInittab("afiBotBrain",initafiBotBrain) == -1) {
-		Error("Failed to Init afiBotBrain Module");
-	}
-
-	//Initialize Python
-	Py_Initialize();
-
-	PyEval_InitThreads();
-
-	//Grab the main module and globalNamespace
-	main = import("__main__");
-
-	globalNamespace = main.attr("__dict__");
-
-	globalNamespace["sys"] = import("sys");
-
-	//Load all bot brains
+	//Load all Bots found in botPaks folder
 	LoadBrains();
 #endif 
 

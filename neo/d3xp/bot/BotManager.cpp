@@ -37,8 +37,18 @@ condition_variable			afiBotManager::workerThreadDoneWorkConditional;
 mutex						afiBotManager::workerThreadDoneWorkMutex;
 mutex						afiBotManager::workerThreadMutex;
 condition_variable			afiBotManager::workerThreadUpdateConditional;
+PyInterpreterState*			afiBotManager::interpreterState = nullptr;
+threadMap_t					afiBotManager::workerThreadMap;
 
-#ifdef AFI_BOTS
+//extern module initfunctions
+extern "C" void initafiBotPlayer();
+extern "C" void initafiBotBrain();
+extern "C" void initidDict();
+extern "C" void initidEntity();
+extern "C" void initidVec2();
+extern "C" void initidVec3();
+extern "C" void initidAngles();
+
 
 BOOST_PYTHON_MODULE(afiBotManager) {
 
@@ -57,7 +67,6 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 	.staticmethod("ConsolePrint")
 	;
 }
-#endif
 
 
 
@@ -137,17 +146,7 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 
 	 //First pass loop to fill all threads to idealTaskCount
 	 while(botsAdded < numBots) {
-		 if(idealReached == workerThreadCount) {
-			 for(threadToFill = 0; botsAdded < numBots;iClient++ ) {
-				 if(IsClientBot(iClient)) {
-					 workerThreadArray[threadToFill]->packedUpdateArray[workerThreadArray[threadToFill]->endUpdateTask] = brainFastList[iClient];
-					 workerThreadArray[threadToFill]->endUpdateTask++;
-					 threadToFill++;
-					 botsAdded++;
-				 }
-			 }
-			 break;
-		 }
+		 
 		 while(workerThreadArray[threadToFill]->endUpdateTask < idealTasksPerThread) {
 			 if(botsAdded > numBots) {
 				 break;
@@ -168,9 +167,86 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 
 			 iClient++;
 		 }
+		 if(idealReached == workerThreadCount && botsAdded < numBots) {
+			 for(threadToFill = 0; botsAdded < numBots;iClient++ ) {
+				 if(IsClientBot(iClient)) {
+					 workerThreadArray[threadToFill]->packedUpdateArray[workerThreadArray[threadToFill]->endUpdateTask] = brainFastList[iClient];
+					 workerThreadArray[threadToFill]->endUpdateTask++;
+					 threadToFill++;
+					 botsAdded++;
+				 }
+			 }
+			 break;
+		 }
 		 threadToFill++;
 	 }
 
+ }
+
+ void afiBotManager::SetThreadState(PyThreadState* state, botWorkerThread* saveThread) {
+
+	 workerThreadMap[state] = saveThread;
+ }
+
+ void afiBotManager::UpdateThreadState(PyThreadState* state) {
+
+	 botWorkerThread* threadToUpdate = workerThreadMap[state];
+
+	 if(!threadToUpdate) {
+		 gameLocal.Error("Something has gone Terribly wrong with the worker threads.");
+	 }
+
+	 threadToUpdate->threadState = state;
+ }
+
+ void afiBotManager::InitializePython( ) {
+
+	 
+	int result = PyImport_AppendInittab("idAngles",initidAngles);
+	if( result == -1) {
+		gameLocal.Error("Failed to Init afiBotPlayer Module");
+	}
+	if(PyImport_AppendInittab("idVec2",initidVec2) == -1) {
+		gameLocal.Error("Failed to Init afiBotPlayer Module");
+	}
+	if(PyImport_AppendInittab("idVec3",initidVec3) == -1) {
+		gameLocal.Error("Failed to Init afiBotPlayer Module");
+	}
+	if(PyImport_AppendInittab("idDict",initidDict) == -1) {
+		gameLocal.Error("Failed to Init afiBotPlayer Module");
+	}
+
+	if(PyImport_AppendInittab("idEntity",initidEntity) == -1) {
+		gameLocal.Error("Failed to Init afiBotPlayer Module");
+	}
+
+	if(PyImport_AppendInittab("afiBotManager",initafiBotManager) == -1) {
+		gameLocal.Error("Failed to Init afiBotPlayer Module");
+	}
+
+	if(PyImport_AppendInittab("afiBotPlayer",initafiBotPlayer) == -1) {
+		gameLocal.Error("Failed to Init afiBotPlayer Module");
+	}
+
+	if(PyImport_AppendInittab("afiBotBrain",initafiBotBrain) == -1) {
+		gameLocal.Error("Failed to Init afiBotBrain Module");
+	}
+
+	//Initialize Python
+	Py_Initialize();
+
+	PyEval_InitThreads();
+
+	PyThreadState* localState = PyThreadState_Get();
+	interpreterState = localState->interp;
+	//Grab the main module and globalNamespace
+	gameLocal.main = import("__main__");
+
+	gameLocal.globalNamespace = gameLocal.main.attr("__dict__");
+
+	gameLocal.globalNamespace["sys"] = import("sys");
+
+	
  }
 
  void afiBotManager::Initialize( void ) {
@@ -184,6 +260,8 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 	loadedBots.Clear();
 	memset( &botCmds, 0, sizeof( botCmds ) );
 
+	InitializePython();
+
 	if(workerThreadCount <= 1) {
 		workerThreadCount = 2;
 	}
@@ -191,7 +269,7 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 	workerThreadArray = new botWorkerThread*[workerThreadCount];
 	for(unsigned int iThread = 0; iThread < workerThreadCount; ++iThread) {
 
-		workerThreadArray[iThread] = new botWorkerThread(&workerThreadUpdateConditional,&workerThreadMutex);
+		workerThreadArray[iThread] = new botWorkerThread(&workerThreadUpdateConditional,&workerThreadMutex,interpreterState);
 	}
 	
 }
