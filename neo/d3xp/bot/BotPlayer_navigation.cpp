@@ -8,7 +8,6 @@ const float PM_WATERACCELERATE	= 4.0f;
 const float PM_FLYACCELERATE	= 8.0f;
 const float PM_AIRFRICTION		= 0.0f;
 
-
 const float OVERCLIP			= 1.001f;
 const int MAX_FRAME_SLIDE		= 5;
 
@@ -19,9 +18,8 @@ typedef struct pathTrace_s {
 	const idEntity *		blockingEntity;
 } pathTrace_t;
 
-
 botMoveState_t::botMoveState_t() {
-//	moveType			= MOVETYPE_ANIM;
+	//	moveType			= MOVETYPE_ANIM;
 	moveCommand			= MOVE_NONE;
 	moveStatus			= MOVE_STATUS_DONE;
 	moveDest.Zero();
@@ -47,7 +45,7 @@ botMoveState_t::botMoveState_t() {
 	blockedRadius		= 0.0f;
 	blockedMoveTime		= 750;
 	blockedAttackTime	= 750;
-	
+
 	current_yaw			= 0.0f;
 
 	seekPos.Zero();
@@ -61,7 +59,7 @@ botMoveState_t::botMoveState_t() {
 	lastPath.moveGoal = vec3_zero;
 	lastPath.reachability = NULL;
 	lastPath.secondaryGoal = vec3_zero;
-	lastPath.type = -1; 
+	lastPath.type = -1;
 }
 
 /*
@@ -74,18 +72,18 @@ bool afiBotPlayer::MoveToPlayer( idPlayer *player )
 {
 	assert( player );
 	predictedPath_t path;
-	
+
 	afiBotPlayer::PredictPath( player, aas, player->GetPhysics()->GetOrigin(), player->GetPhysics()->GetLinearVelocity(), 1000, 100, SE_ENTER_OBSTACLE | SE_BLOCKED | SE_ENTER_LEDGE_AREA, path );
-	if ( !MoveToPosition( path.endPos, player->GetPhysics()->GetBounds().GetRadius() ) ) { 
-		gameLocal.Warning( "bot cannot MoveToPlayer at %s", path.endPos.ToString() ); 
+	if ( !MoveToPosition( path.endPos, player->GetPhysics()->GetBounds().GetRadius() ) ) {
+		gameLocal.Warning( "bot cannot MoveToPlayer at %s", path.endPos.ToString() );
 		return false;
 	}
 	/*
 	if ( CanSee( player, true ) ) {
-		LookAt( player->GetEyePosition() ); // TODO: sb - check if CanSee and relook to move.goalPos if not
+	LookAt( player->GetEyePosition() ); // TODO: sb - check if CanSee and relook to move.goalPos if not
 	} else {
-		// goalPos is the path smoothing cutoff
-		LookAt( move.goalPos );
+	// goalPos is the path smoothing cutoff
+	LookAt( move.goalPos );
 	}
 	*/
 	return true;
@@ -138,7 +136,7 @@ bool afiBotPlayer::StartMove (const idVec3& goalOrigin, int goalArea, idEntity* 
 	move.speed				= 400.0f;
 	move.startTime			= gameLocal.time;
 	move.range				= range;
-	
+
 	move.flags.done			= false;
 	move.flags.goalUnreachable	= false;
 	move.flags.moving			= true;
@@ -146,12 +144,10 @@ bool afiBotPlayer::StartMove (const idVec3& goalOrigin, int goalArea, idEntity* 
 	//	TODO: cusTom3 - these are going to be fun
 	// aasSensor->Reserve ( feature );
 
-//	TODO: OnStartMoving ( ); FSM ?
-	
+	//	TODO: OnStartMoving ( ); FSM ?
+
 	return true;
 }
-
-
 
 /*
 =====================
@@ -175,10 +171,9 @@ void afiBotPlayer::StopMove( moveStatus_t status ) {
 	move.duration			= 0;
 	move.range				= 0.0f;
 	move.speed				= 0.0f;
- 	move.anim				= 0; 	
+	move.anim				= 0;
 	move.moveDir.Zero();
 	move.lastMoveOrigin.Zero();
-	
 }
 
 /*
@@ -187,12 +182,11 @@ BotPlayer::ReachedPos
 =====================
 */
 bool afiBotPlayer::ReachedPos( const idVec3 &pos, float range ) const {
-	
 	// When moving towards the enemy just see if our bounding box touches the desination
-			
+
 	idBounds bnds;
 	bnds = idBounds ( idVec3(-range,-range,-16.0f), idVec3(range,range,64.0f) );
-	bnds.TranslateSelf( GetPhysics()->GetOrigin() );	
+	bnds.TranslateSelf( GetPhysics()->GetOrigin() );
 	return bnds.ContainsPoint( pos );
 }
 
@@ -202,7 +196,6 @@ BotPlayer::MoveToPosition
 =====================
 */
 bool afiBotPlayer::MoveToPosition ( const idVec3 &pos, float range ) {
-
 	int areaNum = PointReachableAreaNum( GetPhysics()->GetOrigin() );
 	if ( !areaNum ) {
 		return false;
@@ -214,11 +207,11 @@ bool afiBotPlayer::MoveToPosition ( const idVec3 &pos, float range ) {
 		return false;
 	}
 	aas->PushPointIntoAreaNum( goalAreaNum, goal );
-	
+
 	if ( !PathToGoal( move.path, areaNum, GetPhysics()->GetOrigin(), goalAreaNum, goal ) ) {
 		return false;
 	}
-	
+
 	// Start moving
 	return StartMove( goal, goalAreaNum, NULL, range );
 }
@@ -228,7 +221,6 @@ BotPlayer::MoveTo
 =====================
 */
 void afiBotPlayer::MoveTo ( const idVec3 &pos, float speed ) {
-
 	move.moveDir = pos - GetPhysics()->GetOrigin() ;
 	move.speed = speed;
 }
@@ -240,13 +232,12 @@ BotPlayer::Move
 =====================
 */
 void afiBotPlayer::Move( void ) {
-
 	idReachability*	goalReach;
 
 	move.obstacle = NULL;
 	if ( ReachedPos( move.moveDest, move.range ) ) {
 		StopMove( MOVE_STATUS_DONE );
-	} else { 
+	} else {
 		move.moveStatus = MOVE_STATUS_MOVING;
 
 		// Otherwise, Update The Seek Pos
@@ -268,7 +259,7 @@ void afiBotPlayer::Move( void ) {
 
 	// TODO: cusTom3 - look at new DebugFilter stuff
 	if ( ai_debugMove.GetBool() ) { // AnimMove : GREEN / RED Bounds & Move Dest
-	//	gameRenderWorld->DebugLine(		colorCyan, oldorigin, org, 5000 );
+		//	gameRenderWorld->DebugLine(		colorCyan, oldorigin, org, 5000 );
 		gameRenderWorld->DebugBounds( colorRed, GetPhysics()->GetBounds(), GetPhysics()->GetOrigin(), gameLocal.msec );
 		if (!ReachedPos( move.moveDest, move.range )) {
 			gameRenderWorld->DebugBounds( colorRed, GetPhysics()->GetBounds(), move.moveDest, gameLocal.msec );
@@ -278,7 +269,6 @@ void afiBotPlayer::Move( void ) {
 		DrawRoute();
 	}
 }
-
 
 /*
 =====================
@@ -297,17 +287,17 @@ BotPlayer::PathToGoal
 bool afiBotPlayer::PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const {
 	idVec3 org;
 	idVec3 goal;
-	
+
 	if ( !areaNum || !goalAreaNum) {
 		return false;
 	}
 
 	org = origin;
 	aas->PushPointIntoAreaNum( areaNum, org );
-	
+
 	goal = goalOrigin;
 	aas->PushPointIntoAreaNum( goalAreaNum, goal );
-		
+
 	return aas->WalkPathToGoal( path, areaNum, org, goalAreaNum, goal, move.travelFlags );
 }
 
@@ -331,26 +321,22 @@ bool afiBotPlayer::GetMovePos( idVec3 &seekPos, idReachability** seekReach ) {
 	org = GetPhysics()->GetOrigin();
 	seekPos = org;
 
- 	// RAVEN BEGIN
- 	// cdr: Alternate Routes Bug
+	// RAVEN BEGIN
+	// cdr: Alternate Routes Bug
 	// TODO: cusTom3 - alternate routes
 	if (seekReach) {
- 		(*seekReach) = 0;
- 	}
- 	// RAVEN END
-
-	
+		(*seekReach) = 0;
+	}
+	// RAVEN END
 
 	move.moveStatus = MOVE_STATUS_MOVING;
 	result = false;
-	
-	
-		if ( ReachedPos( move.moveDest, move.range ) ) {
-			StopMove( MOVE_STATUS_DONE );
-			seekPos	= org;
-			return false;
-		}
-	
+
+	if ( ReachedPos( move.moveDest, move.range ) ) {
+		StopMove( MOVE_STATUS_DONE );
+		seekPos	= org;
+		return false;
+	}
 
 	if ( aas && move.toAreaNum ) {
 		areaNum	= PointReachableAreaNum( org );
@@ -360,38 +346,37 @@ bool afiBotPlayer::GetMovePos( idVec3 &seekPos, idReachability** seekReach ) {
 				move.lastPath = path;
 				move.path = path;
 				seekPos = path.moveGoal;
-				
 
- 				// RAVEN BEGIN
- 				// cdr: Alternate Routes Bug
- 				if (seekReach) {
- 					(*seekReach) = (idReachability*)(path.reachability);
- 				}
- 				// RAVEN END
+				// RAVEN BEGIN
+				// cdr: Alternate Routes Bug
+				if (seekReach) {
+					(*seekReach) = (idReachability*)(path.reachability);
+				}
+				// RAVEN END
 
 				result = true;
-	//			move.nextWanderTime = 0;
+				//			move.nextWanderTime = 0;
 			} else {
 				move.flags.goalUnreachable = true;
 			}
 		} else if ( move.lastPath.moveAreaNum ) { // in an invalid area
 			move.path = move.lastPath;
 			seekPos = path.moveGoal;
-				// RAVEN BEGIN
- 				// cdr: Alternate Routes Bug
- 				if (seekReach) {
- 					(*seekReach) = (idReachability*)(path.reachability);
- 				}
- 				// RAVEN END
+			// RAVEN BEGIN
+			// cdr: Alternate Routes Bug
+			if (seekReach) {
+				(*seekReach) = (idReachability*)(path.reachability);
+			}
+			// RAVEN END
 
-				result = true;
+			result = true;
 		} else {
 			move.flags.goalUnreachable = true;
 		}
 	}
 
 	//if (  DebugFilter(ai_debugMove) ) { // YELLOW = seekPos
-		//gameRenderWorld->DebugLine( colorYellow, GetPhysics()->GetOrigin(), seekPos );
+	//gameRenderWorld->DebugLine( colorYellow, GetPhysics()->GetOrigin(), seekPos );
 	//}
 
 	return result;
@@ -403,7 +388,6 @@ BotPlayer::CheckObstacleAvoidance
 =====================
 */
 void afiBotPlayer::CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &seekPos, idReachability* goalReach ) {
-
 	move.flags.blocked				= false;	// Makes Character Stop Moving
 	move.flags.obstacleInPath		= false;	// Makes Character Walk
 	move.obstacle				= NULL;
@@ -412,7 +396,6 @@ void afiBotPlayer::CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &seekPo
 	if (move.flags.ignoreObstacles) {
 		return;
 	}
-	
 
 	// Test For Path Around Obstacles
 	//--------------------------------
@@ -432,10 +415,9 @@ void afiBotPlayer::CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &seekPo
 		seekPos					= goalPos;
 	}
 
-
 	//if ( DebugFilter(ai_showObstacleAvoidance) ) {
-		//gameRenderWorld->DebugLine( colorBlue, goalPos + idVec3( 1.0f, 1.0f, 0.0f ), goalPos + idVec3( 1.0f, 1.0f, 64.0f ), gameLocal.msec );
-		//gameRenderWorld->DebugLine( !move.flags.blocked ? colorYellow : colorRed, path.seekPos, path.seekPos + idVec3( 0.0f, 0.0f, 64.0f ), gameLocal.msec );
+	//gameRenderWorld->DebugLine( colorBlue, goalPos + idVec3( 1.0f, 1.0f, 0.0f ), goalPos + idVec3( 1.0f, 1.0f, 64.0f ), gameLocal.msec );
+	//gameRenderWorld->DebugLine( !move.flags.blocked ? colorYellow : colorRed, path.seekPos, path.seekPos + idVec3( 0.0f, 0.0f, 64.0f ), gameLocal.msec );
 	//}
 }
 
@@ -478,7 +460,6 @@ void afiBotPlayer::DrawRoute( void ) const {
 	aas->ShowWalkPath( start, move.toAreaNum, move.moveDest );
 }
 
-
 /*
 ==============
 PlayerAccelerate
@@ -496,15 +477,15 @@ void PlayerAccelerate( idVec3 &curVelocity, float frametime, const idVec3 &wishd
 	if (addspeed <= 0) {
 		return;
 	}
-// RAVEN BEGIN
-// nmckenzie: added ability to try alternate accelerations.
-	
-		accelspeed = accel * frametime * wishspeed;
-// RAVEN END
+	// RAVEN BEGIN
+	// nmckenzie: added ability to try alternate accelerations.
+
+	accelspeed = accel * frametime * wishspeed;
+	// RAVEN END
 	if ( accelspeed > addspeed ) {
 		accelspeed = addspeed;
 	}
-	// gameLocal.Printf( "accelspeed in Accelerate: %f\n", accelspeed );  
+	// gameLocal.Printf( "accelspeed in Accelerate: %f\n", accelspeed );
 	curVelocity += accelspeed * wishdir;
 
 #else
@@ -549,8 +530,8 @@ float PlayerCmdScale( const usercmd_t &cmd ) {
 	//// since the crouch key doubles as downward movement, ignore downward movement when we're on the ground
 	//// otherwise crouch speed will be lower than specified
 	//if ( walking ) {
-		upmove = 0;
-	//} else { 
+	upmove = 0;
+	//} else {
 	//	upmove = cmd.upmove;
 	//}
 
@@ -573,23 +554,23 @@ float PlayerCmdScale( const usercmd_t &cmd ) {
 }
 
 bool afiBotPlayer::PathTrace( idPlayer *player, const idAAS *aas, const idVec3 &start, const idVec3 &end, int stopEvent, struct pathTrace_s &trace, predictedPath_t &path, int drawDebug ) {
-// RAVEN BEGIN
+	// RAVEN BEGIN
 	trace_t clipTrace;
 	aasTrace_t aasTrace;
 
 	memset( &trace, 0, sizeof( trace ) );
 
 	if ( !aas || !aas->GetSettings() ) {
-// RAVEN BEGIN
-// nmckenzie: Added ignore ent
-// ddynerman: multiple clip worlds
+		// RAVEN BEGIN
+		// nmckenzie: Added ignore ent
+		// ddynerman: multiple clip worlds
 		gameLocal.clip.TranslationEntities(clipTrace,start,end,player->GetPhysics()->GetClipModel(),
 			player->GetPhysics()->GetClipModel()->GetAxis(),MASK_MONSTERSOLID,player);
 
 		//gameLocal.Translation( player, clipTrace, start, end, player->GetPhysics()->GetClipModel(),
-			//						player->GetPhysics()->GetClipModel()->GetAxis(), MASK_MONSTERSOLID, player );
-// RAVEN END
-		
+		//						player->GetPhysics()->GetClipModel()->GetAxis(), MASK_MONSTERSOLID, player );
+		// RAVEN END
+
 		// NOTE: could do (expensive) ledge detection here for when there is no AAS file
 
 		trace.fraction = clipTrace.fraction;
@@ -607,15 +588,14 @@ bool afiBotPlayer::PathTrace( idPlayer *player, const idAAS *aas, const idVec3 &
 
 		aas->Trace( aasTrace, start, end );
 
-// RAVEN BEGIN
-// nmckenzie: Added ignore ent.
+		// RAVEN BEGIN
+		// nmckenzie: Added ignore ent.
 		// TODO: cusTom3 - using predict path will use this which doesn't use MASK_PLAYERSOLID, look at the effect of not unioning the two.
 		gameLocal.clip.TranslationEntities( clipTrace, start, aasTrace.endpos, player->GetPhysics()->GetClipModel(),
-											player->GetPhysics()->GetClipModel()->GetAxis(), MASK_MONSTERSOLID, player );
-// RAVEN END
+			player->GetPhysics()->GetClipModel()->GetAxis(), MASK_MONSTERSOLID, player );
+		// RAVEN END
 
 		if ( clipTrace.fraction >= 1.0f ) {
-
 			trace.fraction = aasTrace.fraction;
 			trace.endPos = aasTrace.endpos;
 			trace.normal = aas->GetPlane( aasTrace.planeNum ).Normal();
@@ -661,13 +641,13 @@ bool afiBotPlayer::PathTrace( idPlayer *player, const idAAS *aas, const idVec3 &
 ============
 BotPlayer::PredictPath
 
-  Can also be used when there is no AAS file available however ledges are not detected.
+Can also be used when there is no AAS file available however ledges are not detected.
 ============
 */
 // RAVEN BEGIN
 // nmckenzie: Added ignore ent parm.
 bool afiBotPlayer::PredictPath( idPlayer *player, const idAAS *aas, const idVec3 &start, const idVec3 &velocity, int totalTime, int frameTime, int stopEvent, predictedPath_t &path, int drawDebug ) {
-// RAVEN END
+	// RAVEN END
 	int i, j, step, numFrames, curFrameTime;
 	idVec3 delta, curStart, curEnd, curVelocity, lastEnd, stepUp, tmpStart;
 	idVec3 gravity, gravityDir, invGravityDir;
@@ -681,14 +661,14 @@ bool afiBotPlayer::PredictPath( idPlayer *player, const idAAS *aas, const idVec3
 	invGravityDir = gravityDir * -1;
 	maxStepHeight = physics->GetMaxStepHeight();
 	minFloorCos = 0.7f; // same as MIN_WALK_NORMAL from physics_player.cpp
-	
-	float scale = PlayerCmdScale( player->usercmd ); 
+
+	float scale = PlayerCmdScale( player->usercmd );
 	idVec3 viewForward, viewRight;
 	player->viewAngles.ToVectors( &viewForward, &viewRight );
 	idVec3 wishvel = viewForward * player->usercmd.forwardmove + viewRight * player->usercmd.rightmove;
-    idVec3 wishdir = wishvel;
-    float wishspeed = wishdir.Normalize();
-    wishspeed *= scale;
+	idVec3 wishdir = wishvel;
+	float wishspeed = wishdir.Normalize();
+	wishspeed *= scale;
 
 	// path initialization
 	path.endPos = start;
@@ -704,7 +684,6 @@ bool afiBotPlayer::PredictPath( idPlayer *player, const idAAS *aas, const idVec3
 	numFrames = ( totalTime + frameTime - 1 ) / frameTime;
 	curFrameTime = frameTime;
 	for ( i = 0; i < numFrames; i++ ) {
-
 		if ( i == numFrames-1 ) {
 			curFrameTime = totalTime - i * curFrameTime;
 		}
@@ -718,63 +697,57 @@ bool afiBotPlayer::PredictPath( idPlayer *player, const idAAS *aas, const idVec3
 		curVelocity = ( curVelocity + path.endVelocity ) * 0.5f;
 
 		delta = curVelocity * curFrameTime * 0.001f;
-	
+
 		//path.endVelocity = curVelocity;
 		path.endTime = i * frameTime;
 
 		// allow sliding along a few surfaces per frame
 		for ( j = 0; j < MAX_FRAME_SLIDE; j++ ) {
-
 			idVec3 lineStart = curStart;
 
 			// allow stepping up three times per frame
 			for ( step = 0; step < 3; step++ ) {
-
 				curEnd = curStart + delta;
-// RAVEN BEGIN
-// nmckenzie: Added ignore ent
+				// RAVEN BEGIN
+				// nmckenzie: Added ignore ent
 				if ( PathTrace( player, aas, curStart, curEnd, stopEvent, trace, path, drawDebug ) ) {
-// RAVEN END
+					// RAVEN END
 					return true;
 				}
 
 				if ( step ) {
-
 					// step down at end point
 					tmpStart = trace.endPos;
 					curEnd = tmpStart - stepUp;
-// RAVEN BEGIN
-// nmckenzie: Added ignore ent
+					// RAVEN BEGIN
+					// nmckenzie: Added ignore ent
 					if ( PathTrace( player, aas, tmpStart, curEnd, stopEvent, trace, path ) ) {
 						return true;
 					}
-// RAVEN END
+					// RAVEN END
 
 					// if not moved any further than without stepping up, or if not on a floor surface
 					if ( (lastEnd - start).LengthSqr() > (trace.endPos - start).LengthSqr() - 0.1f ||
-								( trace.normal * invGravityDir ) < minFloorCos ) {
-						if ( stopEvent & SE_BLOCKED ) {
-							path.endPos = lastEnd;
-							path.endEvent = SE_BLOCKED;
+						( trace.normal * invGravityDir ) < minFloorCos ) {
+							if ( stopEvent & SE_BLOCKED ) {
+								path.endPos = lastEnd;
+								path.endEvent = SE_BLOCKED;
 
-							if ( drawDebug ) {
-								gameRenderWorld->DebugLine( colorWhite, lineStart, lastEnd, drawDebug );
+								if ( drawDebug ) {
+									gameRenderWorld->DebugLine( colorWhite, lineStart, lastEnd, drawDebug );
+								}
+
+								return true;
 							}
 
-
-							return true;
-						}
-
-						curStart = lastEnd;
-						break;
+							curStart = lastEnd;
+							break;
 					}
 				}
 
-
-	
 				path.endNormal = trace.normal;
 				path.blockingEntity = trace.blockingEntity;
-				
+
 				// cusTom3 - added stop event SE_LAND - TODO: should i be checking trace.fraction < 1 first
 				if ( ( stopEvent & SE_LAND ) && ( trace.normal * invGravityDir ) > minFloorCos ) {
 					path.endEvent |= SE_LAND;
@@ -782,14 +755,14 @@ bool afiBotPlayer::PredictPath( idPlayer *player, const idAAS *aas, const idVec3
 					path.endNormal = trace.normal;
 					path.blockingEntity = trace.blockingEntity;
 					path.endVelocity.z = 0; // hit ground :)
-				
+
 					if ( drawDebug ) {
 						gameRenderWorld->DebugLine( colorRed, curStart, trace.endPos, drawDebug );
 					}
 
 					return true;
 				}
-				
+
 				// TODO: adjust for air physics on jump pads - test something like:
 				if ( trace.fraction < 1.0f && trace.endPos.z > curStart.z ) {
 					idVec3 ztest = curEnd;
@@ -811,12 +784,12 @@ bool afiBotPlayer::PredictPath( idPlayer *player, const idAAS *aas, const idVec3
 
 				// step up
 				stepUp = invGravityDir * maxStepHeight;
-// RAVEN BEGIN
-// nmckenzie: Added ignore ent
+				// RAVEN BEGIN
+				// nmckenzie: Added ignore ent
 				if ( PathTrace( player, aas, curStart, curStart + stepUp, stopEvent, trace, path, drawDebug ) ) {
 					return true;
 				}
-// RAVEN END
+				// RAVEN END
 				stepUp *= trace.fraction;
 				curStart = trace.endPos;
 			}
@@ -835,11 +808,11 @@ bool afiBotPlayer::PredictPath( idPlayer *player, const idAAS *aas, const idVec3
 			if ( stopEvent & SE_BLOCKED ) {
 				// if going backwards
 				if ( (curVelocity - gravityDir * curVelocity * gravityDir ) *
-						(velocity - gravityDir * velocity * gravityDir) < 0.0f ) {
-					path.endPos = curStart;
-					path.endEvent = SE_BLOCKED;
+					(velocity - gravityDir * velocity * gravityDir) < 0.0f ) {
+						path.endPos = curStart;
+						path.endEvent = SE_BLOCKED;
 
-					return true;
+						return true;
 				}
 			}
 		} // end allow sliding along a few surfaces per frame

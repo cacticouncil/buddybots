@@ -14,15 +14,12 @@ the network.
 
 extern idCVar bot_debugBot;
 
-
 #include "BotBrain.h"
-
 
 struct botMoveState_t {
 	botMoveState_t();
 
 	struct movementFlags_s {
-
 		bool		done				:1;
 		bool		moving				:1;
 		bool		crouching			:1;
@@ -38,7 +35,7 @@ struct botMoveState_t {
 		bool		disabled			:1;
 		bool		ignoreObstacles		:1;
 		bool		allowPushMovables	:1;
-		
+
 		bool		noRun				:1;
 		bool		noWalk				:1;
 		bool		noTurn				:1;
@@ -73,7 +70,7 @@ struct botMoveState_t {
 	int						blockedAttackTime;
 
 	float					current_yaw;
-	
+
 	idVec3					goalPos;
 	int						goalArea;
 	idEntityPtr<idEntity>	goalEntity;
@@ -86,14 +83,13 @@ struct botMoveState_t {
 	aasPath_t				path;
 
 	idVec3					lastValidPos;
-	
 };
 /*
 ===============================================================================
 
-	afiBotPlayer
-	Basic fake client, and 'body' of the bot.
-	This class will also contain basic navigation and translation of input to usercmd_t
+afiBotPlayer
+Basic fake client, and 'body' of the bot.
+This class will also contain basic navigation and translation of input to usercmd_t
 ===============================================================================
 */
 class afiBotPlayer : public idPlayer {
@@ -102,8 +98,8 @@ public:
 
 	static bool				PathTrace( idPlayer *player, const idAAS *aas, const idVec3 &start, const idVec3 &end, int stopEvent, struct pathTrace_s &trace, predictedPath_t &path, int drawDebug = 0 );
 	static bool				PredictPath( idPlayer *player, const idAAS *aas, const idVec3 &start, const idVec3 &velocity, int totalTime, int frameTime, int stopEvent, predictedPath_t &path, int drawDebug = 0 );
-	
-							afiBotPlayer();
+
+	afiBotPlayer();
 	virtual					~afiBotPlayer();
 
 	void					Spawn( void );
@@ -157,17 +153,16 @@ protected:
 	idAngles				lastViewAngles;
 	idAngles				idealViewAngles;
 	float					arcHalf;
-	float					arcDistance;	
+	float					arcDistance;
 	idVec3					lastLookAtPosition;
 	float					aimRate;
 
 	botMoveState_t			move;
 	aiInput_t				aiInput;
 	usercmd_t				botcmd;
-	idAAS *					aas; 
+	idAAS *					aas;
 	afiBotBrain*			brain;
 };
-
 
 ID_INLINE bool afiBotPlayer::DebugBot( void ) {
 	if ( bot_debugBot.GetInteger() == -2 || bot_debugBot.GetInteger() == entityNumber ) {
@@ -177,6 +172,3 @@ ID_INLINE bool afiBotPlayer::DebugBot( void ) {
 }
 
 #endif  //BOTPLAYER_H_
-
-
-

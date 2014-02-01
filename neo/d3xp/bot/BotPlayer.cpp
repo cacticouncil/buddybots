@@ -9,54 +9,40 @@ the network.
 */
 #include "precompiled.h"
 
-
 #ifdef AFI_BOTS
 
 #include "BotPlayer.h"
 
-
-
-
 idCVar	bot_debugBot( "bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOCHEAT, "debug a specific bot -1 disable, -2 all bots, otherwise clientnum", -2, MAX_CLIENTS );
 
-
-
 CLASS_DECLARATION( idPlayer, afiBotPlayer )
-END_CLASS
+	END_CLASS
 
+	BOOST_PYTHON_MODULE(afiBotPlayer) {
+		import("idVec3");
+		import("idAngles");
+		import("idEntity");
+		import("afiBotBrain");
+		import("afiBotManager");
 
-
-
-BOOST_PYTHON_MODULE(afiBotPlayer) {
-	import("idVec3");
-	import("idAngles");
-	import("idEntity");
-	import("afiBotBrain");
-	import("afiBotManager");
-
-
-	class_<afiBotPlayer>("afiBotPlayer")
-		.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>())
-		.def("MoveTo",&afiBotPlayer::MoveTo)
-		.def("MoveToPosition",&afiBotPlayer::MoveToPosition,release_gil_policy())
-		.def("MoveToEntity",&afiBotPlayer::MoveToEntity,release_gil_policy())
-		.def("MoveToPlayer",&afiBotPlayer::MoveToPlayer,release_gil_policy())
-		.def("Attack",&afiBotPlayer::Attack)
-		.def("Jump",&afiBotPlayer::Jump)
-		.def("LookInDirection",&afiBotPlayer::LookInDirection)
-		.def("LookAtPosition",&afiBotPlayer::LookAtPosition)
-		.def("MoveToNearest",&afiBotPlayer::MoveToNearest,return_value_policy<reference_existing_object>())
-		.def("PathToGoal",&afiBotPlayer::PathToGoal,release_gil_policy())
-		.def("ReachedPos",&afiBotPlayer::ReachedPos)
-		.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>())
-		.def_readonly("health",&afiBotPlayer::health)
-		.def_readonly("team",&afiBotPlayer::team)
-		.def_readonly("spectator",&afiBotPlayer::spectator)
-		;
+		class_<afiBotPlayer>("afiBotPlayer")
+			.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>(),release_gil_policy())
+			.def("MoveTo",&afiBotPlayer::MoveTo)
+			.def("MoveToPosition",&afiBotPlayer::MoveToPosition)
+			.def("MoveToEntity",&afiBotPlayer::MoveToEntity)
+			.def("MoveToPlayer",&afiBotPlayer::MoveToPlayer)
+			.def("Attack",&afiBotPlayer::Attack)
+			.def("Jump",&afiBotPlayer::Jump)
+			.def("LookInDirection",&afiBotPlayer::LookInDirection)
+			.def("LookAtPosition",&afiBotPlayer::LookAtPosition)
+			.def("MoveToNearest",&afiBotPlayer::MoveToNearest,return_value_policy<reference_existing_object>())
+			.def("PathToGoal",&afiBotPlayer::PathToGoal)
+			.def("ReachedPos",&afiBotPlayer::ReachedPos,release_gil_policy())
+			.def_readonly("health",&afiBotPlayer::health)
+			.def_readonly("team",&afiBotPlayer::team)
+			.def_readonly("spectator",&afiBotPlayer::spectator)
+			;
 }
-
-
-
 
 afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset( &botcmd, 0, sizeof( botcmd ) );
@@ -70,7 +56,6 @@ afiBotPlayer::~afiBotPlayer() {
 	aas = NULL;
 }
 
-
 void afiBotPlayer::SetBrain(afiBotBrain* newBrain) {
 	brain = newBrain;
 }
@@ -80,7 +65,6 @@ void afiBotPlayer::SetAAS() {
 	if ( aas ) {
 		const idAASSettings *settings = aas->GetSettings();
 		if ( settings ) {
-			
 			float height = settings->maxStepHeight;
 			physicsObj.SetMaxStepHeight( height );
 			return;
@@ -88,7 +72,7 @@ void afiBotPlayer::SetAAS() {
 			aas = NULL;
 		}
 	}
-	
+
 	gameLocal.Error( "Bot cannot find AAS file for map\n" ); // TinMan: No aas, no play.
 }
 
@@ -120,9 +104,8 @@ void afiBotPlayer::Spawn() {
 void afiBotPlayer::PrepareForRestart( void ) {
 	idPlayer::PrepareForRestart();
 
-//	memset( &aiInput, 0, sizeof( aiInput ) );
+	//	memset( &aiInput, 0, sizeof( aiInput ) );
 	// TODO: botcmd?
-
 }
 
 void afiBotPlayer::Restart( void ) {
@@ -135,12 +118,11 @@ void afiBotPlayer::Think( void ) {
 	idPlayer::Think();
 
 	//if(brain != NULL) {
-		//aiInput_t temp = brain->Think();
-		//f(temp.moveFlag != NULLMOVE) {
-			//aiInput = temp;
-		//}
+	//aiInput_t temp = brain->Think();
+	//f(temp.moveFlag != NULLMOVE) {
+	//aiInput = temp;
 	//}
-	
+	//}
 
 	Move();
 
@@ -237,35 +219,34 @@ void afiBotPlayer::ProcessMove( void ) {
 	aiInput.moveSpeed = idMath::ClampFloat( -maxSpeed, maxSpeed, aiInput.moveSpeed );
 	aiInput.moveSpeed = aiInput.moveSpeed * 127 / maxSpeed; //Scale from [0, 400] to [0, 127]
 
-
 	aiInput.moveDirection.z = 0; //normalize can be smaller than wanted with a very large z value (like walk off ledge)
 	aiInput.moveDirection.Normalize();
 
 	botcmd.forwardmove = ( forward * aiInput.moveDirection ) * aiInput.moveSpeed;
-	botcmd.rightmove	= ( right * aiInput.moveDirection ) * aiInput.moveSpeed;		
+	botcmd.rightmove	= ( right * aiInput.moveDirection ) * aiInput.moveSpeed;
 	botcmd.upmove		= abs( forward.z ) * aiInput.moveDirection.z * aiInput.moveSpeed;
 	// MoveFlags
 	aiMoveFlag_t moveFlag = aiInput.moveFlag;
 	if ( moveFlag == JUMP ) {
 		botcmd.upmove += 127.0f;
-	} 
+	}
 	if ( moveFlag == CROUCH ) {
 		botcmd.upmove -= 127.0f;
 	}
 
-	if ( moveFlag == RUN ) { 
+	if ( moveFlag == RUN ) {
 		botcmd.buttons |= BUTTON_RUN;
 	}
 }
 
-void afiBotPlayer::ProcessCommands( void ) {	
+void afiBotPlayer::ProcessCommands( void ) {
 	aiCommands_t * commands = &aiInput.commands;
 
 	//Throw in buttons
-	if ( commands->attack ) { 
+	if ( commands->attack ) {
 		botcmd.buttons |= BUTTON_ATTACK;
 	}
-	
+
 	if( commands->zoom ) {
 		botcmd.buttons |= BUTTON_ZOOM;
 	}
@@ -280,7 +261,6 @@ idEntity* afiBotPlayer::FindNearestItem( idStr item )
 
 		if (entity)
 		{
-			
 			if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type)))
 			{
 				if (idStr::FindText(entity->name,item.c_str(), false) == 0)
@@ -330,7 +310,5 @@ void afiBotPlayer::LookAtPosition( const idVec3 &pos ) {
 	aiInput.viewDirection = pos;
 	aiInput.viewType = VIEW_POS;
 }
-
-
 
 #endif

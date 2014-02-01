@@ -8,9 +8,9 @@
 /*
 ===============================================================================
 
-	BotAASBuild.h
+BotAASBuild.h
 
-	Adds reachability information to the existing aas file.
+Adds reachability information to the existing aas file.
 
 ===============================================================================
 */
@@ -18,20 +18,19 @@
 //class idAASLocal;
 
 class BotAASBuild {
-
 public:
-								BotAASBuild( void );
-								// this is NOT a base class to be inherited from
-								~BotAASBuild( void );
+	BotAASBuild( void );
+	// this is NOT a base class to be inherited from
+	~BotAASBuild( void );
 	void						Init( idAASLocal * local );
-								// for SysCmd if ever saving aas files - not necessary for now
+	// for SysCmd if ever saving aas files - not necessary for now
 	//static void				AddReachabilities_f( const idCmdArgs &args );
-								// called from InitFromNewMap, no saved maps for now sorry, i don't need em ;)
+	// called from InitFromNewMap, no saved maps for now sorry, i don't need em ;)
 	void						AddReachabilities( void );
-								// try is right ;(
+	// try is right ;(
 	void						TryToAddLadders( void );
 	void						FreeAAS( void );
-	
+
 private:
 	idAASLocal *				aas;
 	idAASFile *					file;
@@ -61,11 +60,11 @@ ID_INLINE BotAASBuild::~BotAASBuild( void ) {
 	originalPortals.list = NULL;
 	originalPortals.size = 0;
 	originalPortals.num = 0;
-	
+
 	originalPortalIndex.list = NULL;
 	originalPortalIndex.size = 0;
 	originalPortalIndex.num = 0;
-	
+
 	// if these are not cleared correctly in FreeAAS this will error, dont like this, but hey, whatever
 	portals.Clear();
 	portalIndex.Clear();

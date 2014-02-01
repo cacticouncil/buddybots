@@ -7,13 +7,10 @@ Description: Defines the basic interface that bot brains should follow.
 */
 #include "precompiled.h"
 
-
 #include "BotBrain.h"
 #include "BotPlayer.h"
 #include "../Game_local.h"
 #include "../physics/Physics_Player.h"
-
-
 
 BOOST_PYTHON_MODULE(afiBotBrain) {
 	import("idDict");
@@ -51,11 +48,10 @@ BOOST_PYTHON_MODULE(afiBotBrain) {
 		.def("Spawn",pure_virtual(&afiBotBrain::Spawn))
 		.def("Restart",pure_virtual(&afiBotBrain::Restart))
 		.add_property("body",
-					 make_function(&afiBotBrain::GetBody,return_internal_reference<>()))
+		make_function(&afiBotBrain::GetBody,return_internal_reference<>()))
 		.def_readonly("physicsObject",&afiBotBrain::physicsObject)
 		;
 }
-
 
 aiInput_t afiBotBrainWrapper::Think()  {
 	object scriptResult;
@@ -68,7 +64,6 @@ aiInput_t afiBotBrainWrapper::Think()  {
 	scriptInput = extract<aiInput_t>(scriptResult);
 	return scriptInput;
 }
-
 
 void afiBotBrainWrapper::Spawn() {
 	try {
@@ -88,7 +83,6 @@ void afiBotBrainWrapper::Restart() {
 	}
 }
 
-
 void afiBotBrain::SetBody(afiBotPlayer* newBody) {
 	body = newBody;
 }
@@ -100,8 +94,6 @@ afiBotPlayer* afiBotBrain::GetBody() {
 idPhysics_Player* afiBotBrain::GetPhysics() {
 	return physicsObject;
 }
-
-
 
 void afiBotBrain::SetAAS() {
 	aas = gameLocal.GetAAS( "aas48" );
@@ -115,7 +107,7 @@ void afiBotBrain::SetAAS() {
 			aas = NULL;
 		}
 	}
-	
+
 	gameLocal.Error( "Bot cannot find AAS file for map\n" ); // TinMan: No aas, no play.
 }
 

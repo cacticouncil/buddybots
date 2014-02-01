@@ -42,13 +42,13 @@ struct aiInput_t {
 /*
 ===============================================================================
 
-	afiBotBrain
-	This will serve as the base class that all bot brains should be derived off of.
-	This will define the basic interface that bots must adhere to, to maintain
-	proper communication with the body of the bot.
-	*NOTE* Still unsure if this class should be derived off of idEntity or keep
-	it completely seperate from their hierarchy. This would have to be derived
-	from idEntity if we want to make use of DoomScript and TypeInfo of the brain
+afiBotBrain
+This will serve as the base class that all bot brains should be derived off of.
+This will define the basic interface that bots must adhere to, to maintain
+proper communication with the body of the bot.
+*NOTE* Still unsure if this class should be derived off of idEntity or keep
+it completely seperate from their hierarchy. This would have to be derived
+from idEntity if we want to make use of DoomScript and TypeInfo of the brain
 ===============================================================================
 */
 
@@ -91,10 +91,7 @@ public:
 
 	aiInput_t					bodyInput;
 
-
-
 private:
-
 };
 
 class afiBotBrainWrapper : public afiBotBrain,public wrapper<afiBotBrain> {
@@ -105,8 +102,6 @@ public:
 	virtual void Spawn();
 
 	virtual void Restart();
-
-
 };
 
 #endif

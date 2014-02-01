@@ -15,18 +15,24 @@ dispatch to bots.
 class afiBotBrain;
 class idEntity;
 class afiBotPlayer;
+class botWorkerThread;
 
+typedef std::unordered_map<PyThreadState*,botWorkerThread*> threadMap_t;
 typedef afiBotBrain* (*CreateBotBrain_t)(botImport_t* dllSetup);
 
 enum	BotType { CODE,SCRIPT,DLL };
 
+//Bot Info is in effect a bot profile that get fills out upon game initialize
+//for all valid bots located in the botPaks folder.Spawning multiple instances of
+//the same bot is currently being handled, but event handling for multiple instances
+//still needs to be added. (should just be creating a array of client nums for the instances)
 typedef struct botInfo_s {
 	idStr				botName;
 	idStr				authorName;
 	afiBotBrain*		brain;
 	object				botClassInstance;
 	object				scriptInstances[MAX_CLIENTS];
-	
+
 	int					clientNum;
 	int					entityNum;
 	int					botType;
@@ -42,22 +48,23 @@ typedef struct botInfo_s {
 	}
 
 	~botInfo_s() {
-		
 		brain = NULL;
 		botName = "";
 		authorName = "";
 		clientNum = -1;
 		entityNum = -1;
 	}
-	
 } botInfo_t;
 
+//Worker thread class currently responsible for running the update tasks each frame for the bots
+//Unfortunately due to the Python GIL the benefit of this class is somewhat reduced since python code
+//will never be executing on more than one thread at a time.
 class botWorkerThread {
 	friend class afiBotManager;
 
 public:
-								botWorkerThread(condition_variable* conditional_variable,mutex* thread_mutex,PyInterpreterState* mainState );
-								~botWorkerThread( );
+	botWorkerThread(condition_variable* conditional_variable,mutex* thread_mutex,PyInterpreterState* mainState, unsigned int* initializeCounter );
+	~botWorkerThread( );
 	void						InitializeForFrame( unsigned int endUpdateIndex );
 	void						RunWork( );
 	void						AddUpdateTask( afiBotBrain* newTask );
@@ -76,77 +83,77 @@ private:
 	thread						threadObj;
 	idTimer						workTimer;
 	//Thread control variables manipulated by thread or bot manager
+	unsigned int*				threadInitializeCounter;
 	condition_variable*			threadConditional;
 	mutex*						threadMutex;
 	PyThreadState*				threadState;
 	PyInterpreterState*			interpState;
 };
 
-typedef std::unordered_map<PyThreadState*,botWorkerThread*> threadMap_t;
-
-
 /*
 ===============================================================================
 
-	afiBotManager
-	Responsible for the loading,adding,removing, and event dispatch for bots.
+afiBotManager
+Responsible for the loading,adding,removing, and event dispatch for bots.
 
 ===============================================================================
 */
 class  afiBotManager {
 public:
-	 static void				PrintInfo( void );
-	 static void				Initialize( void );
-	 static void				Shutdown( void );
-	 static void				UpdateUserInfo( void );
-	 static void				ConsolePrint(const char* string);
+	static void				PrintInfo( void );
+	static void				Initialize( void );
+	static void				Shutdown( void );
+	static void				UpdateUserInfo( void );
+	static void				ConsolePrint(const char* string);
 
-	 static void				Cmd_BotInfo_f( const idCmdArgs& args );
-	 static void				Cmd_AddBot_f( const idCmdArgs& args );
-	 static void				Cmd_RemoveBot_f( const idCmdArgs& args );
-	 static void				Cmd_RemoveAllBots_f( const idCmdArgs & args );
-	 static void				AddBot( const idCmdArgs& args );
-	 static void				DropABot( void );
-	 static void				RemoveBot( int clientNum );
-	 static int					IsClientBot( int clientNum );
-	 static void				SetBotDefNumber( int clientNum, int botDefNumber );
-	 static int					GetBotDefNumber( int clientNum );
-	 static idStr				GetBotClassname( int clientNum );
-	 static void				SpawnBot( int clientNum );
-	 static void				OnDisconnect( int clientNum );
+	static void				Cmd_BotInfo_f( const idCmdArgs& args );
+	static void				Cmd_AddBot_f( const idCmdArgs& args );
+	static void				Cmd_RemoveBot_f( const idCmdArgs& args );
+	static void				Cmd_RemoveAllBots_f( const idCmdArgs & args );
+	static void				AddBot( const idCmdArgs& args );
+	static void				DropABot( void );
+	static void				RemoveBot( int clientNum );
+	static int					IsClientBot( int clientNum );
+	static void				SetBotDefNumber( int clientNum, int botDefNumber );
+	static int					GetBotDefNumber( int clientNum );
+	static idStr				GetBotClassname( int clientNum );
+	static void				SpawnBot( int clientNum );
+	static void				OnDisconnect( int clientNum );
 
-	 //Thread related functions
-	 static void				InitializeThreadsForFrame( );
-	 static void				LaunchThreadsForFrame( );
-	 static void				WaitForThreadsTimed(  );
-	 static bool				isGameEnding();
-	 static void				IncreaseThreadUpdateCount();
-	 static void				DecreaseThreadUpdateCount();
-	 static void				SetThreadState(PyThreadState* state,botWorkerThread* saveThread);
-	 static void				UpdateThreadState(PyThreadState* state);
-	
-	 static idEntity*			GetFlag(int team);
-	 static int					GetFlagStatus(int team);
-	 static void				ProcessChat(const char* text);
-	 static void				InitBotsFromMapRestart();
-	 static idCmdArgs *			GetPersistArgs( int clientNum );
-	 static usercmd_t *			GetUserCmd( int clientNum );
-	 static void				SetUserCmd( int clientNum, usercmd_t * usrCmd );
-	 static void				WriteUserCmdsToSnapshot(idBitMsg& msg);
-	 static void				ReadUserCmdsFromSnapshot(const idBitMsg& msg);
-	 static void				AddBotInfo(botInfo_t* newBotInfo);
-	 static afiBotBrain*		SpawnBrain(idStr botName, int clientNum);
-	 static botInfo_t*			FindBotProfile(idStr botName);
-	 static botInfo_t*			FindBotProfileByIndex(int clientNum);
-								afiBotManager();
-								~afiBotManager();
+	//Thread related functions
+	static void				InitializeThreadsForFrame( );
+	static void				LaunchThreadsForFrame( );
+	static void				WaitForThreadsTimed(  );
+	static bool				isGameEnding();
+	static void				IncreaseThreadUpdateCount();
+	static void				DecreaseThreadUpdateCount();
+	static void				SetThreadState(PyThreadState* state,botWorkerThread* saveThread);
+	static void				UpdateThreadState(PyThreadState* state);
+	static void				SaveMainThreadState( );
+	static void				RestoreMainThreadState( );
+
+	static idEntity*			GetFlag(int team);
+	static int					GetFlagStatus(int team);
+	static void				ProcessChat(const char* text);
+	static void				InitBotsFromMapRestart();
+	static idCmdArgs *			GetPersistArgs( int clientNum );
+	static usercmd_t *			GetUserCmd( int clientNum );
+	static void				SetUserCmd( int clientNum, usercmd_t * usrCmd );
+	static void				WriteUserCmdsToSnapshot(idBitMsg& msg);
+	static void				ReadUserCmdsFromSnapshot(const idBitMsg& msg);
+	static void				AddBotInfo(botInfo_t* newBotInfo);
+	static afiBotBrain*		SpawnBrain(idStr botName, int clientNum);
+	static botInfo_t*			FindBotProfile(idStr botName);
+	static botInfo_t*			FindBotProfileByIndex(int clientNum);
+	afiBotManager();
+	~afiBotManager();
 
 protected:
 	static usercmd_t			botCmds[MAX_CLIENTS];
 private:
 	static void					DistributeWorkToThreads( );
 	static void					InitializePython( );
-	
+
 	static idList<botInfo_t*>	loadedBots;
 	static unsigned int			numBots;
 	static int					numQueBots;
@@ -162,7 +169,7 @@ private:
 	static atomic<bool>			gameEnd;
 	static unsigned int			threadUpdateCount;
 	static PyInterpreterState*	interpreterState;
-
+	static PyThreadState*		mainThreadState;
 
 	static idCmdArgs			cmdQue[MAX_CLIENTS];
 	static idCmdArgs			persistArgs[MAX_CLIENTS];
@@ -171,40 +178,36 @@ private:
 	static afiBotBrain*			brainFastList[MAX_CLIENTS];
 };
 
+//This custom call policy allows me to mitigate some of the losses in performance due to
+//the python GIL. When Some c++ functions are exectued from python scripts we can give up control
+//of the GIL for the duration of the function.
 namespace boost { namespace python {
+	struct release_gil_policy {
+		template<class ArgumentPackage>
+		static bool precall(ArgumentPackage const&) {
+			PyThreadState* saveState = PyEval_SaveThread();
+			afiBotManager::UpdateThreadState(saveState);
 
-struct release_gil_policy {
+			return true;
+		}
 
-	template<class ArgumentPackage>
-	static bool precall(ArgumentPackage const&)
-	{
-		PyThreadState* state = PyEval_SaveThread();
-		afiBotManager::UpdateThreadState(state);
+		template<class ArgumentPackage>
+		static PyObject* postcall(ArgumentPackage const&, PyObject* result) {
+			PyThreadState* state = PyGILState_GetThisThreadState();
+			PyEval_RestoreThread(state);
+			return result;
+		}
 
-		return true;
-	}
+		typedef default_result_converter result_converter;
+		typedef PyObject* argument_package;
 
-	template<class ArgumentPackage>
-	static PyObject* postcall(ArgumentPackage const&, PyObject* result) {
-
-		PyThreadState* state = PyThreadState_Get();
-		PyEval_RestoreThread(state);
-		return result;
-	}
-
-	typedef default_result_converter result_converter;
-	typedef PyObject* argument_package;
-
-	template<class Sig>
-	struct extract_return_type : mpl::front<Sig>
-	{
+		template<class Sig>
+		struct extract_return_type : mpl::front<Sig>
+		{
+		};
+	private:
 	};
-private:
-};
 }
 }
 
-
-
-
-#endif 
+#endif

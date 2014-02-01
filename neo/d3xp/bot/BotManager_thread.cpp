@@ -3,7 +3,7 @@
 #include "BotBrain.h"
 #include "BotPlayer.h"
 
-botWorkerThread::botWorkerThread(condition_variable* conditional_variable, mutex* thread_mutex, PyInterpreterState* mainState ) : endUpdateTask(-1), currentUpdateTask(-1) {
+botWorkerThread::botWorkerThread(condition_variable* conditional_variable, mutex* thread_mutex, PyInterpreterState* mainState, unsigned int* initializeCounter ) {
 	for(unsigned int iClient = 0; iClient < MAX_CLIENTS; iClient++) {
 		packedUpdateArray[iClient] = NULL;
 	}
@@ -11,6 +11,9 @@ botWorkerThread::botWorkerThread(condition_variable* conditional_variable, mutex
 	interpState = mainState;
 	threadMutex = thread_mutex;
 	threadConditional = conditional_variable;
+	endUpdateTask = -1;
+	currentUpdateTask = -1;
+	threadInitializeCounter = initializeCounter;
 	threadObj = thread(&botWorkerThread::RunWork,this);
 }
 
@@ -24,11 +27,9 @@ botWorkerThread::~botWorkerThread( ) {
 	endUpdateTask = currentUpdateTask = -1;
 	threadMutex = nullptr;
 	threadConditional = nullptr;
-	
 }
 
 void botWorkerThread::AddUpdateTask( afiBotBrain* newTask ) {
-
 	if(-1 == endUpdateTask) {
 		endUpdateTask = 0;
 	} else if( MAX_CLIENTS < endUpdateTask ) {
@@ -39,16 +40,16 @@ void botWorkerThread::AddUpdateTask( afiBotBrain* newTask ) {
 }
 
 void botWorkerThread::RunWork( ) {
-
 	//Any One time thread init stuff should happen here
 	std::unique_lock<mutex> threadLock(*threadMutex);
 	threadState = PyThreadState_New(interpState);
 	PyEval_RestoreThread(threadState);
 	threadState = PyEval_SaveThread();
 	afiBotManager::SetThreadState(threadState,this);
+	(*threadInitializeCounter)++;
+	threadConditional->notify_one();
 	threadLock.unlock();
 	while(true) {
-
 		threadLock.lock();
 		threadConditional->wait(threadLock,[&](){if(-1 == endUpdateTask && !afiBotManager::isGameEnding() ) return false;return true;});
 		threadLock.unlock();
@@ -61,15 +62,13 @@ void botWorkerThread::RunWork( ) {
 			workTimer.Clear();
 
 			PyEval_RestoreThread(threadState);
-			
+
 			workTimer.Start();
 			packedUpdateArray[currentUpdateTask]->Think();
 			workTimer.Stop();
 
 			threadState = PyEval_SaveThread();
-	
 
-			
 			double workTime = workTimer.Milliseconds();
 			if( workTime > 1.0f ) {
 				//Work took to long, distribute work to other thread and stop for frame
@@ -78,11 +77,11 @@ void botWorkerThread::RunWork( ) {
 			packedUpdateArray[currentUpdateTask] = NULL;
 
 			currentUpdateTask++;
-
 		} while( currentUpdateTask < endUpdateTask );
 
 		//Look for more work to do this frame
 		afiBotManager::DecreaseThreadUpdateCount();
+		//TODO: Implement Work
 		currentUpdateTask = -1;
 		endUpdateTask = -1;
 
@@ -90,25 +89,18 @@ void botWorkerThread::RunWork( ) {
 			break;
 		}
 	}
-	
 }
 
 void botWorkerThread::InitializeForFrame( unsigned int endUpdateIndex ) {
-
-
 }
 
 bool botWorkerThread::CheckWorkTime( ) {
-
 	return false;
 }
 
 bool botWorkerThread::LookForMoreWork( ) {
-
 	return false;
 }
 
 void botWorkerThread::RemoveFailedBot( int removeIndex ) {
-
 }
-

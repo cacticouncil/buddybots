@@ -1,7 +1,7 @@
 #include "precompiled.h"
 #pragma hdrstop
 
-#ifdef AFI_BOTS // cusTom3 
+#ifdef AFI_BOTS // cusTom3
 
 #include "../Game_local.h"
 #include "BotAASBuild.h"
@@ -11,7 +11,7 @@ idCVar aas_showElevators( "aas_showElevators", "0", CVAR_SYSTEM | CVAR_BOOL | CV
 /*
 ===============================================================================
 
-	BotAASBuild.cpp
+BotAASBuild.cpp
 
 ===============================================================================
 */
@@ -32,7 +32,6 @@ BotAASBuild::AddReachabilities
 ============
 */
 void BotAASBuild::AddReachabilities( void ) {
-	
 	// steal the portals list so i can manipulate it
 	originalPortals.list = file->portals.list;
 	originalPortals.granularity = file->portals.granularity;
@@ -60,10 +59,7 @@ BotAASBuild::TryToAddLadders
 ============
 */
 void BotAASBuild::TryToAddLadders( void ) {
-	
 }
-
-
 
 /*
 ============
@@ -72,34 +68,31 @@ BotAASBuild::OutputAASReachInfo
 */
 void OutputAASReachInfo(idAASFile *file) {
 	gameLocal.Printf( "OutputAASReachInfo\n" );
-	
+
 	for ( int i = 0; i < file->GetNumAreas(); i++ ) {
 		gameLocal.Printf( "area %d\n", i );
 		for ( idReachability *r = file->GetArea( i ).reach; r; r = r->next ) {
-			gameLocal.Printf( "   reach %d from %d to %d traveltype %d \n", r->number, r->fromAreaNum, r->toAreaNum, r->travelType );	
+			gameLocal.Printf( "   reach %d from %d to %d traveltype %d \n", r->number, r->fromAreaNum, r->toAreaNum, r->travelType );
 		}
 		gameLocal.Printf( "\n" );
 		for ( idReachability *r = file->GetArea( i ).rev_reach; r; r = r->rev_next ) {
-			gameLocal.Printf( "   rev_reach %d from %d to %d traveltype %d \n", r->number, r->fromAreaNum, r->toAreaNum, r->travelType );	
+			gameLocal.Printf( "   rev_reach %d from %d to %d traveltype %d \n", r->number, r->fromAreaNum, r->toAreaNum, r->travelType );
 		}
 	}
 	gameLocal.Printf( "End OutputAASReachInfo\n" );
 }
 
-
-
-
 /*
 ============
 BotAASBuild::AddElevatorReachabilities
 
- cusTom3	- welcome to the longest, largest, monolithic beast i can ever credit myself to writing
-			- the idea is probably bad, the code is probably worse ;)
-			- UPDATE: the idea has gotten worse, and the code has gone out of control. refactor or die.
-			- lack of portal area's in consistent places = must loop around bottom of plat looking for portal (d3dm1)
-			- this wouldn't create a portal up the middle if it needed one - all seemed to have one when necessary
-			- look at using PushPointIntoAreaNum, cause it isn't, and maybe it should
-			- lol, whatever 
+cusTom3	- welcome to the longest, largest, monolithic beast i can ever credit myself to writing
+- the idea is probably bad, the code is probably worse ;)
+- UPDATE: the idea has gotten worse, and the code has gone out of control. refactor or die.
+- lack of portal area's in consistent places = must loop around bottom of plat looking for portal (d3dm1)
+- this wouldn't create a portal up the middle if it needed one - all seemed to have one when necessary
+- look at using PushPointIntoAreaNum, cause it isn't, and maybe it should
+- lol, whatever
 ============
 */
 void BotAASBuild::AddElevatorReachabilities( void ) {
@@ -115,18 +108,18 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 			idClipModel *model = platform->GetPhysics()->GetClipModel();
 			// TODO: play with how much to expand this
 			idBounds bounds = model->GetAbsBounds().Expand( 0 );
-			 
+
 			if ( aas_showElevators.GetBool() ) {
 				gameRenderWorld->DebugBounds( colorGreen, bounds, vec3_origin, 200000 );
 			}
- 
+
 			// top and bottom of plat (located in center, slightly above)
 			idVec3 top, bottom, center;
 			center = bounds.GetCenter();
 			bottom = center;
-			bottom[2] = bounds[1][2] + 2; 
+			bottom[2] = bounds[1][2] + 2;
 			top = center;
-			top[2] = bottom[2] + ( platform->GetPosition2()[2] - platform->GetPosition1()[2] ); 
+			top[2] = bottom[2] + ( platform->GetPosition2()[2] - platform->GetPosition1()[2] );
 
 			// start of possible reach (on bottom), end of possible reach (on top) and thier area and cluster numbers
 			idVec3 start, end;
@@ -143,22 +136,22 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 			bool reachabilityCreated = false;
 
 			start = bottom;
-			
+
 			bottomAreaNum = aas->PointReachableAreaNum( start, DefaultBotBounds(), travelFlags );
-				
+
 			bottomClusterNum = file->areas[bottomAreaNum].cluster;
 
 			// trace from bottom to top getting areas to look for portals
 			aasTrace_t trace;
-			int areas[10];	
-			idVec3 points[10]; 
+			int areas[10];
+			idVec3 points[10];
 			trace.maxAreas = 10;
 			trace.areas = areas;
 			trace.points = points;
 			file->Trace( trace, bottom, top );
 			// for each area in trace (ignoring start area)
 			for ( int q = 1; q < trace.numAreas; q++ ) {
-				aasArea_t area = file->areas[trace.areas[q]]; 
+				aasArea_t area = file->areas[trace.areas[q]];
 				// only want portal areas
 				if ( area.cluster > 0 ) continue;
 				// trace is returning the same area 2 times in a row???
@@ -169,12 +162,12 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 				// TODO: there is a possibility that an edge point around the bottom
 				// is in a different cluster than the bottom center point and a usable portal would be missed
 				if ( bottomClusterNum > 0 ) {
-					if( !( p.clusters[0] == bottomClusterNum || p.clusters[1] == bottomClusterNum ) ) continue;	
+					if( !( p.clusters[0] == bottomClusterNum || p.clusters[1] == bottomClusterNum ) ) continue;
 				}
 				// would need an else if < 0 here
 				else if ( bottomClusterNum < 0 ) { // the bottom is also a portal - need to check that both portals share one cluster
 					aasPortal_t b = file->portals[-bottomClusterNum];
-					if( !( p.clusters[0] == b.clusters[0] || p.clusters[0] == b.clusters[1] || p.clusters[1] == b.clusters[0] || p.clusters[1] == b.clusters[1]) ) continue;	
+					if( !( p.clusters[0] == b.clusters[0] || p.clusters[0] == b.clusters[1] || p.clusters[1] == b.clusters[0] || p.clusters[1] == b.clusters[1]) ) continue;
 				}
 				// if it is 0, the center bottom of plat is out of bounds (d3ctf3 small circle plat)
 
@@ -202,16 +195,16 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 			float x[8], y[8], x_top[8], y_top[8];
 			x[0] = bounds[0][0]; x[1] = center[0]; x[2] = bounds[1][0]; x[3] = center[0];
 			x[4] = bounds[0][0]; x[5] = bounds[1][0]; x[6] = bounds[1][0]; x[7] = bounds[0][0];
-			
+
 			y[0] = center[1]; y[1] = bounds[1][1]; y[2] = center[1]; y[3] = bounds[0][1];
 			y[4] = bounds[1][1]; y[5] = bounds[1][1]; y[6] = bounds[0][1]; y[7] = bounds[0][1];
-	
+
 			// find adjacent areas around the bottom of the plat
 			for ( int i = 0; i < 9; i++ ) {
 				if ( i < 8 ) {  //loops around the outside of the plat
 					start[0] = x[i];
 					start[1] = y[i];
-					start[2] = bottom[2];  
+					start[2] = bottom[2];
 					bottomAreaNum = aas->PointReachableAreaNum( start, DefaultBotBounds(), travelFlags );
 
 					int k; // TODO: try to eliminate this loop once and see what results
@@ -220,7 +213,7 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 							//gameRenderWorld->DebugCone( colorCyan, start, idVec3( 0, 0, 1 ), 0, 1);
 							break;
 						}
-						start[2] += 2; 
+						start[2] += 2;
 						bottomAreaNum = aas->PointReachableAreaNum( start, DefaultBotBounds(), travelFlags );
 					}
 					// couldn't find a reachable area - no need to process  for this point
@@ -235,13 +228,13 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 					else {
 						start = bottom;
 						bottomAreaNum = aas->PointReachableAreaNum( start, DefaultBotBounds(), travelFlags );
-						if ( !bottomAreaNum ) continue; 
+						if ( !bottomAreaNum ) continue;
 					}
 					bottomClusterNum = file->areas[bottomAreaNum].cluster;
 				}
-				 
+
 				//look at adjacent areas around the top of the plat make larger steps to outside the plat everytime
-				idBounds topBounds = bounds; 
+				idBounds topBounds = bounds;
 				for ( int n = 0; n < 3; n++ ) {
 					topBounds.ExpandSelf( 2 * n );
 
@@ -257,7 +250,7 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 							if ( firstPortalNum ) {
 								end = firstPortal;
 								topAreaNum = firstPortalNum;
-							} 
+							}
 							else {
 								continue;
 							}
@@ -265,9 +258,9 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 						else {
 							end[0] = x_top[j];
 							end[1] = y_top[j];
-							end[2] = top[2];	
+							end[2] = top[2];
 							topAreaNum = aas->PointReachableAreaNum( end, DefaultBotBounds(), travelFlags );
-							
+
 							int l; // trace up a little higher
 							for ( l = 0; l < 8; l++ ) {
 								// gameRenderWorld->DebugArrow(colorPurple, start, end, 3, 200000);
@@ -280,7 +273,7 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 											gameRenderWorld->DebugArrow( colorPurple, top, end, 1, 200000 );
 										}
 										// TODO: Need to trace down to the floor here and check trace.distance > plat.height (d3dm1)
-										break; 
+										break;
 									} else { // failed trace
 										if ( aas_showElevators.GetBool() ) {
 											gameRenderWorld->DebugArrow( colorOrange, top, end, 1, 200000 );
@@ -294,13 +287,13 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 							if ( l >= 8 ) continue;
 						}
 						// don't create reachabilities to the same area (worthless)
-   						if( bottomAreaNum == topAreaNum ) continue;
+						if( bottomAreaNum == topAreaNum ) continue;
 
 						// area from which we will create a reachability
 						aasArea_t area = file->areas[bottomAreaNum];
 						idReachability *reach;
 						bool create = true;
-					
+
 						if ( j < 8 ) {
 							// if a reachability in the area already points to the area don't create another one
 							for ( reach = area.reach; reach; reach = reach->next ) {
@@ -346,7 +339,7 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 							}
 							// if the bottom area can be made a cluster make it
 							if ( create ) {
-								CreatePortal( bottomAreaNum, bottomClusterNum, topClusterNum );							
+								CreatePortal( bottomAreaNum, bottomClusterNum, topClusterNum );
 							}
 							else { // UGLY: check the top area same as we just checked the bottom
 								// TODO: see if this ever gets used, if not think about getting rid of it for now?
@@ -368,7 +361,7 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 										topNeedPortal = end;
 										needPortal = true;
 									}
-									continue; 
+									continue;
 								}
 							}
 						}
@@ -399,24 +392,23 @@ void BotAASBuild::AddElevatorReachabilities( void ) {
 					//aas->PushPointIntoAreaNum(topAreaNum, topNeedPortal);
 					//aas->PushPointIntoAreaNum(bottomAreaNum, bottomNeedPortal);
 					CreatePortal( topAreaNum, topClusterNum, bottomClusterNum );
-					CreateReachability( bottomNeedPortal, topNeedPortal, bottomAreaNum, topAreaNum, TFL_ELEVATOR ); 
+					CreateReachability( bottomNeedPortal, topNeedPortal, bottomAreaNum, topAreaNum, TFL_ELEVATOR );
 				}
 			}
 		}
-	} // wow how far in did i go ;) 
+	} // wow how far in did i go ;)
 }
-
 
 /*
 ============
 BotAASBuild::AddTransporterReachabilities
 
- cusTom3	- needs some work, but is functional for purpose for now ;)
+cusTom3	- needs some work, but is functional for purpose for now ;)
 ============
 */
 void BotAASBuild::AddTransporterReachabilities( void ) {
-	// teleporters - if trigger and destination are in the same area just ignore them???? (not likely but test map had it) 
-	
+	// teleporters - if trigger and destination are in the same area just ignore them???? (not likely but test map had it)
+
 	idEntity *ent;
 	// for each entity in the map
 	for ( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
@@ -441,7 +433,7 @@ void BotAASBuild::AddTransporterReachabilities( void ) {
 								if ( startCluster != targetCluster ) {
 									needsPortal = true;
 								}
-							} 
+							}
 							else { // target area is a cluster portal
 								if ( file->GetPortal( -targetCluster ).clusters[0] != startCluster && file->GetPortal( -targetCluster ).clusters[1] != startCluster ) {
 									needsPortal = true;
@@ -456,16 +448,16 @@ void BotAASBuild::AddTransporterReachabilities( void ) {
 							}
 							else { // both portals
 								if ( (file->GetPortal( -startCluster ).clusters[0] != file->GetPortal( -targetCluster ).clusters[0]) &&
-									 (file->GetPortal( -startCluster ).clusters[1] != file->GetPortal( -targetCluster ).clusters[0]) &&
-									 (file->GetPortal( -startCluster ).clusters[0] != file->GetPortal( -targetCluster ).clusters[1]) &&
-									 (file->GetPortal( -startCluster ).clusters[1] != file->GetPortal( -targetCluster ).clusters[1]) ) {
-										 // need a portal and both are already portals, won't work?
-										 continue;
+									(file->GetPortal( -startCluster ).clusters[1] != file->GetPortal( -targetCluster ).clusters[0]) &&
+									(file->GetPortal( -startCluster ).clusters[0] != file->GetPortal( -targetCluster ).clusters[1]) &&
+									(file->GetPortal( -startCluster ).clusters[1] != file->GetPortal( -targetCluster ).clusters[1]) ) {
+										// need a portal and both are already portals, won't work?
+										continue;
 								}
 							}
 						}
 					}
-					if ( needsPortal ) { 
+					if ( needsPortal ) {
 						CreatePortal( startArea, startCluster, targetCluster );
 					}
 					CreateReachability( ent->GetPhysics()->GetOrigin(), target->GetPhysics()->GetOrigin(), startArea, targetArea, TFL_TELEPORT );
@@ -473,7 +465,6 @@ void BotAASBuild::AddTransporterReachabilities( void ) {
 			}
 		}
 	}
-
 }
 /*
 ============
@@ -484,14 +475,14 @@ cusTom3 - this crashes on game/mp/d3dm1???? but not on modified (clipped) versio
 */
 void BotAASBuild::FreeAAS() {
 	//OutputAASReachInfo( file );
-	
+
 	// remove the references that point to engine objects - as innefficiently as possible ;)
 	for ( int i = 0; i < originalPortals.Num(); i++ ) {
 		// remove the first one from the list, it will move the rest (go backwards at least lazy man)
 		file->portals.RemoveIndex( 0 );
 	}
-	
-	// if file->portals was resized, portals points to a place that has been deleted. 
+
+	// if file->portals was resized, portals points to a place that has been deleted.
 	portals.list = file->portals.list;
 	portals.num = file->portals.num;
 	portals.size = file->portals.size;
@@ -508,7 +499,7 @@ void BotAASBuild::FreeAAS() {
 		file->portalIndex.RemoveIndex( 0 );
 	}
 
-	// if file->portalIndex was resized, portalIndex points to a place that has been deleted. 
+	// if file->portalIndex was resized, portalIndex points to a place that has been deleted.
 	portalIndex.list = file->portalIndex.list;
 	portalIndex.num = file->portalIndex.num;
 	portalIndex.size = file->portalIndex.size;
@@ -525,7 +516,7 @@ void BotAASBuild::FreeAAS() {
 
 	// for each reachability added unmanipulate aas file
 	int numReach = reachabilities.Num();
-	
+
 	for ( int i = 0; i < numReach; i++ ) {
 		idReachability *r = reachabilities[ i ];
 		// remove this reach from the list - reaches are added to end of the reach list so 0 represents no other reach in list
@@ -536,12 +527,12 @@ void BotAASBuild::FreeAAS() {
 			for ( idReachability *reach = file->areas[r->fromAreaNum].reach; reach; reach = reach->next, j++ ) {
 				reach->number = j;
 			}
-		} 
+		}
 		else {
 			// only one in list - tell area list is now empty
 			file->areas[r->fromAreaNum].reach = NULL;
 		}
-		
+
 		// rev_reach has no numbers
 		if ( r == file->areas[r->toAreaNum].rev_reach ) {
 			// only one in list, tell area
@@ -550,12 +541,12 @@ void BotAASBuild::FreeAAS() {
 		else {
 			// have to find the reach before me
 			for ( idReachability *rev = file->areas[r->toAreaNum].rev_reach; rev; rev = rev->rev_next ) {
-				// if the next reach pointer points to the same thing i do? 
+				// if the next reach pointer points to the same thing i do?
 				if ( r == rev->rev_next ) {
 					rev->rev_next = r->rev_next;
 					break;
 				}
-			}	
+			}
 		}
 	}
 	// free memory allocated.
@@ -563,7 +554,7 @@ void BotAASBuild::FreeAAS() {
 	file = NULL;
 	aas = NULL;
 
-	//OutputAASReachInfo( file );	
+	//OutputAASReachInfo( file );
 }
 
 /*
@@ -585,43 +576,34 @@ idReachability * BotAASBuild::AllocReachability( void ) {
 	return r;
 }
 
-
-
-
-
-
-
-
-
 /*
 ============
 BotAASBuild::CreateReachability
 ============
 */
 void BotAASBuild::CreateReachability( const idVec3 &start, const idVec3 &end, int fromAreaNum, int toAreaNum, int travelFlags ) {
-	
 	idReachability *r = AllocReachability();
 	idReachability *reach;
-	
-	// add the reach to the end of the start areas reachability list 
+
+	// add the reach to the end of the start areas reachability list
 	reach = file->areas[fromAreaNum].reach;
 	if ( reach ) {
 		// get to the last reach in the list - he he
 		for ( ; reach->next; reach = reach->next ) {}
 		reach->next = r;
-	} 
+	}
 	else {
 		// will be only reachability in start area list
-		file->areas[fromAreaNum].reach = r; 
+		file->areas[fromAreaNum].reach = r;
 	}
 
-	r->next = NULL; 
-	r->start = start; 
+	r->next = NULL;
+	r->start = start;
 	r->end = end;
 	r->fromAreaNum = fromAreaNum;
 	r->toAreaNum = toAreaNum;
 	r->travelType = travelFlags;
-	r->travelTime = 1; // TODO: distance calculation here 
+	r->travelTime = 1; // TODO: distance calculation here
 	r->edgeNum = 0; // TODO: elevator height here, portal wouldn't share edge either? make parameter if needed?
 	r->areaTravelTimes = NULL;
 
@@ -632,7 +614,7 @@ void BotAASBuild::CreateReachability( const idVec3 &start, const idVec3 &end, in
 		reach->rev_next = r;
 	} else {
 		// will be only one in list
-		file->areas[toAreaNum].rev_reach = r; 
+		file->areas[toAreaNum].rev_reach = r;
 	}
 	//return r;
 }
@@ -654,12 +636,12 @@ void BotAASBuild::CreatePortal( int areaNum, int cluster, int joinCluster ) {
 	portal.clusters[1] = joinCluster;
 	portal.clusterAreaNum[1] = file->GetCluster( joinCluster ).numReachableAreas;
 	int portalIndex = file->portals.Append( portal );
-	
-	// adding an area to the joinCluster, update cluster stats 
+
+	// adding an area to the joinCluster, update cluster stats
 	file->clusters[joinCluster].numAreas++;
 	file->clusters[joinCluster].numPortals++;
 	file->clusters[joinCluster].numReachableAreas++;
-		
+
 	// update the files portalIndex
 	int insertat = file->clusters[joinCluster].firstPortal;
 	file->portalIndex.Insert( portalIndex, insertat );
@@ -670,7 +652,7 @@ void BotAASBuild::CreatePortal( int areaNum, int cluster, int joinCluster ) {
 		file->clusters[c].firstPortal = current;
 		current += file->clusters[c].numPortals;
 	}
-	
+
 	// adding a portal to the current cluster, update cluster stats
 	file->clusters[cluster].numPortals++;
 	insertat = file->clusters[cluster].firstPortal;
@@ -682,21 +664,19 @@ void BotAASBuild::CreatePortal( int areaNum, int cluster, int joinCluster ) {
 		file->clusters[c].firstPortal = current;
 		current += file->clusters[c].numPortals;
 	}
-	
-	// update the area 
+
+	// update the area
 	file->areas[areaNum].cluster = -portalIndex;
 	file->areas[areaNum].contents |= AREACONTENTS_CLUSTERPORTAL;
 }
 
-
-
 // old stuff below, delete later
 void LoadMinimalMapStuff() {
- // idStr mapFileName;
+	// idStr mapFileName;
 	//unsigned int mapFileCRC;
 	//mapFile = new idMapFile();
 	//
-	//if ( !mapFile->Parse( mapName.c_str())) { 
+	//if ( !mapFile->Parse( mapName.c_str())) {
 	//	delete mapFile;
 	//	mapFile = NULL;
 	//	gameLocal.Error( "Couldn't load %s", mapName );
@@ -717,7 +697,7 @@ void LoadMinimalMapStuff() {
 	//const char	*classname;
 	//const char	*spawn;
 	//const char  *name;
-	//int numEntities = mapFile->GetNumEntities(); 
+	//int numEntities = mapFile->GetNumEntities();
 
 	//for ( int i = 1 ; i < numEntities ; i++ ) {
 	//	mapEnt = mapFile->GetEntity( i );
@@ -740,7 +720,7 @@ void LoadMinimalMapStuff() {
 	//	//	}
 	//	//}
 	//	//kv = args.MatchPrefix( "model", kv );
-	//	//}	
+	//	//}
 
 	//	args.GetString( "classname", NULL, &classname );
 	//	const idDeclEntityDef *def = gameLocal.FindEntityDef( classname, false );
@@ -785,117 +765,117 @@ void LoadMinimalMapStuff() {
 	//}
 }
 void TryToAddLadders_Obselete_1() {
-//// TODO: search the map file entitites for func_plat?
-//	for ( int i = 0; i < mapFile->GetNumEntities(); i++ ) {
-//		idMapEntity *ent = mapFile->GetEntity( i );
-//		
-//		/*if (!ent) {
-//			continue;
-//		}*/
-//
-//		idMapPrimitive *mapPrim;
-//		for (int j = 0; j < ent->GetNumPrimitives(); j++ ) {
-//			mapPrim = ent->GetPrimitive( j );
-//
-//			switch( mapPrim->GetType() ) {
-//				case idMapPrimitive::TYPE_BRUSH:
-//					idMapBrush *brush = static_cast<idMapBrush*>( mapPrim );
-//					idMapBrushSide *side;
-//					for (int n = 0; n < brush->GetNumSides(); n++ ) {
-//						side = brush->GetSide( n );
-//						if ( idStr( side->GetMaterial() ).Find( "ladder", false ) > 0 ) { // better check?
-//							// yay, found a ladder
-//							// TODO: PointReachable with bounds?
-//							int area = aasFile->PointAreaNum( side->GetOrigin() );
-//							// TODO: should i be checking for negative (portal area)? probably not? 
-//							aasFile->areas[area].flags |= AREA_LADDER;
-//							idPlane plane = side->GetPlane();
-//							// TODO: look into face.planeNum 
-//							// aasFace_t face = FindFaceCorrespondingToPlane(plane);
-//							
-//							// need area number and postion vector for top and bottom of plane to create reachability.
-//							// look into face.areas to get area number
-//							gameLocal.Printf( "found a ladder in area %d at %s\n", area, side->GetOrigin().ToString());
-//							idReachability reach;
-//							//reach.start = face.n
-//							//aasFile->AddReachability( area, reach);
-//						}
-//					}
-//					break;
-//				// TODO: can patches be ladders?
-//				/*case idMapPrimitive::TYPE_PATCH:
-//					static_cast<idMapPatch*>(mapPrim)->Write( fp, i, origin );
-//					break;*/
-//			}
-//		}
-//	}
-//
-//	// search primitives for ladders? - need to loop through entities i guess 
-//
-//	int faceNum;
-//	const aasFace_t *face;
-//
-//	for ( int i = 0; i < aasFile->GetNumAreas(); i++ ) {
-//		
-//		// PROOF THAT AREA_LADDER NEEDS TO BE SET
-//		if ( aasFile->GetArea( i ).flags & AREA_LADDER ) { 
-//			gameLocal.Printf("area %d has a ladder!", i);
-//		}
-//		
-//		for (int j = 0; j < aasFile->GetArea( i ).numFaces; j++ ) {
-//			faceNum = aasFile->GetFaceIndex( aasFile->GetArea( i ).firstFace + j );
-//			face = &aasFile->GetFace( abs(faceNum) );
-//
-//			if ( !(face->flags & FACE_LADDER ) ) {
-//				continue;
-//			}
-//			gameLocal.Printf("face %d in area %d flagged as a ladder!", faceNum, i);
-//
-//
-//		//for ( idReachability *reach = file->GetArea( i ).reach; reach; reach = reach->next ) {
-//		//	if (reach->travelType & TFL_LADDER || reach->travelType == TFL_LADDER /* cause i am stupid */) {
-//		//		// gameLocal.Printf("found ladder reachability");
-//		//	}
-//		//}
-//		}
-//	}
-//
-//	// to make sure i am not too drunk
-//	for ( int i = 0; i < aasFile->GetNumFaces(); i++ ) {
-//		if ( !(aasFile->GetFace( i ).flags & FACE_LADDER ) ) {
-//			continue;
-//		}
-//			gameLocal.Printf("face %d in area %d flagged as a ladder!", faceNum, i);
-//	}
-//
-//	
-//
-//	gameLocal.Printf("area count for map: %d\n", aasFile->GetNumAreas());
+	//// TODO: search the map file entitites for func_plat?
+	//	for ( int i = 0; i < mapFile->GetNumEntities(); i++ ) {
+	//		idMapEntity *ent = mapFile->GetEntity( i );
+	//
+	//		/*if (!ent) {
+	//			continue;
+	//		}*/
+	//
+	//		idMapPrimitive *mapPrim;
+	//		for (int j = 0; j < ent->GetNumPrimitives(); j++ ) {
+	//			mapPrim = ent->GetPrimitive( j );
+	//
+	//			switch( mapPrim->GetType() ) {
+	//				case idMapPrimitive::TYPE_BRUSH:
+	//					idMapBrush *brush = static_cast<idMapBrush*>( mapPrim );
+	//					idMapBrushSide *side;
+	//					for (int n = 0; n < brush->GetNumSides(); n++ ) {
+	//						side = brush->GetSide( n );
+	//						if ( idStr( side->GetMaterial() ).Find( "ladder", false ) > 0 ) { // better check?
+	//							// yay, found a ladder
+	//							// TODO: PointReachable with bounds?
+	//							int area = aasFile->PointAreaNum( side->GetOrigin() );
+	//							// TODO: should i be checking for negative (portal area)? probably not?
+	//							aasFile->areas[area].flags |= AREA_LADDER;
+	//							idPlane plane = side->GetPlane();
+	//							// TODO: look into face.planeNum
+	//							// aasFace_t face = FindFaceCorrespondingToPlane(plane);
+	//
+	//							// need area number and postion vector for top and bottom of plane to create reachability.
+	//							// look into face.areas to get area number
+	//							gameLocal.Printf( "found a ladder in area %d at %s\n", area, side->GetOrigin().ToString());
+	//							idReachability reach;
+	//							//reach.start = face.n
+	//							//aasFile->AddReachability( area, reach);
+	//						}
+	//					}
+	//					break;
+	//				// TODO: can patches be ladders?
+	//				/*case idMapPrimitive::TYPE_PATCH:
+	//					static_cast<idMapPatch*>(mapPrim)->Write( fp, i, origin );
+	//					break;*/
+	//			}
+	//		}
+	//	}
+	//
+	//	// search primitives for ladders? - need to loop through entities i guess
+	//
+	//	int faceNum;
+	//	const aasFace_t *face;
+	//
+	//	for ( int i = 0; i < aasFile->GetNumAreas(); i++ ) {
+	//
+	//		// PROOF THAT AREA_LADDER NEEDS TO BE SET
+	//		if ( aasFile->GetArea( i ).flags & AREA_LADDER ) {
+	//			gameLocal.Printf("area %d has a ladder!", i);
+	//		}
+	//
+	//		for (int j = 0; j < aasFile->GetArea( i ).numFaces; j++ ) {
+	//			faceNum = aasFile->GetFaceIndex( aasFile->GetArea( i ).firstFace + j );
+	//			face = &aasFile->GetFace( abs(faceNum) );
+	//
+	//			if ( !(face->flags & FACE_LADDER ) ) {
+	//				continue;
+	//			}
+	//			gameLocal.Printf("face %d in area %d flagged as a ladder!", faceNum, i);
+	//
+	//
+	//		//for ( idReachability *reach = file->GetArea( i ).reach; reach; reach = reach->next ) {
+	//		//	if (reach->travelType & TFL_LADDER || reach->travelType == TFL_LADDER /* cause i am stupid */) {
+	//		//		// gameLocal.Printf("found ladder reachability");
+	//		//	}
+	//		//}
+	//		}
+	//	}
+	//
+	//	// to make sure i am not too drunk
+	//	for ( int i = 0; i < aasFile->GetNumFaces(); i++ ) {
+	//		if ( !(aasFile->GetFace( i ).flags & FACE_LADDER ) ) {
+	//			continue;
+	//		}
+	//			gameLocal.Printf("face %d in area %d flagged as a ladder!", faceNum, i);
+	//	}
+	//
+	//
+	//
+	//	gameLocal.Printf("area count for map: %d\n", aasFile->GetNumAreas());
 }
 void TryToAddElevators_Obselete_1() {
-//idStr cls;
-//	// TODO: search the map file entitites for func_plat
-//	for ( int i = 0; i < mapFile->GetNumEntities(); i++ ) {
-//		idMapEntity *ent = mapFile->GetEntity( i );
-//		ent->epairs.GetString( "classname", NULL, cls);
-//		// TODO: what about other classnames for elevators
-//		if( cls && cls == "func_plat") {
-//			idVec3 top = ent->epairs.GetVector("origin");
-//			idVec3 height(0, 0, ent->epairs.GetFloat("height"));
-//			idVec3 bottom = top - height;
-//			
-//			// TODO: environment sample surrounding areas?
-//			// maybe spawn an idPlat and use things like idMover_Binary.pos1 and .pos2
-//					
-//			//gameLocal.Printf("found idPlat top at %s in area %d\n", top.ToString(), aasFile->PointReachableAreaNum(top, bounds, TFL_WALK|TFL_WALKOFFLEDGE|TFL_JUMP, TFL_INVALID));
-//			//gameLocal.Printf("found idPlat bottom at %s in area %d\n", bottom.ToString(), aasFile->PointReachableAreaNum(bottom, bounds, TFL_WALK|TFL_WALKOFFLEDGE|TFL_JUMP, TFL_INVALID));
-//
-//		}
-//	}
+	//idStr cls;
+	//	// TODO: search the map file entitites for func_plat
+	//	for ( int i = 0; i < mapFile->GetNumEntities(); i++ ) {
+	//		idMapEntity *ent = mapFile->GetEntity( i );
+	//		ent->epairs.GetString( "classname", NULL, cls);
+	//		// TODO: what about other classnames for elevators
+	//		if( cls && cls == "func_plat") {
+	//			idVec3 top = ent->epairs.GetVector("origin");
+	//			idVec3 height(0, 0, ent->epairs.GetFloat("height"));
+	//			idVec3 bottom = top - height;
+	//
+	//			// TODO: environment sample surrounding areas?
+	//			// maybe spawn an idPlat and use things like idMover_Binary.pos1 and .pos2
+	//
+	//			//gameLocal.Printf("found idPlat top at %s in area %d\n", top.ToString(), aasFile->PointReachableAreaNum(top, bounds, TFL_WALK|TFL_WALKOFFLEDGE|TFL_JUMP, TFL_INVALID));
+	//			//gameLocal.Printf("found idPlat bottom at %s in area %d\n", bottom.ToString(), aasFile->PointReachableAreaNum(bottom, bounds, TFL_WALK|TFL_WALKOFFLEDGE|TFL_JUMP, TFL_INVALID));
+	//
+	//		}
+	//	}
 }
 
 void AddHardCodedReachabilityToAASPlat() {
-//// add the hardcoded reachability
+	//// add the hardcoded reachability
 	//aasArea_t *area = &aas->file->areas[3];
 	//idReachability *reach = area->reach;
 	//idReachability *r = AllocReachability();
@@ -905,7 +885,7 @@ void AddHardCodedReachabilityToAASPlat() {
 	//	// r->rev_next = reach;
 	//	r->number = reach->number + 1;
 	//	reach->next = r;
-	//} 
+	//}
 	//else {
 	//	// r->rev_next = NULL;
 	//	r->number = 1;
