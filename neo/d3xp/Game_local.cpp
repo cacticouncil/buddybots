@@ -533,6 +533,7 @@ void idGameLocal::LoadBrains() {
 					const char* f = fullPath.c_str();
 					FILE* fs;
 					int err = fopen_s(&fs,f, "r");
+					idFile* scriptFile = fileSystem->OpenFileRead(f);
 
 					botMainDef = exec_file(fullPath.c_str(),globalNamespace,globalNamespace);
 				} catch(...) {
