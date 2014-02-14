@@ -773,9 +773,15 @@ void idAsyncServer::DropClient( int clientNum, const char *reason ) {
 
 	serverClient_t &client = clients[clientNum];
 
+#ifdef AFI_BOTS
+	if ( client.clientState <= SCS_ZOMBIE && client.clientState != SCS_FAKE ) {
+		return;
+	}
+#else
 	if ( client.clientState <= SCS_ZOMBIE ) {
 		return;
 	}
+#endif
 
 	if ( client.clientState >= SCS_PUREWAIT && clientNum != localClientNum ) {
 		msg.Init( msgBuf, sizeof( msgBuf ) );

@@ -125,9 +125,7 @@ void afiBotManager::InitializeThreadsForFrame( ) {
 	if( numBots == 1) {
 		for(unsigned int iClient = 0; iClient < MAX_CLIENTS; ++iClient) {
 			if(IsClientBot(iClient)) {
-				workerThreadArray[0]->packedUpdateArray[0] = brainFastList[iClient];
-				workerThreadArray[0]->currentUpdateTask = 0;
-				workerThreadArray[0]->endUpdateTask = 1;
+				workerThreadArray[0]->AddUpdateTask(brainFastList[iClient]);
 				IncreaseThreadUpdateCount();
 				return;
 			}
@@ -164,8 +162,7 @@ void afiBotManager::InitializeThreadsForFrame( ) {
 			}
 
 			if(IsClientBot(iClient)) {
-				workerThreadArray[threadToFill]->packedUpdateArray[workerThreadArray[threadToFill]->endUpdateTask] = brainFastList[iClient];
-				workerThreadArray[threadToFill]->endUpdateTask++;
+				workerThreadArray[threadToFill]->AddUpdateTask(brainFastList[iClient]);
 				botsAdded++;
 			}
 			if(workerThreadArray[threadToFill]->endUpdateTask >= idealTasksPerThread) {
@@ -178,8 +175,7 @@ void afiBotManager::InitializeThreadsForFrame( ) {
 		if(idealReached == workerThreadCount && botsAdded < numBots) {
 			for(threadToFill = 0; botsAdded < numBots;iClient++ ) {
 				if(IsClientBot(iClient)) {
-					workerThreadArray[threadToFill]->packedUpdateArray[workerThreadArray[threadToFill]->endUpdateTask] = brainFastList[iClient];
-					workerThreadArray[threadToFill]->endUpdateTask++;
+					workerThreadArray[threadToFill]->AddUpdateTask(brainFastList[iClient]);
 					threadToFill++;
 					botsAdded++;
 				}
@@ -209,7 +205,8 @@ void afiBotManager::SaveMainThreadState( ) {
 }
 
 void afiBotManager::RestoreMainThreadState( ) {
-	PyEval_RestoreThread(mainThreadState);
+	
+		PyEval_RestoreThread(mainThreadState);
 }
 
 void afiBotManager::InitializePython( ) {
@@ -251,7 +248,7 @@ void afiBotManager::InitializePython( ) {
 	mainThreadState = PyThreadState_Get();
 	interpreterState = mainThreadState->interp;
 	//Grab the main module and globalNamespace
-	gameLocal.main = import("__main__");
+	gameLocal.main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
 
 	gameLocal.globalNamespace = gameLocal.main.attr("__dict__");
 
@@ -300,17 +297,14 @@ void afiBotManager::Shutdown( void ) {
 		brainFastList[i] = NULL;
 	}
 	numBots = 0;
+	
+	SaveMainThreadState();
+
 	workerThreadMutex.lock();
 	gameEnd = true;
+	//Notify anyone who may be waiting for a update
 	workerThreadUpdateConditional.notify_all();
 	workerThreadMutex.unlock();
-
-	RestoreMainThreadState();
-
-	//delete the memory for both the list, python is handling the cleanup of
-	// bot information.
-	loadedBots.DeleteContents(true);
-	memset( &botCmds, 0, sizeof( botCmds ) );
 
 	//clean up the worker thread memory
 	//Might need a function here to wait for safe thread shutdown.
@@ -318,8 +312,36 @@ void afiBotManager::Shutdown( void ) {
 		delete workerThreadArray[iThread];
 		workerThreadArray[iThread] = nullptr;
 	}
+
+	//delete the memory for both the list, python is handling the cleanup of
+	// bot information.
+	RestoreMainThreadState();
+
+	loadedBots.DeleteContents(true);
+	//loadedBots.Clear();
+	memset( &botCmds, 0, sizeof( botCmds ) );
+
+	
 	delete[] workerThreadArray;
 	workerThreadArray = nullptr;
+
+	CleanUpPython();
+
+}
+
+void afiBotManager::CleanUpPython() {
+	if(Py_IsInitialized()) {
+		//RestoreMainThreadState();
+
+		//PyThreadState_Clear(mainThreadState);
+		//PyInterpreterState_Clear(interpreterState);
+
+		//mainThreadState = PyEval_SaveThread();
+		//PyThreadState_Delete(mainThreadState);
+		//PyInterpreterState_Delete(interpreterState);
+
+		Py_Finalize();
+	}
 }
 
 botInfo_t* afiBotManager::FindBotProfileByIndex(int clientNum) {
@@ -620,7 +642,7 @@ void afiBotManager::SpawnBot( int clientNum ) {
 
 			//Create a boost python dictionary
 			brain->botDict = dict();
-
+			
 			//Copy from our dictonary to python dictonary
 			//now this may be a little finiky because all values are stored as
 			//strings, and there is no way with simple parsing to determine the
@@ -804,6 +826,7 @@ afiBotManager::~afiBotManager
 ===================
 */
 afiBotManager::~afiBotManager() {
+	
 }
 
 #endif

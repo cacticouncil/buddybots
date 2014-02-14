@@ -30,8 +30,8 @@ typedef struct botInfo_s {
 	idStr				botName;
 	idStr				authorName;
 	afiBotBrain*		brain;
-	object				botClassInstance;
 	object				scriptInstances[MAX_CLIENTS];
+	object				botClassInstance;
 
 	int					clientNum;
 	int					entityNum;
@@ -147,6 +147,9 @@ public:
 	static botInfo_t*			FindBotProfileByIndex(int clientNum);
 	afiBotManager();
 	~afiBotManager();
+
+	static void					CleanUpPython();
+
 
 protected:
 	static usercmd_t			botCmds[MAX_CLIENTS];

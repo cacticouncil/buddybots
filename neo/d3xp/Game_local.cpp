@@ -412,6 +412,10 @@ void idGameLocal::Init( void ) {
 
 #ifdef AFI_BOTS
 
+idGameLocal::~idGameLocal() {
+
+}
+
 void idGameLocal::SetSpawnArgs(const idDict& args) {
 	spawnArgs = args;
 }
@@ -432,13 +436,13 @@ void idGameLocal::LoadBrains() {
 		idStr botType;
 		idStr botSpawnClass;
 		//Information we need to load and copy bots def file
-		unsigned char* defBuffer = NULL;
+		char* defBuffer = NULL;
 		idStr defFileName;
 		int   defFileSize = -1;
-		unsigned char* scriptBuffer = NULL;
+		char* scriptBuffer = NULL;
 		idStr scriptFileName;
 		int   scriptFileSize = -1;
-
+		char* mainScriptBuffer = NULL;
 		idStr currentBrainPak = brainPaks->GetFile(iBrainPak);
 
 		//Generate the OS path to the pakFile
@@ -459,7 +463,7 @@ void idGameLocal::LoadBrains() {
 			if( fileName.CheckExtension(".def") ) {
 				defFileName = fileName;
 				defFileSize = ((*filesInZip)[iFile])->Length();
-				defBuffer = new unsigned char[defFileSize];
+				defBuffer = new char[defFileSize];
 				((*filesInZip)[iFile])->Read((void*)defBuffer,defFileSize);
 			}
 		}
@@ -493,7 +497,7 @@ void idGameLocal::LoadBrains() {
 		//Write the .dll file into its own folder for the bot, so we don't overwrite previously loaded dlls.
 		idStr sysPath = "";
 		idStr fullPath = "";
-		boost::python::object botMainDef;
+		object botMainDef;
 		if(botInfo->botType == BotType::SCRIPT) {
 			//load all the script files that might run this bot into the bot's folder
 			for(int iFile = 0; iFile < ((*filesInZip)).Num(); ++iFile) {
@@ -506,7 +510,9 @@ void idGameLocal::LoadBrains() {
 					scriptFileName = fileName;
 					scriptFileSize = ((*filesInZip)[iFile])->Length();
 
-					scriptBuffer = new unsigned char[scriptFileSize];
+					scriptBuffer = new char[scriptFileSize+1];
+					memset(scriptBuffer,0,scriptFileSize+1);
+
 					((*filesInZip)[iFile])->Read((void*)scriptBuffer,scriptFileSize);
 					fileSystem->WriteFile(va("loadedBots/%s/%s",botName.c_str(),scriptFileName.c_str()),scriptBuffer,scriptFileSize);
 					if( -1 != scriptFileName.Find("_main",false) ) {
@@ -515,9 +521,15 @@ void idGameLocal::LoadBrains() {
 						sysPath += botName + "\\";
 						fullPath = sysPath + scriptFileName;
 						fullPath = fullPath.BackSlashesToSlashes();
+
+						mainScriptBuffer = scriptBuffer;
+						
 					}
+					else {
+
 					delete[] scriptBuffer;
 					scriptFileSize = -1;
+					}
 				}
 			}
 			if( fullPath != "") {
@@ -528,43 +540,21 @@ void idGameLocal::LoadBrains() {
 					sys.attr("path").attr("insert")(0,sysPath.c_str());
 					globalNamespace["sys"] = sys;
 
+					str  script(const_cast<const char*>(mainScriptBuffer));
 					//TODO: Current Error: Fopen apparently returns successfully open
 					//but the file is not valid. The Path is valid and file is in existence
-					const char* f = fullPath.c_str();
-					FILE* fs;
-					int err = fopen_s(&fs,f, "r");
-					idFile* scriptFile = fileSystem->OpenFileRead(f);
+					botMainDef = exec(script,globalNamespace,globalNamespace);
 
-					botMainDef = exec_file(fullPath.c_str(),globalNamespace,globalNamespace);
+					
 				} catch(...) {
 					HandlePythonError();
 				}
-
+				delete[] mainScriptBuffer;
 				//Setup python object to spawn the bot class later on.
 				botInfo->botClassInstance = globalNamespace[botSpawnClass.c_str()];
 			}
 		}
-		//else if(botInfo->botType == BotType::DLL) {
-		//	fileSystem->WriteFile(va("loadedBots/%s/%s",botName.c_str(),dllFileName.c_str()),dllBuffer,dllFileSize);
-
-		//	//Load the dll from the extracted path.
-		//	const char*  finalDllPath = fileSystem->RelativePathToOSPath( va( "loadedBots/%s/%s",botName.c_str(),dllFileName.c_str() ) );
-		//	int brainDLL = sys->DLL_Load(finalDllPath);
-		//	if ( !brainDLL ) {
-		//		Error("Brain DLL not loaded for %s\n",botName.c_str());
-		//	}
-		//
-		//	CreateBotBrain_t CreateBrain = (CreateBotBrain_t) sys->DLL_GetProcAddress(brainDLL,"CreateBrain");
-		//	if( !CreateBrain ) {
-		//		sys->DLL_Unload(brainDLL);
-		//		Error("CreateBrain Function not found in %s dll\n",botName.c_str());
-		//	}
-		//	dllSetup.sys = sys;
-		//	dllSetup.common = common;
-		//	dllSetup.cmdSystem = cmdSystem;
-		//	dllSetup.cvarSystem = cvarSystem;
-		//	botInfo->brain = CreateBrain(&dllSetup);
-		//}
+		
 
 		afiBotManager::AddBotInfo(botInfo);
 
@@ -600,7 +590,6 @@ void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const 
 	}
 
 	parser.SetFlags(LEXFL_NOSTRINGCONCAT);
-
 	Printf("Loaded %s into memory\n",name);
 
 	idToken keyToken, valueToken;
@@ -634,6 +623,7 @@ void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const 
 
 	if( hasName && hasAuthor && hasType && hasSpawnClass ) {
 		Printf("Loading bot %s by %s.\n",botName.c_str(),authorName.c_str());
+		parser.FreeSource(false);
 		return;
 	}
 
@@ -649,6 +639,8 @@ void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const 
 	if(!hasType) {
 		Warning("Bot does not have a type. Please fill out \"botType\" key/value pair in entityDef %s\n",name);
 	}
+
+	parser.FreeSource(false);
 }
 
 #endif
@@ -672,7 +664,6 @@ void idGameLocal::Shutdown( void ) {
 
 #ifdef AFI_BOTS
 	afiBotManager::Shutdown();
-	Py_Finalize();
 #endif
 
 	aasList.DeleteContents( true );
@@ -1879,13 +1870,13 @@ void idGameLocal::MapClear( bool clearClients ) {
 		//This was a little bit of a hack if I attempt to clean up the memory
 		//allocated with the boost python objects, the memory manager complains
 		//about invalid memory blocks.
-		if(afiBotManager::IsClientBot(i) == false) {
+		//if(afiBotManager::IsClientBot(i) == false) {
 			delete entities[ i ];
 			// ~idEntity is in charge of setting the pointer to NULL
 			// it will also clear pending events for this entity
 			assert( !entities[ i ] );
 			spawnIds[ i ] = -1;
-		}
+		//}
 #else
 
 		delete entities[ i ];

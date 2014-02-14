@@ -27,10 +27,12 @@ botWorkerThread::~botWorkerThread( ) {
 	endUpdateTask = currentUpdateTask = -1;
 	threadMutex = nullptr;
 	threadConditional = nullptr;
+
 }
 
 void botWorkerThread::AddUpdateTask( afiBotBrain* newTask ) {
 	if(-1 == endUpdateTask) {
+		currentUpdateTask = 0;
 		endUpdateTask = 0;
 	} else if( MAX_CLIENTS < endUpdateTask ) {
 		return;
@@ -89,6 +91,13 @@ void botWorkerThread::RunWork( ) {
 			break;
 		}
 	}
+
+	//Doing final shutdown of threadState
+	PyEval_RestoreThread(threadState);
+	PyThreadState_Clear(threadState);
+	threadState = PyEval_SaveThread();
+	PyThreadState_Delete(threadState);
+
 }
 
 void botWorkerThread::InitializeForFrame( unsigned int endUpdateIndex ) {

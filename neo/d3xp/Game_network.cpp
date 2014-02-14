@@ -373,8 +373,10 @@ void idGameLocal::ServerClientDisconnect( int clientNum ) {
 	// clear the client PVS
 	memset( clientPVS[ clientNum ], 0, sizeof( clientPVS[ clientNum ] ) );
 
+	//if(!afiBotManager::IsClientBot(clientNum)) {
 	// delete the player entity
 	delete entities[ clientNum ];
+	//}
 
 	mpGame.DisconnectClient( clientNum );
 

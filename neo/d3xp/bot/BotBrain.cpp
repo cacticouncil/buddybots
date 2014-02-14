@@ -13,13 +13,14 @@ Description: Defines the basic interface that bot brains should follow.
 #include "../physics/Physics_Player.h"
 
 BOOST_PYTHON_MODULE(afiBotBrain) {
-	import("idDict");
-	import("idVec3");
-	import("afiBotPlayer");
+	//import("idDict");
+	//import("idVec3");
+	//import("afiBotPlayer");
 
 	enum_<aiViewType_t>("aiViewType_t")
 		.value("VIEW_DIR",VIEW_DIR)
 		.value("VIEW_POS",VIEW_POS)
+		.export_values()
 		;
 
 	enum_<aiMoveFlag_t>("aiMoveFlag_t")
@@ -28,6 +29,7 @@ BOOST_PYTHON_MODULE(afiBotBrain) {
 		.value("JUMP",JUMP)
 		.value("WALK",WALK)
 		.value("RUN",RUN)
+		.export_values()
 		;
 
 	class_<aiCommands_t>("aiCommands_t")
@@ -43,7 +45,7 @@ BOOST_PYTHON_MODULE(afiBotBrain) {
 		.def_readwrite("commands",&aiInput_t::commands)
 		;
 
-	class_<afiBotBrainWrapper,boost::noncopyable>("afiBotBrain")
+	class_<afiBotBrainWrapper,shared_ptr<afiBotBrainWrapper>,boost::noncopyable>("afiBotBrain")
 		.def("Think",pure_virtual(&afiBotBrain::Think))
 		.def("Spawn",pure_virtual(&afiBotBrain::Spawn))
 		.def("Restart",pure_virtual(&afiBotBrain::Restart))

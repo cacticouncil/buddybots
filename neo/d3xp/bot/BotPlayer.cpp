@@ -18,14 +18,24 @@ idCVar	bot_debugBot( "bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOC
 CLASS_DECLARATION( idPlayer, afiBotPlayer )
 	END_CLASS
 
-	BOOST_PYTHON_MODULE(afiBotPlayer) {
-		import("idVec3");
-		import("idAngles");
-		import("idEntity");
-		import("afiBotBrain");
-		import("afiBotManager");
+	void noOpDelete(afiBotPlayer*) { }
 
-		class_<afiBotPlayer>("afiBotPlayer")
+shared_ptr<afiBotPlayer> CreateBotPlayer() {
+
+	return shared_ptr<afiBotPlayer>(new afiBotPlayer(),&noOpDelete);
+}
+
+
+
+	BOOST_PYTHON_MODULE(afiBotPlayer) {
+		//import("idVec3");
+		//import("idAngles");
+		//import("idEntity");
+		//import("afiBotBrain");
+		//import("afiBotManager");
+
+		class_<afiBotPlayer,shared_ptr<afiBotPlayer>>("afiBotPlayer",no_init)
+			.def("__init__",make_constructor(&CreateBotPlayer))
 			.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>(),release_gil_policy())
 			.def("MoveTo",&afiBotPlayer::MoveTo)
 			.def("MoveToPosition",&afiBotPlayer::MoveToPosition)
@@ -44,15 +54,17 @@ CLASS_DECLARATION( idPlayer, afiBotPlayer )
 			;
 }
 
+
+
 afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset( &botcmd, 0, sizeof( botcmd ) );
 	memset( &aiInput, 0, sizeof( aiInput ) );
 	//Oh if I only had a brain
-	brain = NULL;
+	brain = nullptr;
 }
 
 afiBotPlayer::~afiBotPlayer() {
-	brain = NULL;
+	brain = nullptr;
 	aas = NULL;
 }
 

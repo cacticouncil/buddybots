@@ -74,10 +74,10 @@ public:
 	void						SetPhysics(idPhysics_Player* _physicsObject);
 public:
 
-	afiBotPlayer*				GetBody();
+	afiBotPlayer*		GetBody();
 	idPhysics_Player*			GetPhysics();
 	//Pointer to the fake client body of the bot.
-	afiBotPlayer*				body;
+	afiBotPlayer*		body;
 	object						scriptBody;
 	idPhysics_Player*			physicsObject;
 	// navigation

@@ -4242,13 +4242,22 @@ idList<idFile_InZip*>* idFileSystemLocal::GetFilesInZip(const char* pakFile) {
 		outputFileList->Append(file);
 	}
 
+	delete[] loadedPakFile->buildBuffer;
+
+	delete loadedPakFile;
+	loadedPakFile = nullptr;
+
 	return outputFileList;
 
 }
 
 void idFileSystemLocal::FreeFilesInList(idList<idFile_InZip*>* deleteMe) {
 
-	(*deleteMe).DeleteContents(true);
+	unsigned int numFiles = (*deleteMe).Num();
+
+	for(unsigned int iFile = 0; iFile < numFiles; ++iFile) {
+		CloseFile(((*deleteMe)[iFile]));
+	}
 
 	delete deleteMe;
 	deleteMe = NULL;

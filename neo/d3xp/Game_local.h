@@ -374,6 +374,9 @@ public:
 	// ---------------------- Public idGame Interface -------------------
 
 							idGameLocal();
+#ifdef AFI_BOTS
+							~idGameLocal();
+#endif
 
 	virtual void			Init( void );
 	virtual void			Shutdown( void );
