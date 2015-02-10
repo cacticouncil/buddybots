@@ -238,7 +238,7 @@ public:
 	idSoundEmitter *		GetSoundEmitter( void ) const;
 	void					FreeSoundEmitter( bool immediate );
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	//Returns the entity's origin position if the entity has a physics object
 	//Otherwise the function will return zero_vector
 	idVec3					GetPosition( void );
@@ -486,7 +486,7 @@ private:
 	void					Event_GuiNamedEvent(int guiNum, const char *event);
 #endif
 };
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 ID_INLINE float idEntity::DistanceTo ( idEntity* ent ) const {
 	return DistanceTo ( ent->GetPhysics()->GetOrigin() ); 
 }

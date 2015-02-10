@@ -36,7 +36,7 @@ idVec5 vec5_origin( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 idVec6 vec6_origin( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 idVec6 vec6_infinity( idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY );
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 
 BOOST_PYTHON_MODULE(idVec2) {
 

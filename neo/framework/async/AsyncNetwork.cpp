@@ -511,7 +511,7 @@ void idAsyncNetwork::BuildInvalidKeyMsg( idStr &msg, bool valid[ 2 ] ) {
 	msg += common->GetLanguageDict()->GetString( "#str_04304" );	
 }
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 
 int idAsyncNetwork::ServerConnectBot() {
 	int botClientNum = -1;

@@ -404,7 +404,7 @@ public:
 	virtual void			Show( void );
 
 	void					Init( void );
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	virtual void			PrepareForRestart( void );
 #else
 	void					PrepareForRestart( void );
@@ -414,8 +414,13 @@ public:
 	void					LinkScriptVariables( void );
 	void					SetupWeaponEntity( void );
 	void					SelectInitialSpawnPoint( idVec3 &origin, idAngles &angles );
+#ifdef BUDDY_BOTS
+	virtual void			SpawnFromSpawnSpot(void);
+	virtual void			SpawnToPoint( const idVec3	&spawn_origin, const idAngles &spawn_angles );
+#else
 	void					SpawnFromSpawnSpot( void );
 	void					SpawnToPoint( const idVec3	&spawn_origin, const idAngles &spawn_angles );
+#endif
 	void					SetClipModel( void );	// spectator mode uses a different bbox size
 
 	void					SavePersistantInfo( void );
@@ -615,7 +620,7 @@ private:
 	jointHandle_t			hipJoint;
 	jointHandle_t			chestJoint;
 	jointHandle_t			headJoint;
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 protected:
 	idPhysics_Player		physicsObj;			// player physics
 private:
@@ -631,17 +636,31 @@ private:
 	float					xyspeed;
 	int						stepUpTime;
 	float					stepUpDelta;
+#ifdef BUDDY_BOTS
+	protected:
 	float					idealLegsYaw;
 	float					legsYaw;
 	bool					legsForward;
 	float					oldViewYaw;
+#else
+	float					idealLegsYaw;
+	float					legsYaw;
+	bool					legsForward;
+	float					oldViewYaw;
+#endif
 	idAngles				viewBobAngles;
 	idVec3					viewBob;
 	int						landChange;
 	int						landTime;
 
 	int						currentWeapon;
+#ifndef BUDDY_BOTS
 	int						idealWeapon;
+#else
+	protected:
+		int						idealWeapon;
+	private:
+#endif
 	int						previousWeapon;
 	int						weaponSwitchTime;
 	bool					weaponEnabled;
@@ -673,8 +692,13 @@ private:
 	float					influenceRadius;
 	const idDeclSkin *		influenceSkin;
 
+#ifdef BUDDY_BOTS
+	protected:
+	idCamera *				privateCameraView;
+#else
 	idCamera *				privateCameraView;
 
+#endif
 	static const int		NUM_LOGGED_VIEW_ANGLES = 64;		// for weapon turning angle offsets
 	idAngles				loggedViewAngles[NUM_LOGGED_VIEW_ANGLES];	// [gameLocal.framenum&(LOGGED_VIEW_ANGLES-1)]
 	static const int		NUM_LOGGED_ACCELS = 16;			// for weapon turning angle offsets
@@ -719,10 +743,15 @@ private:
 
 	// mp
 	bool					ready;					// from userInfo
+#ifdef BUDDY_BOTS
+	protected:
 	bool					respawning;				// set to true while in SpawnToPoint for telefrag checks
+#else
+	bool					respawning;				// set to true while in SpawnToPoint for telefrag checks
+
+#endif
 	bool					leader;					// for sudden death situations
 	int						lastSpectateChange;
-	int						lastTeleFX;
 	unsigned int			lastSnapshotSequence;	// track state hitches on clients
 	bool					weaponCatchup;			// raise up the weapon silently ( state catchups )
 	int						MPAim;					// player num in aim
@@ -730,8 +759,15 @@ private:
 	int						lastMPAimTime;			// last time the aim changed
 	int						MPAimFadeTime;			// for GUI fade
 	bool					MPAimHighlight;
+#ifdef BUDDY_BOTS
+	protected:
 	bool					isTelefragged;			// proper obituaries
+	int						lastTeleFX;
+#else
 
+	bool					isTelefragged;			// proper obituaries
+	int						lastTeleFX;
+#endif
 	idPlayerIcon			playerIcon;
 
 	bool					selfSmooth;

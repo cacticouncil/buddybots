@@ -9,7 +9,11 @@ the network.
 */
 #include "precompiled.h"
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
+
+
+// how many units to raise spectator above default view height so it's in the head of someone
+const int SPECTATE_RAISE = 25;
 
 #include "BotPlayer.h"
 
@@ -19,6 +23,7 @@ CLASS_DECLARATION( idPlayer, afiBotPlayer )
 	END_CLASS
 
 	void noOpDelete(afiBotPlayer*) { }
+void noOpDeletePlayer(idPlayer*) {}
 
 shared_ptr<afiBotPlayer> CreateBotPlayer() {
 
@@ -33,8 +38,9 @@ shared_ptr<afiBotPlayer> CreateBotPlayer() {
 		//import("idEntity");
 		//import("afiBotBrain");
 		//import("afiBotManager");
+		import("idPlayer");
 
-		class_<afiBotPlayer,shared_ptr<afiBotPlayer>>("afiBotPlayer",no_init)
+		class_<afiBotPlayer,bases<idPlayer>,shared_ptr<afiBotPlayer>>("afiBotPlayer",no_init)
 			.def("__init__",make_constructor(&CreateBotPlayer))
 			.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>(),release_gil_policy())
 			.def("MoveTo",&afiBotPlayer::MoveTo)
@@ -48,6 +54,10 @@ shared_ptr<afiBotPlayer> CreateBotPlayer() {
 			.def("MoveToNearest",&afiBotPlayer::MoveToNearest,return_value_policy<reference_existing_object>())
 			.def("PathToGoal",&afiBotPlayer::PathToGoal)
 			.def("ReachedPos",&afiBotPlayer::ReachedPos,release_gil_policy())
+			.def("SwitchWeapon",&afiBotPlayer::SwitchWeapon)
+			.def("HasAmmo",&afiBotPlayer::HasAmmo)
+			.def("FindNearbyPlayers",&afiBotPlayer::FindNearbyPlayers)
+			.def("GetPosition",&afiBotPlayer::GetPosition)
 			.def_readonly("health",&afiBotPlayer::health)
 			.def_readonly("team",&afiBotPlayer::team)
 			.def_readonly("spectator",&afiBotPlayer::spectator)
@@ -72,6 +82,10 @@ void afiBotPlayer::SetBrain(afiBotBrain* newBrain) {
 	brain = newBrain;
 }
 
+afiBotBrain* afiBotPlayer::GetBrain() const {
+	return brain;
+}
+
 void afiBotPlayer::SetAAS() {
 	aas = gameLocal.GetAAS( "aas48" );
 	if ( aas ) {
@@ -86,6 +100,213 @@ void afiBotPlayer::SetAAS() {
 	}
 
 	gameLocal.Error( "Bot cannot find AAS file for map\n" ); // TinMan: No aas, no play.
+}
+
+
+boost::python::list afiBotPlayer::FindNearbyPlayers() {
+
+	boost::python::list nearbyPlayers = boost::python::list();
+	unsigned int numClients = gameLocal.numClients;
+	for (unsigned int iClient = 0; iClient < numClients; ++iClient) {
+
+		idPlayer* player = gameLocal.GetClientByNum(iClient);
+		if (player != nullptr) {
+			if (CanSee(player, true)) {
+				nearbyPlayers.append(shared_ptr<idPlayer>(player,&noOpDeletePlayer));
+			}
+		}
+	}
+
+	return nearbyPlayers;
+}
+bool afiBotPlayer::SwitchWeapon(const char* weaponName) {
+
+	int weaponSlot = SlotForWeapon(weaponName);
+
+	if (weaponSlot == -1) {
+		return false;
+	}
+
+	SelectWeapon(weaponSlot, false);
+
+	if (idealWeapon != weaponSlot)
+		return false;
+
+		
+	return true;
+
+
+}
+
+int afiBotPlayer::HasAmmo(const char* weaponName) {
+
+	int weaponSlot = SlotForWeapon(weaponName);
+
+	if (weaponSlot == -1) {
+		return 0;
+	}
+
+	return inventory.HasAmmo(weaponName, true, this);
+
+}
+
+void afiBotPlayer::SpawnFromSpawnSpot() {
+	idVec3		spawn_origin;
+	idAngles	spawn_angles;
+
+	SelectInitialSpawnPoint(spawn_origin, spawn_angles);
+	SpawnToPoint(spawn_origin, spawn_angles);
+
+}
+
+void afiBotPlayer::SpawnToPoint(const idVec3	&spawn_origin, const idAngles &spawn_angles) {
+	idVec3 spec_origin;
+
+	assert(!gameLocal.isClient);
+
+	respawning = true;
+
+	Init();
+
+	fl.noknockback = false;
+
+	// stop any ragdolls being used
+	StopRagdoll();
+
+	// set back the player physics
+	SetPhysics(&physicsObj);
+
+	physicsObj.SetClipModelAxis();
+	physicsObj.EnableClip();
+
+	if (!spectating) {
+		SetCombatContents(true);
+	}
+
+	physicsObj.SetLinearVelocity(vec3_origin);
+
+	// setup our initial view
+	if (!spectating) {
+		SetOrigin(spawn_origin);
+	}
+	else {
+		spec_origin = spawn_origin;
+		spec_origin[2] += pm_normalheight.GetFloat();
+		spec_origin[2] += SPECTATE_RAISE;
+		SetOrigin(spec_origin);
+	}
+
+	// if this is the first spawn of the map, we don't have a usercmd yet,
+	// so the delta angles won't be correct.  This will be fixed on the first think.
+	viewAngles = ang_zero;
+	SetDeltaViewAngles(ang_zero);
+	SetViewAngles(spawn_angles);
+	spawnAngles = spawn_angles;
+	spawnAnglesSet = false;
+
+	legsForward = true;
+	legsYaw = 0.0f;
+	idealLegsYaw = 0.0f;
+	oldViewYaw = viewAngles.yaw;
+
+	if (spectating) {
+		Hide();
+	}
+	else {
+		Show();
+	}
+
+	if (gameLocal.isMultiplayer) {
+		if (!spectating) {
+			// we may be called twice in a row in some situations. avoid a double fx and 'fly to the roof'
+			if (lastTeleFX < gameLocal.time - 1000) {
+				idEntityFx::StartFx(spawnArgs.GetString("fx_spawn"), &spawn_origin, NULL, this, true);
+				lastTeleFX = gameLocal.time;
+			}
+		}
+		AI_TELEPORT = true;
+	}
+	else {
+		AI_TELEPORT = false;
+	}
+
+	// kill anything at the new position
+	if (!spectating) {
+		physicsObj.SetClipMask(MASK_PLAYERSOLID); // the clip mask is usually maintained in Move(), but KillBox requires it
+		gameLocal.KillBox(this);
+	}
+
+	// don't allow full run speed for a bit
+	physicsObj.SetKnockBack(100);
+
+	// set our respawn time and buttons so that if we're killed we don't respawn immediately
+	minRespawnTime = gameLocal.time;
+	maxRespawnTime = gameLocal.time;
+
+	if (forceRespawn && !spectating) {
+		brain->OnRespawn();
+	}
+
+	if (!spectating) {
+		forceRespawn = false;
+	}
+
+	privateCameraView = NULL;
+
+	BecomeActive(TH_THINK);
+
+	// run a client frame to drop exactly to the floor,
+	// initialize animations and other things
+	idPlayer::Think();
+
+	respawning = false;
+	lastManOver = false;
+	lastManPlayAgain = false;
+	isTelefragged = false;
+
+
+}
+
+void afiBotPlayer::Damage(idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location) {
+
+	if (gameLocal.isClient) {
+		return;
+	}
+	int			damage;
+	int			armorSave;
+	idPlayer::Damage(inflictor, attacker, dir, damageDefName, damageScale, location);
+
+	const idDeclEntityDef *damageDef = gameLocal.FindEntityDef(damageDefName, false);
+	if (!damageDef) {
+		gameLocal.Warning("Unknown damageDef '%s'", damageDefName);
+		return;
+	}
+
+	if (damageDef->dict.GetBool("ignore_player")) {
+		return;
+	}
+
+	if (inflictor == nullptr) {
+		inflictor = gameLocal.world;
+	}
+
+	if (attacker == nullptr) {
+		attacker = gameLocal.world;
+	}
+
+	CalcDamagePoints(inflictor, attacker, &damageDef->dict, damageScale, location, &damage, &armorSave);
+	//POSSIBLE_CHANGE: If we want to send out events even if no damage is dealt in the future this
+	//is where it would be done.
+	if (damage == 0) {
+		return;
+	}
+	brain->OnPain(inflictor, attacker, dir, damage);
+
+	if (attacker->IsType(afiBotPlayer::Type)) {
+		afiBotPlayer* attackingBot = (afiBotPlayer*)attacker;
+		attackingBot->GetBrain()->OnHit(attackingBot, dir, damage);
+	}
+
 }
 
 void afiBotPlayer::Spawn() {
@@ -128,13 +349,6 @@ void afiBotPlayer::Restart( void ) {
 
 void afiBotPlayer::Think( void ) {
 	idPlayer::Think();
-
-	//if(brain != NULL) {
-	//aiInput_t temp = brain->Think();
-	//f(temp.moveFlag != NULLMOVE) {
-	//aiInput = temp;
-	//}
-	//}
 
 	Move();
 
@@ -249,6 +463,7 @@ void afiBotPlayer::ProcessMove( void ) {
 	if ( moveFlag == RUN ) {
 		botcmd.buttons |= BUTTON_RUN;
 	}
+
 }
 
 void afiBotPlayer::ProcessCommands( void ) {
@@ -262,6 +477,7 @@ void afiBotPlayer::ProcessCommands( void ) {
 	if( commands->zoom ) {
 		botcmd.buttons |= BUTTON_ZOOM;
 	}
+
 }
 
 idEntity* afiBotPlayer::FindNearestItem( idStr item )

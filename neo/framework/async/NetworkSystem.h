@@ -59,7 +59,7 @@ public:
 	virtual int				ClientGetIncomingRate( void );
 	virtual float			ClientGetIncomingPacketLoss( void );
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	virtual int			ServerConnectBot();
 #endif
 };

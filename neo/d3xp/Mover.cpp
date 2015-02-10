@@ -3104,7 +3104,7 @@ void idMover_Binary::SetPortalState( bool open ) {
 	gameLocal.SetPortalState( areaPortal, open ? PS_BLOCK_NONE : PS_BLOCK_ALL );
 }
 
-#ifdef AFI_BOTS // cusTom3 - aas extensions - need for elevator reachabilities
+#ifdef BUDDY_BOTS // cusTom3 - aas extensions - need for elevator reachabilities
 /*
 ================
 idMover_Binary::GetPosition1

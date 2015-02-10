@@ -415,7 +415,7 @@ idCVar net_serverDlBaseURL(			"net_serverDlBaseURL",		"",				CVAR_GAME | CVAR_AR
 idCVar net_serverDlTable(			"net_serverDlTable",		"",				CVAR_GAME | CVAR_ARCHIVE, "pak names for which download is provided, seperated by ;" );
 
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 //TODO Add Cvars if Needed.
 
 #endif

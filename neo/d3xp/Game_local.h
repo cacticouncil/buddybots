@@ -374,7 +374,7 @@ public:
 	// ---------------------- Public idGame Interface -------------------
 
 							idGameLocal();
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 							~idGameLocal();
 #endif
 
@@ -420,7 +420,7 @@ public:
 
 	virtual void			GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	object					main;
 	object					globalNamespace;
 
@@ -433,8 +433,6 @@ public:
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
 
 	//Functions called during init of game to load and validate the bot definitions.
-	void					LoadBrains( void ); //Brainssssssssssssssssssss
-	void					ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName, idStr& botType,idStr& botSpawnClass );
 
 #else
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };
@@ -827,7 +825,7 @@ const int	CINEMATIC_SKIP_DELAY	= SEC2MS( 2.0f );
 #include "script/Script_Interpreter.h"
 #include "script/Script_Thread.h"
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 
 #include "bot/BotManager.h"
 #include "bot/BotPlayer.h"

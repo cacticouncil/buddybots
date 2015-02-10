@@ -191,7 +191,7 @@ public:
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] ) = 0;
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	virtual void				GetBotInput(int clientNum, usercmd_t& userCmd);
 #else
 	virtual void				GetBotInput( int clientNum,usercmd_t& userCmd ) = 0;

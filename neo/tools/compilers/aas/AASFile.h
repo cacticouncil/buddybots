@@ -280,7 +280,7 @@ private:
 
 
 class idAASFile {
-#ifdef AFI_BOTS // cusTom3 - aas extensions
+#ifdef BUDDY_BOTS // cusTom3 - aas extensions
 	friend class BotAASBuild;
 #endif
 public:

@@ -56,7 +56,7 @@ idRenderWorld *				gameRenderWorld = NULL;		// all drawing is done to this world
 idSoundWorld *				gameSoundWorld = NULL;		// all audio goes to this world
 
 static gameExport_t			gameExport;
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 static botImport_t			dllSetup;
 #endif
 // global animation lib
@@ -71,6 +71,10 @@ const char *idGameLocal::sufaceTypeNames[ MAX_SURFACE_TYPES ] = {
 	"ricochet", "surftype10", "surftype11", "surftype12", "surftype13", "surftype14", "surftype15"
 };
 
+
+//TODO BUDDY_BOTS: Build system to allow bots to look for nearby items of a type,
+//thinking of creating enumeration for each item and mapping them to appropriate string
+//bots will look up by enum.
 #ifdef _D3XP
 // List of all defs used by the player that will stay on the fast timeline
 static const char* fastEntityList[] = {
@@ -318,20 +322,20 @@ void idGameLocal::Init( void ) {
 	Printf( "gamename: %s\n", GAME_VERSION );
 	Printf( "gamedate: %s\n", __DATE__ );
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	//Initialize bot framework and load bot information
 	afiBotManager::PrintInfo();
 	afiBotManager::Initialize();
 
 	//Load all Bots found in botPaks folder
-	LoadBrains();
+	afiBotManager::LoadAllBots();
 #endif
 
 	// register game specific decl types
 	declManager->RegisterDeclType( "model",				DECL_MODELDEF,		idDeclAllocator<idDeclModelDef> );
 	declManager->RegisterDeclType( "export",			DECL_MODELEXPORT,	idDeclAllocator<idDecl> );
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	//Loaded bot def files will all be put into a folder together.
 	declManager->RegisterDeclFolder( "loadedBots/def",	".def",				DECL_ENTITYDEF );
 #endif
@@ -410,7 +414,7 @@ void idGameLocal::Init( void ) {
 	Printf( "--------------------------------------\n" );
 }
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 
 idGameLocal::~idGameLocal() {
 
@@ -420,151 +424,7 @@ void idGameLocal::SetSpawnArgs(const idDict& args) {
 	spawnArgs = args;
 }
 
-void idGameLocal::LoadBrains() {
-	idFileList* brainPaks;
-	int			iBrainPak;
-	int			numBrainPaks;
 
-	//List all the pakFiles in the folder where the botPaks should be.
-	brainPaks = fileSystem->ListFiles("botPaks",".pk4",true,true);
-
-	numBrainPaks = brainPaks->GetNumFiles();
-
-	for(iBrainPak = 0; iBrainPak < numBrainPaks; ++iBrainPak) {
-		idStr botName;
-		idStr authorName;
-		idStr botType;
-		idStr botSpawnClass;
-		//Information we need to load and copy bots def file
-		char* defBuffer = NULL;
-		idStr defFileName;
-		int   defFileSize = -1;
-		char* scriptBuffer = NULL;
-		idStr scriptFileName;
-		int   scriptFileSize = -1;
-		char* mainScriptBuffer = NULL;
-		idStr currentBrainPak = brainPaks->GetFile(iBrainPak);
-
-		//Generate the OS path to the pakFile
-		idStr fullBrainPath = fileSystem->RelativePathToOSPath(currentBrainPak,"fs_basepath");
-
-		//Unzip that pakFile and return a list of all the Files that exist within that pakFile
-		idList<idFile_InZip*>* filesInZip = fileSystem->GetFilesInZip(fullBrainPath.c_str());
-
-		for(int iFile = 0; iFile < ((*filesInZip)).Num(); ++iFile) {
-			//A student should submit a .def file, which contains the basic information
-			//needed to spawn their bot, and a dll that contains the actual decision making code
-			//for their bot.
-			idStr	fileName;
-			fileName = ((*filesInZip)[iFile])->GetName();
-
-			//If we find the .def or .dll or script files in this pakFile we need actually read and load these
-			//files.
-			if( fileName.CheckExtension(".def") ) {
-				defFileName = fileName;
-				defFileSize = ((*filesInZip)[iFile])->Length();
-				defBuffer = new char[defFileSize];
-				((*filesInZip)[iFile])->Read((void*)defBuffer,defFileSize);
-			}
-		}
-
-		if(!defBuffer) {
-			Warning(".def file not found in %s pak file\n",currentBrainPak.c_str());
-		}
-
-		//Use the idParser to run through the entityDef and determine the bots name, and who created it.
-		//This information is used later when we want to spawn a bot to link the entityDef we are spawning
-		//to the botBrain class defined in the dll.
-		//Since the entityDef spawns the afiBotPlayer class not the derived botBrain class.
-		ParseForBotName((void*) defBuffer,defFileSize,defFileName,botName,authorName,botType,botSpawnClass);
-
-		//Create BotInfo struct, extract and load dll, and add botInfo to BotManager
-		botInfo_t * botInfo = new botInfo_t();
-
-		botInfo->botName = botName;
-		botInfo->authorName = authorName;
-		if(botType.Icmp("Code") == 0) {
-			botInfo->botType = BotType::CODE;
-		}
-		else if( botType.Icmp("Script") == 0 ) {
-			botInfo->botType = BotType::SCRIPT;
-		}
-		else if( botType.Icmp("Dll") == 0) {
-			botInfo->botType = BotType::DLL;
-		}
-		//Write the .def file to a folder where all the loaded bot entityDefs will be, so they can be loaded into the game later.
-		fileSystem->WriteFile(va("loadedBots/def/%s",defFileName.c_str()),defBuffer,defFileSize);
-		//Write the .dll file into its own folder for the bot, so we don't overwrite previously loaded dlls.
-		idStr sysPath = "";
-		idStr fullPath = "";
-		object botMainDef;
-		if(botInfo->botType == BotType::SCRIPT) {
-			//load all the script files that might run this bot into the bot's folder
-			for(int iFile = 0; iFile < ((*filesInZip)).Num(); ++iFile) {
-				idStr	fileName;
-				fileName = ((*filesInZip)[iFile])->GetName();
-
-				//If we find the .def or .dll or script files in this pakFile we need actually read and load these
-				//files.
-				if( fileName.CheckExtension(".py") ) {
-					scriptFileName = fileName;
-					scriptFileSize = ((*filesInZip)[iFile])->Length();
-
-					scriptBuffer = new char[scriptFileSize+1];
-					memset(scriptBuffer,0,scriptFileSize+1);
-
-					((*filesInZip)[iFile])->Read((void*)scriptBuffer,scriptFileSize);
-					fileSystem->WriteFile(va("loadedBots/%s/%s",botName.c_str(),scriptFileName.c_str()),scriptBuffer,scriptFileSize);
-					if( -1 != scriptFileName.Find("_main",false) ) {
-						//This is the main file where the bot class is defined make our wrapper object from this
-						sysPath = fileSystem->RelativePathToOSPath("loadedBots/","fs_basepath");
-						sysPath += botName + "\\";
-						fullPath = sysPath + scriptFileName;
-						fullPath = fullPath.BackSlashesToSlashes();
-
-						mainScriptBuffer = scriptBuffer;
-						
-					}
-					else {
-
-					delete[] scriptBuffer;
-					scriptFileSize = -1;
-					}
-				}
-			}
-			if( fullPath != "") {
-				try {
-					//This code appends the loaded bot directory to they python system path
-					//so we can separate work into other python script files.
-					object sys = globalNamespace["sys"];
-					sys.attr("path").attr("insert")(0,sysPath.c_str());
-					globalNamespace["sys"] = sys;
-
-					str  script(const_cast<const char*>(mainScriptBuffer));
-					//TODO: Current Error: Fopen apparently returns successfully open
-					//but the file is not valid. The Path is valid and file is in existence
-					botMainDef = exec(script,globalNamespace,globalNamespace);
-
-					
-				} catch(...) {
-					HandlePythonError();
-				}
-				delete[] mainScriptBuffer;
-				//Setup python object to spawn the bot class later on.
-				botInfo->botClassInstance = globalNamespace[botSpawnClass.c_str()];
-			}
-		}
-		
-
-		afiBotManager::AddBotInfo(botInfo);
-
-		delete[] defBuffer;
-		//Memory created on the engine heap must also be freed on the engine heap
-		fileSystem->FreeFilesInList(filesInZip);
-	}
-
-	fileSystem->FreeFileList(brainPaks);
-}
 
 void idGameLocal::HandlePythonError() {
 	if(PyErr_Occurred()) {
@@ -578,70 +438,7 @@ void idGameLocal::HandlePythonError() {
 	}
 }
 
-void idGameLocal::ParseForBotName( void* defBuffer, unsigned bufferLength,const char* name,  idStr& botName, idStr& authorName, idStr& botType,idStr& botSpawnClass ) {
-	idDict		botProfile;
-	idParser	parser;
 
-	//First load the file into the parser from memory
-	if ( !parser.LoadMemory((const char *)defBuffer,bufferLength,name) ) {
-		//Error
-		Warning("Failed to Load %s into memory\n",name);
-		return;
-	}
-
-	parser.SetFlags(LEXFL_NOSTRINGCONCAT);
-	Printf("Loaded %s into memory\n",name);
-
-	idToken keyToken, valueToken;
-	bool beginToken = false;
-
-	while ( parser.ReadToken( &keyToken ) ) {
-		if ( !beginToken ) {
-			if ( keyToken.Cmp( "{" ) == 0 ) {
-				beginToken = true;
-			}
-			continue;
-		}
-
-		if ( keyToken.Cmp( "}" ) == 0 ) {
-			break;
-		}
-
-		if ( !parser.ReadToken( &valueToken ) || valueToken.Cmp( "}" ) == 0 ) {
-			break;
-		}
-
-		botProfile.Set( keyToken.c_str(), valueToken.c_str() );
-	}
-
-	//Bots must have the "name" key, and "author" key defined in the entityDef to
-	//be considered a valid bot.
-	bool hasName = botProfile.GetString("scriptclass","",botName);
-	bool hasAuthor = botProfile.GetString("author","",authorName);
-	bool hasType = botProfile.GetString("bot_type","",botType);
-	bool hasSpawnClass = botProfile.GetString("scriptclass","",botSpawnClass);
-
-	if( hasName && hasAuthor && hasType && hasSpawnClass ) {
-		Printf("Loading bot %s by %s.\n",botName.c_str(),authorName.c_str());
-		parser.FreeSource(false);
-		return;
-	}
-
-	//If we made it down here there was a problem parsing this def file
-	if(!hasName) {
-		Warning("Bot does not have a name. Please fill out \"name\" key/value pair in entityDef %s\n",name);
-	}
-
-	if(!hasAuthor) {
-		Warning("Bot does not have a author. Please fill out \"author\" key/value pair in entityDef %s\n",name);
-	}
-
-	if(!hasType) {
-		Warning("Bot does not have a type. Please fill out \"botType\" key/value pair in entityDef %s\n",name);
-	}
-
-	parser.FreeSource(false);
-}
 
 #endif
 /*
@@ -662,7 +459,7 @@ void idGameLocal::Shutdown( void ) {
 
 	MapShutdown();
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	afiBotManager::Shutdown();
 #endif
 
@@ -1169,7 +966,7 @@ Initializes all map variables common to both save games and spawned games.
 ===================
 */
 void idGameLocal::LoadMap( const char *mapName, int randseed ) {
-#ifndef AFI_BOTS // cusTom3 - aas extensions - moved to where used below, then moved out for MOD_BOTS
+#ifndef BUDDY_BOTS // cusTom3 - aas extensions - moved to where used below, then moved out for MOD_BOTS
 	int i;
 #endif
 	bool sameMap = (mapFile && idStr::Icmp(mapFileName, mapName) == 0);
@@ -1273,7 +1070,7 @@ void idGameLocal::LoadMap( const char *mapName, int randseed ) {
 	playerPVS.i = -1;
 	playerConnectedAreas.i = -1;
 
-#ifndef AFI_BOTS // cusTom3 - aas extensions - moved to later in InitFromNewMap so entities are spawned
+#ifndef BUDDY_BOTS // cusTom3 - aas extensions - moved to later in InitFromNewMap so entities are spawned
 	// load navigation system for all the different monster sizes
 	for( i = 0; i < aasNames.Num(); i++ ) {
 		aasList[ i ]->Init( idStr( mapFileName ).SetFileExtension( aasNames[ i ] ).c_str(), mapFile->GetGeometryCRC() );
@@ -1340,7 +1137,7 @@ void idGameLocal::LocalMapRestart( ) {
 
 	MapPopulate();
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 #ifdef CTF
 	//Fixing that todo that id didn't get around to.
 	if( mpGame.IsGametypeFlagBased() ) {
@@ -1570,7 +1367,7 @@ void idGameLocal::InitFromNewMap( const char *mapName, idRenderWorld *renderWorl
 
 	MapPopulate();
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	// cusTom3 - aas extensions - moved here from LoadMap so entities are spawned for botaas calculations
 	// load navigation system for all the different monster sizes
 	int i;
@@ -1583,7 +1380,7 @@ void idGameLocal::InitFromNewMap( const char *mapName, idRenderWorld *renderWorl
 
 	mpGame.Precache();
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 #ifdef CTF
 	//Fixing that todo that id didn't get around to.
 	if( mpGame.IsGametypeFlagBased() ) {
@@ -1597,7 +1394,7 @@ void idGameLocal::InitFromNewMap( const char *mapName, idRenderWorld *renderWorl
 
 	gamestate = GAMESTATE_ACTIVE;
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	afiBotManager::InitBotsFromMapRestart();
 #endif
 
@@ -1866,7 +1663,7 @@ void idGameLocal::MapClear( bool clearClients ) {
 	int i;
 
 	for( i = ( clearClients ? 0 : MAX_CLIENTS ); i < MAX_GENTITIES; i++ ) {
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 		//This was a little bit of a hack if I attempt to clean up the memory
 		//allocated with the boost python objects, the memory manager complains
 		//about invalid memory blocks.
@@ -2752,7 +2549,7 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		// set the user commands for this frame
 		memcpy( usercmds, clientCmds, numClients * sizeof( usercmds[ 0 ] ) );
 
-		afiBotManager::InitializeThreadsForFrame();
+		afiBotManager::InitializeThreadsForFrame(msec);
 
 		// free old smoke particles
 		smokeParticles->FreeSmokes();

@@ -8,7 +8,7 @@ dispatch to bots.
 */
 #include "precompiled.h"
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 
 #include "BotManager.h"
 #include "BotBrain.h"
@@ -51,8 +51,17 @@ extern "C" PyObject* PyInit_idEntity();
 extern "C" PyObject* PyInit_idVec2();
 extern "C" PyObject* PyInit_idVec3();
 extern "C" PyObject* PyInit_idAngles();
+extern "C" PyObject* PyInit_idPlayer();
+//TODO BUDDY_BOTS: Add new modules to system table upon startup
+extern "C" PyObject* PyInit_idBounds();
+extern "C" PyObject* PyInit_idRotation();
+extern "C" PyObject* PyInit_idAAS();
+extern "C" PyObject* PyInit_idActor();
+
 
 BOOST_PYTHON_MODULE(afiBotManager) {
+	import("idPlayer");
+
 	enum_<flagStatus_t>("flagStatus_t")
 		.value("FLAGSTATUS_INBASE",FLAGSTATUS_INBASE)
 		.value("FLAGSTATUS_TAKEN",FLAGSTATUS_TAKEN)
@@ -60,8 +69,10 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 		;
 
 	class_<afiBotManager>("afiBotManager")
-		.def("GetFlag",&afiBotManager::GetFlag,return_internal_reference<>())
-		.def("GetFlagStatus",&afiBotManager::GetFlagStatus)
+		.def("GetFlag", &afiBotManager::GetFlag, return_internal_reference<>())
+		.def("GetFlagStatus", &afiBotManager::GetFlagStatus)
+		.def("GetFlagCarrier", &afiBotManager::GetFlagCarrier, return_internal_reference<>())
+		.def("GetWinningTeam", &afiBotManager::GetWinningTeam)
 		.def("ConsolePrint",&afiBotManager::ConsolePrint)
 		.staticmethod("GetFlag")
 		.staticmethod("GetFlagStatus")
@@ -70,7 +81,7 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 }
 
 void afiBotManager::PrintInfo( void ) {
-	common->Printf("AFI Bots Initialized\n");
+	common->Printf("Buddy Bots Initialized\n");
 }
 
 void afiBotManager::ConsolePrint(const char* string) {
@@ -79,6 +90,10 @@ void afiBotManager::ConsolePrint(const char* string) {
 
 bool afiBotManager::isGameEnding( ) {
 	return gameEnd;
+}
+
+void afiBotManager::Cmd_ReloadAllBots_f(const idCmdArgs & args) {
+
 }
 
 void afiBotManager::IncreaseThreadUpdateCount( ) {
@@ -118,7 +133,7 @@ void afiBotManager::WaitForThreadsTimed(  ) {
 	RestoreMainThreadState();
 }
 
-void afiBotManager::InitializeThreadsForFrame( ) {
+void afiBotManager::InitializeThreadsForFrame(int deltaTimeMS ) {
 	if(gameLocal.GameState() != GAMESTATE_ACTIVE || numBots == 0)
 		return;
 
@@ -153,6 +168,7 @@ void afiBotManager::InitializeThreadsForFrame( ) {
 			if(std::atomic_compare_exchange_strong(&workerThreadArray[threadToFill]->endUpdateTask,&expected,0)) {
 				IncreaseThreadUpdateCount();
 				workerThreadArray[threadToFill]->currentUpdateTask = 0;
+				workerThreadArray[threadToFill]->deltaTime = deltaTimeMS;
 				fillThread = true;
 			}
 			else if( false == fillThread )
@@ -161,10 +177,12 @@ void afiBotManager::InitializeThreadsForFrame( ) {
 				break;
 			}
 
+			//If the client we are currently scanning is a bot then add it to be handled by this thread
 			if(IsClientBot(iClient)) {
 				workerThreadArray[threadToFill]->AddUpdateTask(brainFastList[iClient]);
 				botsAdded++;
 			}
+
 			if(workerThreadArray[threadToFill]->endUpdateTask >= idealTasksPerThread) {
 				idealReached++;
 			}
@@ -236,8 +254,28 @@ void afiBotManager::InitializePython( ) {
 		gameLocal.Error("Failed to Init afiBotPlayer Module");
 	}
 
-	if(PyImport_AppendInittab("afiBotBrain",PyInit_afiBotBrain) == -1) {
+	if(PyImport_AppendInittab("idAAS",PyInit_idAAS) == -1) {
+		gameLocal.Error("Failed to Init idAAS Module");
+	}
+
+	if (PyImport_AppendInittab("idBounds", PyInit_idBounds) == -1) {
+		gameLocal.Error("Failed to Init idBounds Module");
+	}
+
+	if (PyImport_AppendInittab("idActor", PyInit_idActor) == -1) {
+		gameLocal.Error("Failed to Init idActor Module");
+	}
+
+	if (PyImport_AppendInittab("idRotation", PyInit_idRotation) == -1) {
 		gameLocal.Error("Failed to Init afiBotBrain Module");
+	}
+
+	if (PyImport_AppendInittab("afiBotBrain", PyInit_afiBotBrain) == -1) {
+		gameLocal.Error("Failed to Init afiBotBrain Module");
+	}
+
+	if (PyImport_AppendInittab("idPlayer", PyInit_idPlayer) == -1) {
+		gameLocal.Error("Failed to Init idPlayer Module");
 	}
 
 	//Initialize Python
@@ -329,6 +367,25 @@ void afiBotManager::Shutdown( void ) {
 
 }
 
+int afiBotManager::GetWinningTeam() {
+
+	return gameLocal.mpGame.WinningTeam();
+}
+
+ idPlayer*  afiBotManager::GetFlagCarrier(int team) {
+
+	int flagEntity = gameLocal.mpGame.GetFlagCarrier(team);
+
+	if (flagEntity == -1) {
+		return nullptr;
+	}
+
+	 idPlayer* playerEntity = ( idPlayer*)gameLocal.entities[flagEntity];
+
+	return playerEntity;
+}
+
+
 void afiBotManager::CleanUpPython() {
 	if(Py_IsInitialized()) {
 		//RestoreMainThreadState();
@@ -344,8 +401,250 @@ void afiBotManager::CleanUpPython() {
 	}
 }
 
+void afiBotManager::ParseForBotName(void* defBuffer, unsigned bufferLength, const char* name, idStr& botName, idStr& authorName, idStr& botType, idStr& botSpawnClass) {
+	idDict		botProfile;
+	idParser	parser;
+
+	//First load the file into the parser from memory
+	if (!parser.LoadMemory((const char *)defBuffer, bufferLength, name)) {
+		//Error
+		gameLocal.Warning("Failed to Load %s into memory\n", name);
+		return;
+	}
+
+	parser.SetFlags(LEXFL_NOSTRINGCONCAT);
+	gameLocal.Printf("Loaded %s into memory\n", name);
+
+	idToken keyToken, valueToken;
+	bool beginToken = false;
+
+	while (parser.ReadToken(&keyToken)) {
+		if (!beginToken) {
+			if (keyToken.Cmp("{") == 0) {
+				beginToken = true;
+			}
+			continue;
+		}
+
+		if (keyToken.Cmp("}") == 0) {
+			break;
+		}
+
+		if (!parser.ReadToken(&valueToken) || valueToken.Cmp("}") == 0) {
+			break;
+		}
+
+		botProfile.Set(keyToken.c_str(), valueToken.c_str());
+	}
+
+	//Bots must have the "name" key, and "author" key defined in the entityDef to
+	//be considered a valid bot.
+	bool hasName = botProfile.GetString("scriptclass", "", botName);
+	bool hasAuthor = botProfile.GetString("author", "", authorName);
+	bool hasType = botProfile.GetString("bot_type", "", botType);
+	bool hasSpawnClass = botProfile.GetString("scriptclass", "", botSpawnClass);
+
+	if (hasName && hasAuthor && hasType && hasSpawnClass) {
+		gameLocal.Printf("Loading bot %s by %s.\n", botName.c_str(), authorName.c_str());
+		parser.FreeSource(false);
+		return;
+	}
+
+	//If we made it down here there was a problem parsing this def file
+	if (!hasName) {
+		gameLocal.Warning("Bot does not have a name. Please fill out \"name\" key/value pair in entityDef %s\n", name);
+	}
+
+	if (!hasAuthor) {
+		gameLocal.Warning("Bot does not have a author. Please fill out \"author\" key/value pair in entityDef %s\n", name);
+	}
+
+	if (!hasType) {
+		gameLocal.Warning("Bot does not have a type. Please fill out \"botType\" key/value pair in entityDef %s\n", name);
+	}
+
+	parser.FreeSource(false);
+}
+
+bool	afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
+
+	idStr botName;
+	idStr authorName;
+	idStr botType;
+	idStr botSpawnClass;
+	//Information we need to load and copy bots def file
+	char* defBuffer = NULL;
+	idStr defFileName;
+	int   defFileSize = -1;
+	char* scriptBuffer = NULL;
+	idStr scriptFileName;
+	int   scriptFileSize = -1;
+	char* mainScriptBuffer = NULL;
+
+	//Generate the OS path to the pakFile
+	idStr fullBrainPath = fileSystem->RelativePathToOSPath(brainPakName, "fs_basepath");
+
+	//Unzip that pakFile and return a list of all the Files that exist within that pakFile
+	idList<idFile_InZip*>* filesInZip = fileSystem->GetFilesInZip(fullBrainPath.c_str());
+
+	for (int iFile = 0; iFile < ((*filesInZip)).Num(); ++iFile) {
+		//A student should submit a .def file, which contains the basic information
+		//needed to spawn their bot, and a set of python scripts that contains the actual decision making code
+		//for their bot.
+		idStr	fileName;
+		fileName = ((*filesInZip)[iFile])->GetName();
+
+		//If we find the .def script file in this pakFile we need to actually read and load this
+		//file.
+		if (fileName.CheckExtension(".def")) {
+			defFileName = fileName;
+			defFileSize = ((*filesInZip)[iFile])->Length();
+			defBuffer = new char[defFileSize];
+			((*filesInZip)[iFile])->Read((void*)defBuffer, defFileSize);
+		}
+	}
+
+	if (!defBuffer) {
+		gameLocal.Warning(".def file not found in %s pak file\n", brainPakName.c_str());
+		return false;
+	}
+
+	//Use the idParser to run through the entityDef and determine the bots name, and who created it.
+	//This information is used later when we want to spawn a bot to link the entityDef we are spawning
+	//to the botBrain class defined in the dll.
+	//Since the entityDef spawns the afiBotPlayer class not the derived botBrain class.
+	ParseForBotName((void*)defBuffer, defFileSize, defFileName, botName, authorName, botType, botSpawnClass);
+
+	
+	 outputBotProfile = new botInfo_t();
+
+	 outputBotProfile->pakName = brainPakName;
+	 outputBotProfile->botName = botName;
+	 outputBotProfile->authorName = authorName;
+	 outputBotProfile->botSpawnClass = botSpawnClass;
+	if (botType.Icmp("Code") == 0) {
+		outputBotProfile->botType = BotType::CODE;
+	}
+	else if (botType.Icmp("Script") == 0) {
+		outputBotProfile->botType = BotType::SCRIPT;
+	}
+	else if (botType.Icmp("Dll") == 0) {
+		outputBotProfile->botType = BotType::DLL;
+	}
+	//Write the .def file to a folder where all the loaded bot entityDefs will be, so they can be loaded into the game later.
+	fileSystem->WriteFile(va("loadedBots/def/%s", defFileName.c_str()), defBuffer, defFileSize);
+	//Write the script files into their own folder for the bot, so we don't overwrite previously loaded dlls.
+	idStr sysPath = "";
+	idStr fullPath = "";
+	object botMainDef;
+	if (outputBotProfile->botType == BotType::SCRIPT) {
+		//load all the script files that might run this bot into the bot's folder
+		for (int iFile = 0; iFile < ((*filesInZip)).Num(); ++iFile) {
+			idStr	fileName;
+			fileName = ((*filesInZip)[iFile])->GetName();
+
+			//If we find the .def or .dll or script files in this pakFile we need actually read and load these
+			//files.
+			if (fileName.CheckExtension(".py")) {
+				scriptFileName = fileName;
+				scriptFileSize = ((*filesInZip)[iFile])->Length();
+
+				scriptBuffer = new char[scriptFileSize + 1];
+				memset(scriptBuffer, 0, scriptFileSize + 1);
+
+				((*filesInZip)[iFile])->Read((void*)scriptBuffer, scriptFileSize);
+				fileSystem->WriteFile(va("loadedBots/%s/%s", botName.c_str(), scriptFileName.c_str()), scriptBuffer, scriptFileSize);
+				if (-1 != scriptFileName.Find("_main", false)) {
+					//This is the main file where the bot class is defined make our wrapper object from this
+					sysPath = fileSystem->RelativePathToOSPath("loadedBots/", "fs_basepath");
+					sysPath += botName + "\\";
+					fullPath = sysPath + scriptFileName;
+					fullPath = fullPath.BackSlashesToSlashes();
+
+					mainScriptBuffer = scriptBuffer;
+
+				}
+				else {
+
+					delete[] scriptBuffer;
+					scriptFileSize = -1;
+				
+				}
+			}
+		}
+		if (fullPath != "") {
+			try {
+				//This code appends the loaded bot directory to they python system path
+				//so we can separate work into other python script files.
+				object sys = gameLocal.globalNamespace["sys"];
+				sys.attr("path").attr("insert")(0, sysPath.c_str());
+				gameLocal.globalNamespace["sys"] = sys;
+
+				str  script(const_cast<const char*>(mainScriptBuffer));
+				botMainDef = exec(script, gameLocal.globalNamespace, gameLocal.globalNamespace);
+
+
+			}
+			catch (...) {
+				gameLocal.HandlePythonError();
+				return false;
+			}
+			delete[] mainScriptBuffer;
+			//Setup python object to spawn the bot class later on.
+			outputBotProfile->botClassInstance = gameLocal.globalNamespace[botSpawnClass.c_str()];
+		}
+	}
+
+
+
+	delete[] defBuffer;
+	//Memory created on the engine heap must also be freed on the engine heap
+	fileSystem->FreeFilesInList(filesInZip);
+	
+	return true;
+}
+
+void	afiBotManager::LoadAllBots() {
+	idFileList* brainPaks;
+	int			iBrainPak;
+	int			numBrainPaks;
+	int			botLoadCount = 0;
+	//List all the pakFiles in the folder where the botPaks should be.
+	brainPaks = fileSystem->ListFiles("botPaks", ".pk4", true, true);
+
+	numBrainPaks = brainPaks->GetNumFiles();
+
+	botInfo_t** newBotProfiles = new botInfo_t*[numBrainPaks];
+	for (iBrainPak = 0; iBrainPak < numBrainPaks; ++iBrainPak, ++botLoadCount) {
+		
+		idStr currentBrainPak = brainPaks->GetFile(iBrainPak);
+
+		bool botLoaded = LoadBot(currentBrainPak, newBotProfiles[botLoadCount]);
+		if (!botLoaded) {
+			gameLocal.Warning("Failed to Load bot at %s\n", currentBrainPak.c_str());
+			botLoadCount--;
+			continue;
+		}
+		
+		AddBotInfo(newBotProfiles[botLoadCount]);
+	}
+
+	gameLocal.Printf(" %i Number of Bots Successfully Loaded\n", botLoadCount);
+	gameLocal.Printf(" Spawn bots via addBot <botClassName> during or before a multi-player match");
+	gameLocal.Printf(" *****************************************\n");
+	gameLocal.Printf(" Loaded Bot Names:\n");
+	for (iBrainPak = 0; iBrainPak < botLoadCount; ++iBrainPak) {
+
+		gameLocal.Printf("%s, \t SpawnName: %s \t Author: %s\n", newBotProfiles[iBrainPak]->botName.c_str(),newBotProfiles[iBrainPak]->botSpawnClass.c_str(), newBotProfiles[iBrainPak]->authorName.c_str());
+	}
+
+	delete[] newBotProfiles;
+	fileSystem->FreeFileList(brainPaks);
+
+}
+
 botInfo_t* afiBotManager::FindBotProfileByIndex(int clientNum) {
-	botInfo_t* returnProfile = NULL;
+	botInfo_t* returnProfile = nullptr;
 	unsigned int numProfiles = 0;
 	if(clientNum > MAX_CLIENTS) {
 		return returnProfile;
@@ -353,7 +652,8 @@ botInfo_t* afiBotManager::FindBotProfileByIndex(int clientNum) {
 
 	numProfiles = loadedBots.Num();
 	for(unsigned int iProfile = 0; iProfile < numProfiles; ++iProfile) {
-		if(loadedBots[iProfile]->clientNum == clientNum) {
+
+		if(loadedBots[iProfile]->clientNum[clientNum] == clientNum) {
 			returnProfile = loadedBots[iProfile];
 			break;
 		}
@@ -399,7 +699,7 @@ void afiBotManager::Cmd_AddBot_f( const idCmdArgs& args ) {
 	botInfo_t* botProfile = NULL;
 	botProfile = FindBotProfile(classname);
 	if(botProfile == NULL) {
-		gameLocal.Warning(va("No Loaded Bot Profile Named: %s \n",classname));
+		gameLocal.Warning("No Loaded Bot Profile Named: %s \n",classname.c_str());
 		return;
 	}
 
@@ -506,6 +806,149 @@ void afiBotManager::Cmd_RemoveAllBots_f( const idCmdArgs & args ) {
 
 	for ( int i = 0; i < MAX_CLIENTS; i++ ) {
 		RemoveBot( i );
+	}
+}
+
+void afiBotManager::Cmd_ReloadBot_f( const idCmdArgs& args ) {
+	if( gameLocal.isClient ) {
+		gameLocal.Printf( "The force is not strong with you. You are a mere mortal client.\n" );
+		return;
+	}
+
+	if( args.Argc() < 1 ) {
+		gameLocal.Warning("Incorrect command usage of reloadBot command.\n");
+		gameLocal.Warning("Usage: reloadBot <botName,clientIndex> (in-game)\n");
+		gameLocal.Warning("Usage: reloadBot <botClassName,authorName> \n");
+		return;
+	}
+
+	idPlayer* player = nullptr;
+	
+	//RestoreMainThreadState();
+	//In-game 
+	if (gameLocal.isMultiplayer) {
+		player = gameLocal.GetClientByCmdArgs(args);
+
+		if (player == nullptr) {
+			gameLocal.Warning("Cannot Find Bot please check command arguements again.\n");
+			gameLocal.Warning("Usage: reloadBot <botName,clientIndex> (in-game)\n");
+			gameLocal.Warning("Usage: reloadBot <botClassName,authorName> \n");
+			return;
+		}
+		afiBotPlayer* botPlayer = reinterpret_cast<afiBotPlayer*>(player);
+
+		botPlayer->thinkFlags &= (~TH_THINK);
+
+		afiBotBrain* oldBrain = botPlayer->GetBrain();
+		dict oldDict = oldBrain->botDict;
+
+		botInfo_t* botProfile = FindBotProfileByIndex(botPlayer->clientNum);
+		botInfo_t* newBotProfile = nullptr;
+		bool loadedBot = LoadBot(botProfile->pakName, newBotProfile);
+
+		if (newBotProfile == nullptr || loadedBot == false) {
+			gameLocal.Warning("Could not reload bot: %s\n", botProfile->pakName.c_str());
+			return;
+		}
+		newBotProfile->clientNum[botPlayer->clientNum] = botPlayer->clientNum;
+		afiBotBrain* newBrain = SpawnBrain(newBotProfile->botName, botPlayer->clientNum);
+
+		newBrain->SetPhysics((idPhysics_Player*)botPlayer->GetPhysics());
+		newBrain->SetAAS();
+		newBrain->SetBody(botPlayer);
+
+		newBrain->botDict = oldDict;
+
+		newBrain->Spawn();
+
+		botPlayer->SetBrain(newBrain);
+
+		
+		botPlayer->thinkFlags |= TH_THINK;
+
+	}
+	else {
+		const char* className = nullptr;
+		if (!player) {
+			className = args.Argv(1);
+		}
+
+
+	}
+
+	//SaveMainThreadState();
+	
+
+	
+	
+
+}
+
+botInfo_t* afiBotManager::ReloadPak(botInfo_t* botProfile, int clientNum) {
+	idFileList*	brainPaks;
+	unsigned int			iBrainPak;
+	unsigned int			numBrainPaks;
+
+	//List all the pakFiles in the folder where the botPaks should be.
+	brainPaks = fileSystem->ListFiles("botPaks", ".pk4", true, true);
+
+	numBrainPaks = brainPaks->GetNumFiles();
+
+	for (iBrainPak = 0; iBrainPak < numBrainPaks; ++iBrainPak) {
+		idStr botName;
+		idStr authorName;
+		idStr botType;
+		idStr botSpawnClass;
+		//Information we need to load and copy bots def file
+		char* defBuffer = NULL;
+		idStr defFileName;
+		int   defFileSize = -1;
+		char* scriptBuffer = NULL;
+		idStr scriptFileName;
+		int   scriptFileSize = -1;
+		char* mainScriptBuffer = NULL;
+		idStr currentBrainPak = brainPaks->GetFile(iBrainPak);
+
+		if (currentBrainPak.Icmp(botProfile->pakName) != 0) {
+			continue;
+		}
+		else if (iBrainPak == numBrainPaks - 1) {
+			gameLocal.Warning("Could not find pak file named %s\n", botProfile->pakName.c_str());
+			return nullptr;
+		}
+
+		//Generate the OS path to the pakFile
+		idStr fullBrainPath = fileSystem->RelativePathToOSPath(currentBrainPak, "fs_basepath");
+
+		//Unzip that pakFile and return a list of all the Files that exist within that pakFile
+		idList<idFile_InZip*>* filesInZip = fileSystem->GetFilesInZip(fullBrainPath.c_str());
+
+		unsigned int numFilesInZip = ((*filesInZip)).Num();
+		for (unsigned int iFile = 0; iFile < numFilesInZip; ++iFile) {
+			//A student should submit a .def file, which contains the basic information
+			//needed to spawn their bot
+			idStr	fileName;
+			fileName = ((*filesInZip)[iFile])->GetName();
+
+			//If we find the .def file we need to copy this file
+			if (fileName.CheckExtension(".def")) {
+				defFileName = fileName;
+				defFileSize = ((*filesInZip)[iFile])->Length();
+				defBuffer = new char[defFileSize];
+				((*filesInZip)[iFile])->Read((void*)defBuffer, defFileSize);
+			}
+		}
+
+		if (!defBuffer) {
+			gameLocal.Warning(".def file not found in %s pak file\n", currentBrainPak.c_str());
+		}
+
+		//Use the idParser to run through the entityDef and determine the bots name, and who created it.
+		//This information is used later when we want to spawn a bot to link the entityDef we are spawning
+		//to the botBrain class defined in the dll.
+		//Since the entityDef spawns the afiBotPlayer class not the derived botBrain class.
+		ParseForBotName((void*)defBuffer, defFileSize, defFileName, botName, authorName, botType, botSpawnClass);
+
 	}
 }
 
@@ -627,7 +1070,7 @@ void afiBotManager::SpawnBot( int clientNum ) {
 	gameLocal.SetSpawnArgs(spawnDict);
 
 	if( botProfile ) {
-		botProfile->clientNum = clientNum;
+		botProfile->clientNum[clientNum] = clientNum;
 		//If we are a script bot then the bot instances will be created from python.
 		if(botProfile->botType == SCRIPT) {
 			brain = SpawnBrain(botName,clientNum);
@@ -644,20 +1087,44 @@ void afiBotManager::SpawnBot( int clientNum ) {
 			brain->botDict = dict();
 			
 			//Copy from our dictonary to python dictonary
-			//now this may be a little finiky because all values are stored as
-			//strings, and there is no way with simple parsing to determine the
-			//actual dataType of the value stored, so it is up to the user to know
-			//and use the appropriate library function to translate (i.e. atof(), atoi() etc.)
+			//Since idDictonaries contain just string representations
+			//we parse the strings and convert keys/values that are supposed
+			//to be numbers to numbers
 			int numPairs = spawnDict.GetNumKeyVals();
 			for( int iPair = 0; iPair < numPairs; ++iPair ) {
 				const idKeyValue* keyVal = spawnDict.GetKeyVal(iPair);
-				brain->botDict[keyVal->GetKey().c_str()] = keyVal->GetValue().c_str();
+				idStr keyStr = keyVal->GetKey();
+				idStr valStr = keyVal->GetValue();
+				int keyInt = -INT_MAX;
+				float keyFloat = std::numeric_limits<float>::quiet_NaN();
+				if(keyStr.IsNumeric() ) {
+					if(keyStr.IsFloat()) {
+						keyFloat = atof(keyStr.c_str());
+					}
+					keyInt = atoi(keyStr.c_str());
+				}
+				
+				if( keyInt != -INT_MAX ) {
+					//Setting based on int key
+					SetDictionaryValue(keyInt,brain,valStr);
+				}
+				else if( !_isnan(keyFloat) ) {
+					//Setting based on float key
+					SetDictionaryValue(keyFloat,brain,valStr);
+				}
+				else {
+					//Setting based on string
+					SetDictionaryValue(keyStr.c_str(),brain,valStr);
+				}
+
 			}
 
 			//Necessary part of entity spawning process to initialize all the variables
 			//from the hierarchy.
 			playerBody->CallSpawn();
 
+			playerBody->clientNum = clientNum;
+			playerBody->botName = botProfile->botName;
 			//Link all the necessary components between brain and body.
 			brain->SetBody( playerBody );
 			brain->SetPhysics( ( idPhysics_Player* )playerBody->GetPhysics() );
@@ -670,6 +1137,29 @@ void afiBotManager::SpawnBot( int clientNum ) {
 	}
 	//Let the networked game know that a bot spawned.
 	gameLocal.mpGame.SpawnPlayer( clientNum );
+}
+
+template<typename T>
+void afiBotManager::SetDictionaryValue(T key,afiBotBrain* brain,idStr valStr) {
+	int valInt = -INT_MAX;
+	float valFloat = std::numeric_limits<float>::quiet_NaN();
+	if(valStr.IsNumeric() ) {
+		if(valStr.IsFloat()) {
+			valFloat = atof(valStr.c_str());
+		}
+		valInt = atoi(valStr.c_str());
+	}
+	if( valInt != -INT_MAX ) {
+		brain->botDict[key] = valInt;
+		return;
+	}
+	else if( !_isnan(valFloat) ) {
+		brain->botDict[key] = valFloat;
+		return;
+	}
+
+	brain->botDict[key] = valStr.c_str();
+	
 }
 
 afiBotBrain* afiBotManager::SpawnBrain(idStr botName,int clientNum) {
@@ -721,6 +1211,7 @@ void afiBotManager::ProcessChat(const char* text) {
 afiBotManager::OnDisconnect
 ===================
 */
+			
 void afiBotManager::OnDisconnect( int clientNum ) {
 	assert( clientNum >= 0 && clientNum < MAX_CLIENTS );
 	botSpawned[ clientNum ] = false;
@@ -728,6 +1219,11 @@ void afiBotManager::OnDisconnect( int clientNum ) {
 	botEntityDefNumber[ clientNum ] = -1;
 
 	//TODO: Let other bots know about the disconnect of a player.
+	for (unsigned int iClient = 0; iClient < MAX_CLIENTS; ++iClient) {
+
+		if (botSpawned[iClient])
+			brainFastList[iClient]->OnDisconnect(clientNum);
+	}
 }
 
 /*

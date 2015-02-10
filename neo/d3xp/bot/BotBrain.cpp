@@ -55,11 +55,11 @@ BOOST_PYTHON_MODULE(afiBotBrain) {
 		;
 }
 
-aiInput_t afiBotBrainWrapper::Think()  {
+aiInput_t afiBotBrainWrapper::Think(int deltaTimeMS)  {
 	object scriptResult;
 	aiInput_t scriptInput;
 	try {
-		scriptResult = this->get_override("Think")();
+		scriptResult = this->get_override("Think")(deltaTimeMS);
 	} catch(...) {
 		gameLocal.HandlePythonError();
 	}
@@ -84,6 +84,82 @@ void afiBotBrainWrapper::Restart() {
 		gameLocal.HandlePythonError();
 	}
 }
+
+void afiBotBrainWrapper::OnRespawn() {
+	override functionOverride = this->get_override("OnRespawn");
+	if (functionOverride) {
+		try {
+			functionOverride();
+		}
+		catch (...) {
+			gameLocal.HandlePythonError();
+		}
+	}
+}
+
+void afiBotBrainWrapper::OnKill(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage) {
+	override functionOverride = this->get_override("OnKill");
+	if (functionOverride) {
+		try {
+			functionOverride(dead,killer,dir,damage);
+		}
+		catch (...) {
+			gameLocal.HandlePythonError();
+		}
+	}
+
+}
+
+void afiBotBrainWrapper::OnDeath(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage) {
+	override functionOverride = this->get_override("OnDeath");
+	if (functionOverride) {
+		try {
+			functionOverride(dead,killer,dir,damage);
+		}
+		catch (...) {
+			gameLocal.HandlePythonError();
+		}
+	}
+}
+
+void afiBotBrainWrapper::OnDisconnect(int clientNum) {
+	override functionOverride = this->get_override("OnDisconnect");
+	if (functionOverride) {
+		try {
+			functionOverride(clientNum);
+		}
+		catch (...) {
+			gameLocal.HandlePythonError();
+		}
+	}
+}
+
+void afiBotBrainWrapper::OnPain(idEntity* inflictor, idEntity* attacker,const idVec3& dir, int damage) {
+	override functionOverride = this->get_override("OnPain");
+	if (functionOverride) {
+		try {
+			functionOverride(inflictor,attacker,dir,damage);
+		}
+		catch (...) {
+			gameLocal.HandlePythonError();
+		}
+	}
+}
+
+void afiBotBrainWrapper::OnHit(idPlayer* target, const idVec3& dir, int damage) {
+	override functionOverride = this->get_override("OnHit");
+	if (functionOverride) {
+		try {
+			functionOverride(target, dir, damage);
+		}
+		catch (...) {
+			gameLocal.HandlePythonError();
+		}
+	}
+
+}
+
+
 
 void afiBotBrain::SetBody(afiBotPlayer* newBody) {
 	body = newBody;

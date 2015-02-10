@@ -111,14 +111,24 @@ public:
 	bool					DebugBot( void );
 
 public:
+
+	
 	void					ClearInput( void );
 	void					ProcessInput( void );
 
 	virtual idEntity*		FindNearestItem( idStr item );
 
 	void					SetBrain(afiBotBrain* newBrain);
+	afiBotBrain*			GetBrain(void) const;
+
+	bool					SwitchWeapon(const char* weaponName);
+	int						HasAmmo(const char* weaponName);
+
+
+	void					SpawnFromSpawnSpot(void);
+	void					SpawnToPoint(const idVec3	&spawn_origin, const idAngles &spawn_angles);
 	//Movement
-	void						SetAAS( void );
+	void					SetAAS( void );
 
 	virtual void			Move( void );
 
@@ -132,15 +142,24 @@ public:
 	virtual idEntity*		MoveToNearest( idStr item );
 	virtual bool			PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
 	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;
+	virtual void			MoveToAttackPosition(idEntity* entity);
 	void					Attack(void);
 	void					Jump(void);
 	void					LookInDirection(const idVec3& dir);
 	void					LookAtPosition(const idVec3& pos);
 
+	void					Damage(idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location);
+	//void					Killed(idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location);
+
 	virtual bool			ReachedPos( const idVec3 &pos,float range  = 0.0f ) const;
 
 	virtual bool			StartMove ( const idVec3& goalOrigin, int goalArea, idEntity* goalEntity, float range );
 	virtual void			StopMove( moveStatus_t status );
+
+	boost::python::list		FindNearbyPlayers();
+	
+	idStr					botName;
+	int						clientNum;
 protected:
 
 	virtual void			DrawRoute( void ) const;

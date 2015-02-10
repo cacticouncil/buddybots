@@ -316,7 +316,7 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( GAME_RELIABLE_MESSAGE_INIT_DECL_REMAP );
 	networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 
-#ifdef AFI_BOTS // spawn bot on server
+#ifdef BUDDY_BOTS // spawn bot on server
 	if ( afiBotManager::IsClientBot( clientNum ) ) {
 		afiBotManager::SpawnBot( clientNum );
 	} else {
@@ -335,7 +335,7 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 	outMsg.WriteByte( clientNum );
 	outMsg.WriteLong( spawnIds[ clientNum ] );
-#ifdef AFI_BOTS // sb - tell the clients that it is not a bot spawning 
+#ifdef BUDDY_BOTS // sb - tell the clients that it is not a bot spawning 
 	outMsg.WriteBits( afiBotManager::IsClientBot( clientNum ), 1 );
 	if ( afiBotManager::IsClientBot( clientNum ) )
 		outMsg.WriteShort( afiBotManager::GetBotDefNumber( clientNum ) );
@@ -405,7 +405,7 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum ) {
 		outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 		outMsg.WriteByte( i );
 		outMsg.WriteLong( spawnIds[ i ] );
-#ifdef AFI_BOTS // let ClientProcessReliableMessage know if it's a bot
+#ifdef BUDDY_BOTS // let ClientProcessReliableMessage know if it's a bot
 		outMsg.WriteBits( afiBotManager::IsClientBot( i ), 1 );
 		if ( afiBotManager::IsClientBot( i ) )
 			outMsg.WriteShort( afiBotManager::GetBotDefNumber( i ) );
@@ -1377,7 +1377,7 @@ void idGameLocal::ClientProcessReliableMessage( int clientNum, const idBitMsg &m
 		case GAME_RELIABLE_MESSAGE_SPAWN_PLAYER: {
 			int client = msg.ReadByte();
 			int spawnId = msg.ReadLong();
-#ifdef AFI_BOTS // sb - check to see if reliable message is to spawn bot or player
+#ifdef BUDDY_BOTS // sb - check to see if reliable message is to spawn bot or player
 			bool isBot = msg.ReadBits(1); // this has to be outside of the if below because it is always written it always needs to be read right?
 			if ( !entities[ client ] ) {
 				if ( isBot ) {
@@ -1597,7 +1597,7 @@ gameReturn_t idGameLocal::ClientPrediction( int clientNum, const usercmd_t *clie
 	return ret;
 }
 
-#ifdef AFI_BOTS // TinMan: Get Bot input
+#ifdef BUDDY_BOTS // TinMan: Get Bot input
 /*
 ===============
 idGameLocal::GetBotInput

@@ -1,6 +1,6 @@
 #include "precompiled.h"
 #include "../Entity.h"
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 
 const float PM_ACCELERATE		= 10.0f;
 const float PM_AIRACCELERATE	= 1.0f;
@@ -62,6 +62,52 @@ botMoveState_t::botMoveState_t() {
 	lastPath.type = -1;
 }
 
+void afiBotPlayer::MoveToAttackPosition(idEntity* entity) {
+
+	//int				attack_anim;
+	//int				areaNum;
+	//aasObstacle_t	obstacle;
+	//aasGoal_t		goal;
+	//idBounds		bounds;
+	//idVec3			pos;
+
+	//if (!aas || !entity) {
+	//	StopMove(MOVE_STATUS_DEST_UNREACHABLE);
+	//	AI_DEST_UNREACHABLE = true;
+	//	return false;
+	//}
+
+	//const idVec3 &org = physicsObj.GetOrigin();
+	//areaNum = PointReachableAreaNum(org);
+
+	//attack_anim = GetAnimChannel
+	//// consider the entity the monster is getting close to as an obstacle
+	//obstacle.absBounds = entity->GetPhysics()->GetAbsBounds();
+
+	//
+	//pos = entity->GetPhysics()->GetOrigin();
+	//
+
+	//idAASFindAttackPosition findGoal(this, physicsObj.GetGravityAxis(), entity, pos, missileLaunchOffset[attack_anim]);
+	//if (!aas->FindNearestGoal(goal, areaNum, org, pos, travelFlags, &obstacle, 1, findGoal)) {
+	//	StopMove(MOVE_STATUS_DEST_UNREACHABLE);
+	//	AI_DEST_UNREACHABLE = true;
+	//	return false;
+	//}
+
+	//move.moveDest = goal.origin;
+	//move.toAreaNum = goal.areaNum;
+	//move.goalEntity = ent;
+	//move.moveCommand = MOVE_TO_ATTACK_POSITION;
+	//move.moveStatus = MOVE_STATUS_MOVING;
+	//move.speed = fly_speed;
+	//move.startTime = gameLocal.time;
+	//move.anim = attack_anim;
+	//AI_MOVE_DONE = false;
+	//AI_DEST_UNREACHABLE = false;
+	//AI_FORWARD = true;
+}
+
 /*
 ===================
 BotPlayer::MoveToPlayer
@@ -95,7 +141,7 @@ BotPlayer::MoveToEntity
 */
 bool afiBotPlayer::MoveToEntity( idEntity* entity )
 {
-	return MoveToPosition( entity->GetPhysics()->GetOrigin(), entity->GetPhysics()->GetBounds().GetRadius()*0.5f );
+	return MoveToPosition( entity->GetPhysics()->GetOrigin(), entity->GetPhysics()->GetBounds().GetRadius()*0.25f );
 }
 /*
 ===================

@@ -82,7 +82,7 @@ ID_INLINE void idSwap( type &a, type &b ) {
 
 template< class type >
 class idList {
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	friend class BotAASBuild;
 #endif
 public:

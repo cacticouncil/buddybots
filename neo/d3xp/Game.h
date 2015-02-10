@@ -192,7 +192,7 @@ public:
 	virtual bool				DownloadRequest( const char *IP, const char *guid, const char *paks, char urls[ MAX_STRING_CHARS ] ) = 0;
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] ) = 0;
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	virtual void				GetBotInput( int clientNum, usercmd_t& userCmd ) = 0;
 #endif
 };
@@ -351,7 +351,7 @@ typedef struct {
 
 } gameExport_t;
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 struct botImport_t {
 	int							version;				// API version
 	idSys *						sys;					// non-portable system services

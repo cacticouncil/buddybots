@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 idStrPool		idDict::globalKeys;
 idStrPool		idDict::globalValues;
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 
 const char*			(idDict::*getString)(const char*,const char* ) const = &idDict::GetString;
 float				(idDict::*getFloat)(const char*,const char* ) const = &idDict::GetFloat;

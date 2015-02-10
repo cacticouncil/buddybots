@@ -394,7 +394,7 @@ public:
 	virtual void			FindMapScreenshot( const char *path, char *buf, int len );
 	virtual bool			FilenameCompare( const char *s1, const char *s2 ) const;
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	virtual idList<idFile_InZip*>* GetFilesInZip(const char* pakFile);
 	virtual void FreeFilesInList(idList<idFile_InZip*>* deleteMe);
 #endif
@@ -4221,7 +4221,7 @@ void idFileSystemLocal::FindMapScreenshot( const char *path, char *buf, int len 
 	}
 }
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 idList<idFile_InZip*>* idFileSystemLocal::GetFilesInZip(const char* pakFile) {
 	idList<idFile_InZip*>*	outputFileList = NULL; 
 	pack_t*					loadedPakFile;
@@ -4243,6 +4243,8 @@ idList<idFile_InZip*>* idFileSystemLocal::GetFilesInZip(const char* pakFile) {
 	}
 
 	delete[] loadedPakFile->buildBuffer;
+
+	unzClose(loadedPakFile->handle);
 
 	delete loadedPakFile;
 	loadedPakFile = nullptr;

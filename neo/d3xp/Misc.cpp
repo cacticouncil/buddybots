@@ -1469,7 +1469,7 @@ void idStaticEntity::Spawn( void ) {
 	hidden = spawnArgs.GetBool( "hide" );
 
 	if ( solid && !hidden ) {
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 		GetPhysics()->SetContents( CONTENTS_SOLID|CONTENTS_OPAQUE ); // TinMan: *test* set so ai can see it
 #else
 		GetPhysics()->SetContents( CONTENTS_SOLID );
@@ -1574,7 +1574,7 @@ idStaticEntity::Show
 void idStaticEntity::Show( void ) {
 	idEntity::Show();
 	if ( spawnArgs.GetBool( "solid" ) ) {
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 		GetPhysics()->SetContents( CONTENTS_SOLID|CONTENTS_OPAQUE ); // TinMan: *test* set so ai can see it
 #else
 		GetPhysics()->SetContents( CONTENTS_SOLID );

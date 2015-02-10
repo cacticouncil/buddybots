@@ -93,7 +93,7 @@ typedef struct challenge_s {
 
 typedef enum {
 	SCS_FREE,			// can be reused for a new connection
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	//After looking over the server to add fake clients we should add another state
 	//to how the server interprets connected clients. The enum was added here to avoid having
 	//to mess with how votes are counted and handled on the game server because all clients
@@ -165,7 +165,7 @@ public:
 	int					GetNumIdleClients( void ) const;
 	int					GetLocalClientNum( void ) const { return localClientNum; }
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	//This function simply traverses the array of 'clients' that the server stores, and looks
 	//for the first Free client it finds and initializes that client spot as a fake client.
 	int					ConnectFakeClient();

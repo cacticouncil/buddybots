@@ -113,6 +113,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <chrono>
 #include <unordered_map>
 #include <memory>
+#include <limits>
 using std::weak_ptr;
 using std::shared_ptr;
 using std::mutex;
@@ -123,6 +124,7 @@ using std::atomic;
 #if defined(_DEBUG)
 //#define BOOST_DEBUG_PYTHON
 #endif
+
 
 #include <boost/python.hpp>
 using namespace boost::python;

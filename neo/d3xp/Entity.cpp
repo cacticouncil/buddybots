@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 
 float		(idEntity::*distanceEntity)(idEntity*) const = &idEntity::DistanceTo;
 float		(idEntity::*distancePosition)(const idVec3) const = &idEntity::DistanceTo;

@@ -66,7 +66,7 @@ void botWorkerThread::RunWork( ) {
 			PyEval_RestoreThread(threadState);
 
 			workTimer.Start();
-			packedUpdateArray[currentUpdateTask]->Think();
+			packedUpdateArray[currentUpdateTask]->Think(deltaTime);
 			workTimer.Stop();
 
 			threadState = PyEval_SaveThread();
@@ -76,7 +76,7 @@ void botWorkerThread::RunWork( ) {
 				//Work took to long, distribute work to other thread and stop for frame
 				break;
 			}
-			packedUpdateArray[currentUpdateTask] = NULL;
+			packedUpdateArray[currentUpdateTask] = nullptr;
 
 			currentUpdateTask++;
 		} while( currentUpdateTask < endUpdateTask );

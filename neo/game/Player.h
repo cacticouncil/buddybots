@@ -528,10 +528,12 @@ private:
 	float					xyspeed;
 	int						stepUpTime;
 	float					stepUpDelta;
+
 	float					idealLegsYaw;
 	float					legsYaw;
 	bool					legsForward;
 	float					oldViewYaw;
+
 	idAngles				viewBobAngles;
 	idVec3					viewBob;
 	int						landChange;

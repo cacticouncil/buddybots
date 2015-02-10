@@ -5,12 +5,12 @@
     <_PropertySheetDisplayName>Common Project Properties</_PropertySheetDisplayName>
     <OutDir>..\build\$(PlatformName)\$(Configuration)\</OutDir>
     <IntDir>..\build\$(PlatformName)\$(Configuration)\intermediate\$(ProjectName)\</IntDir>
-    <IncludePath>C:\Program Files %28x86%29\Visual Leak Detector\include;C:\Python33\include;C:\Program Files %28x86%29\boost\boost_1_55_0\boost_1_55_0;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files %28x86%29\Visual Leak Detector\lib\Win32;C:\Python33\libs;C:\Program Files %28x86%29\boost\boost_1_55_0\boost_1_55_0\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Python33\include;C:\Program Files %28x86%29\boost\boost_1_57_0\boost_1_57_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Python33\libs;C:\Program Files %28x86%29\boost\boost_1_57_0\boost_1_57_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>WIN32;_WINDOWS;AFI_BOTS;BOOST_PYTHON_STATIC_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>BUDDY_BOTS;BOOST_PYTHON_STATIC_LIB;WIN32;_WINDOW;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level4</WarningLevel>
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>

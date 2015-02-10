@@ -149,7 +149,7 @@ public:
 	static bool				IsActive( void ) { return ( server.IsActive() || client.IsActive() ); }
 	static void				RunFrame( void );
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 	//Connect a bot to a running server.
 	static int				ServerConnectBot();
 #endif

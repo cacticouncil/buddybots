@@ -385,7 +385,7 @@ bool idAASLocal::WalkPathToGoal( aasPath_t &path, int areaNum, const idVec3 &ori
 			path.secondaryGoal = reach->end;
 			path.reachability = reach;
 			break;
-#ifdef AFI_BOTS	// TinMan: Elevinat0rs
+#ifdef BUDDY_BOTS	// TinMan: Elevinat0rs
 		case TFL_ELEVATOR:
 
 			/* custom3: i took a look at this. it seems many of the plats, especially on ctf1,

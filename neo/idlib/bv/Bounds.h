@@ -107,6 +107,7 @@ public:
 
 private:
 	idVec3			b[2];
+
 };
 
 extern idBounds	bounds_zero;

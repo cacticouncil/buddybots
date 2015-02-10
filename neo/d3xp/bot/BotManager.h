@@ -27,32 +27,37 @@ enum	BotType { CODE,SCRIPT,DLL };
 //the same bot is currently being handled, but event handling for multiple instances
 //still needs to be added. (should just be creating a array of client nums for the instances)
 typedef struct botInfo_s {
+	idStr				pakName;
 	idStr				botName;
 	idStr				authorName;
-	afiBotBrain*		brain;
+	idStr				botSpawnClass;
 	object				scriptInstances[MAX_CLIENTS];
 	object				botClassInstance;
 
-	int					clientNum;
-	int					entityNum;
+	int					clientNum[MAX_CLIENTS];
+	int					entityNum[MAX_CLIENTS];
 	int					botType;
-	idCmdArgs			cmdArgs;
+	idCmdArgs			cmdArgs[MAX_CLIENTS];
 	botInfo_s() {
-		brain = NULL;
 		botName = "";
 		authorName = "";
-		clientNum = -1;
-		entityNum = -1;
-		cmdArgs.Clear();
+		for (unsigned int iClient = 0; iClient < MAX_CLIENTS; iClient++) {
+			clientNum[iClient] = -1;
+			cmdArgs[iClient].Clear();
+			entityNum[iClient] = -1;
+		}
+		
 		botType = CODE;
 	}
 
 	~botInfo_s() {
-		brain = NULL;
 		botName = "";
 		authorName = "";
-		clientNum = -1;
-		entityNum = -1;
+		for (unsigned int iClient = 0; iClient < MAX_CLIENTS; iClient++) {
+			clientNum[iClient] = 0;
+			cmdArgs[iClient].Clear();
+			entityNum[iClient] = -1;
+		}
 	}
 } botInfo_t;
 
@@ -100,51 +105,60 @@ Responsible for the loading,adding,removing, and event dispatch for bots.
 */
 class  afiBotManager {
 public:
-	static void				PrintInfo( void );
-	static void				Initialize( void );
-	static void				Shutdown( void );
-	static void				UpdateUserInfo( void );
-	static void				ConsolePrint(const char* string);
+	static void					PrintInfo( void );
+	static void					Initialize( void );
+	static void					Shutdown( void );
+	static void					UpdateUserInfo( void );
+	static void					ConsolePrint(const char* string);
 
-	static void				Cmd_BotInfo_f( const idCmdArgs& args );
-	static void				Cmd_AddBot_f( const idCmdArgs& args );
-	static void				Cmd_RemoveBot_f( const idCmdArgs& args );
-	static void				Cmd_RemoveAllBots_f( const idCmdArgs & args );
-	static void				AddBot( const idCmdArgs& args );
-	static void				DropABot( void );
-	static void				RemoveBot( int clientNum );
+	static void					Cmd_BotInfo_f( const idCmdArgs& args );
+	static void					Cmd_AddBot_f( const idCmdArgs& args );
+	static void					Cmd_RemoveBot_f( const idCmdArgs& args );
+	static void					Cmd_RemoveAllBots_f( const idCmdArgs & args );
+	static void					Cmd_ReloadBot_f( const idCmdArgs& args );
+	static void					Cmd_ReloadAllBots_f( const idCmdArgs& args);
+	static void					AddBot( const idCmdArgs& args );
+	static void					DropABot( void );
+	static void					RemoveBot( int clientNum );
 	static int					IsClientBot( int clientNum );
-	static void				SetBotDefNumber( int clientNum, int botDefNumber );
+	static void					SetBotDefNumber( int clientNum, int botDefNumber );
 	static int					GetBotDefNumber( int clientNum );
 	static idStr				GetBotClassname( int clientNum );
-	static void				SpawnBot( int clientNum );
-	static void				OnDisconnect( int clientNum );
+	static void					SpawnBot( int clientNum );
+	static void					OnDisconnect( int clientNum );
 
 	//Thread related functions
-	static void				InitializeThreadsForFrame( );
-	static void				LaunchThreadsForFrame( );
-	static void				WaitForThreadsTimed(  );
-	static bool				isGameEnding();
-	static void				IncreaseThreadUpdateCount();
-	static void				DecreaseThreadUpdateCount();
-	static void				SetThreadState(PyThreadState* state,botWorkerThread* saveThread);
-	static void				UpdateThreadState(PyThreadState* state);
-	static void				SaveMainThreadState( );
-	static void				RestoreMainThreadState( );
+	static void					InitializeThreadsForFrame(int deltaTimeMS );
+	static void					LaunchThreadsForFrame( );
+	static void					WaitForThreadsTimed(  );
+	static bool					isGameEnding();
+	static void					IncreaseThreadUpdateCount();
+	static void					DecreaseThreadUpdateCount();
+	static void					SetThreadState(PyThreadState* state,botWorkerThread* saveThread);
+	static void					UpdateThreadState(PyThreadState* state);
+	static void					SaveMainThreadState( );
+	static void					RestoreMainThreadState( );
 
+	static int					GetWinningTeam();
+	static idPlayer*			GetFlagCarrier(int team);
 	static idEntity*			GetFlag(int team);
 	static int					GetFlagStatus(int team);
-	static void				ProcessChat(const char* text);
-	static void				InitBotsFromMapRestart();
+	static void					ProcessChat(const char* text);
+	static void					InitBotsFromMapRestart();
 	static idCmdArgs *			GetPersistArgs( int clientNum );
 	static usercmd_t *			GetUserCmd( int clientNum );
-	static void				SetUserCmd( int clientNum, usercmd_t * usrCmd );
-	static void				WriteUserCmdsToSnapshot(idBitMsg& msg);
-	static void				ReadUserCmdsFromSnapshot(const idBitMsg& msg);
-	static void				AddBotInfo(botInfo_t* newBotInfo);
-	static afiBotBrain*		SpawnBrain(idStr botName, int clientNum);
+	static void					SetUserCmd( int clientNum, usercmd_t * usrCmd );
+	static void					WriteUserCmdsToSnapshot(idBitMsg& msg);
+	static void					ReadUserCmdsFromSnapshot(const idBitMsg& msg);
+	static void					AddBotInfo(botInfo_t* newBotInfo);
+	static afiBotBrain*			SpawnBrain(idStr botName, int clientNum);
 	static botInfo_t*			FindBotProfile(idStr botName);
 	static botInfo_t*			FindBotProfileByIndex(int clientNum);
+	static botInfo_t*			ReloadPak(botInfo_t* botProfile, int clientNum);
+	static bool					LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile);
+	static void					LoadAllBots();
+	static void					ParseForBotName(void* defBuffer, unsigned bufferLength, const char* name, idStr& botName, idStr& authorName, idStr& botType, idStr& botSpawnClass);
+
 	afiBotManager();
 	~afiBotManager();
 
@@ -154,6 +168,8 @@ public:
 protected:
 	static usercmd_t			botCmds[MAX_CLIENTS];
 private:
+	template<typename T>
+	static void					SetDictionaryValue(T key,afiBotBrain* brain,idStr valStr);
 	static void					DistributeWorkToThreads( );
 	static void					InitializePython( );
 

@@ -1,7 +1,7 @@
 #include "precompiled.h"
 #pragma hdrstop
 
-#ifdef AFI_BOTS // cusTom3
+#ifdef BUDDY_BOTS // cusTom3
 
 #include "../Game_local.h"
 #include "BotAASBuild.h"

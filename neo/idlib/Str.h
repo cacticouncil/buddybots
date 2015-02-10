@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===============================================================================
 */
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 // these library functions should not be used for cross platform compatibility
 /*#define strcmp			idStr::Cmp		// use_idStr_Cmp
 #define strncmp			use_idStr_Cmpn
@@ -233,6 +233,9 @@ public:
 	void				ToLower( void );
 	void				ToUpper( void );
 	bool				IsNumeric( void ) const;
+#ifdef BUDDY_BOTS
+	bool				IsFloat( void ) const;
+#endif
 	bool				IsColor( void ) const;
 	bool				HasLower( void ) const;
 	bool				HasUpper( void ) const;
@@ -285,6 +288,9 @@ public:
 	static char *		ToLower( char *s );
 	static char *		ToUpper( char *s );
 	static bool			IsNumeric( const char *s );
+#ifdef BUDDY_BOTS
+	static bool			IsFloat( const char* s );
+#endif
 	static bool			IsColor( const char *s );
 	static bool			HasLower( const char *s );
 	static bool			HasUpper( const char *s );
@@ -867,6 +873,12 @@ ID_INLINE void idStr::ToUpper( void ) {
 ID_INLINE bool idStr::IsNumeric( void ) const {
 	return idStr::IsNumeric( data );
 }
+
+#ifdef BUDDY_BOTS 
+ID_INLINE bool idStr::IsFloat( void ) const {
+		return idStr::IsFloat(data);
+}
+#endif
 
 ID_INLINE bool idStr::IsColor( void ) const {
 	return idStr::IsColor( data );

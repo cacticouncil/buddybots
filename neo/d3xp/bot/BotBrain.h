@@ -59,25 +59,26 @@ public:
 	//virtual						~afiBotBrain();
 
 	//Pure Virtual Bot Interface
-	virtual aiInput_t			Think() = 0;
+	virtual aiInput_t			Think(int deltaTimeMS) = 0;
 	virtual void				Spawn() = 0;
 	virtual void				Restart() = 0;
 	//TODO: Event Handling functions.
-	//virtual void OnPain(idEntity* inflictor, idEntity* attacker, int damage);
-	//virtual void OnDisconnect();
-	//virtual void OnKill();
-	//virtual void OnDeath();
-
+	virtual void OnPain(idEntity* inflictor, idEntity* attacker,const idVec3& dir, int damage) {};
+	virtual void OnDisconnect(int clientNum) {};
+	virtual void OnKill(idEntity* inflictor, idEntity* attacker, const idVec3& dir, int damage) {};
+	virtual void OnDeath(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage) {};
+	virtual void OnHit(idPlayer* target, const idVec3& dir, int damage) {};
+	virtual void OnRespawn() {};
 	//Accessors and Mutators
 	void						SetAAS( void );
 	void						SetBody(afiBotPlayer* newBody);
 	void						SetPhysics(idPhysics_Player* _physicsObject);
 public:
 
-	afiBotPlayer*		GetBody();
+	afiBotPlayer*				GetBody();
 	idPhysics_Player*			GetPhysics();
 	//Pointer to the fake client body of the bot.
-	afiBotPlayer*		body;
+	afiBotPlayer*				body;
 	object						scriptBody;
 	idPhysics_Player*			physicsObject;
 	// navigation
@@ -97,11 +98,20 @@ private:
 class afiBotBrainWrapper : public afiBotBrain,public wrapper<afiBotBrain> {
 public:
 
-	virtual aiInput_t Think();
+	virtual aiInput_t Think(int deltaTimeMS);
 
 	virtual void Spawn();
 
 	virtual void Restart();
+
+	virtual void OnPain(idEntity* inflictor, idEntity* attacker,const idVec3& dir, int damage);
+	virtual void OnDisconnect(int clientNum);
+	virtual void OnKill(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage);
+	virtual void OnDeath(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage);
+	virtual void OnHit(idPlayer* target, const idVec3& dir, int damage);
+	virtual void OnRespawn();
+
+
 };
 
 #endif

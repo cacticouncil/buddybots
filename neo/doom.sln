@@ -45,6 +45,7 @@ Global
 		{49BEC5C6-B964-417A-851E-808886B57400}.Debug with inlines|Win32.Build.0 = Debug with inlines|Win32
 		{49BEC5C6-B964-417A-851E-808886B57400}.Debug|Win32.ActiveCfg = Debug|Win32
 		{49BEC5C6-B964-417A-851E-808886B57400}.Debug|Win32.Build.0 = Debug|Win32
+		{49BEC5C6-B964-417A-851E-808886B57400}.Debug|Win32.Deploy.0 = Debug|Win32
 		{49BEC5C6-B964-417A-851E-808886B57400}.Dedicated Debug with inlines|Win32.ActiveCfg = Dedicated Debug with inlines|Win32
 		{49BEC5C6-B964-417A-851E-808886B57400}.Dedicated Debug with inlines|Win32.Build.0 = Dedicated Debug with inlines|Win32
 		{49BEC5C6-B964-417A-851E-808886B57400}.Dedicated Debug|Win32.ActiveCfg = Dedicated Debug|Win32

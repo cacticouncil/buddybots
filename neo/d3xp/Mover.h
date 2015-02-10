@@ -318,7 +318,7 @@ public:
 	virtual void			ReadFromSnapshot( const idBitMsgDelta &msg );
 
 	void					SetPortalState( bool open );
-#ifdef AFI_BOTS // cusTom3 - aas extensions - need for elevator reachabilities
+#ifdef BUDDY_BOTS // cusTom3 - aas extensions - need for elevator reachabilities
 	idVec3					GetPosition1();
 	idVec3					GetPosition2();
 #endif

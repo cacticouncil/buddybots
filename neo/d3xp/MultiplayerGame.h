@@ -154,8 +154,13 @@ public:
 	void			PlayerVote( int clientNum, playerVote_t vote );
 
 	// updates frag counts and potentially ends the match in sudden death
+#ifdef BUDDY_BOTS
+	void			PlayerDeath(idPlayer *dead, idPlayer *killer, bool telefrag,const idVec3& dir,int damage);
 	void			PlayerDeath( idPlayer *dead, idPlayer *killer, bool telefrag );
 
+#else
+	void			PlayerDeath( idPlayer *dead, idPlayer *killer, bool telefrag );
+#endif
 	void			AddChatLine( const char *fmt, ... ) id_attribute((format(printf,2,3)));
 
 	void			UpdateMainGui( void );
@@ -403,7 +408,13 @@ private:
 #ifdef CTF
 	bool			PointLimitHit( void );
 	// return team with most points
+#ifndef BUDDY_BOTS
 	int				WinningTeam( void );
+#else
+	public:
+	int				WinningTeam(void);
+	private:
+#endif
 #endif
 	void			NewState( gameState_t news, idPlayer *player = NULL );
 	void			UpdateWinsLosses( idPlayer *winner );
@@ -433,7 +444,7 @@ private:
 	void			DumpTourneyLine( void );
 	void			SuddenRespawn( void );
 
-#ifndef AFI_BOTS
+#ifndef BUDDY_BOTS
 #ifdef CTF
 	void			FindTeamFlags( void );
 #endif
@@ -441,7 +452,7 @@ private:
    
 public:
 
-#ifdef AFI_BOTS
+#ifdef BUDDY_BOTS
 #ifdef CTF
 	void			FindTeamFlags( void );
 #endif
