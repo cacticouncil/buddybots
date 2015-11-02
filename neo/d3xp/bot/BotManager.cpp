@@ -94,6 +94,53 @@ bool afiBotManager::isGameEnding( ) {
 
 void afiBotManager::Cmd_ReloadAllBots_f(const idCmdArgs & args) {
 
+	idPlayer* player = nullptr;
+
+	//RestoreMainThreadState();
+	//In-game 
+	if (gameLocal.isMultiplayer) {
+
+		for (int iBot = 0; iBot < numBots; iBot++) {
+			afiBotBrain* oldBrain = brainFastList[iBot];
+			afiBotPlayer* botPlayer = oldBrain->GetBody();
+
+			botPlayer->thinkFlags &= (~TH_THINK);
+
+			dict oldDict = oldBrain->botDict;
+
+			botInfo_t* botProfile = FindBotProfileByIndex(botPlayer->clientNum);
+			botInfo_t* newBotProfile = nullptr;
+			bool loadedBot = LoadBot(botProfile->pakName, newBotProfile);
+
+			if (newBotProfile == nullptr || loadedBot == false) {
+				gameLocal.Warning("Could not reload bot: %s\n", botProfile->pakName.c_str());
+				return;
+			}
+			newBotProfile->clientNum[botPlayer->clientNum] = botPlayer->clientNum;
+			afiBotBrain* newBrain = SpawnBrain(newBotProfile->botName, botPlayer->clientNum);
+
+			newBrain->SetPhysics((idPhysics_Player*)botPlayer->GetPhysics());
+			newBrain->SetAAS();
+			newBrain->SetBody(botPlayer);
+
+			newBrain->botDict = oldDict;
+
+			newBrain->Spawn();
+
+			botPlayer->SetBrain(newBrain);
+
+
+			botPlayer->thinkFlags |= TH_THINK;
+
+			loadedBots.Remove(botProfile);
+			AddBotInfo(newBotProfile);
+		}
+
+	}
+	else {
+
+		LoadAllBots();
+	}
 }
 
 void afiBotManager::IncreaseThreadUpdateCount( ) {
@@ -612,6 +659,8 @@ void	afiBotManager::LoadAllBots() {
 	//List all the pakFiles in the folder where the botPaks should be.
 	brainPaks = fileSystem->ListFiles("botPaks", ".pk4", true, true);
 
+	loadedBots.DeleteContents(true);
+
 	numBrainPaks = brainPaks->GetNumFiles();
 
 	botInfo_t** newBotProfiles = new botInfo_t*[numBrainPaks];
@@ -818,7 +867,7 @@ void afiBotManager::Cmd_ReloadBot_f( const idCmdArgs& args ) {
 	if( args.Argc() < 1 ) {
 		gameLocal.Warning("Incorrect command usage of reloadBot command.\n");
 		gameLocal.Warning("Usage: reloadBot <botName,clientIndex> (in-game)\n");
-		gameLocal.Warning("Usage: reloadBot <botClassName,authorName> \n");
+		gameLocal.Warning("Usage: reloadBot <botClassName> \n");
 		return;
 	}
 
@@ -832,7 +881,7 @@ void afiBotManager::Cmd_ReloadBot_f( const idCmdArgs& args ) {
 		if (player == nullptr) {
 			gameLocal.Warning("Cannot Find Bot please check command arguements again.\n");
 			gameLocal.Warning("Usage: reloadBot <botName,clientIndex> (in-game)\n");
-			gameLocal.Warning("Usage: reloadBot <botClassName,authorName> \n");
+			gameLocal.Warning("Usage: reloadBot <botClassName> \n");
 			return;
 		}
 		afiBotPlayer* botPlayer = reinterpret_cast<afiBotPlayer*>(player);
@@ -848,6 +897,10 @@ void afiBotManager::Cmd_ReloadBot_f( const idCmdArgs& args ) {
 
 		if (newBotProfile == nullptr || loadedBot == false) {
 			gameLocal.Warning("Could not reload bot: %s\n", botProfile->pakName.c_str());
+
+
+			botPlayer->thinkFlags |= TH_THINK;
+
 			return;
 		}
 		newBotProfile->clientNum[botPlayer->clientNum] = botPlayer->clientNum;
@@ -866,14 +919,24 @@ void afiBotManager::Cmd_ReloadBot_f( const idCmdArgs& args ) {
 		
 		botPlayer->thinkFlags |= TH_THINK;
 
+		loadedBots.Remove(botProfile);
+		AddBotInfo(newBotProfile);
+
 	}
 	else {
 		const char* className = nullptr;
 		if (!player) {
 			className = args.Argv(1);
+
+			botInfo_t* pakFileToLoad = FindBotProfileByClassName(className);
+			botInfo_t* newBotProfile = nullptr;
+			if (false == LoadBot(pakFileToLoad->pakName, newBotProfile)) {
+				gameLocal.Warning("Failed to Reload Bot %s", className);
+			}
+			loadedBots.Remove(pakFileToLoad);
+			AddBotInfo(newBotProfile);
+
 		}
-
-
 	}
 
 	//SaveMainThreadState();
@@ -1197,6 +1260,20 @@ botInfo_t*  afiBotManager::FindBotProfile(idStr botName) {
 		idStr loadedName = loadedBots[iBotProfile]->botName;
 
 		if(0 == botName.Icmp(loadedName.c_str()) ) {
+			botProfile = loadedBots[iBotProfile];
+			return botProfile;
+		}
+	}
+	return botProfile;
+}
+
+botInfo_t* afiBotManager::FindBotProfileByClassName(idStr botClassName) {
+	botInfo_t* botProfile = NULL;
+	int iBotProfile = 0;
+
+	int numLoadedBots = loadedBots.Num();
+	for (iBotProfile = 0; iBotProfile < numLoadedBots; iBotProfile++) {
+		if (0 == botClassName.Icmp(loadedBots[iBotProfile]->botSpawnClass)) {
 			botProfile = loadedBots[iBotProfile];
 			return botProfile;
 		}

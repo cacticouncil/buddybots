@@ -350,11 +350,13 @@ void afiBotPlayer::Restart( void ) {
 void afiBotPlayer::Think( void ) {
 	idPlayer::Think();
 
-	Move();
+	if (thinkFlags & TH_THINK) {
+		Move();
 
-	aiInput.moveDirection = move.moveDir;
-	aiInput.moveSpeed = move.speed;
-	ProcessInput();
+		aiInput.moveDirection = move.moveDir;
+		aiInput.moveSpeed = move.speed;
+		ProcessInput();
+	}
 }
 
 void afiBotPlayer::ClearInput( void ) {

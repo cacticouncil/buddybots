@@ -154,6 +154,7 @@ public:
 	static afiBotBrain*			SpawnBrain(idStr botName, int clientNum);
 	static botInfo_t*			FindBotProfile(idStr botName);
 	static botInfo_t*			FindBotProfileByIndex(int clientNum);
+	static botInfo_t*			FindBotProfileByClassName(idStr botClassName);
 	static botInfo_t*			ReloadPak(botInfo_t* botProfile, int clientNum);
 	static bool					LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile);
 	static void					LoadAllBots();
