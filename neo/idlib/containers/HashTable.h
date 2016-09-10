@@ -254,7 +254,7 @@ ID_INLINE Type *idHashTable<Type>::GetIndex( int index ) const {
 	int			i;
 
 	if ( ( index < 0 ) || ( index > numentries ) ) {
-		assert( 0 );
+		assert( false );
 		return NULL;
 	}
 

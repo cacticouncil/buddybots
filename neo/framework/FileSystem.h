@@ -282,6 +282,12 @@ public:
 
 							// ignore case and seperator char distinctions
 	virtual bool			FilenameCompare( const char *s1, const char *s2 ) const = 0;
+
+#ifdef BUDDY_BOTS
+	virtual idList<idFile_InZip*>*	GetFilesInZip(const char* pakFile) = 0;
+	virtual void FreeFilesInList(idList<idFile_InZip*>* deleteMe) = 0;
+#endif
+
 };
 
 extern idFileSystem *		fileSystem;

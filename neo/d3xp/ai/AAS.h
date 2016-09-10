@@ -39,11 +39,14 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-enum {
+enum pathType_t {
 	PATHTYPE_WALK,
 	PATHTYPE_WALKOFFLEDGE,
 	PATHTYPE_BARRIERJUMP,
 	PATHTYPE_JUMP
+#ifdef BUDDY_BOTS // TinMan: Elevinat0rs
+	,PATHTYPE_ELEVATOR
+#endif
 };
 
 typedef struct aasPath_s {

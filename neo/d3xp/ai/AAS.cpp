@@ -31,7 +31,57 @@ If you have questions concerning this license or the applicable additional terms
 #include "tools/compilers/aas/AASFileManager.h"
 
 #include "ai/AAS_local.h"
+#ifdef BUDDY_BOTS // cusTom3 - aas extensions - define BotAASBuild for use
+#include "../bot/BotAASBuild.h"
+#endif
 
+BOOST_PYTHON_MODULE(idAAS) {
+
+	enum_<pathType_t>("pathType_t")
+		.value("PATHTYPE_WALK", PATHTYPE_WALK)
+		.value("PATHTYPE_WALKOFFLEDGE", PATHTYPE_WALKOFFLEDGE)
+		.value("PATHTYPE_BARRIERJUMP", PATHTYPE_BARRIERJUMP)
+		.value("PATHTYPE_JUMP", PATHTYPE_JUMP)
+		.value("PATHTYPE_ELEVATOR", PATHTYPE_ELEVATOR)
+		;
+
+	class_<aasGoal_t>("aasGoal_t")
+		.def_readwrite("areaNum", &aasGoal_t::areaNum)
+		.def_readwrite("origin", &aasGoal_t::origin)
+		;
+
+	class_<aasObstacle_t>("aasObstacle_t")
+		.def_readwrite("absBounds", &aasObstacle_t::absBounds)
+		.def_readwrite("expAbsBounds", &aasObstacle_t::expAbsBounds)
+		;
+
+	class_<aasPath_t>("aasPath_t")
+		.def_readwrite("type", &aasPath_t::type)
+		.def_readwrite("moveGoal", &aasPath_t::moveGoal)
+		.def_readwrite("moveAreaNum", &aasPath_t::moveAreaNum)
+		.def_readwrite("secondaryGoal", &aasPath_t::secondaryGoal)
+		;
+
+
+
+	class_<idAASLocal>("idAAS")
+		.def("PointAreaNum", &idAASLocal::PointAreaNum)
+		.def("PointReachableAreaNum", &idAASLocal::PointReachableAreaNum)
+		.def("AreaCenter", &idAASLocal::AreaCenter)
+		.def("AreaFlags", &idAASLocal::AreaFlags)
+		.def("AreaTravelFlags", &idAASLocal::AreaTravelFlags)
+		.def("AddObstacle",&idAASLocal::AddObstacle)
+		.def("RemoveObstacle",&idAASLocal::RemoveObstacle)
+		.def("RemoveAllObstacles",&idAASLocal::RemoveAllObstacles)
+		//Other possible additions:
+		//TravelTimeToGoalArea
+		//Trace
+		//BoundsReachableAreaNum
+		;
+
+
+
+}
 /*
 ============
 idAAS::Alloc
@@ -56,6 +106,9 @@ idAASLocal::idAASLocal
 */
 idAASLocal::idAASLocal( void ) {
 	file = NULL;
+#ifdef BUDDY_BOTS	// cusTom3 - aas extensions - what a mess, this should probably be in Init - TODO: look at it later
+	botAASBuilder = new BotAASBuild();
+#endif
 }
 
 /*
@@ -65,6 +118,10 @@ idAASLocal::~idAASLocal
 */
 idAASLocal::~idAASLocal( void ) {
 	Shutdown();
+#ifdef BUDDY_BOTS	// cusTom3 - aas extensions - what a mess, this should probably be in shut down, TODO: look at it later
+	delete botAASBuilder;
+	botAASBuilder = NULL;
+#endif
 }
 
 /*
@@ -85,6 +142,16 @@ bool idAASLocal::Init( const idStr &mapName, unsigned int mapFileCRC ) {
 			common->DWarning( "Couldn't load AAS file: '%s'", mapName.c_str() );
 			return false;
 		}
+
+#ifdef BUDDY_BOTS // cusTom3 - aas extensions 
+		// TODO: don't need a builder unless it is a 48, but Init's for now, look at later
+		// if class changing is added models could change, would have to handle that here
+		botAASBuilder->Init( this );
+		if (mapName.Find( "aas48", false ) > 0) {
+			botAASBuilder->AddReachabilities();
+		}
+#endif // TODO: save the new information out to a file so it doesn't have to be processed each map load
+
 		SetupRouting();
 	}
 	return true;
@@ -97,6 +164,13 @@ idAASLocal::Shutdown
 */
 void idAASLocal::Shutdown( void ) {
 	if ( file ) {
+
+#ifdef BUDDY_BOTS // cusTom3 - aas extensions 
+		if (idStr(file->GetName()).Find( "aas48", false ) > 0) {
+			botAASBuilder->FreeAAS();
+		}
+#endif // TODO: save the new information out to a file so it doesn't have to be processed each map load
+
 		ShutdownRouting();
 		RemoveAllObstacles();
 		AASFileManager->FreeAAS( file );

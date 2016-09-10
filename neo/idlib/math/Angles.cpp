@@ -37,6 +37,24 @@ If you have questions concerning this license or the applicable additional terms
 
 idAngles ang_zero( 0.0f, 0.0f, 0.0f );
 
+#ifdef BUDDY_BOTS
+
+//TODO BOOST_PYTHON_MODULE(idAngles)
+BOOST_PYTHON_MODULE(idAngles) {
+
+	class_<idAngles>("idAngles")
+		.def_readwrite("pitch",&idAngles::pitch)
+		.def_readwrite("yaw",&idAngles::yaw)
+		.def_readwrite("roll",&idAngles::roll)
+		.def("Normalize360",&idAngles::Normalize360,return_value_policy<reference_existing_object>())
+		.def("Normalize180",&idAngles::Normalize180,return_value_policy<reference_existing_object>())
+		;
+
+}
+
+
+#endif
+
 /*
 =================
 idAngles::Normalize360

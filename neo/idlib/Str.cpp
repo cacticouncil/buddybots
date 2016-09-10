@@ -34,7 +34,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/Str.h"
 
 #if !defined( ID_REDIRECT_NEWDELETE ) && !defined( MACOS_X )
-	#define USE_STRING_DATA_ALLOCATOR
+#ifdef BUDDY_BOTS
+	//#define USE_STRING_DATA_ALLOCATOR
+#else
+	  #define USE_STRING_DATA_ALLOCATOR
+#endif
 #endif
 
 #ifdef USE_STRING_DATA_ALLOCATOR
@@ -1022,6 +1026,36 @@ bool idStr::IsNumeric( const char *s ) {
 
 	return true;
 }
+
+#ifdef BUDDY_BOTS
+
+bool idStr::IsFloat( const char* s ) {
+	int		i;
+	bool	dot;
+
+	if ( *s == '-' ) {
+		s++;
+	}
+
+	dot = false;
+	for ( i = 0; s[i]; i++ ) {
+		if ( !isdigit( s[i] ) ) {
+			if ( ( s[ i ] == '.' ) && !dot ) {
+				dot = true;
+				continue;
+			}
+			return false;
+		}
+	}
+
+	if(!dot) {
+		return false;
+	}
+
+	return true;
+}
+
+#endif
 
 /*
 ============

@@ -1,0 +1,7 @@
+Fix bugs relating to reloading scripts during matches. 
+Fix bugs relating to bots using elevators
+Find way to avert risk of manipulating other bots through script
+Create way to add bots through code (lib etc.) to create potential example bots.
+Create a better way to represent available API to user. (Potentially build a api lookup module that prints docstrings for exposed python modules)
+Create some fixed cameras for tournaments in level
+Add some potential cover point nodes and touch ups to multiplayer maps for bots.

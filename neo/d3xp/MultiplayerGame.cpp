@@ -1312,6 +1312,64 @@ void idMultiplayerGame::TeamScore( int entityNumber, int team, int delta ) {
 idMultiplayerGame::PlayerDeath
 ================
 */
+
+#ifdef BUDDY_BOTS
+void idMultiplayerGame::PlayerDeath(idPlayer *dead, idPlayer *killer, bool telefrag,const idVec3& dir,int damage) {
+
+	// don't do PrintMessageEvent and shit
+	assert(!gameLocal.isClient);
+
+	if (killer) {
+		if (gameLocal.gameType == GAME_LASTMAN) {
+			playerState[dead->entityNumber].fragCount--;
+
+		}
+		else if (IsGametypeTeamBased()) { /* CTF */
+			if (killer == dead || killer->team == dead->team) {
+				// suicide or teamkill
+				TeamScore(killer->entityNumber, killer->team, -1);
+			}
+			else {
+				TeamScore(killer->entityNumber, killer->team, +1);
+			}
+		}
+		else {
+			playerState[killer->entityNumber].fragCount += (killer == dead) ? -1 : 1;
+		}
+	}
+
+	if (killer->IsType(afiBotPlayer::Type)) {
+		afiBotPlayer* killerBot = (afiBotPlayer*)killer;
+
+		killerBot->GetBrain()->OnKill(dead, killer, dir, damage);
+	}
+
+	if (dead->IsType(afiBotPlayer::Type)) {
+		afiBotPlayer* deadBot = (afiBotPlayer*)dead;
+		deadBot->GetBrain()->OnDeath(dead, killer, dir, damage);
+	}
+		if (killer && killer == dead) {
+		PrintMessageEvent(-1, MSG_SUICIDE, dead->entityNumber);
+		}
+		else if (killer) {
+			if (telefrag) {
+				PrintMessageEvent(-1, MSG_TELEFRAGGED, dead->entityNumber, killer->entityNumber);
+			}
+			else if (IsGametypeTeamBased() && dead->team == killer->team) { /* CTF */
+				PrintMessageEvent(-1, MSG_KILLEDTEAM, dead->entityNumber, killer->entityNumber);
+			}
+			else {
+				PrintMessageEvent(-1, MSG_KILLED, dead->entityNumber, killer->entityNumber);
+			}
+		}
+		else {
+			PrintMessageEvent(-1, MSG_DIED, dead->entityNumber);
+			playerState[dead->entityNumber].fragCount--;
+		}
+}
+
+#endif BUDDY_BOTS
+
 void idMultiplayerGame::PlayerDeath( idPlayer *dead, idPlayer *killer, bool telefrag ) {
 
 	// don't do PrintMessageEvent and shit
@@ -2621,6 +2679,9 @@ void idMultiplayerGame::AddChatLine( const char *fmt, ... ) {
 	vsprintf( temp, fmt, argptr );
 	va_end( argptr );
 
+#ifdef BUDDY_BOTS
+	afiBotManager::ProcessChat( temp );
+#endif
 	gameLocal.Printf( "%s\n", temp.c_str() );
 
 	chatHistory[ chatHistoryIndex % NUM_CHAT_NOTIFY ].line = temp;
@@ -3235,6 +3296,16 @@ void idMultiplayerGame::ServerStartVote( int clientNum, vote_flags_t voteIndex, 
 	voteValue = value;
 	voteTimeOut = gameLocal.time + 20000;
 	// mark players allowed to vote - only current ingame players, players joining during vote will be ignored
+#ifdef BUDDY_BOTS
+
+	for ( i = 0; i < gameLocal.numClients; i++ ) {
+		if ( gameLocal.entities[ i ] && gameLocal.entities[ i ]->IsType( idPlayer::Type ) && !afiBotManager::IsClientBot(i) ) {
+			playerState[ i ].vote = ( i == clientNum ) ? PLAYER_VOTE_YES : PLAYER_VOTE_WAIT;
+		} else {
+			playerState[i].vote = PLAYER_VOTE_NONE;
+		}
+	}
+#else
 	for ( i = 0; i < gameLocal.numClients; i++ ) {
 		if ( gameLocal.entities[ i ] && gameLocal.entities[ i ]->IsType( idPlayer::Type ) ) {
 			playerState[ i ].vote = ( i == clientNum ) ? PLAYER_VOTE_YES : PLAYER_VOTE_WAIT;
@@ -3242,6 +3313,7 @@ void idMultiplayerGame::ServerStartVote( int clientNum, vote_flags_t voteIndex, 
 			playerState[i].vote = PLAYER_VOTE_NONE;
 		}
 	}
+#endif
 }
 
 /*
@@ -4224,7 +4296,10 @@ idItemTeam * idMultiplayerGame::GetTeamFlag( int team ) {
 		return NULL;
 
 	// TODO : just call on map start
+	//jw: Someone at id forgot to finish their todo!
+#ifndef BUDDY_BOTS
 	FindTeamFlags();
+#endif
 
 	return teamFlags[team];
 }

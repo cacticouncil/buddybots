@@ -165,7 +165,7 @@ bool idAASLocal::WalkPathValid( int areaNum, const idVec3 &origin, int goalAreaN
 
 	curAreaNum = areaNum;
 
-	while ( 1 ) {
+	while(true) {
 
 		// find the furthest floor face split point on the path
 		if ( !FloorEdgeSplitPoint( endPos, curAreaNum, pathPlane, frontPlane, false ) ) {
@@ -279,7 +279,7 @@ idAASLocal::WalkPathToGoal
 */
 bool idAASLocal::WalkPathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin, int travelFlags ) const {
 	int i, travelTime, curAreaNum, lastAreas[4], lastAreaIndex, endAreaNum;
-	idReachability *reach;
+	idReachability *reach = NULL;
 	idVec3 endPos;
 
 	path.type = PATHTYPE_WALK;
@@ -384,6 +384,26 @@ bool idAASLocal::WalkPathToGoal( aasPath_t &path, int areaNum, const idVec3 &ori
 			path.secondaryGoal = reach->end;
 			path.reachability = reach;
 			break;
+#ifdef BUDDY_BOTS	// TinMan: Elevinat0rs
+		case TFL_ELEVATOR:
+
+			/* custom3: i took a look at this. it seems many of the plats, especially on ctf1,
+			go through a realm of areaNum=0 on the way up. this is a problem. lol.
+			what i started doing as a hack is something like this.
+			*/
+			int time;
+			idReachability *next;
+			path.secondaryGoal = reach->end;
+			RouteToGoalArea(reach->toAreaNum, reach->end, goalAreaNum, travelFlags, time, &next);
+			while ( next && next->travelType == TFL_ELEVATOR ) {
+				path.secondaryGoal = next->end;
+				RouteToGoalArea( next->toAreaNum, next->end, goalAreaNum, travelFlags, time, &next);
+			}
+
+			path.type |= PATHTYPE_ELEVATOR;
+			path.reachability = reach;
+			break;
+#endif
 		default:
 			break;
 	}

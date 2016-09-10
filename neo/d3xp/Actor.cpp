@@ -36,6 +36,19 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Actor.h"
 
+#ifdef BUDDY_BOTS
+
+BOOST_PYTHON_MODULE(idActor) {
+	import("idEntity");
+	class_<idActor,bases<idEntity>>("idActor")
+		.def("CanSee", &idActor::CanSee)
+		.def("PointVisible", &idActor::PointVisible)
+		;
+
+}
+
+
+#endif
 
 /***********************************************************************
 

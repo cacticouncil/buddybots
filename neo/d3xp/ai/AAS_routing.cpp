@@ -34,7 +34,13 @@ If you have questions concerning this license or the applicable additional terms
 #define CACHETYPE_AREA				1
 #define CACHETYPE_PORTAL			2
 
+#ifdef BUDDY_BOTS // TinMan: MAX_ROUTING_CACHE_MEMORY
+
+#define MAX_ROUTING_CACHE_MEMORY	(4*1024*1024) // TinMan: 4Mb
+
+#else
 #define MAX_ROUTING_CACHE_MEMORY	(2*1024*1024)
+#endif
 
 #define LEDGE_TRAVELTIME_PANALTY	250
 

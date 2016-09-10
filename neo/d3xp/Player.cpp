@@ -52,6 +52,27 @@ const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range 
 ===============================================================================
 */
 
+#ifdef BUDDY_BOTS
+
+//void noOpDelete(idPlayer*) { }
+//
+//shared_ptr<idPlayer> CreateidPlayer() {
+//
+//	return shared_ptr<idPlayer>(new idPlayer(), &noOpDelete);
+//}
+
+BOOST_PYTHON_MODULE(idPlayer) {
+	import("idActor");
+	class_<idPlayer,bases<idActor>,shared_ptr<idPlayer>>("idPlayer")
+		.def("GetEyePosition", &idPlayer::GetEyePosition)
+		.def("GetPosition", &idPlayer::GetPosition)
+		.def_readonly("carryingFlag",&idPlayer::carryingFlag)
+		;
+
+}
+#endif
+
+
 // distance between ladder rungs (actually is half that distance, but this sounds better)
 const int LADDER_RUNG_DISTANCE = 32;
 
@@ -7848,7 +7869,12 @@ void idPlayer::Killed( idEntity *inflictor, idEntity *attacker, int damage, cons
 				gibsLaunched = false;
 			}
 		}
+#ifdef BUDDY_BOTS
+		gameLocal.mpGame.PlayerDeath(this,killer,isTelefragged,dir,damage);
+#else
+
 		gameLocal.mpGame.PlayerDeath( this, killer, isTelefragged );
+#endif
 	} else {
 		physicsObj.SetContents( CONTENTS_CORPSE | CONTENTS_MONSTERCLIP );
 	}

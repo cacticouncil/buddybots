@@ -54,6 +54,33 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+#ifdef BUDDY_BOTS
+
+float		(idEntity::*distanceEntity)(idEntity*) const = &idEntity::DistanceTo;
+float		(idEntity::*distancePosition)(const idVec3) const = &idEntity::DistanceTo;
+
+//TODO BOOST_PYTHON_MODULE(idEntity)
+BOOST_PYTHON_MODULE(idEntity) {
+	import("idVec3");
+
+	class_<idEntity>("idEntity")
+		.def("DistanceTo",distanceEntity)
+		.def("DistanceTo",distancePosition)
+		.def("GetPosition",&idEntity::GetPosition)
+	;
+		
+}
+
+idVec3 idEntity::GetPosition( void ) {
+	idPhysics* physics = NULL;
+	if( ( (physics = GetPhysics() ) == NULL)) {
+		return vec3_origin;
+	}
+	return physics->GetOrigin();
+}
+#endif
+
+
 // overridable events
 const idEventDef EV_PostSpawn( "<postspawn>", NULL );
 const idEventDef EV_FindTargets( "<findTargets>", NULL );

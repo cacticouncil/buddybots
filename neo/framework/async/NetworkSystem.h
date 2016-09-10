@@ -59,6 +59,10 @@ public:
 	virtual int				ClientGetOutgoingRate( void );
 	virtual int				ClientGetIncomingRate( void );
 	virtual float			ClientGetIncomingPacketLoss( void );
+
+#ifdef BUDDY_BOTS
+	virtual int			ServerConnectBot();
+#endif
 };
 
 extern idNetworkSystem *	networkSystem;
