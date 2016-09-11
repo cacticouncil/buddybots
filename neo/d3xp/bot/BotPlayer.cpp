@@ -7,15 +7,17 @@ translating input received from afiBotBrain to usercmd_t to be sent over
 the network.
 ===========================================================================
 */
-#include "precompiled.h"
 
-#ifdef BUDDY_BOTS
-
-
+#include <memory>
 // how many units to raise spectator above default view height so it's in the head of someone
 const int SPECTATE_RAISE = 25;
 
 #include "BotPlayer.h"
+#include "gamesys/SysCvar.h"
+#include "Fx.h"
+#include "framework/DeclEntityDef.h"
+#include "BotManager.h"
+#include "idlib/geometry/JointTransform.h"
 
 idCVar	bot_debugBot( "bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOCHEAT, "debug a specific bot -1 disable, -2 all bots, otherwise clientnum", -2, MAX_CLIENTS );
 
@@ -25,14 +27,23 @@ CLASS_DECLARATION( idPlayer, afiBotPlayer )
 	void noOpDelete(afiBotPlayer*) { }
 void noOpDeletePlayer(idPlayer*) {}
 
-shared_ptr<afiBotPlayer> CreateBotPlayer() {
+std::shared_ptr<afiBotPlayer> CreateBotPlayer() {
 
-	return shared_ptr<afiBotPlayer>(new afiBotPlayer(),&noOpDelete);
+	return std::shared_ptr<afiBotPlayer>(new afiBotPlayer(),&noOpDelete);
 }
 
+// Workaround for problem in VS14
+namespace boost
+{
+	template <>
+	afiBotPlayer const volatile * get_pointer<class afiBotPlayer const volatile >(
+		class afiBotPlayer const volatile *wrapped)
+	{
+		return wrapped;
+	}
+}
 
-
-	BOOST_PYTHON_MODULE(afiBotPlayer) {
+BOOST_PYTHON_MODULE(afiBotPlayer) {
 		//import("idVec3");
 		//import("idAngles");
 		//import("idEntity");
@@ -64,7 +75,22 @@ shared_ptr<afiBotPlayer> CreateBotPlayer() {
 			;
 }
 
+	boost::python::list afiBotPlayer::FindNearbyPlayers() {
 
+		boost::python::list nearbyPlayers = boost::python::list();
+		unsigned int numClients = gameLocal.numClients;
+		for (unsigned int iClient = 0; iClient < numClients; ++iClient) {
+
+			idPlayer* player = gameLocal.GetClientByNum(iClient);
+			if (player != nullptr) {
+				if (CanSee(player, true)) {
+					nearbyPlayers.append(shared_ptr<idPlayer>(player, &noOpDeletePlayer));
+				}
+			}
+		}
+
+		return nearbyPlayers;
+	}
 
 afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset( &botcmd, 0, sizeof( botcmd ) );
@@ -102,23 +128,6 @@ void afiBotPlayer::SetAAS() {
 	gameLocal.Error( "Bot cannot find AAS file for map\n" ); // TinMan: No aas, no play.
 }
 
-
-boost::python::list afiBotPlayer::FindNearbyPlayers() {
-
-	boost::python::list nearbyPlayers = boost::python::list();
-	unsigned int numClients = gameLocal.numClients;
-	for (unsigned int iClient = 0; iClient < numClients; ++iClient) {
-
-		idPlayer* player = gameLocal.GetClientByNum(iClient);
-		if (player != nullptr) {
-			if (CanSee(player, true)) {
-				nearbyPlayers.append(shared_ptr<idPlayer>(player,&noOpDeletePlayer));
-			}
-		}
-	}
-
-	return nearbyPlayers;
-}
 bool afiBotPlayer::SwitchWeapon(const char* weaponName) {
 
 	int weaponSlot = SlotForWeapon(weaponName);
@@ -287,11 +296,11 @@ void afiBotPlayer::Damage(idEntity *inflictor, idEntity *attacker, const idVec3 
 	}
 
 	if (inflictor == nullptr) {
-		inflictor = gameLocal.world;
+		inflictor = (idEntity*)gameLocal.world;
 	}
 
 	if (attacker == nullptr) {
-		attacker = gameLocal.world;
+		attacker = (idEntity*)gameLocal.world;
 	}
 
 	CalcDamagePoints(inflictor, attacker, &damageDef->dict, damageScale, location, &damage, &armorSave);
@@ -540,5 +549,3 @@ void afiBotPlayer::LookAtPosition( const idVec3 &pos ) {
 	aiInput.viewDirection = pos;
 	aiInput.viewType = VIEW_POS;
 }
-
-#endif

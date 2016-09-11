@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "tools/compilers/aas/AASFileManager.h"
 
 #include "ai/AAS_local.h"
-#ifdef BUDDY_BOTS // cusTom3 - aas extensions - define BotAASBuild for use
 #include "../bot/BotAASBuild.h"
 
 BOOST_PYTHON_MODULE(idAAS) {
@@ -81,7 +80,7 @@ BOOST_PYTHON_MODULE(idAAS) {
 
 
 }
-#endif
+
 /*
 ============
 idAAS::Alloc
@@ -106,9 +105,7 @@ idAASLocal::idAASLocal
 */
 idAASLocal::idAASLocal( void ) {
 	file = NULL;
-#ifdef BUDDY_BOTS	// cusTom3 - aas extensions - what a mess, this should probably be in Init - TODO: look at it later
 	botAASBuilder = new BotAASBuild();
-#endif
 }
 
 /*
@@ -118,10 +115,10 @@ idAASLocal::~idAASLocal
 */
 idAASLocal::~idAASLocal( void ) {
 	Shutdown();
-#ifdef BUDDY_BOTS	// cusTom3 - aas extensions - what a mess, this should probably be in shut down, TODO: look at it later
+
 	delete botAASBuilder;
 	botAASBuilder = NULL;
-#endif
+
 }
 
 /*
@@ -143,14 +140,12 @@ bool idAASLocal::Init( const idStr &mapName, unsigned int mapFileCRC ) {
 			return false;
 		}
 
-#ifdef BUDDY_BOTS // cusTom3 - aas extensions 
 		// TODO: don't need a builder unless it is a 48, but Init's for now, look at later
 		// if class changing is added models could change, would have to handle that here
 		botAASBuilder->Init( this );
 		if (mapName.Find( "aas48", false ) > 0) {
 			botAASBuilder->AddReachabilities();
 		}
-#endif // TODO: save the new information out to a file so it doesn't have to be processed each map load
 
 		SetupRouting();
 	}
@@ -165,11 +160,9 @@ idAASLocal::Shutdown
 void idAASLocal::Shutdown( void ) {
 	if ( file ) {
 
-#ifdef BUDDY_BOTS // cusTom3 - aas extensions 
 		if (idStr(file->GetName()).Find( "aas48", false ) > 0) {
 			botAASBuilder->FreeAAS();
 		}
-#endif // TODO: save the new information out to a file so it doesn't have to be processed each map load
 
 		ShutdownRouting();
 		RemoveAllObstacles();

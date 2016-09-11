@@ -43,10 +43,8 @@ enum pathType_t {
 	PATHTYPE_WALK,
 	PATHTYPE_WALKOFFLEDGE,
 	PATHTYPE_BARRIERJUMP,
-	PATHTYPE_JUMP
-#ifdef BUDDY_BOTS // TinMan: Elevinat0rs
-	,PATHTYPE_ELEVATOR
-#endif
+	PATHTYPE_JUMP,
+	PATHTYPE_ELEVATOR
 };
 
 typedef struct aasPath_s {

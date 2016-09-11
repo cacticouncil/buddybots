@@ -33,10 +33,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "Light.h"
 #include "Projectile.h"
 #include "WorldSpawn.h"
+#include "idlib/geometry/JointTransform.h"
 
 #include "Actor.h"
-
-#ifdef BUDDY_BOTS
+#include "bot/buddybots.h"
 
 BOOST_PYTHON_MODULE(idActor) {
 	import("idEntity");
@@ -46,9 +46,6 @@ BOOST_PYTHON_MODULE(idActor) {
 		;
 
 }
-
-
-#endif
 
 /***********************************************************************
 

@@ -386,10 +386,8 @@ public:
 	virtual void			FindMapScreenshot( const char *path, char *buf, int len );
 	virtual bool			FilenameCompare( const char *s1, const char *s2 ) const;
 
-#ifdef BUDDY_BOTS
 	virtual idList<idFile_InZip*>* GetFilesInZip(const char* pakFile);
-	virtual void FreeFilesInList(idList<idFile_InZip*>* deleteMe);
-#endif
+	virtual void			FreeFilesInList(idList<idFile_InZip*>* deleteMe);
 
 	static void				Dir_f( const idCmdArgs &args );
 	static void				DirTree_f( const idCmdArgs &args );
@@ -3920,7 +3918,6 @@ void idFileSystemLocal::FindMapScreenshot( const char *path, char *buf, int len 
 	}
 }
 
-#ifdef BUDDY_BOTS
 idList<idFile_InZip*>* idFileSystemLocal::GetFilesInZip(const char* pakFile) {
 	idList<idFile_InZip*>*	outputFileList = NULL; 
 	pack_t*					loadedPakFile;
@@ -3963,4 +3960,3 @@ void idFileSystemLocal::FreeFilesInList(idList<idFile_InZip*>* deleteMe) {
 	delete deleteMe;
 	deleteMe = NULL;
 }
-#endif

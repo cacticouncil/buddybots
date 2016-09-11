@@ -213,11 +213,9 @@ float idNetworkSystem::ClientGetIncomingPacketLoss( void ) {
 	return 0.0f;
 }
 
-#ifdef BUDDY_BOTS 
 int idNetworkSystem::ServerConnectBot( void ) {
 	if( idAsyncNetwork::server.IsActive() ) {
 		return idAsyncNetwork::ServerConnectBot();
 	}
 	return -1;
 }
-#endif

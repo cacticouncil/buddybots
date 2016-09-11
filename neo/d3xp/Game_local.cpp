@@ -46,6 +46,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "WorldSpawn.h"
 #include "Misc.h"
 #include "Trigger.h"
+#include "bot/BotManager.h"
 
 #include "Game_local.h"
 
@@ -81,9 +82,8 @@ idRenderWorld *				gameRenderWorld = NULL;		// all drawing is done to this world
 idSoundWorld *				gameSoundWorld = NULL;		// all audio goes to this world
 
 static gameExport_t			gameExport;
-#ifdef BUDDY_BOTS
 static botImport_t			dllSetup;
-#endif
+
 // global animation lib
 idAnimManager				animationLib;
 
@@ -97,7 +97,7 @@ const char *idGameLocal::sufaceTypeNames[ MAX_SURFACE_TYPES ] = {
 };
 
 
-//TODO BUDDY_BOTS: Build system to allow bots to look for nearby items of a type,
+//TODO : Build system to allow bots to look for nearby items of a type,
 //thinking of creating enumeration for each item and mapping them to appropriate string
 //bots will look up by enum.
 #ifdef _D3XP
@@ -336,23 +336,20 @@ void idGameLocal::Init( void ) {
 	Printf( "gamename: %s\n", GAME_VERSION );
 	Printf( "gamedate: %s\n", __DATE__ );
 
-#ifdef BUDDY_BOTS
 	//Initialize bot framework and load bot information
 	afiBotManager::PrintInfo();
 	afiBotManager::Initialize();
 
 	//Load all Bots found in botPaks folder
 	afiBotManager::LoadAllBots();
-#endif
 
 	// register game specific decl types
 	declManager->RegisterDeclType( "model",				DECL_MODELDEF,		idDeclAllocator<idDeclModelDef> );
 	declManager->RegisterDeclType( "export",			DECL_MODELEXPORT,	idDeclAllocator<idDecl> );
 
-#ifdef BUDDY_BOTS
 	//Loaded bot def files will all be put into a folder together.
 	declManager->RegisterDeclFolder( "loadedBots/def",	".def",				DECL_ENTITYDEF );
-#endif
+
 	// register game specific decl folders
 	declManager->RegisterDeclFolder( "def",				".def",				DECL_ENTITYDEF );
 	declManager->RegisterDeclFolder( "fx",				".fx",				DECL_FX );
@@ -427,8 +424,6 @@ void idGameLocal::Init( void ) {
 	Printf( "...%d aas types\n", aasList.Num() );
 }
 
-#ifdef BUDDY_BOTS
-
 idGameLocal::~idGameLocal() {
 
 }
@@ -436,8 +431,6 @@ idGameLocal::~idGameLocal() {
 void idGameLocal::SetSpawnArgs(const idDict& args) {
 	spawnArgs = args;
 }
-
-
 
 void idGameLocal::HandlePythonError() {
 	if(PyErr_Occurred()) {
@@ -451,9 +444,6 @@ void idGameLocal::HandlePythonError() {
 	}
 }
 
-
-
-#endif
 /*
 ===========
 idGameLocal::Shutdown
@@ -473,9 +463,7 @@ void idGameLocal::Shutdown( void ) {
 
 	MapShutdown();
 
-#ifdef BUDDY_BOTS
 	afiBotManager::Shutdown();
-#endif
 
 	aasList.DeleteContents( true );
 	aasNames.Clear();
@@ -980,9 +968,9 @@ Initializes all map variables common to both save games and spawned games.
 ===================
 */
 void idGameLocal::LoadMap( const char *mapName, int randseed ) {
-#ifndef BUDDY_BOTS // cusTom3 - aas extensions - moved to where used below, then moved out for MOD_BOTS
-	int i;
-#endif
+//#ifndef BUDDY_BOTS // cusTom3 - aas extensions - moved to where used below, then moved out for MOD_BOTS
+//	int i;
+//#endif
 	bool sameMap = (mapFile && idStr::Icmp(mapFileName, mapName) == 0);
 
 	// clear the sound system
@@ -1084,12 +1072,12 @@ void idGameLocal::LoadMap( const char *mapName, int randseed ) {
 	playerPVS.i = -1;
 	playerConnectedAreas.i = -1;
 
-#ifndef BUDDY_BOTS // cusTom3 - aas extensions - moved to later in InitFromNewMap so entities are spawned
+//#ifndef BUDDY_BOTS // cusTom3 - aas extensions - moved to later in InitFromNewMap so entities are spawned
 	// load navigation system for all the different monster sizes
-	for( i = 0; i < aasNames.Num(); i++ ) {
-		aasList[ i ]->Init( idStr( mapFileName ).SetFileExtension( aasNames[ i ] ).c_str(), mapFile->GetGeometryCRC() );
-	}
-#endif
+//	for( i = 0; i < aasNames.Num(); i++ ) {
+//		aasList[ i ]->Init( idStr( mapFileName ).SetFileExtension( aasNames[ i ] ).c_str(), mapFile->GetGeometryCRC() );
+//	}
+//#endif
 
 	// clear the smoke particle free list
 	smokeParticles->Init();
@@ -1153,13 +1141,11 @@ void idGameLocal::LocalMapRestart( ) {
 
 	MapPopulate();
 
-#ifdef BUDDY_BOTS
 #ifdef CTF
 	//Fixing that todo that id didn't get around to.
 	if( mpGame.IsGametypeFlagBased() ) {
 		mpGame.FindTeamFlags();
 	}
-#endif
 #endif
 
 	// once the map is populated, set the spawnCount back to where it was so we don't risk any collision
@@ -1385,26 +1371,22 @@ void idGameLocal::InitFromNewMap( const char *mapName, idRenderWorld *renderWorl
 
 	MapPopulate();
 
-#ifdef BUDDY_BOTS
 	// cusTom3 - aas extensions - moved here from LoadMap so entities are spawned for botaas calculations
 	// load navigation system for all the different monster sizes
 	int i;
 	for( i = 0; i < aasNames.Num(); i++ ) {
 		aasList[ i ]->Init( idStr( mapFileName ).SetFileExtension( aasNames[ i ] ).c_str(), mapFile->GetGeometryCRC() );
 	}
-#endif
 
 	mpGame.Reset();
 
 	mpGame.Precache();
 
-#ifdef BUDDY_BOTS
 #ifdef CTF
 	//Fixing that todo that id didn't get around to.
 	if( mpGame.IsGametypeFlagBased() ) {
 		mpGame.FindTeamFlags();
 	}
-#endif
 #endif
 
 	// free up any unused animations
@@ -1412,9 +1394,7 @@ void idGameLocal::InitFromNewMap( const char *mapName, idRenderWorld *renderWorl
 
 	gamestate = GAMESTATE_ACTIVE;
 
-#ifdef BUDDY_BOTS
 	afiBotManager::InitBotsFromMapRestart();
-#endif
 }
 
 /*
@@ -1678,7 +1658,6 @@ void idGameLocal::MapClear( bool clearClients ) {
 	int i;
 
 	for( i = ( clearClients ? 0 : MAX_CLIENTS ); i < MAX_GENTITIES; i++ ) {
-#ifdef BUDDY_BOTS
 		//This was a little bit of a hack if I attempt to clean up the memory
 		//allocated with the boost python objects, the memory manager complains
 		//about invalid memory blocks.
@@ -1689,15 +1668,12 @@ void idGameLocal::MapClear( bool clearClients ) {
 			assert( !entities[ i ] );
 			spawnIds[ i ] = -1;
 		//}
-#else
 
 		delete entities[ i ];
 		// ~idEntity is in charge of setting the pointer to NULL
 		// it will also clear pending events for this entity
 		assert( !entities[ i ] );
 		spawnIds[ i ] = -1;
-
-#endif
 	}
 
 	entityHash.Clear( 1024, MAX_GENTITIES );
@@ -2566,9 +2542,7 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		// set the user commands for this frame
 		memcpy( usercmds, clientCmds, numClients * sizeof( usercmds[ 0 ] ) );
 
-#ifdef BUDDY_BOTS
 		afiBotManager::InitializeThreadsForFrame(msec);
-#endif
 
 		// free old smoke particles
 		smokeParticles->FreeSmokes();
@@ -2582,17 +2556,13 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		// create a merged pvs for all players
 		SetupPlayerPVS();
 
-#ifdef BUDDY_BOTS
 		afiBotManager::LaunchThreadsForFrame();
-#endif
 
 		// sort the active entity list
 		SortActiveEntityList();
 
-#ifdef BUDDY_BOTS
 		//TODO: Wait for adequate amount of time for threads to finish thinking
 		afiBotManager::WaitForThreadsTimed();
-#endif
 
 		timer_think.Clear();
 		timer_think.Start();
@@ -3356,7 +3326,7 @@ idGameLocal::SpawnEntityType
 idEntity *idGameLocal::SpawnEntityType( const idTypeInfo &classdef, const idDict *args, bool bIsClientReadSnapshot ) {
 	idClass *obj;
 
-#if _DEBUG
+#ifdef _DEBUG
 	if ( isClient ) {
 		assert( bIsClientReadSnapshot );
 	}

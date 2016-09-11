@@ -5,12 +5,25 @@ Author: John Wileczek
 Description: Defines the basic interface that bot brains should follow.
 ===========================================================================
 */
-#include "precompiled.h"
 
 #include "BotBrain.h"
 #include "BotPlayer.h"
 #include "../Game_local.h"
 #include "../physics/Physics_Player.h"
+
+#include <memory>
+using namespace std;
+
+// Workaround for problem in VS14
+namespace boost
+{
+	template <>
+	afiBotBrainWrapper const volatile * get_pointer<class afiBotBrainWrapper const volatile >(
+		class afiBotBrainWrapper const volatile *wrapped)
+	{
+		return wrapped;
+	}
+}
 
 BOOST_PYTHON_MODULE(afiBotBrain) {
 	//import("idDict");
@@ -158,8 +171,6 @@ void afiBotBrainWrapper::OnHit(idPlayer* target, const idVec3& dir, int damage) 
 	}
 
 }
-
-
 
 void afiBotBrain::SetBody(afiBotPlayer* newBody) {
 	body = newBody;

@@ -248,13 +248,12 @@ public:
 	idSoundEmitter *		GetSoundEmitter( void ) const;
 	void					FreeSoundEmitter( bool immediate );
 
-#ifdef BUDDY_BOTS
 	//Returns the entity's origin position if the entity has a physics object
 	//Otherwise the function will return zero_vector
 	idVec3					GetPosition( void );
 	float					DistanceTo( idEntity* ent ) const;
 	float					DistanceTo( const idVec3 pos ) const;
-#endif
+
 	// entity binding
 	virtual void			PreBind( void );
 	virtual void			PostBind( void );
@@ -496,7 +495,7 @@ private:
 	void					Event_GuiNamedEvent(int guiNum, const char *event);
 #endif
 };
-#ifdef BUDDY_BOTS
+
 ID_INLINE float idEntity::DistanceTo ( idEntity* ent ) const {
 	return DistanceTo ( ent->GetPhysics()->GetOrigin() ); 
 }
@@ -504,7 +503,6 @@ ID_INLINE float idEntity::DistanceTo ( idEntity* ent ) const {
 ID_INLINE float idEntity::DistanceTo ( const idVec3 pos ) const {
 	return (pos - GetPhysics()->GetOrigin()).LengthFast ( ); 
 }
-#endif
 /*
 ===============================================================================
 

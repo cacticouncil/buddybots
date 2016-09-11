@@ -335,13 +335,12 @@ void idAsyncServer::ExecuteMapChange( void ) {
 				clients[ i ].clientState = SCS_PUREWAIT;
 			}
 		}
-#ifdef BUDDY_BOTS
+
 		//Just mark the bots as free spaces, when the game reloads on
 		//the server the commands to create the bots will be sent again.
 		else if ( SCS_FAKE == clients[i].clientState) {
 			clients[i].clientState = SCS_FREE;
 		}
-#endif
 	}
 
 	// load map
@@ -432,11 +431,7 @@ idAsyncServer::IsClientInGame
 ==================
 */
 bool idAsyncServer::IsClientInGame( int clientNum ) const {
-#ifdef BUDDY_BOTS
 	return ( clients[clientNum].clientState >= SCS_INGAME || clients[clientNum].clientState == SCS_FAKE );
-#else
-	return ( clients[clientNum].clientState >= SCS_INGAME );
-#endif
 }
 
 /*
@@ -763,15 +758,9 @@ void idAsyncServer::DropClient( int clientNum, const char *reason ) {
 
 	serverClient_t &client = clients[clientNum];
 
-#ifdef BUDDY_BOTS
 	if ( client.clientState <= SCS_ZOMBIE && client.clientState != SCS_FAKE ) {
 		return;
 	}
-#else
-	if ( client.clientState <= SCS_ZOMBIE ) {
-		return;
-	}
-#endif
 
 	if ( client.clientState >= SCS_PUREWAIT && clientNum != localClientNum ) {
 		msg.Init( msgBuf, sizeof( msgBuf ) );
@@ -825,15 +814,9 @@ void idAsyncServer::CheckClientTimeouts( void ) {
 	for ( i = 0; i < MAX_ASYNC_CLIENTS; i++ ) {
 		serverClient_t &client = clients[i];
 
-#ifdef BUDDY_BOTS
 		if ( i == localClientNum ||  SCS_FAKE == client.clientState ) {
 			continue;
 		}
-#else
-		if ( i == localClientNum ) {
-			continue;
-		}
-#endif
 
 		if ( client.lastPacketTime > serverTime ) {
 			client.lastPacketTime = serverTime;
@@ -867,7 +850,7 @@ void idAsyncServer::SendPrintBroadcast( const char *string ) {
 	msg.WriteByte( SERVER_RELIABLE_MESSAGE_PRINT );
 	msg.WriteString( string );
 
-	//TODO BUDDY_BOTS: You may need to send print messages to Fake Clients.
+	//TODO BuddyBots: You may need to send print messages to Fake Clients.
 	for ( i = 0; i < MAX_ASYNC_CLIENTS; i++ ) {
 		if ( clients[i].clientState >= SCS_CONNECTED ) {
 			SendReliableMessage( i, msg );
@@ -2458,7 +2441,6 @@ void idAsyncServer::RunFrame( void ) {
 		// sample input for the local client
 		LocalClientInput();
 
-#ifdef BUDDY_BOTS
 		//Update bot input from game through GetBotInput()
 		usercmd_t* currentFrameCmds = userCmds[gameFrame & ( MAX_USERCMD_BACKUP -1 ) ];
 		for(unsigned int iClient = 0; iClient < MAX_ASYNC_CLIENTS; ++iClient) {
@@ -2470,7 +2452,6 @@ void idAsyncServer::RunFrame( void ) {
 				
 			}
 		}
-#endif
 
 		// duplicate usercmds for clients if no new ones are available
 		DuplicateUsercmds( gameFrame, gameTime );
@@ -2493,15 +2474,9 @@ void idAsyncServer::RunFrame( void ) {
 	for ( i = 0; i < MAX_ASYNC_CLIENTS; i++ ) {
 		serverClient_t &client = clients[i];
 
-#ifdef BUDDY_BOTS
 		if( SCS_FAKE == client.clientState || SCS_FREE == client.clientState || i == localClientNum ){
 			continue;
 		}
-#else
-		if ( client.clientState == SCS_FREE || i == localClientNum ) {
-			continue;
-		}
-#endif
 
 		// modify maximum rate if necesary
 		if ( idAsyncNetwork::serverMaxClientRate.IsModified() ) {
@@ -2830,8 +2805,6 @@ void idAsyncServer::ProcessDownloadRequestMessage( const netadr_t from, const id
 	}
 }
 
-#ifdef BUDDY_BOTS
-
 int idAsyncServer::ConnectFakeClient() {
 	int botClientNum = -1;
 	int botId = -1;
@@ -2855,5 +2828,3 @@ int idAsyncServer::ConnectFakeClient() {
 
 
 }
-
-#endif

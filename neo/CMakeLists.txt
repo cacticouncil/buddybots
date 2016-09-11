@@ -211,11 +211,18 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	endif()
 elseif(MSVC)
 	add_compile_options(/W4)
+	add_compile_options(/wd4018) # signed/unsigned mismatch
 	add_compile_options(/wd4100) # unreferenced formal parameter
+	add_compile_options(/wd4125) # decimal digit terminates octal escape sequence
 	add_compile_options(/wd4127) # conditional expression is constant
 	add_compile_options(/wd4244) # possible loss of data
 	add_compile_options(/wd4245) # signed/unsigned mismatch
 	add_compile_options(/wd4267) # possible loss of data
+	add_compile_options(/wd4389) # signed/unsigned mismatch
+	add_compile_options(/wd4456) # declaration hides previous local declaration	
+	add_compile_options(/wd4457) # declaration hides function parameter	
+	add_compile_options(/wd4458) # declaration hides class member	
+	add_compile_options(/wd4459) # declaration hides global declaration	
 	add_compile_options(/wd4714) # 'function' marked as __forceinline not inlined
 	add_compile_options(/wd4996) # 'function': was declared deprecated
 	add_compile_options(/wd4068) # unknown pragma

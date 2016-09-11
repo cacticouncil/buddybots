@@ -1,6 +1,6 @@
-#include "precompiled.h"
+#include "BotPlayer.h"
 #include "../Entity.h"
-#ifdef BUDDY_BOTS
+#include "gamesys/SysCvar.h"
 
 const float PM_ACCELERATE		= 10.0f;
 const float PM_AIRACCELERATE	= 1.0f;
@@ -645,7 +645,7 @@ bool afiBotPlayer::PathTrace( idPlayer *player, const idAAS *aas, const idVec3 &
 			trace.fraction = aasTrace.fraction;
 			trace.endPos = aasTrace.endpos;
 			trace.normal = aas->GetPlane( aasTrace.planeNum ).Normal();
-			trace.blockingEntity = gameLocal.world;
+			trace.blockingEntity = (idEntity*)gameLocal.world;
 
 			if ( aasTrace.fraction < 1.0f ) {
 				if ( stopEvent & SE_ENTER_LEDGE_AREA ) {
@@ -882,4 +882,3 @@ bool afiBotPlayer::PredictPath( idPlayer *player, const idAAS *aas, const idVec3
 
 	return false;
 }
-#endif

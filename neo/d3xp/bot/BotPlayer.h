@@ -11,6 +11,8 @@ the network.
 #define BOTPLAYER_H_
 
 #include "../Game_local.h"
+#include "ai/AI.h"
+#include "Player.h"
 
 extern idCVar bot_debugBot;
 

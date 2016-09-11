@@ -11,16 +11,56 @@ dispatch to bots.
 
 #include "../Game_local.h"
 #include "../MultiplayerGame.h"
+#include <unordered_map>
+#include <atomic>
+#include <condition_variable>
+#include "idlib/Timer.h"
+
+using namespace std;
 
 class afiBotBrain;
 class idEntity;
 class afiBotPlayer;
 class botWorkerThread;
+class afiBotManager;
 
-typedef std::unordered_map<PyThreadState*,botWorkerThread*> threadMap_t;
+enum	BotType { CODE, SCRIPT, DLL };
+
 typedef afiBotBrain* (*CreateBotBrain_t)(botImport_t* dllSetup);
+typedef std::unordered_map<PyThreadState*,botWorkerThread*> threadMap_t;
 
-enum	BotType { CODE,SCRIPT,DLL };
+//This custom call policy allows me to mitigate some of the losses in performance due to
+//the python GIL. When Some c++ functions are exectued from python scripts we can give up control
+//of the GIL for the duration of the function.
+namespace boost {
+	namespace python {
+		struct release_gil_policy {
+			template<class ArgumentPackage>
+			static bool precall(ArgumentPackage const&) {
+				PyThreadState* saveState = PyEval_SaveThread();
+				afiBotManager::UpdateThreadState(saveState);
+
+				return true;
+			}
+
+			template<class ArgumentPackage>
+			static PyObject* postcall(ArgumentPackage const&, PyObject* result) {
+				PyThreadState* state = PyGILState_GetThisThreadState();
+				PyEval_RestoreThread(state);
+				return result;
+			}
+
+			typedef default_result_converter result_converter;
+			typedef PyObject* argument_package;
+
+			template<class Sig>
+			struct extract_return_type : mpl::front<Sig>
+			{
+			};
+		private:
+		};
+	}
+}
 
 //Bot Info is in effect a bot profile that get fills out upon game initialize
 //for all valid bots located in the botPaks folder.Spawning multiple instances of
@@ -70,6 +110,7 @@ class botWorkerThread {
 public:
 	botWorkerThread(condition_variable* conditional_variable,mutex* thread_mutex,PyInterpreterState* mainState, unsigned int* initializeCounter );
 	~botWorkerThread( );
+
 	void						InitializeForFrame( unsigned int endUpdateIndex );
 	void						RunWork( );
 	void						AddUpdateTask( afiBotBrain* newTask );
@@ -136,6 +177,7 @@ public:
 	static void					DecreaseThreadUpdateCount();
 	static void					SetThreadState(PyThreadState* state,botWorkerThread* saveThread);
 	static void					UpdateThreadState(PyThreadState* state);
+
 	static void					SaveMainThreadState( );
 	static void					RestoreMainThreadState( );
 
@@ -197,37 +239,5 @@ private:
 	static int					botEntityDefNumber[MAX_CLIENTS];
 	static afiBotBrain*			brainFastList[MAX_CLIENTS];
 };
-
-//This custom call policy allows me to mitigate some of the losses in performance due to
-//the python GIL. When Some c++ functions are exectued from python scripts we can give up control
-//of the GIL for the duration of the function.
-namespace boost { namespace python {
-	struct release_gil_policy {
-		template<class ArgumentPackage>
-		static bool precall(ArgumentPackage const&) {
-			PyThreadState* saveState = PyEval_SaveThread();
-			afiBotManager::UpdateThreadState(saveState);
-
-			return true;
-		}
-
-		template<class ArgumentPackage>
-		static PyObject* postcall(ArgumentPackage const&, PyObject* result) {
-			PyThreadState* state = PyGILState_GetThisThreadState();
-			PyEval_RestoreThread(state);
-			return result;
-		}
-
-		typedef default_result_converter result_converter;
-		typedef PyObject* argument_package;
-
-		template<class Sig>
-		struct extract_return_type : mpl::front<Sig>
-		{
-		};
-	private:
-	};
-}
-}
 
 #endif

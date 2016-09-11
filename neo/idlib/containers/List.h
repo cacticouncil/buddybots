@@ -83,9 +83,7 @@ ID_INLINE void idSwap( type &a, type &b ) {
 
 template< class type >
 class idList {
-#ifdef BUDDY_BOTS
 	friend class BotAASBuild;
-#endif
 public:
 
 	typedef int		cmp_t( const type *, const type * );

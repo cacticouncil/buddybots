@@ -5,6 +5,7 @@
 #define __BOTAASBUILD_H__
 
 #include "../ai/AAS_local.h"
+
 /*
 ===============================================================================
 
@@ -57,13 +58,8 @@ ID_INLINE BotAASBuild::BotAASBuild( void ) {
 
 ID_INLINE BotAASBuild::~BotAASBuild( void ) {
 	// clear out the original so it doesn't try and delete the server list ;)
-	originalPortals.list = NULL;
-	originalPortals.size = 0;
-	originalPortals.num = 0;
-
-	originalPortalIndex.list = NULL;
-	originalPortalIndex.size = 0;
-	originalPortalIndex.num = 0;
+	originalPortals.Clear();
+	originalPortalIndex.Clear();
 
 	// if these are not cleared correctly in FreeAAS this will error, dont like this, but hey, whatever
 	portals.Clear();

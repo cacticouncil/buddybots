@@ -40,8 +40,16 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // these library functions should not be used for cross platform compatibility
+/*
 #ifndef IDSTR_NO_REDIRECT
+#if defined( strcmp )
+#undefine strcmp
+#endif
 #define strcmp			idStr::Cmp		// use_idStr_Cmp
+
+#if defined( strcmpn )
+#undefine strcmpn
+#endif
 #define strncmp			use_idStr_Cmpn
 
 #if defined( StrCmpN )
@@ -66,9 +74,11 @@ If you have questions concerning this license or the applicable additional terms
 
 #define stricmp			idStr::Icmp		// use_idStr_Icmp
 #define _stricmp		use_idStr_Icmp
+
 #if defined( strcasecmp )
 #undef strcasecmp
 #endif
+
 #define strcasecmp		use_idStr_Icmp
 #define strnicmp		use_idStr_Icmpn
 #define _strnicmp		use_idStr_Icmpn
@@ -78,7 +88,7 @@ If you have questions concerning this license or the applicable additional terms
 #define vsnprintf		use_idStr_vsnPrintf
 #define _vsnprintf		use_idStr_vsnPrintf
 #endif
-
+*/
 class idVec4;
 
 #ifndef FILE_HASH_SIZE
@@ -258,6 +268,7 @@ public:
 	static char *		ToLower( char *s );
 	static char *		ToUpper( char *s );
 	static bool			IsNumeric( const char *s );
+	static bool			IsFloat(const char *s );
 	static bool			IsColor( const char *s );
 	static bool			HasLower( const char *s );
 	static bool			HasUpper( const char *s );

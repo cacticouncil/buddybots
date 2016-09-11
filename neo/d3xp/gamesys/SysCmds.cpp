@@ -41,6 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "WorldSpawn.h"
 #include "Fx.h"
 #include "Misc.h"
+#include "bot/BotManager.h"
 
 #include "SysCmds.h"
 
@@ -2510,12 +2511,10 @@ void idGameLocal::InitConsoleCommands( void ) {
 #ifdef _D3XP
 	cmdSystem->AddCommand( "setActorState",			Cmd_SetActorState_f,		CMD_FL_GAME|CMD_FL_CHEAT,	"Manually sets an actors script state", idGameLocal::ArgCompletion_EntityName );
 #endif
-#ifdef BUDDY_BOTS
 	cmdSystem->AddCommand( "addBot", afiBotManager::Cmd_AddBot_f, CMD_FL_GAME, "add a bot to the server", idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
 	cmdSystem->AddCommand( "removeBot", afiBotManager::Cmd_RemoveBot_f,CMD_FL_GAME,"Remove a bot from the server" );
 	cmdSystem->AddCommand( "reloadBot",afiBotManager::Cmd_ReloadBot_f,CMD_FL_GAME,"Reload a bot script");
 	cmdSystem->AddCommand( "reloadAllBots",afiBotManager::Cmd_ReloadAllBots_f,CMD_FL_GAME,"Reload all bot scripts" );
-#endif
 }
 
 /*

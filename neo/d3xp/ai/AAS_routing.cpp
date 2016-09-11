@@ -34,13 +34,10 @@ If you have questions concerning this license or the applicable additional terms
 #define CACHETYPE_AREA				1
 #define CACHETYPE_PORTAL			2
 
-#ifdef BUDDY_BOTS // TinMan: MAX_ROUTING_CACHE_MEMORY
+// TinMan: MAX_ROUTING_CACHE_MEMORY
 
 #define MAX_ROUTING_CACHE_MEMORY	(4*1024*1024) // TinMan: 4Mb
-
-#else
-#define MAX_ROUTING_CACHE_MEMORY	(2*1024*1024)
-#endif
+//#define MAX_ROUTING_CACHE_MEMORY	(2*1024*1024)
 
 #define LEDGE_TRAVELTIME_PANALTY	250
 
@@ -695,7 +692,7 @@ idReachability *idAASLocal::GetAreaReachability( int areaNum, int reachabilityNu
 idAASLocal::ClusterAreaNum
 ============
 */
-ID_INLINE int idAASLocal::ClusterAreaNum( int clusterNum, int areaNum ) const {
+/*ID_INLINE */int idAASLocal::ClusterAreaNum( int clusterNum, int areaNum ) const {
 	int side, areaCluster;
 
 	areaCluster = file->GetArea( areaNum ).cluster;

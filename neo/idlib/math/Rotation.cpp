@@ -32,8 +32,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "idlib/math/Rotation.h"
 
-#ifdef BUDDY_BOTS
-
 BOOST_PYTHON_MODULE(idRotation) {
 
 	class_<idRotation>("idRotation")
@@ -57,7 +55,6 @@ BOOST_PYTHON_MODULE(idRotation) {
 		;
 }
 
-#endif
 /*
 ============
 idRotation::ToAngles

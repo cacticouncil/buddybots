@@ -1,10 +1,8 @@
-#include "precompiled.h"
-#pragma hdrstop
-
-#ifdef BUDDY_BOTS // cusTom3
-
 #include "../Game_local.h"
 #include "BotAASBuild.h"
+#include "Mover.h"
+#include "Trigger.h"
+#include "Misc.h"
 
 idCVar aas_showElevators( "aas_showElevators", "0", CVAR_SYSTEM | CVAR_BOOL | CVAR_NOCHEAT, "show elevator debug stuff" );
 
@@ -37,9 +35,10 @@ void BotAASBuild::AddReachabilities( void ) {
 	originalPortals.granularity = file->portals.granularity;
 	originalPortals.num = file->portals.num;
 	originalPortals.size = file->portals.size;
-
+	
 	portals.Append(file->portals);
-	file->portals.list = portals.list;
+
+	portals.list = portals.list;
 
 	originalPortalIndex.list = file->portalIndex.list;
 	originalPortalIndex.granularity = file->portalIndex.granularity;
@@ -47,6 +46,7 @@ void BotAASBuild::AddReachabilities( void ) {
 	originalPortalIndex.size = file->portalIndex.size;
 
 	portalIndex.Append(file->portalIndex);
+
 	file->portalIndex.list = portalIndex.list;
 
 	AddElevatorReachabilities();
@@ -905,4 +905,3 @@ void AddHardCodedReachabilityToAASPlat() {
 	//r->rev_next = area->rev_reach;
 	//area->rev_reach = r;
 }
-#endif

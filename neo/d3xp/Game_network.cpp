@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "gamesys/SysCmds.h"
 #include "Entity.h"
 #include "Player.h"
+#include "bot/BotManager.h"
 
 #include "Game_local.h"
 
@@ -323,15 +324,11 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 
 	// spawn the player
-#ifdef BUDDY_BOTS // spawn bot on server
 	if ( afiBotManager::IsClientBot( clientNum ) ) {
 		afiBotManager::SpawnBot( clientNum );
 	} else {
 		SpawnPlayer( clientNum );
 	}
-#else
-	SpawnPlayer( clientNum );
-#endif
 	if ( clientNum == localClientNum ) {
 		mpGame.EnterGame( clientNum );
 	}
@@ -342,11 +339,9 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 	outMsg.WriteByte( clientNum );
 	outMsg.WriteInt( spawnIds[ clientNum ] );
-#ifdef BUDDY_BOTS // sb - tell the clients that it is not a bot spawning 
 	outMsg.WriteBits( afiBotManager::IsClientBot( clientNum ), 1 );
 	if ( afiBotManager::IsClientBot( clientNum ) )
 		outMsg.WriteShort( afiBotManager::GetBotDefNumber( clientNum ) );
-#endif
 	networkSystem->ServerSendReliableMessage( -1, outMsg );
 }
 
@@ -412,11 +407,9 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum ) {
 		outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 		outMsg.WriteByte( i );
 		outMsg.WriteInt( spawnIds[ i ] );
-#ifdef BUDDY_BOTS // let ClientProcessReliableMessage know if it's a bot
 		outMsg.WriteBits( afiBotManager::IsClientBot( i ), 1 );
 		if ( afiBotManager::IsClientBot( i ) )
 			outMsg.WriteShort( afiBotManager::GetBotDefNumber( i ) );
-#endif
 		networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 	}
 
@@ -1382,19 +1375,19 @@ void idGameLocal::ClientProcessReliableMessage( int clientNum, const idBitMsg &m
 		case GAME_RELIABLE_MESSAGE_SPAWN_PLAYER: {
 			int client = msg.ReadByte();
 			int spawnId = msg.ReadInt();
-#ifdef BUDDY_BOTS // sb - check to see if reliable message is to spawn bot or player
+			// sb - check to see if reliable message is to spawn bot or player
 			bool isBot = msg.ReadBits(1); // this has to be outside of the if below because it is always written it always needs to be read right?
-			if ( !entities[ client ] ) {
-				if ( isBot ) {
-					afiBotManager::SetBotDefNumber( client, (int)msg.ReadShort() );
-					afiBotManager::SpawnBot( client );
-				} else {
-					SpawnPlayer( client );
+			if (!entities[client]) {
+				if (isBot) {
+					afiBotManager::SetBotDefNumber(client, (int)msg.ReadShort());
+					afiBotManager::SpawnBot(client);
 				}
-#else
+				else {
+					SpawnPlayer(client);
+				}
+			}
 			if ( !entities[ client ] ) {
 				SpawnPlayer( client );
-#endif
 				entities[ client ]->FreeModelDef();
 			}
 			// fix up the spawnId to match what the server says
@@ -1602,7 +1595,6 @@ gameReturn_t idGameLocal::ClientPrediction( int clientNum, const usercmd_t *clie
 	return ret;
 }
 
-#ifdef BUDDY_BOTS // TinMan: Get Bot input
 /*
 ===============
 idGameLocal::GetBotInput
@@ -1611,6 +1603,7 @@ TinMan: I think I would rather have had a SetBotInput or some way to push bot us
 ===============
 */
 void idGameLocal::GetBotInput( int clientNum, usercmd_t &userCmd ) {
+	// TinMan: Get Bot input
 	idEntity * client = entities[ clientNum ];
 	if ( !client ) {
 		//Error( va( "idGameLocal::GetBotInput - invalid client %i\n", clientNum ) );
@@ -1639,7 +1632,6 @@ void idGameLocal::GetBotInput( int clientNum, usercmd_t &userCmd ) {
 	userCmd.buttons =	afiBotManager::GetUserCmd( clientNum )->buttons;
 	userCmd.impulse =	afiBotManager::GetUserCmd( clientNum )->impulse;
 }
-#endif
 
 /*
 ===============

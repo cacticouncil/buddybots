@@ -354,9 +354,7 @@ public:
 	// ---------------------- Public idGame Interface -------------------
 
 							idGameLocal();
-#ifdef BUDDY_BOTS
 							~idGameLocal();
-#endif
 
 	virtual void			Init( void );
 	virtual void			Shutdown( void );
@@ -400,23 +398,18 @@ public:
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
-#ifdef BUDDY_BOTS
 	object					main;
 	object					globalNamespace;
 
 	void					HandlePythonError();
-	
+
 	//Function necessary to hook into entity spawning.
 	void					SetSpawnArgs(const idDict& args);
 
 	//Function called by the server when it needs the usercmd for the current frame.
 	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
 
-	//Functions called during init of game to load and validate the bot definitions.
-
-#else
-	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };
-#endif
+//	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };
 
 	// ---------------------- Public idGameLocal Interface -------------------
 	void					Printf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
@@ -735,12 +728,7 @@ extern const float	DEFAULT_GRAVITY;
 extern const idVec3	DEFAULT_GRAVITY_VEC3;
 extern const int	CINEMATIC_SKIP_DELAY;
 
-#ifdef BUDDY_BOTS
-
-#include "bot/BotManager.h"
-#include "bot/BotPlayer.h"
-
-#endif
-
+//#include "bot/BotManager.h"
+//#include "bot/BotPlayer.h"
 
 #endif	/* !__GAME_LOCAL_H__ */

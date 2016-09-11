@@ -1027,8 +1027,6 @@ bool idStr::IsNumeric( const char *s ) {
 	return true;
 }
 
-#ifdef BUDDY_BOTS
-
 bool idStr::IsFloat( const char* s ) {
 	int		i;
 	bool	dot;
@@ -1054,8 +1052,6 @@ bool idStr::IsFloat( const char* s ) {
 
 	return true;
 }
-
-#endif
 
 /*
 ============
@@ -1540,14 +1536,14 @@ or returns -1 on failure or if the buffer would be overflowed.
 int idStr::vsnPrintf( char *dest, int size, const char *fmt, va_list argptr ) {
 	int ret;
 
-#ifdef _WIN32
-#undef _vsnprintf
+#if defined(_WIN32) && defined(_MSC_VER) && _MSC_VER < 1900
+//#undef _vsnprintf
 	ret = _vsnprintf( dest, size-1, fmt, argptr );
-#define _vsnprintf	use_idStr_vsnPrintf
+//#define _vsnprintf	idStr::vsnPrintf
 #else
-#undef vsnprintf
+//#undef vsnprintf
 	ret = vsnprintf( dest, size, fmt, argptr );
-#define vsnprintf	use_idStr_vsnPrintf
+//#define vsnprintf	idStr::vsnPrintf
 #endif
 	dest[size-1] = '\0';
 	if ( ret < 0 || ret >= size ) {

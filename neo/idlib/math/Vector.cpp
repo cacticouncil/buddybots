@@ -40,7 +40,8 @@ idVec5 vec5_origin( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 idVec6 vec6_origin( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 idVec6 vec6_infinity( idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY );
 
-#ifdef BUDDY_BOTS
+idVec3(idVec3::*cross1d)(const idVec3&) const = &idVec3::Cross;
+idVec3&		(idVec3::*cross2d)(const idVec3&, const idVec3&) = &idVec3::Cross;
 
 BOOST_PYTHON_MODULE(idVec2) {
 
@@ -74,8 +75,6 @@ BOOST_PYTHON_MODULE(idVec2) {
 
 }
 
-idVec3		(idVec3::*cross1d)(const idVec3&) const = &idVec3::Cross;
-idVec3&		(idVec3::*cross2d)(const idVec3&,const idVec3&)  = &idVec3::Cross;
 BOOST_PYTHON_MODULE(idVec3) {
 
 	class_<idVec3>("idVec3",init<const float, const float, const float>())
@@ -112,7 +111,6 @@ BOOST_PYTHON_MODULE(idVec3) {
 		.def(self *= float())
 	;
 }
-#endif
 
 //===============================================================
 //

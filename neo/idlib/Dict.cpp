@@ -36,8 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 idStrPool		idDict::globalKeys;
 idStrPool		idDict::globalValues;
 
-#ifdef BUDDY_BOTS
-
 const char*			(idDict::*getString)(const char*,const char* ) const = &idDict::GetString;
 float				(idDict::*getFloat)(const char*,const char* ) const = &idDict::GetFloat;
 int					(idDict::*getInt)(const char*,const char* ) const = &idDict::GetInt;
@@ -88,8 +86,6 @@ BOOST_PYTHON_MODULE(idDict) {
 		.def("SetAngles",&idDict::SetAngles)
 		;
 }
-
-#endif
 
 /*
 ================

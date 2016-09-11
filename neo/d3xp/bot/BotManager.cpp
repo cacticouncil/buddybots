@@ -6,12 +6,14 @@ Description: Bot client management involving adding, removing, and event
 dispatch to bots.
 ===========================================================================
 */
-#include "precompiled.h"
-
-#ifdef BUDDY_BOTS
 
 #include "BotManager.h"
 #include "BotBrain.h"
+#include "BotPlayer.h"
+#include "framework/DeclEntityDef.h"
+#include "framework/FileSystem.h"
+#include "framework/Game.h"
+#include "framework/async/NetworkSystem.h"
 
 #define						THINK_SLICE 1.0
 
@@ -44,6 +46,7 @@ threadMap_t					afiBotManager::workerThreadMap;
 //the names are different depending on python version
 // Python 3 >= PyObject* PyInit_moduleName();
 //Python 3 < void initModuleName();
+extern "C" PyObject* PyInit_afiBotManager();
 extern "C" PyObject* PyInit_afiBotPlayer();
 extern "C" PyObject* PyInit_afiBotBrain();
 extern "C" PyObject* PyInit_idDict();
@@ -57,6 +60,17 @@ extern "C" PyObject* PyInit_idBounds();
 extern "C" PyObject* PyInit_idRotation();
 extern "C" PyObject* PyInit_idAAS();
 extern "C" PyObject* PyInit_idActor();
+
+// Workaround for problem in VS14
+namespace boost
+{
+	template <>
+	afiBotManager const volatile * get_pointer<class afiBotManager const volatile >(
+		class afiBotManager const volatile *wrapped)
+	{
+		return wrapped;
+	}
+}
 
 
 BOOST_PYTHON_MODULE(afiBotManager) {
@@ -275,53 +289,53 @@ void afiBotManager::RestoreMainThreadState( ) {
 }
 
 void afiBotManager::InitializePython( ) {
-	int result = PyImport_AppendInittab("idAngles",PyInit_idAngles);
+	int result = PyImport_AppendInittab("idAngles",(void(*)())PyInit_idAngles);
 	if( result == -1) {
 		gameLocal.Error("Failed to Init idAngles Module");
 	}
-	if(PyImport_AppendInittab("idVec2",PyInit_idVec2) == -1) {
+	if(PyImport_AppendInittab("idVec2", (void(*)())PyInit_idVec2) == -1) {
 		gameLocal.Error("Failed to Init idVec2 Module");
 	}
-	if(PyImport_AppendInittab("idVec3",PyInit_idVec3) == -1) {
+	if(PyImport_AppendInittab("idVec3", (void(*)())PyInit_idVec3) == -1) {
 		gameLocal.Error("Failed to Init idVec3 Module");
 	}
-	if(PyImport_AppendInittab("idDict",PyInit_idDict) == -1) {
+	if(PyImport_AppendInittab("idDict", (void(*)())PyInit_idDict) == -1) {
 		gameLocal.Error("Failed to Init idDict Module");
 	}
 
-	if(PyImport_AppendInittab("idEntity",PyInit_idEntity) == -1) {
+	if(PyImport_AppendInittab("idEntity", (void(*)())PyInit_idEntity) == -1) {
 		gameLocal.Error("Failed to Init idEntity Module");
 	}
 
-	if(PyImport_AppendInittab("afiBotManager",PyInit_afiBotManager) == -1) {
+	if(PyImport_AppendInittab("afiBotManager", (void(*)())PyInit_afiBotManager) == -1) {
 		gameLocal.Error("Failed to Init afiBotManager Module");
 	}
 
-	if(PyImport_AppendInittab("afiBotPlayer",PyInit_afiBotPlayer) == -1) {
+	if(PyImport_AppendInittab("afiBotPlayer", (void(*)())PyInit_afiBotPlayer) == -1) {
 		gameLocal.Error("Failed to Init afiBotPlayer Module");
 	}
 
-	if(PyImport_AppendInittab("idAAS",PyInit_idAAS) == -1) {
+	if(PyImport_AppendInittab("idAAS", (void(*)())PyInit_idAAS) == -1) {
 		gameLocal.Error("Failed to Init idAAS Module");
 	}
 
-	if (PyImport_AppendInittab("idBounds", PyInit_idBounds) == -1) {
+	if (PyImport_AppendInittab("idBounds", (void(*)())PyInit_idBounds) == -1) {
 		gameLocal.Error("Failed to Init idBounds Module");
 	}
 
-	if (PyImport_AppendInittab("idActor", PyInit_idActor) == -1) {
+	if (PyImport_AppendInittab("idActor", (void(*)())PyInit_idActor) == -1) {
 		gameLocal.Error("Failed to Init idActor Module");
 	}
 
-	if (PyImport_AppendInittab("idRotation", PyInit_idRotation) == -1) {
+	if (PyImport_AppendInittab("idRotation", (void(*)())PyInit_idRotation) == -1) {
 		gameLocal.Error("Failed to Init afiBotBrain Module");
 	}
 
-	if (PyImport_AppendInittab("afiBotBrain", PyInit_afiBotBrain) == -1) {
+	if (PyImport_AppendInittab("afiBotBrain", (void(*)())PyInit_afiBotBrain) == -1) {
 		gameLocal.Error("Failed to Init afiBotBrain Module");
 	}
 
-	if (PyImport_AppendInittab("idPlayer", PyInit_idPlayer) == -1) {
+	if (PyImport_AppendInittab("idPlayer", (void(*)())PyInit_idPlayer) == -1) {
 		gameLocal.Error("Failed to Init idPlayer Module");
 	}
 
@@ -1161,7 +1175,7 @@ void afiBotManager::SpawnBot( int clientNum ) {
 				int keyInt = -INT_MAX;
 				float keyFloat = std::numeric_limits<float>::quiet_NaN();
 				if(keyStr.IsNumeric() ) {
-					if(keyStr.IsFloat()) {
+					if(idStr::IsFloat(keyStr)) {
 						keyFloat = atof(keyStr.c_str());
 					}
 					keyInt = atoi(keyStr.c_str());
@@ -1207,7 +1221,7 @@ void afiBotManager::SetDictionaryValue(T key,afiBotBrain* brain,idStr valStr) {
 	int valInt = -INT_MAX;
 	float valFloat = std::numeric_limits<float>::quiet_NaN();
 	if(valStr.IsNumeric() ) {
-		if(valStr.IsFloat()) {
+		if(idStr::IsFloat(valStr)) {
 			valFloat = atof(valStr.c_str());
 		}
 		valInt = atoi(valStr.c_str());
@@ -1401,5 +1415,3 @@ afiBotManager::~afiBotManager
 afiBotManager::~afiBotManager() {
 	
 }
-
-#endif

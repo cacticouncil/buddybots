@@ -32,11 +32,9 @@ If you have questions concerning this license or the applicable additional terms
 
 idBounds bounds_zero( vec3_zero, vec3_zero );
 
-#ifdef BUDDY_BOTS
 
 float	(idBounds::*getRadius)() const = &idBounds::GetRadius;
 float	(idBounds::*getRadiusCenter)(const idVec3&) const = &idBounds::GetRadius;
-
 
 BOOST_PYTHON_MODULE(idBounds) {
 
@@ -62,7 +60,6 @@ BOOST_PYTHON_MODULE(idBounds) {
 		;
 }
 
-#endif
 /*
 ============
 idBounds::GetRadius
