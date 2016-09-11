@@ -33,7 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai/AAS_local.h"
 #ifdef BUDDY_BOTS // cusTom3 - aas extensions - define BotAASBuild for use
 #include "../bot/BotAASBuild.h"
-#endif
 
 BOOST_PYTHON_MODULE(idAAS) {
 
@@ -82,6 +81,7 @@ BOOST_PYTHON_MODULE(idAAS) {
 
 
 }
+#endif
 /*
 ============
 idAAS::Alloc

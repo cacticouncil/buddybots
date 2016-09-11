@@ -342,7 +342,6 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 	outMsg.WriteByte( clientNum );
 	outMsg.WriteInt( spawnIds[ clientNum ] );
-	outMsg.WriteLong( spawnIds[ clientNum ] );
 #ifdef BUDDY_BOTS // sb - tell the clients that it is not a bot spawning 
 	outMsg.WriteBits( afiBotManager::IsClientBot( clientNum ), 1 );
 	if ( afiBotManager::IsClientBot( clientNum ) )
@@ -413,7 +412,6 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum ) {
 		outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 		outMsg.WriteByte( i );
 		outMsg.WriteInt( spawnIds[ i ] );
-		outMsg.WriteLong( spawnIds[ i ] );
 #ifdef BUDDY_BOTS // let ClientProcessReliableMessage know if it's a bot
 		outMsg.WriteBits( afiBotManager::IsClientBot( i ), 1 );
 		if ( afiBotManager::IsClientBot( i ) )

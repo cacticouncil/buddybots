@@ -2566,7 +2566,9 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		// set the user commands for this frame
 		memcpy( usercmds, clientCmds, numClients * sizeof( usercmds[ 0 ] ) );
 
+#ifdef BUDDY_BOTS
 		afiBotManager::InitializeThreadsForFrame(msec);
+#endif
 
 		// free old smoke particles
 		smokeParticles->FreeSmokes();
@@ -2580,13 +2582,17 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		// create a merged pvs for all players
 		SetupPlayerPVS();
 
+#ifdef BUDDY_BOTS
 		afiBotManager::LaunchThreadsForFrame();
+#endif
 
 		// sort the active entity list
 		SortActiveEntityList();
 
+#ifdef BUDDY_BOTS
 		//TODO: Wait for adequate amount of time for threads to finish thinking
 		afiBotManager::WaitForThreadsTimed();
+#endif
 
 		timer_think.Clear();
 		timer_think.Start();
