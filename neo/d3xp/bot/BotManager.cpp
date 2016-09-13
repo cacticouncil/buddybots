@@ -45,21 +45,20 @@ threadMap_t					afiBotManager::workerThreadMap;
 //BOOST_PYTHON_MODULE Creates these
 //the names are different depending on python version
 // Python 3 >= PyObject* PyInit_moduleName();
-//Python 3 < void initModuleName();
-extern "C" PyObject* PyInit_afiBotManager();
-extern "C" PyObject* PyInit_afiBotPlayer();
-extern "C" PyObject* PyInit_afiBotBrain();
-extern "C" PyObject* PyInit_idDict();
-extern "C" PyObject* PyInit_idEntity();
-extern "C" PyObject* PyInit_idVec2();
-extern "C" PyObject* PyInit_idVec3();
-extern "C" PyObject* PyInit_idAngles();
-extern "C" PyObject* PyInit_idPlayer();
+//Python 3 < void(*initfunc)(void) initModuleName();
+extern "C" void initafiBotPlayer();
+extern "C" void initafiBotBrain();
+extern "C" void initidDict();
+extern "C" void initidEntity();
+extern "C" void initidVec2();
+extern "C" void initidVec3();
+extern "C" void initidAngles();
+extern "C" void initidPlayer();
 //TODO BUDDY_BOTS: Add new modules to system table upon startup
-extern "C" PyObject* PyInit_idBounds();
-extern "C" PyObject* PyInit_idRotation();
-extern "C" PyObject* PyInit_idAAS();
-extern "C" PyObject* PyInit_idActor();
+extern "C" void initidBounds();
+extern "C" void initidRotation();
+extern "C" void initidAAS();
+extern "C" void initidActor();
 
 // Workaround for problem in VS14
 namespace boost
@@ -289,53 +288,53 @@ void afiBotManager::RestoreMainThreadState( ) {
 }
 
 void afiBotManager::InitializePython( ) {
-	int result = PyImport_AppendInittab("idAngles",(void(*)())PyInit_idAngles);
+	int result = PyImport_AppendInittab("idAngles",initidAngles);
 	if( result == -1) {
 		gameLocal.Error("Failed to Init idAngles Module");
 	}
-	if(PyImport_AppendInittab("idVec2", (void(*)())PyInit_idVec2) == -1) {
+	if(PyImport_AppendInittab("idVec2", initidVec2) == -1) {
 		gameLocal.Error("Failed to Init idVec2 Module");
 	}
-	if(PyImport_AppendInittab("idVec3", (void(*)())PyInit_idVec3) == -1) {
+	if(PyImport_AppendInittab("idVec3", initidVec3) == -1) {
 		gameLocal.Error("Failed to Init idVec3 Module");
 	}
-	if(PyImport_AppendInittab("idDict", (void(*)())PyInit_idDict) == -1) {
+	if(PyImport_AppendInittab("idDict", initidDict) == -1) {
 		gameLocal.Error("Failed to Init idDict Module");
 	}
 
-	if(PyImport_AppendInittab("idEntity", (void(*)())PyInit_idEntity) == -1) {
+	if(PyImport_AppendInittab("idEntity", initidEntity) == -1) {
 		gameLocal.Error("Failed to Init idEntity Module");
 	}
 
-	if(PyImport_AppendInittab("afiBotManager", (void(*)())PyInit_afiBotManager) == -1) {
+	if(PyImport_AppendInittab("afiBotManager",initafiBotManager) == -1) {
 		gameLocal.Error("Failed to Init afiBotManager Module");
 	}
 
-	if(PyImport_AppendInittab("afiBotPlayer", (void(*)())PyInit_afiBotPlayer) == -1) {
+	if(PyImport_AppendInittab("afiBotPlayer", initafiBotPlayer) == -1) {
 		gameLocal.Error("Failed to Init afiBotPlayer Module");
 	}
 
-	if(PyImport_AppendInittab("idAAS", (void(*)())PyInit_idAAS) == -1) {
+	if(PyImport_AppendInittab("idAAS", initidAAS) == -1) {
 		gameLocal.Error("Failed to Init idAAS Module");
 	}
 
-	if (PyImport_AppendInittab("idBounds", (void(*)())PyInit_idBounds) == -1) {
+	if (PyImport_AppendInittab("idBounds", initidBounds) == -1) {
 		gameLocal.Error("Failed to Init idBounds Module");
 	}
 
-	if (PyImport_AppendInittab("idActor", (void(*)())PyInit_idActor) == -1) {
+	if (PyImport_AppendInittab("idActor", initidActor) == -1) {
 		gameLocal.Error("Failed to Init idActor Module");
 	}
 
-	if (PyImport_AppendInittab("idRotation", (void(*)())PyInit_idRotation) == -1) {
+	if (PyImport_AppendInittab("idRotation", initidRotation) == -1) {
 		gameLocal.Error("Failed to Init afiBotBrain Module");
 	}
 
-	if (PyImport_AppendInittab("afiBotBrain", (void(*)())PyInit_afiBotBrain) == -1) {
+	if (PyImport_AppendInittab("afiBotBrain", initafiBotBrain) == -1) {
 		gameLocal.Error("Failed to Init afiBotBrain Module");
 	}
 
-	if (PyImport_AppendInittab("idPlayer", (void(*)())PyInit_idPlayer) == -1) {
+	if (PyImport_AppendInittab("idPlayer", initidPlayer) == -1) {
 		gameLocal.Error("Failed to Init idPlayer Module");
 	}
 
