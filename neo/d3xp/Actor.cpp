@@ -36,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/geometry/JointTransform.h"
 
 #include "Actor.h"
-#include "bot/buddybots.h"
 
 BOOST_PYTHON_MODULE(idActor) {
 	import("idEntity");
