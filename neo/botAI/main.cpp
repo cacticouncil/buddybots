@@ -1,7 +1,4 @@
-#include "precompiled.h"
-
 #include "main.h"
-#include "Boitano.h"
 #include "YourBotBrain.h"
 
 idSys *								sys /*= NULL*/;
