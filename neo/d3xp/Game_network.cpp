@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "gamesys/SysCmds.h"
 #include "Entity.h"
 #include "Player.h"
+#include "bot/BotManager.h"
 
 #include "Game_local.h"
 
@@ -323,7 +324,11 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 
 	// spawn the player
-	SpawnPlayer( clientNum );
+	if ( afiBotManager::IsClientBot( clientNum ) ) {
+		afiBotManager::SpawnBot( clientNum );
+	} else {
+		SpawnPlayer( clientNum );
+	}
 	if ( clientNum == localClientNum ) {
 		mpGame.EnterGame( clientNum );
 	}
@@ -334,6 +339,9 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 	outMsg.WriteByte( clientNum );
 	outMsg.WriteInt( spawnIds[ clientNum ] );
+	outMsg.WriteBits( afiBotManager::IsClientBot( clientNum ), 1 );
+	if ( afiBotManager::IsClientBot( clientNum ) )
+		outMsg.WriteShort( afiBotManager::GetBotDefNumber( clientNum ) );
 	networkSystem->ServerSendReliableMessage( -1, outMsg );
 }
 
@@ -367,8 +375,10 @@ void idGameLocal::ServerClientDisconnect( int clientNum ) {
 	// clear the client PVS
 	memset( clientPVS[ clientNum ], 0, sizeof( clientPVS[ clientNum ] ) );
 
+	//if(!afiBotManager::IsClientBot(clientNum)) {
 	// delete the player entity
 	delete entities[ clientNum ];
+	//}
 
 	mpGame.DisconnectClient( clientNum );
 
@@ -397,6 +407,9 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum ) {
 		outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 		outMsg.WriteByte( i );
 		outMsg.WriteInt( spawnIds[ i ] );
+		outMsg.WriteBits( afiBotManager::IsClientBot( i ), 1 );
+		if ( afiBotManager::IsClientBot( i ) )
+			outMsg.WriteShort( afiBotManager::GetBotDefNumber( i ) );
 		networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 	}
 
@@ -1362,6 +1375,17 @@ void idGameLocal::ClientProcessReliableMessage( int clientNum, const idBitMsg &m
 		case GAME_RELIABLE_MESSAGE_SPAWN_PLAYER: {
 			int client = msg.ReadByte();
 			int spawnId = msg.ReadInt();
+			// sb - check to see if reliable message is to spawn bot or player
+			bool isBot = msg.ReadBits(1); // this has to be outside of the if below because it is always written it always needs to be read right?
+			if (!entities[client]) {
+				if (isBot) {
+					afiBotManager::SetBotDefNumber(client, (int)msg.ReadShort());
+					afiBotManager::SpawnBot(client);
+				}
+				else {
+					SpawnPlayer(client);
+				}
+			}
 			if ( !entities[ client ] ) {
 				SpawnPlayer( client );
 				entities[ client ]->FreeModelDef();
@@ -1569,6 +1593,44 @@ gameReturn_t idGameLocal::ClientPrediction( int clientNum, const usercmd_t *clie
 		strncpy( ret.sessionCommand, sessionCommand, sizeof( ret.sessionCommand ) );
 	}
 	return ret;
+}
+
+/*
+===============
+idGameLocal::GetBotInput
+TinMan: Engine calls this on fake clients, so push your usercmds
+TinMan: I think I would rather have had a SetBotInput or some way to push bot usercmd into the normal gamelocal.usercmds.
+===============
+*/
+void idGameLocal::GetBotInput( int clientNum, usercmd_t &userCmd ) {
+	// TinMan: Get Bot input
+	idEntity * client = entities[ clientNum ];
+	if ( !client ) {
+		//Error( va( "idGameLocal::GetBotInput - invalid client %i\n", clientNum ) );
+		return;
+	}
+
+	if ( !afiBotManager::IsClientBot( clientNum ) ) {
+		//Error( va( "idGameLocal::GetBotInput - not a fake client %i\n", clientNum ) );
+		return;
+	}
+
+
+	//BotPlayer * bot = static_cast< BotPlayer * >(client);
+	if ( !afiBotManager::GetUserCmd( clientNum ) ) {
+		//Error( va( "idGameLocal::GetBotInput - invald usercmd %i\n", clientNum ) );
+		return;
+	}
+
+
+	userCmd.angles[0] = afiBotManager::GetUserCmd( clientNum )->angles[0];
+	userCmd.angles[1] = afiBotManager::GetUserCmd( clientNum )->angles[1];
+	userCmd.angles[2] = afiBotManager::GetUserCmd( clientNum )->angles[2];
+	userCmd.forwardmove = afiBotManager::GetUserCmd( clientNum )->forwardmove;
+	userCmd.rightmove = afiBotManager::GetUserCmd( clientNum )->rightmove;
+	userCmd.upmove =	afiBotManager::GetUserCmd( clientNum )->upmove;
+	userCmd.buttons =	afiBotManager::GetUserCmd( clientNum )->buttons;
+	userCmd.impulse =	afiBotManager::GetUserCmd( clientNum )->impulse;
 }
 
 /*

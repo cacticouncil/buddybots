@@ -38,6 +38,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "gamesys/SysCvar.h"
 #include "Player.h"
 #include "Game_local.h"
+#include "bot/BotPlayer.h"
+#include "bot/BotManager.h"
 
 #include "MultiplayerGame.h"
 
@@ -1312,7 +1314,62 @@ void idMultiplayerGame::TeamScore( int entityNumber, int team, int delta ) {
 idMultiplayerGame::PlayerDeath
 ================
 */
-void idMultiplayerGame::PlayerDeath( idPlayer *dead, idPlayer *killer, bool telefrag ) {
+
+void idMultiplayerGame::PlayerDeath(idPlayer *dead, idPlayer *killer, bool telefrag,const idVec3& dir,int damage) {
+
+	// don't do PrintMessageEvent and shit
+	assert(!gameLocal.isClient);
+
+	if (killer) {
+		if (gameLocal.gameType == GAME_LASTMAN) {
+			playerState[dead->entityNumber].fragCount--;
+
+		}
+		else if (IsGametypeTeamBased()) { /* CTF */
+			if (killer == dead || killer->team == dead->team) {
+				// suicide or teamkill
+				TeamScore(killer->entityNumber, killer->team, -1);
+			}
+			else {
+				TeamScore(killer->entityNumber, killer->team, +1);
+			}
+		}
+		else {
+			playerState[killer->entityNumber].fragCount += (killer == dead) ? -1 : 1;
+		}
+	}
+
+	if (killer->IsType(afiBotPlayer::Type)) {
+		afiBotPlayer* killerBot = (afiBotPlayer*)killer;
+
+		killerBot->GetBrain()->OnKill(dead, killer, dir, damage);
+	}
+
+	if (dead->IsType(afiBotPlayer::Type)) {
+		afiBotPlayer* deadBot = (afiBotPlayer*)dead;
+		deadBot->GetBrain()->OnDeath(dead, killer, dir, damage);
+	}
+	if (killer && killer == dead) {
+		PrintMessageEvent(-1, MSG_SUICIDE, dead->entityNumber);
+		}
+		else if (killer) {
+			if (telefrag) {
+				PrintMessageEvent(-1, MSG_TELEFRAGGED, dead->entityNumber, killer->entityNumber);
+			}
+			else if (IsGametypeTeamBased() && dead->team == killer->team) { /* CTF */
+				PrintMessageEvent(-1, MSG_KILLEDTEAM, dead->entityNumber, killer->entityNumber);
+			}
+			else {
+				PrintMessageEvent(-1, MSG_KILLED, dead->entityNumber, killer->entityNumber);
+			}
+		}
+		else {
+			PrintMessageEvent(-1, MSG_DIED, dead->entityNumber);
+			playerState[dead->entityNumber].fragCount--;
+		}
+}
+
+/*void idMultiplayerGame::PlayerDeath( idPlayer *dead, idPlayer *killer, bool telefrag ) {
 
 	// don't do PrintMessageEvent and shit
 	assert( !gameLocal.isClient );
@@ -1321,7 +1378,7 @@ void idMultiplayerGame::PlayerDeath( idPlayer *dead, idPlayer *killer, bool tele
 		if ( gameLocal.gameType == GAME_LASTMAN ) {
 			playerState[ dead->entityNumber ].fragCount--;
 
-		} else if ( IsGametypeTeamBased() ) { /* CTF */
+		} else if ( IsGametypeTeamBased() ) { // CTF
 			if ( killer == dead || killer->team == dead->team ) {
 				// suicide or teamkill
 				TeamScore( killer->entityNumber, killer->team, -1 );
@@ -1338,7 +1395,7 @@ void idMultiplayerGame::PlayerDeath( idPlayer *dead, idPlayer *killer, bool tele
 	} else if ( killer ) {
 		if ( telefrag ) {
 			PrintMessageEvent( -1, MSG_TELEFRAGGED, dead->entityNumber, killer->entityNumber );
-		} else if ( IsGametypeTeamBased() && dead->team == killer->team ) { /* CTF */
+		} else if ( IsGametypeTeamBased() && dead->team == killer->team ) { // CTF
 			PrintMessageEvent( -1, MSG_KILLEDTEAM, dead->entityNumber, killer->entityNumber );
 		} else {
 			PrintMessageEvent( -1, MSG_KILLED, dead->entityNumber, killer->entityNumber );
@@ -1347,7 +1404,7 @@ void idMultiplayerGame::PlayerDeath( idPlayer *dead, idPlayer *killer, bool tele
 		PrintMessageEvent( -1, MSG_DIED, dead->entityNumber );
 		playerState[ dead->entityNumber ].fragCount--;
 	}
-}
+}*/
 
 /*
 ================
@@ -2621,6 +2678,7 @@ void idMultiplayerGame::AddChatLine( const char *fmt, ... ) {
 	vsprintf( temp, fmt, argptr );
 	va_end( argptr );
 
+	afiBotManager::ProcessChat( temp );
 	gameLocal.Printf( "%s\n", temp.c_str() );
 
 	chatHistory[ chatHistoryIndex % NUM_CHAT_NOTIFY ].line = temp;
@@ -3235,6 +3293,14 @@ void idMultiplayerGame::ServerStartVote( int clientNum, vote_flags_t voteIndex, 
 	voteValue = value;
 	voteTimeOut = gameLocal.time + 20000;
 	// mark players allowed to vote - only current ingame players, players joining during vote will be ignored
+
+	for ( i = 0; i < gameLocal.numClients; i++ ) {
+		if ( gameLocal.entities[ i ] && gameLocal.entities[ i ]->IsType( idPlayer::Type ) && !afiBotManager::IsClientBot(i) ) {
+			playerState[ i ].vote = ( i == clientNum ) ? PLAYER_VOTE_YES : PLAYER_VOTE_WAIT;
+		} else {
+			playerState[i].vote = PLAYER_VOTE_NONE;
+		}
+	}
 	for ( i = 0; i < gameLocal.numClients; i++ ) {
 		if ( gameLocal.entities[ i ] && gameLocal.entities[ i ]->IsType( idPlayer::Type ) ) {
 			playerState[ i ].vote = ( i == clientNum ) ? PLAYER_VOTE_YES : PLAYER_VOTE_WAIT;
@@ -4224,8 +4290,8 @@ idItemTeam * idMultiplayerGame::GetTeamFlag( int team ) {
 		return NULL;
 
 	// TODO : just call on map start
+	//jw: Someone at id forgot to finish their todo!
 	FindTeamFlags();
-
 	return teamFlags[team];
 }
 

@@ -1,5 +1,16 @@
 # ABOUT
 
+_buddybots_ is a _Doom 3_ GPL source port incorporating AI capture-the-flag bots scripted in Python, forked from the _dhewm 3_ project.
+
+To build the project, follow these steps:
+
+1) Install Boost (32-bit) and Python (32-bit). 64-bit builds have not been thoroughly tested.
+2) Install the dhewm3-libs (see below).
+3) Run the CreateBuildFiles.bat file (or similar command on other platforms).
+4) Build the project from the generated files.
+
+See documentation for additional information on building AI bot scripts.
+
 _dhewm 3_ is a _Doom 3_ GPL source port, know to work on at least Windows, Linux, Mac OS X and FreeBSD.
 
 The goal of _dhewm 3_ is bring _DOOM 3_ with the help of SDL to all suitable
@@ -85,6 +96,14 @@ the cmake command there, pointing it at the neo/ folder from this repository:
 OSX users need to point cmake at OpenAL Soft (better solutions welcome):
 
 `cmake -DOPENAL_LIBRARY=/usr/local/opt/openal-soft/lib/libopenal.dylib -DOPENAL_INCLUDE_DIR=/usr/local/opt/openal-soft/include /path/to/repository/neo`
+
+### Mods
+
+See https://github.com/DanielGibson/dhewm3-mods for instructions on how to build
+some mods that provide source und GPL and how to port other mods to _dhewm3_.
+
+Basically, you have to clone aforementioned repository to `dhewm3/neo/mods`
+and run cmake with `-DMODS=ON`
 
 ## Using the provided Windows binaries
 

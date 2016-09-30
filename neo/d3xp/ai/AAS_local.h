@@ -32,6 +32,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai/AAS.h"
 #include "Pvs.h"
 
+#include "AAS.h"
+#include "../Pvs.h"
+
+class BotAASBuild;
+
 class idRoutingCache {
 	friend class idAASLocal;
 
@@ -83,6 +88,8 @@ private:
 
 
 class idAASLocal : public idAAS {
+	friend class BotAASBuild;
+
 public:
 								idAASLocal( void );
 	virtual						~idAASLocal( void );
@@ -183,6 +190,9 @@ private:	// debug
 	bool						PullPlayer( const idVec3 &origin, int toAreaNum ) const;
 	void						RandomPullPlayer( const idVec3 &origin ) const;
 	void						ShowPushIntoArea( const idVec3 &origin ) const;
+
+private:	
+	BotAASBuild *				botAASBuilder;
 };
 
 #endif /* !__AAS_LOCAL_H__ */

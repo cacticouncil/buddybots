@@ -3107,6 +3107,24 @@ void idMover_Binary::SetPortalState( bool open ) {
 }
 
 /*
+================
+idMover_Binary::GetPosition1
+================
+*/
+idVec3 idMover_Binary::GetPosition1() {
+	return pos1;
+}
+
+/*
+================
+idMover_Binary::GetPosition2
+================
+*/
+idVec3 idMover_Binary::GetPosition2() {
+	return pos2;
+}
+
+/*
 ===============================================================================
 
 idDoor

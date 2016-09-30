@@ -40,6 +40,78 @@ idVec5 vec5_origin( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 idVec6 vec6_origin( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
 idVec6 vec6_infinity( idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY );
 
+idVec3(idVec3::*cross1d)(const idVec3&) const = &idVec3::Cross;
+idVec3&		(idVec3::*cross2d)(const idVec3&, const idVec3&) = &idVec3::Cross;
+
+BOOST_PYTHON_MODULE(idVec2) {
+
+	class_<idVec2>("idVec2",init<const float, const float>())
+		.def_readwrite("x",&idVec2::x)
+		.def_readwrite("y",&idVec2::y)
+		.def("Set",&idVec2::Set)
+		.def("Zero",&idVec2::Zero)
+		.def("Length",&idVec2::Length)
+		.def("LengthFast",&idVec2::LengthFast)
+		.def("LengthSqr",&idVec2::LengthSqr)
+		.def("Normalize",&idVec2::Normalize)
+		.def("NormalizeFast",&idVec2::NormalizeFast)
+		.def("Truncate",&idVec2::Truncate,return_value_policy<reference_existing_object>())
+		.def("Clamp",&idVec2::Clamp)
+		.def("Snap",&idVec2::Snap)
+		.def("SnapInt",&idVec2::SnapInt)
+		.def(-self)
+		.def(self * self)
+		.def(self * float())
+		.def(self / float())
+		.def(self + self)
+		.def(self - self)
+		.def(self += self)
+		.def(self -= self)
+		.def(self /= self)
+		.def(self /= float())
+		.def(self *= float())
+
+	;
+
+}
+
+BOOST_PYTHON_MODULE(idVec3) {
+
+	class_<idVec3>("idVec3",init<const float, const float, const float>())
+		.def_readwrite("x",&idVec3::x)
+		.def_readwrite("y",&idVec3::y)
+		.def_readwrite("z",&idVec3::z)
+		.def("Set",&idVec3::Set)
+		.def("Zero",&idVec3::Zero)
+		.def("Length",&idVec3::Length)
+		.def("LengthFast",&idVec3::LengthFast)
+		.def("LengthSqr",&idVec3::LengthSqr)
+		.def("Normalize",&idVec3::Normalize)
+		.def("NormalizeFast",&idVec3::NormalizeFast)
+		.def("Truncate",&idVec3::Truncate,return_value_policy<reference_existing_object>())
+		.def("Clamp",&idVec3::Clamp)
+		.def("Cross",cross1d)
+		.def("Cross",cross2d,return_value_policy<reference_existing_object>())
+		.def("Snap",&idVec3::Snap)
+		.def("SnapInt",&idVec3::SnapInt)
+		.def("FixDegenerateNormal",&idVec3::FixDegenerateNormal)
+		.def("FixDenormals",&idVec3::FixDenormals)
+		.def( self == self)
+		.def( self != self)
+		.def(-self)
+		.def(self * self)
+		.def(self * float())
+		.def(self / float())
+		.def(self + self)
+		.def(self - self)
+		.def(self += self)
+		.def(self -= self)
+		.def(self /= self)
+		.def(self /= float())
+		.def(self *= float())
+	;
+}
+
 //===============================================================
 //
 //	idVec2

@@ -41,6 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "WorldSpawn.h"
 #include "Fx.h"
 #include "Misc.h"
+#include "bot/BotManager.h"
 
 #include "SysCmds.h"
 
@@ -947,7 +948,8 @@ Cmd_TestLight_f
 void Cmd_TestLight_f( const idCmdArgs &args ) {
 	int			i;
 	idStr		filename;
-	const char *key, *value, *name;
+	const char *key, *value;
+	const char *name = NULL;
 	idPlayer *	player;
 	idDict		dict;
 
@@ -1004,7 +1006,8 @@ Cmd_TestPointLight_f
 ===================
 */
 void Cmd_TestPointLight_f( const idCmdArgs &args ) {
-	const char *key, *value, *name;
+	const char *key, *value;
+	const char *name = NULL;
 	int			i;
 	idPlayer	*player;
 	idDict		dict;
@@ -1661,7 +1664,7 @@ static void Cmd_SaveSelected_f( const idCmdArgs &args ) {
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	idDict dict;
 	idStr mapName;
-	const char *name;
+	const char *name = NULL;
 
 	player = gameLocal.GetLocalPlayer();
 	if ( !player || !gameLocal.CheatsOk() ) {
@@ -1744,7 +1747,7 @@ static void Cmd_SaveMoveables_f( const idCmdArgs &args ) {
 	idMapEntity *mapEnt;
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	idStr mapName;
-	const char *name;
+	const char *name = NULL;
 
 	if ( !gameLocal.CheatsOk() ) {
 		return;
@@ -1827,7 +1830,7 @@ static void Cmd_SaveRagdolls_f( const idCmdArgs &args ) {
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	idDict dict;
 	idStr mapName;
-	const char *name;
+	const char *name = NULL;
 
 	if ( !gameLocal.CheatsOk() ) {
 		return;
@@ -1944,7 +1947,7 @@ static void Cmd_SaveLights_f( const idCmdArgs &args ) {
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	idDict dict;
 	idStr mapName;
-	const char *name;
+	const char *name = NULL;
 
 	if ( !gameLocal.CheatsOk() ) {
 		return;
@@ -2508,6 +2511,10 @@ void idGameLocal::InitConsoleCommands( void ) {
 #ifdef _D3XP
 	cmdSystem->AddCommand( "setActorState",			Cmd_SetActorState_f,		CMD_FL_GAME|CMD_FL_CHEAT,	"Manually sets an actors script state", idGameLocal::ArgCompletion_EntityName );
 #endif
+	cmdSystem->AddCommand( "addBot", afiBotManager::Cmd_AddBot_f, CMD_FL_GAME, "add a bot to the server", idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
+	cmdSystem->AddCommand( "removeBot", afiBotManager::Cmd_RemoveBot_f,CMD_FL_GAME,"Remove a bot from the server" );
+	cmdSystem->AddCommand( "reloadBot",afiBotManager::Cmd_ReloadBot_f,CMD_FL_GAME,"Reload a bot script");
+	cmdSystem->AddCommand( "reloadAllBots",afiBotManager::Cmd_ReloadAllBots_f,CMD_FL_GAME,"Reload all bot scripts" );
 }
 
 /*

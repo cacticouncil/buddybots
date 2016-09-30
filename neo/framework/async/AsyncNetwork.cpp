@@ -511,3 +511,11 @@ void idAsyncNetwork::BuildInvalidKeyMsg( idStr &msg, bool valid[ 2 ] ) {
 	msg += "\n";
 	msg += common->GetLanguageDict()->GetString( "#str_04304" );
 }
+
+int idAsyncNetwork::ServerConnectBot() {
+	int botClientNum = -1;
+
+	botClientNum = server.ConnectFakeClient();
+
+	return botClientNum;
+}

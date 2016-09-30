@@ -40,6 +40,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "Camera.h"
 #include "Fx.h"
 #include "Misc.h"
+#include "idlib/geometry/JointTransform.h"
+
+#include <memory>
+using namespace std;
 
 const int ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 999 );	// 9 bits to cover the range [0, 999]
 const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range [-1, 60]
@@ -51,6 +55,34 @@ const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range 
 
 ===============================================================================
 */
+
+//void noOpDelete(idPlayer*) { }
+//
+//shared_ptr<idPlayer> CreateidPlayer() {
+//
+//	return shared_ptr<idPlayer>(new idPlayer(), &noOpDelete);
+//}
+
+// Workaround for problem in VS14
+namespace boost
+{
+	template <>
+	idPlayer const volatile * get_pointer<class idPlayer const volatile >(
+		class idPlayer const volatile *wrapped)
+	{
+		return wrapped;
+	}
+}
+
+BOOST_PYTHON_MODULE(idPlayer) {
+	import("idActor");
+	class_<idPlayer,bases<idActor>,shared_ptr<idPlayer>>("idPlayer")
+		.def("GetEyePosition", &idPlayer::GetEyePosition)
+		.def("GetPosition", &idPlayer::GetPosition)
+		.def_readonly("carryingFlag",&idPlayer::carryingFlag)
+		;
+
+}
 
 // distance between ladder rungs (actually is half that distance, but this sounds better)
 const int LADDER_RUNG_DISTANCE = 32;
@@ -7848,7 +7880,8 @@ void idPlayer::Killed( idEntity *inflictor, idEntity *attacker, int damage, cons
 				gibsLaunched = false;
 			}
 		}
-		gameLocal.mpGame.PlayerDeath( this, killer, isTelefragged );
+		gameLocal.mpGame.PlayerDeath(this,killer,isTelefragged,dir,damage);
+//		gameLocal.mpGame.PlayerDeath( this, killer, isTelefragged );
 	} else {
 		physicsObj.SetContents( CONTENTS_CORPSE | CONTENTS_MONSTERCLIP );
 	}

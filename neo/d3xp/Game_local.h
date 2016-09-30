@@ -354,6 +354,7 @@ public:
 	// ---------------------- Public idGame Interface -------------------
 
 							idGameLocal();
+							~idGameLocal();
 
 	virtual void			Init( void );
 	virtual void			Shutdown( void );
@@ -397,8 +398,20 @@ public:
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
-	// ---------------------- Public idGameLocal Interface -------------------
+	object					main;
+	object					globalNamespace;
 
+	void					HandlePythonError();
+
+	//Function necessary to hook into entity spawning.
+	void					SetSpawnArgs(const idDict& args);
+
+	//Function called by the server when it needs the usercmd for the current frame.
+	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
+
+//	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };
+
+	// ---------------------- Public idGameLocal Interface -------------------
 	void					Printf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
 	void					DPrintf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
 	void					Warning( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
@@ -714,5 +727,8 @@ typedef enum {
 extern const float	DEFAULT_GRAVITY;
 extern const idVec3	DEFAULT_GRAVITY_VEC3;
 extern const int	CINEMATIC_SKIP_DELAY;
+
+//#include "bot/BotManager.h"
+//#include "bot/BotPlayer.h"
 
 #endif	/* !__GAME_LOCAL_H__ */

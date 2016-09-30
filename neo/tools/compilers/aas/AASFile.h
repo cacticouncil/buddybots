@@ -284,6 +284,8 @@ private:
 
 
 class idAASFile {
+	friend class BotAASBuild;
+
 public:
 	virtual						~idAASFile( void ) {}
 

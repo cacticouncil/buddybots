@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <_PropertySheetDisplayName>Common Project Properties</_PropertySheetDisplayName>
+    <OutDir>..\build\$(PlatformName)\$(Configuration)\</OutDir>
+    <IntDir>..\build\$(PlatformName)\$(Configuration)\intermediate\$(ProjectName)\</IntDir>
+    <IncludePath>C:\Python33\include;C:\Program Files %28x86%29\boost\boost_1_57_0\boost_1_57_0;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Python33\libs;C:\Program Files %28x86%29\boost\boost_1_57_0\boost_1_57_0\stage\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>BUDDY_BOTS;BOOST_PYTHON_STATIC_LIB;WIN32;_WINDOW;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_USE_32BIT_TIME_T;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level4</WarningLevel>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>

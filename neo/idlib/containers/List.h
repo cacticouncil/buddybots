@@ -83,6 +83,7 @@ ID_INLINE void idSwap( type &a, type &b ) {
 
 template< class type >
 class idList {
+	friend class BotAASBuild;
 public:
 
 	typedef int		cmp_t( const type *, const type * );

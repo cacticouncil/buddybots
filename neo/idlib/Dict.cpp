@@ -36,6 +36,57 @@ If you have questions concerning this license or the applicable additional terms
 idStrPool		idDict::globalKeys;
 idStrPool		idDict::globalValues;
 
+const char*			(idDict::*getString)(const char*,const char* ) const = &idDict::GetString;
+float				(idDict::*getFloat)(const char*,const char* ) const = &idDict::GetFloat;
+int					(idDict::*getInt)(const char*,const char* ) const = &idDict::GetInt;
+bool				(idDict::*getBool)(const char*, const char* ) const = &idDict::GetBool;
+idVec2				(idDict::*getVec2)(const char*, const char* ) const = &idDict::GetVec2;
+idVec3				(idDict::*getVec3)(const char*, const char* ) const = &idDict::GetVector;
+idAngles			(idDict::*getAngles)(const char*, const char* ) const = &idDict::GetAngles;
+
+const char *		idDict::GetStringWrap( const char *key) const {
+	return GetString(key);
+}
+
+float		idDict::GetFloatWrap( const char *key) const {
+	return GetFloat(key);
+}
+
+int		idDict::GetIntWrap( const char *key) const {
+	return GetInt(key);
+}
+
+bool		idDict::GetBoolWrap( const char *key) const {
+	return GetBool(key);
+}
+
+idVec3		idDict::GetVectorWrap( const char *key) const {
+	return GetVector(key);
+}
+
+idVec2		idDict::GetVec2Wrap( const char *key) const {
+	return GetVec2(key);
+}
+
+idAngles		idDict::GetAnglesWrap( const char *key) const {
+	return GetAngles(key);
+}
+
+BOOST_PYTHON_MODULE(idDict) {
+	import("idVec3");
+	import("idVec2");
+	import("idAngles");
+	
+	class_<idDict>("idDict")
+		.def("Set",&idDict::Set)
+		.def("SetFloat",&idDict::SetFloat)
+		.def("SetInt",&idDict::SetInt)
+		.def("SetBool",&idDict::SetBool)
+		.def("SetVector",&idDict::SetVector)
+		.def("SetAngles",&idDict::SetAngles)
+		;
+}
+
 /*
 ================
 idDict::operator=

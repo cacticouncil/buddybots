@@ -160,8 +160,8 @@ public:
 	void			PlayerVote( int clientNum, playerVote_t vote );
 
 	// updates frag counts and potentially ends the match in sudden death
-	void			PlayerDeath( idPlayer *dead, idPlayer *killer, bool telefrag );
-
+	void			PlayerDeath(idPlayer *dead, idPlayer *killer, bool telefrag,const idVec3& dir,int damage);
+//	void			PlayerDeath( idPlayer *dead, idPlayer *killer, bool telefrag );
 	void			AddChatLine( const char *fmt, ... ) id_attribute((format(printf,2,3)));
 
 	void			UpdateMainGui( void );
@@ -409,7 +409,9 @@ private:
 #ifdef CTF
 	bool			PointLimitHit( void );
 	// return team with most points
-	int				WinningTeam( void );
+	public:
+	int				WinningTeam(void);
+	private:
 #endif
 	void			NewState( gameState_t news, idPlayer *player = NULL );
 	void			UpdateWinsLosses( idPlayer *winner );
@@ -439,13 +441,10 @@ private:
 	void			DumpTourneyLine( void );
 	void			SuddenRespawn( void );
 
+public:
 #ifdef CTF
 	void			FindTeamFlags( void );
-#endif
 
-public:
-
-#ifdef CTF
 	idItemTeam *	GetTeamFlag( int team );
 	flagStatus_t    GetFlagStatus( int team );
 	void			TeamScoreCTF( int team, int delta );
