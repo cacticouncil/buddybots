@@ -1,5 +1,3 @@
-#include "precompiled.h"
-
 #include "YourBotBrain.h"
 
 YourBotBrain::YourBotBrain() : afiBotBrain() {
@@ -11,6 +9,13 @@ YourBotBrain::~YourBotBrain() {
 
 }
 
+aiInput_t YourBotBrain::Think() {
+	aiInput_t frameInput;
+
+	memset(&frameInput, 0, sizeof(frameInput));
+
+	return frameInput;
+}
 void YourBotBrain::Spawn(idDict* userInfo) {
 
 	spawnInfo = *userInfo;
@@ -28,12 +33,4 @@ afiBotBrain* YourBotBrain::Clone() {
 void YourBotBrain::Destroy() {
 
 	delete this;
-}
-
-aiInput_t YourBotBrain::Think() {
-	aiInput_t frameInput;
-
-	memset( &frameInput, 0, sizeof( frameInput ) );
-
-	return frameInput;
 }
