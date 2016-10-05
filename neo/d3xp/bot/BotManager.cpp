@@ -1094,7 +1094,7 @@ Equivalent of gamelocal spawnplayer except it loads from cmdargs
 void afiBotManager::SpawnBot( int clientNum ) {
 	idDict spawnDict;
 	idStr classname;
-	afiBotPlayer * playerBody;
+	afiBotPlayer* playerBody;
 	afiBotBrain* brain;
 
 	gameLocal.DPrintf( "SpawnBot: %i\n", clientNum );
