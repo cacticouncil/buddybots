@@ -146,6 +146,7 @@ public:
 	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;
 	virtual void			MoveToAttackPosition(idEntity* entity);
 	void					Attack(void);
+	void					StopAttack(void);
 	void					Jump(void);
 	void					LookInDirection(const idVec3& dir);
 	void					LookAtPosition(const idVec3& pos);

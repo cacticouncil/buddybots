@@ -59,6 +59,7 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 			.def("MoveToEntity",&afiBotPlayer::MoveToEntity)
 			.def("MoveToPlayer",&afiBotPlayer::MoveToPlayer)
 			.def("Attack",&afiBotPlayer::Attack)
+			.def("StopAttack",&afiBotPlayer::StopAttack)
 			.def("Jump",&afiBotPlayer::Jump)
 			.def("LookInDirection",&afiBotPlayer::LookInDirection)
 			.def("LookAtPosition",&afiBotPlayer::LookAtPosition)
@@ -519,6 +520,15 @@ BotPlayer::Attack
 */
 void afiBotPlayer::Attack( void ) {
 	aiInput.commands.attack = true;
+}
+
+/*
+===================
+BotPlayer::StopAttack
+===================
+*/
+void afiBotPlayer::StopAttack(void) {
+	aiInput.commands.attack = false;
 }
 
 /*
