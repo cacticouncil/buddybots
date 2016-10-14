@@ -119,12 +119,14 @@ public:
 	void					ProcessInput( void );
 
 	virtual idEntity*		FindNearestItem( idStr item );
+	idEntity*				FindClosestItem();
 
 	void					SetBrain(afiBotBrain* newBrain);
 	afiBotBrain*			GetBrain(void) const;
 
 	bool					SwitchWeapon(const char* weaponName);
 	int						HasAmmo(const char* weaponName);
+	void					AmmoInClip();
 
 
 	void					SpawnFromSpawnSpot(void);
@@ -184,6 +186,7 @@ protected:
 	usercmd_t				botcmd;
 	idAAS *					aas;
 	afiBotBrain*			brain;
+	idEntity*				LastItem;
 };
 
 ID_INLINE bool afiBotPlayer::DebugBot( void ) {

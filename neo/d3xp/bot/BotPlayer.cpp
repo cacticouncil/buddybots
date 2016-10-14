@@ -53,7 +53,8 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 
 		class_<afiBotPlayer,bases<idPlayer>,shared_ptr<afiBotPlayer>>("afiBotPlayer",no_init)
 			.def("__init__",make_constructor(&CreateBotPlayer))
-			.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>(),release_gil_policy())
+			.def("FindNearestItem",&afiBotPlayer::FindNearestItem, return_value_policy<reference_existing_object>(), release_gil_policy())
+			.def("FindClosestItem", &afiBotPlayer::FindClosestItem, return_value_policy<reference_existing_object>())
 			.def("MoveTo",&afiBotPlayer::MoveTo)
 			.def("MoveToPosition",&afiBotPlayer::MoveToPosition)
 			.def("MoveToEntity",&afiBotPlayer::MoveToEntity)
@@ -68,8 +69,10 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 			.def("ReachedPos",&afiBotPlayer::ReachedPos,release_gil_policy())
 			.def("SwitchWeapon",&afiBotPlayer::SwitchWeapon)
 			.def("HasAmmo",&afiBotPlayer::HasAmmo)
+			.def("AmmoInClip",&afiBotPlayer::AmmoInClip)
 			.def("FindNearbyPlayers",&afiBotPlayer::FindNearbyPlayers)
 			.def("GetPosition",&afiBotPlayer::GetPosition)
+			.def("NextWeapon", &afiBotPlayer::NextWeapon)
 			.def_readonly("health",&afiBotPlayer::health)
 			.def_readonly("team",&afiBotPlayer::team)
 			.def_readonly("spectator",&afiBotPlayer::spectator)
@@ -98,6 +101,7 @@ afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset( &aiInput, 0, sizeof( aiInput ) );
 	//Oh if I only had a brain
 	brain = nullptr;
+	LastItem = nullptr;
 }
 
 afiBotPlayer::~afiBotPlayer() {
@@ -158,6 +162,11 @@ int afiBotPlayer::HasAmmo(const char* weaponName) {
 
 	return inventory.HasAmmo(weaponName, true, this);
 
+}
+
+void afiBotPlayer::AmmoInClip() {
+	if (weapon.GetEntity()->AmmoInClip() == 0)
+		weapon.GetEntity()->Reload();
 }
 
 void afiBotPlayer::SpawnFromSpawnSpot() {
@@ -504,6 +513,31 @@ idEntity* afiBotPlayer::FindNearestItem( idStr item )
 			if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type)))
 			{
 				if (idStr::FindText(entity->name,item.c_str(), false) == 0)
+				{
+					return entity;
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+idEntity* afiBotPlayer::FindClosestItem()
+{
+	idEntity* entity;
+	for (int i = 0; i < MAX_GENTITIES; ++i)
+	{
+		entity = gameLocal.entities[(gameLocal.random.RandomInt() % MAX_GENTITIES)];
+
+		if (entity)
+		{
+			if ((entity->GetPosition().y + 2) > this->GetPosition().y || (entity->GetPosition().y - 2) < this->GetPosition().y)
+			{
+				continue;
+			}
+			else
+			{
+				if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type)))
 				{
 					return entity;
 				}
