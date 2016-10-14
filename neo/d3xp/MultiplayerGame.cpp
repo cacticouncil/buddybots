@@ -1371,16 +1371,15 @@ void idMultiplayerGame::PlayerDeath(idPlayer *dead, idPlayer *killer, bool telef
 		}
 		if (killer->IsType(afiBotPlayer::Type)) {
 			afiBotPlayer* killerBot = (afiBotPlayer*)killer;
-
 			killerBot->GetBrain()->OnKill(dead, killer, dir, damage);
 		}
 	}
 
+		if (dead->IsType(afiBotPlayer::Type)) {
+			afiBotPlayer* deadBot = (afiBotPlayer*)dead;
+			deadBot->GetBrain()->OnDeath(dead, killer, dir, damage);
+		}
 
-	if (dead->IsType(afiBotPlayer::Type)) {
-		afiBotPlayer* deadBot = (afiBotPlayer*)dead;
-		deadBot->GetBrain()->OnDeath(dead, killer, dir, damage);
-	}
 	if (killer && killer == dead) {
 		PrintMessageEvent(-1, MSG_SUICIDE, dead->entityNumber);
 	}
