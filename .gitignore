@@ -6,7 +6,6 @@
 .project
 .settings/
 .vs/
-d3xp/
 base/DoomConfig.cfg
 base/config.spec
 base/*.pk4
@@ -39,3 +38,11 @@ version.inf
 base/STEAM_xpkey
 base/doomkey
 base/xpkey
+d3xp/D3ROE.ico
+d3xp/DoomConfig.cfg
+d3xp/game*.pk4
+d3xp/pak000.pk4
+d3xp/pak*.pk4
+d3xp/config.spec
+d3xp/description.txt
+d3xp/install.log
