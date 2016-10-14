@@ -79,6 +79,8 @@ BOOST_PYTHON_MODULE(idPlayer) {
 	class_<idPlayer,bases<idActor>,shared_ptr<idPlayer>>("idPlayer")
 		.def("GetEyePosition", &idPlayer::GetEyePosition)
 		.def("GetPosition", &idPlayer::GetPosition)
+		.def("GetHealth", &idPlayer::GetHealth)
+		.def("GetTeam", &idPlayer::GetTeam)
 		.def_readonly("carryingFlag",&idPlayer::carryingFlag)
 		;
 
@@ -10001,6 +10003,26 @@ idPlayer::CanShowWeaponViewmodel
 */
 bool idPlayer::CanShowWeaponViewmodel( void ) const {
 	return showWeaponViewModel;
+}
+
+/*
+===============
+idPlayer::GetWeapon
+===============
+*/
+int idPlayer::GetHealth(void)
+{
+	return health;
+}
+
+/*
+===============
+idPlayer::GetTeam
+===============
+*/
+int idPlayer::GetTeam(void)
+{
+	return team;
 }
 
 /*
