@@ -1700,7 +1700,7 @@ void idDeclManagerLocal::TouchDecl_f( const idCmdArgs &args ) {
 ===================
 idDeclManagerLocal::FindTypeWithoutParsing
 
-This finds or creats the decl, but does not cause a parse.  This is only used internally.
+This finds or creates the decl, but does not cause a parse.  This is only used internally.
 ===================
 */
 idDeclLocal *idDeclManagerLocal::FindTypeWithoutParsing( declType_t type, const char *name, bool makeDefault ) {

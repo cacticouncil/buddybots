@@ -94,7 +94,7 @@ bool idDeclEntityDef::Parse( const char *text, const int textLength ) {
 
 	// "inherit" keys will cause all values from another entityDef to be copied into this one
 	// if they don't conflict.  We can't have circular recursions, because each entityDef will
-	// never be parsed mroe than once
+	// never be parsed more than once
 
 	// find all of the dicts first, because copying inherited values will modify the dict
 	idList<const idDeclEntityDef *> defList;

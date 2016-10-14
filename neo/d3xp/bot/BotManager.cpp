@@ -526,7 +526,7 @@ void afiBotManager::ParseForBotName(void* defBuffer, unsigned bufferLength, cons
 	parser.FreeSource(false);
 }
 
-bool	afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
+bool afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
 
 	idStr botName;
 	idStr authorName;
