@@ -3729,7 +3729,7 @@ bool idFileSystemLocal::HasD3XP( void ) {
 #endif
 
 	// if we didn't find a pk4 file then the user might have unpacked so look for default.cfg file
-	// that's the old way mostly used during developement. don't it hurts to leave it there
+	// that's the old way mostly used during developement. don't think it hurts to leave it there
 	ListOSFiles( fs_basepath.GetString(), "/", dirs );
 	for ( i = 0; i < dirs.Num(); i++ ) {
 		if ( dirs[i].Icmp( "d3xp" ) == 0 ) {
