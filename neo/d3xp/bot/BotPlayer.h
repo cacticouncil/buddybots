@@ -119,7 +119,6 @@ public:
 	void					ProcessInput( void );
 
 	virtual idEntity*		FindNearestItem( idStr item );
-	idEntity*				FindClosestItem();
 
 	void					SetBrain(afiBotBrain* newBrain);
 	afiBotBrain*			GetBrain(void) const;
@@ -162,9 +161,11 @@ public:
 	virtual void			StopMove( moveStatus_t status );
 
 	boost::python::list		FindNearbyPlayers();
-	
+	boost::python::list		FindItemsInView();
+
 	idStr					botName;
 	int						clientNum;
+
 protected:
 
 	virtual void			DrawRoute( void ) const;
@@ -186,7 +187,6 @@ protected:
 	usercmd_t				botcmd;
 	idAAS *					aas;
 	afiBotBrain*			brain;
-	idEntity*				LastItem;
 };
 
 ID_INLINE bool afiBotPlayer::DebugBot( void ) {

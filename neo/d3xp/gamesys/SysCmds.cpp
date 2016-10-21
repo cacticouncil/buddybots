@@ -42,6 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Fx.h"
 #include "Misc.h"
 #include "bot/BotManager.h"
+#include "../Confetti_Timer.h"
 
 #include "SysCmds.h"
 
@@ -2400,6 +2401,25 @@ void Cmd_TestId_f( const idCmdArgs &args ) {
 }
 
 /*
+===============
+Cmd_ChangeTickRate
+changes the tick rate to increase/decease speed
+===============
+*/
+void Cmd_ChangeTickRate_f(const idCmdArgs& args) {
+	if (gameLocal.isClient) { // !gameLocal.isServer isn't valid soon enough for some reason
+		gameLocal.Printf("Tick rate may only be changed on server\n");
+		return;
+	}
+
+	idStr tickChange = args.Argv(1);
+	tickRate = atof(tickChange.c_str());
+	gameLocal.Printf("SUCESS: Tickrate is ");
+	gameLocal.Printf(tickChange.c_str());
+	gameLocal.Printf("x\n");
+};
+
+/*
 =================
 idGameLocal::InitConsoleCommands
 
@@ -2513,8 +2533,10 @@ void idGameLocal::InitConsoleCommands( void ) {
 #endif
 	cmdSystem->AddCommand( "addBot", afiBotManager::Cmd_AddBot_f, CMD_FL_GAME, "add a bot to the server", idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
 	cmdSystem->AddCommand( "removeBot", afiBotManager::Cmd_RemoveBot_f,CMD_FL_GAME,"Remove a bot from the server" );
+	//cmdSystem->AddCommand("removeAllBots", afiBotManager::Cmd_RemoveAllBots_f, CMD_FL_GAME, "Remove all bots from the server");
 	cmdSystem->AddCommand( "reloadBot",afiBotManager::Cmd_ReloadBot_f,CMD_FL_GAME,"Reload a bot script");
 	cmdSystem->AddCommand( "reloadAllBots",afiBotManager::Cmd_ReloadAllBots_f,CMD_FL_GAME,"Reload all bot scripts" );
+	cmdSystem->AddCommand( "tickrate", Cmd_ChangeTickRate_f,CMD_FL_GAME, "Manipulate the game tick rate" );
 }
 
 /*
