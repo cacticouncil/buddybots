@@ -78,8 +78,8 @@ BOOST_PYTHON_MODULE(idEntity) {
 		.def("DistanceTo",distanceEntity)
 		.def("DistanceTo",distancePosition)
 		.def("GetPosition",&idEntity::GetPosition)
+		.def("isHidden",&idEntity::IsHidden)
 	;
-		
 }
 
 idVec3 idEntity::GetPosition( void ) {
