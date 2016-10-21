@@ -161,6 +161,7 @@ public:
 	boost::python::list		FindNearbyPlayers();
 	
 	idStr					botName;
+	idStr					teamName;
 	int						clientNum;
 protected:
 
