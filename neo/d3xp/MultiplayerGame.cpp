@@ -137,6 +137,12 @@ idMultiplayerGame::idMultiplayerGame() {
 	player_blue_flag = -1;
 	player_red_flag = -1;
 #endif
+	totalTeamCapturePoints[0] = 0;
+	totalTeamCapturePoints[1] = 0;
+	teamWins[0] = 0;
+	teamWins[1] = 0;
+	totalTeamFragPoints[0] = 0;
+	totalTeamFragPoints[1] = 0;
 
 	Clear();
 }
@@ -831,6 +837,12 @@ void idMultiplayerGame::UpdateCTFScoreboard(idUserInterface *scoreBoard, idPlaye
 	// Set team scores
 	scoreBoard->SetStateInt("red_team_score", GetFlagPoints(0));
 	scoreBoard->SetStateInt("blue_team_score", GetFlagPoints(1));
+	//scoreBoard->SetStateInt("red_team_total_capture_score", totalTeamCapturePoints[0]);
+	//scoreBoard->SetStateInt("blue_team_total_capture_score", totalTeamCapturePoints[1]);
+	//scoreBoard->SetStateInt("red_team_total_wins", teamWins[0]);
+	//scoreBoard->SetStateInt("blue_team_total_wins", teamWins[1]);
+	scoreBoard->SetStateInt("red_team_total_frag_score", totalTeamFragPoints[0]);
+	scoreBoard->SetStateInt("blue_team_total_frag_score", totalTeamFragPoints[1]);
 
 	// Handle flag status changed event
 	scoreBoard->HandleNamedEvent("BlueFlagStatusChange");
@@ -1059,11 +1071,29 @@ return winning team
 ================
 */
 int idMultiplayerGame::WinningTeam(void) {
-	if (teamPoints[0] > teamPoints[1])
+	if (teamPoints[0] > teamPoints[1]) {
+		teamWins[0] += 1;
+		AddToTotalTeamPoints();
 		return 0;
-	if (teamPoints[0] < teamPoints[1])
+	}
+	if (teamPoints[0] < teamPoints[1]) {
+		teamWins[1] += 1;
+		AddToTotalTeamPoints();
 		return 1;
+	}
 	return -1;
+}
+
+/*
+================
+idMultiplayerGame::AddToTotalTeamPoints
+Keeps count of all points aquired 
+by both teams throughout games
+================
+*/
+void idMultiplayerGame::AddToTotalTeamPoints(void) {
+	totalTeamCapturePoints[0] += teamPoints[0];
+	totalTeamCapturePoints[1] += teamPoints[1];
 }
 
 /*
@@ -1287,7 +1317,15 @@ void idMultiplayerGame::PlayerScoreCTF(int playerIdx, int delta) {
 	if (playerIdx < 0 || playerIdx >= MAX_CLIENTS)
 		return;
 
+	int team;
+
+	if (playerIdx % 2 == 1)
+		team = 0;
+	else
+		team = 1;
+
 	playerState[playerIdx].fragCount += delta;
+	totalTeamFragPoints[team] += delta;
 }
 
 /*
@@ -1337,6 +1375,7 @@ void idMultiplayerGame::TeamScore(int entityNumber, int team, int delta) {
 		idPlayer *player = static_cast<idPlayer *>(ent);
 		if (player->team == team) {
 			playerState[player->entityNumber].teamFragCount += delta;
+			totalTeamFragPoints[team] += delta;
 		}
 	}
 }

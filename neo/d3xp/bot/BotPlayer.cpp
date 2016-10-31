@@ -485,9 +485,9 @@ void afiBotPlayer::ProcessMove(void) {
 
 	//aiInput.moveSpeed = pm_speed.GetFloat(); //the speed scaling below relies on speed being set each frame else it will whittle it down to 0, since the navigation state doesn't seem to be using fine grained speed control (human players don't exactly have it anyway) just using max.
 	//float inspeed = aiInput.moveSpeed;
-	int maxSpeed = 160.0f;//pm_speed.GetFloat(); //this may not work for speed? TEST
+	float maxSpeed = 160.0f;//pm_speed.GetFloat(); //this may not work for speed? TEST
 	aiInput.moveSpeed = idMath::ClampFloat(-maxSpeed, maxSpeed, aiInput.moveSpeed);
-	aiInput.moveSpeed = aiInput.moveSpeed * 127 / maxSpeed; //Scale from [0, 400] to [0, 127]
+	aiInput.moveSpeed = aiInput.moveSpeed * 127.0f / maxSpeed; //Scale from [0, 400] to [0, 127]
 
 	aiInput.moveDirection.z = 0; //normalize can be smaller than wanted with a very large z value (like walk off ledge)
 	aiInput.moveDirection.Normalize();
@@ -495,6 +495,7 @@ void afiBotPlayer::ProcessMove(void) {
 	botcmd.forwardmove = (forward * aiInput.moveDirection) * aiInput.moveSpeed;
 	botcmd.rightmove = (right * aiInput.moveDirection) * aiInput.moveSpeed;
 	botcmd.upmove = abs(forward.z) * aiInput.moveDirection.z * aiInput.moveSpeed;
+	
 	// MoveFlags
 	aiMoveFlag_t moveFlag = aiInput.moveFlag;
 	if (moveFlag == JUMP) {
@@ -507,6 +508,8 @@ void afiBotPlayer::ProcessMove(void) {
 	if (moveFlag == RUN) {
 		botcmd.buttons |= BUTTON_RUN;
 	}
+
+	//physicsObj.SetSpeed(aiInput.moveSpeed,pm_crouchspeed.GetFloat());
 
 }
 

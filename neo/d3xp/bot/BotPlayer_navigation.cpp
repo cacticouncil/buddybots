@@ -1,4 +1,5 @@
 #include "BotPlayer.h"
+#include "Mover.h"
 #include "../Entity.h"
 #include "gamesys/SysCvar.h"
 
@@ -179,7 +180,7 @@ bool afiBotPlayer::StartMove (const idVec3& goalOrigin, int goalArea, idEntity* 
 	move.toAreaNum			= goalArea;
 	move.goalEntity			= goalEntity;
 	move.moveStatus			= MOVE_STATUS_MOVING;
-	move.speed				= 400.0f;
+	move.speed				= pm_walkspeed.GetFloat();	//400.0f;
 	move.startTime			= gameLocal.time;
 	move.range				= range;
 
@@ -297,6 +298,12 @@ void afiBotPlayer::Move( void ) {
 			if ( ai_debugMove.GetBool() ) {
 				gameRenderWorld->DebugSphere( colorPink, idSphere( move.moveDest, 48 ) );
 			}
+			//if ( move.goalPos.x > GetPosition().x ) {
+			//	MoveToPosition( GetPosition() + idVec3( -50, 0, 0 ), 8 );
+			//}
+			//else if (move.goalPos.x < GetPosition().x) {
+			//	MoveToPosition(GetPosition() + idVec3(50, 0, 0), 8);
+			//}
 			StopMove( MOVE_STATUS_DEST_UNREACHABLE );
 		}
 	}
@@ -342,6 +349,26 @@ bool afiBotPlayer::PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origi
 	aas->PushPointIntoAreaNum( areaNum, org );
 
 	goal = goalOrigin;
+
+	if ( goal.z > GetEyePosition().z )  {
+		idEntity *ent;
+		for (ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next()) {
+			// that is an elevator
+			if (ent->IsType(idPlat::Type)) {
+				idPlat *platform = static_cast<idPlat *>(ent);
+				if (CanSee(platform, true)) {
+					idClipModel *model = platform->GetPhysics()->GetClipModel();
+					idBounds bounds = model->GetAbsBounds().Expand(0);
+					idVec3 center;
+					center = bounds.GetCenter();
+					center.z = -127.75f;
+					goal = center;
+					break;
+				}
+			}
+		}
+	}
+
 	aas->PushPointIntoAreaNum( goalAreaNum, goal );
 
 	return aas->WalkPathToGoal( path, areaNum, org, goalAreaNum, goal, move.travelFlags );

@@ -374,6 +374,10 @@ private:
 	gameType_t		lastGameType;			// for restarts
 	int				startFragLimit;			// synchronize to clients in initial state, set on -> GAMEON
 
+	int				teamWins[2];			// Win count for Teams
+	int				totalTeamCapturePoints[2];		// Cumlative points for teams 
+	int				totalTeamFragPoints[2];	// Cumlative frag points for teams
+
 #ifdef CTF
 	idItemTeam *	teamFlags[ 2 ];
 	int				teamPoints[ 2 ];
@@ -411,6 +415,7 @@ private:
 	// return team with most points
 	public:
 	int				WinningTeam(void);
+	void			AddToTotalTeamPoints(void);
 	private:
 #endif
 	void			NewState( gameState_t news, idPlayer *player = NULL );
