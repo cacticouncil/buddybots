@@ -18,6 +18,7 @@ const int SPECTATE_RAISE = 25;
 #include "framework/DeclEntityDef.h"
 #include "BotManager.h"
 #include "idlib/geometry/JointTransform.h"
+#include "Confetti_Timer.h"
 
 idCVar	bot_debugBot("bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOCHEAT, "debug a specific bot -1 disable, -2 all bots, otherwise clientnum", -2, MAX_CLIENTS);
 
@@ -74,6 +75,7 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 		.def("FindItemsInView", &afiBotPlayer::FindItemsInView)
 		.def("GetPosition", &afiBotPlayer::GetPosition)
 		.def("NextWeapon", &afiBotPlayer::NextWeapon)
+		.def("UpdateAIMoveFlag", &afiBotPlayer::UpdateAIMoveFlag)
 		.def_readonly("health", &afiBotPlayer::health)
 		.def_readonly("team", &afiBotPlayer::team)
 		.def_readonly("spectator", &afiBotPlayer::spectator)
@@ -467,7 +469,7 @@ void afiBotPlayer::UpdateViewAngles(void) {
 	 // gd: old version delta = delta * ( aimRate * arcHalf / arcDistance * ( 200.0f - arcDistance ) / ( 200.0f - arcHalf ) );
 		delta = delta * (aimRate * arcHalf / arcDistance * (arcHalf * 2 + arcOffset - arcDistance) / (arcHalf + arcOffset));
 		delta.roll = delta.roll * aimRate; // needed if, after ragdoll, roll might be 45 degrees still
-		newViewAngles = viewAngles + (delta * 10);
+		newViewAngles = viewAngles + ((delta *  5) * (tickRate));
 	}
 
 	//newViewAngles to usrcmd
@@ -527,8 +529,7 @@ void afiBotPlayer::ProcessCommands(void) {
 
 }
 
-idEntity* afiBotPlayer::FindNearestItem(idStr item)
-{
+idEntity* afiBotPlayer::FindNearestItem(idStr item){
 	idEntity* entity;
 	for (int i = 0; i < MAX_GENTITIES; ++i)
 	{
@@ -546,6 +547,10 @@ idEntity* afiBotPlayer::FindNearestItem(idStr item)
 		}
 	}
 	return 0;
+}
+
+void afiBotPlayer::UpdateAIMoveFlag(aiMoveFlag_t flag){
+	aiInput.moveFlag = flag;
 }
 
 /*

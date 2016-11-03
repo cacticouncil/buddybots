@@ -151,6 +151,7 @@ public:
 	void					Jump(void);
 	void					LookInDirection(const idVec3& dir);
 	void					LookAtPosition(const idVec3& pos);
+	void					UpdateAIMoveFlag(aiMoveFlag_t flag);
 
 	void					Damage(idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location);
 	//void					Killed(idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location);
