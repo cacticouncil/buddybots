@@ -383,6 +383,23 @@ int idMultiplayerGame::GetFlagPoints(int team)
 }
 #endif
 
+int idMultiplayerGame::GetTotalFlagPoints(int team) {
+	assert(team <= 1);
+
+	return totalTeamCapturePoints[team];
+}
+
+int idMultiplayerGame::GetTotalFragPoints(int team) {
+	assert(team <= 1);
+
+	return totalTeamFragPoints[team];
+}
+
+int	idMultiplayerGame::GetTotalTeamWins(int team) {
+	assert(team <= 1);
+
+	return teamWins[team];
+}
 /*
 ================
 idMultiplayerGame::UpdatePlayerRanks
@@ -837,12 +854,12 @@ void idMultiplayerGame::UpdateCTFScoreboard(idUserInterface *scoreBoard, idPlaye
 	// Set team scores
 	scoreBoard->SetStateInt("red_team_score", GetFlagPoints(0));
 	scoreBoard->SetStateInt("blue_team_score", GetFlagPoints(1));
-	//scoreBoard->SetStateInt("red_team_total_capture_score", totalTeamCapturePoints[0]);
-	//scoreBoard->SetStateInt("blue_team_total_capture_score", totalTeamCapturePoints[1]);
-	//scoreBoard->SetStateInt("red_team_total_wins", teamWins[0]);
-	//scoreBoard->SetStateInt("blue_team_total_wins", teamWins[1]);
-	//scoreBoard->SetStateInt("red_team_total_frag_score", totalTeamFragPoints[0]);
-	//scoreBoard->SetStateInt("blue_team_total_frag_score", totalTeamFragPoints[1]);
+	scoreBoard->SetStateInt("red_team_total_capture_score", totalTeamCapturePoints[0]);
+	scoreBoard->SetStateInt("blue_team_total_capture_score", totalTeamCapturePoints[1]);
+	scoreBoard->SetStateInt("red_team_total_wins", teamWins[0]);
+	scoreBoard->SetStateInt("blue_team_total_wins", teamWins[1]);
+	scoreBoard->SetStateInt("red_team_total_frag_score", totalTeamFragPoints[0]);
+	scoreBoard->SetStateInt("blue_team_total_frag_score", totalTeamFragPoints[1]);
 
 	// Handle flag status changed event
 	scoreBoard->HandleNamedEvent("BlueFlagStatusChange");

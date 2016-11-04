@@ -1326,6 +1326,15 @@ void idItemTeam::UpdateGuis( void ) {
 		player->hud->SetStateInt( "red_team_score",  gameLocal.mpGame.GetFlagPoints( 0 ) );
 		player->hud->SetStateInt( "blue_team_score", gameLocal.mpGame.GetFlagPoints( 1 ) );
 
+		player->hud->SetStateInt( "red_team_total_capture_score", gameLocal.mpGame.GetTotalFlagPoints( 0 ) );
+		player->hud->SetStateInt( "blue_team_total_capture_score", gameLocal.mpGame.GetTotalFlagPoints( 1 ) );
+
+		player->hud->SetStateInt("red_team_total_frag_score", gameLocal.mpGame.GetTotalFragPoints( 0 ) );
+		player->hud->SetStateInt("blue_team_total_frag_score", gameLocal.mpGame.GetTotalFragPoints( 1 ) );
+
+		player->hud->SetStateInt("red_team_total_wins", gameLocal.mpGame.GetTotalTeamWins( 0 ) );
+		player->hud->SetStateInt("blue_team_total_wins", gameLocal.mpGame.GetTotalTeamWins( 1 ) );
+
 	}
 
 }

@@ -293,13 +293,16 @@ public:
 	void			ServerClientConnect( int clientNum );
 #ifdef CTF
 	void            ClearHUDStatus( void );
-	int             GetFlagPoints( int team );	// Team points in CTF
-	void			SetFlagMsg( bool b );		// allow flag event messages to be sent
-	bool			IsFlagMsgOn( void );		// should flag event messages go through?
+	int             GetFlagPoints( int team );		// Team points in CTF
+	int				GetTotalFlagPoints( int team );	// Total team points in CTF
+	int				GetTotalFragPoints( int team );	// Total team frag points in CTF
+	int				GetTotalTeamWins( int team );	// Total team wins in CTF
+	void			SetFlagMsg( bool b );			// allow flag event messages to be sent
+	bool			IsFlagMsgOn( void );			// should flag event messages go through?
 	void			ClearGuis( void );
 
-	int             player_red_flag;            // Ent num of red flag carrier for HUD
-	int             player_blue_flag;           // Ent num of blue flag carrier for HUD
+	int             player_red_flag;				// Ent num of red flag carrier for HUD
+	int             player_blue_flag;				// Ent num of blue flag carrier for HUD
 
 #endif
 	void			PlayerStats( int clientNum, char *data, const int len );
