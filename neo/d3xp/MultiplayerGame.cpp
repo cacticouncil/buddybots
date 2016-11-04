@@ -841,8 +841,8 @@ void idMultiplayerGame::UpdateCTFScoreboard(idUserInterface *scoreBoard, idPlaye
 	//scoreBoard->SetStateInt("blue_team_total_capture_score", totalTeamCapturePoints[1]);
 	//scoreBoard->SetStateInt("red_team_total_wins", teamWins[0]);
 	//scoreBoard->SetStateInt("blue_team_total_wins", teamWins[1]);
-	scoreBoard->SetStateInt("red_team_total_frag_score", totalTeamFragPoints[0]);
-	scoreBoard->SetStateInt("blue_team_total_frag_score", totalTeamFragPoints[1]);
+	//scoreBoard->SetStateInt("red_team_total_frag_score", totalTeamFragPoints[0]);
+	//scoreBoard->SetStateInt("blue_team_total_frag_score", totalTeamFragPoints[1]);
 
 	// Handle flag status changed event
 	scoreBoard->HandleNamedEvent("BlueFlagStatusChange");
