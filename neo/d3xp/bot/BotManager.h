@@ -220,6 +220,7 @@ public:
 	static void					AddTeamInfo(teamInfo_t* newTeamInfo);
 	static afiBotBrain*			SpawnBrain(idStr botName, int clientNum);
 	static botInfo_t*			FindBotProfile(idStr botName);
+	static teamInfo_t*			FindTeamProfile(idStr teamName);
 	static botInfo_t*			FindBotProfileByIndex(int clientNum);
 	static botInfo_t*			FindBotProfileByClassName(idStr botClassName);
 	static botInfo_t*			ReloadPak(botInfo_t* botProfile, int clientNum);

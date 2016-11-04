@@ -949,7 +949,7 @@ void afiBotManager::Cmd_AddBot_f(const idCmdArgs& args) {
 
 	if (gameLocal.GameState() != GAMESTATE_ACTIVE) {
 		if (numQueBots < MAX_CLIENTS) {
-			common->Printf("QUEUE SUCCESS: Adding Bot %s to Que\n" , classname.c_str());
+			common->Printf("QUEUE SUCCESS: Adding Bot %s to Que\n\n" , classname.c_str());
 			cmdQue[numQueBots] = args;
 			numQueBots++;
 		}
@@ -978,20 +978,20 @@ void afiBotManager::Cmd_AddBot_f(const idCmdArgs& args) {
 void afiBotManager::Cmd_AddTeam_f(const idCmdArgs & args)
 {
 	if (gameLocal.isClient) {
-		gameLocal.Printf("Teams may only be added on server\n");
+		gameLocal.Printf("\nTeams may only be added on server\n");
 		return;
 	}
 
 	if (loadedTeams.Num() == 0)
 	{
-		common->Printf("No loaded teams available");
+		common->Printf("\nNo loaded teams available");
 		return;
 	}
 
 	for (int i = 0; i < loadedTeams.Num(); ++i)
 	{
 		if (loadedTeams[i]->teamName.Icmp(args.Argv(1)) == 0) {
-			common->Printf("Good choice, Team %s is the best!\n", loadedTeams[i]->teamName.c_str());
+			common->Printf("\nGood choice, Team %s is the best!\n\n", loadedTeams[i]->teamName.c_str());
 			addedTeams.Append(loadedTeams[i]);
 			for (int j = 0; j < loadedTeams[i]->bots.Num(); ++j)
 			{
@@ -1504,6 +1504,26 @@ botInfo_t*  afiBotManager::FindBotProfile(idStr botName) {
 		}
 	}
 	return botProfile;
+}
+
+teamInfo_t * afiBotManager::FindTeamProfile(idStr teamName)
+{
+	teamInfo_t* teamProfile = NULL;
+	int numLoadedTeams;
+	int iTeamProfile = 0;
+
+	numLoadedTeams = loadedTeams.Num();
+
+	for (iTeamProfile = 0; iTeamProfile < numLoadedTeams; ++iTeamProfile) {
+		idStr loadedName = loadedTeams[iTeamProfile]->teamName;
+
+		if (0 == teamName.Icmp(loadedName.c_str())) {
+			teamProfile = loadedTeams[iTeamProfile];
+			return teamProfile;
+		}
+	}
+
+	return teamProfile;
 }
 
 botInfo_t* afiBotManager::FindBotProfileByClassName(idStr botClassName) {

@@ -1533,7 +1533,11 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 				for (int j = 0; j < gameLocal.playerEntities.Num(); ++j) {
 					if (gameLocal.playerEntities[j].name.Icmp((const char*) (p->name.c_str() + 4)) == 0 && !gameLocal.playerEntities[j].used) {
 						gameLocal.playerEntities[j].used = true;
-						p->team = gameLocal.playerEntities[j].team;
+						if (p->team != gameLocal.playerEntities[j].team) {
+							gameLocal.SwitchTeam(i, gameLocal.playerEntities[j].team);
+							p->team = gameLocal.playerEntities[j].team;
+							p->UpdateSkinSetup(false);
+						}
 					}
 				}
 

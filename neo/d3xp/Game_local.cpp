@@ -1114,6 +1114,10 @@ void idGameLocal::LocalMapRestart() {
 		}
 	}
 
+	for (i = 0; i < gameLocal.playerEntities.Num(); ++i) {
+		gameLocal.playerEntities[i].used = false;
+	}
+
 	eventQueue.Shutdown();
 	savedEventQueue.Shutdown();
 
