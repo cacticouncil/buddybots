@@ -32,6 +32,7 @@ idCmdArgs					afiBotManager::persistArgs[MAX_CLIENTS];
 usercmd_t					afiBotManager::botCmds[MAX_CLIENTS];
 idList<botInfo_t*>			afiBotManager::loadedBots;
 idList<teamInfo_t*>			afiBotManager::loadedTeams;
+idList<teamInfo_t*>			afiBotManager::addedTeams;
 afiBotBrain*				afiBotManager::brainFastList[MAX_CLIENTS];
 botWorkerThread**			afiBotManager::workerThreadArray = nullptr;
 unsigned int				afiBotManager::workerThreadCount = std::thread::hardware_concurrency();
@@ -529,7 +530,7 @@ void afiBotManager::ParseForBotName(void* defBuffer, unsigned bufferLength, cons
 	parser.FreeSource(false);
 }
 
-void afiBotManager::ParseForTeamName(void * defBuffer, unsigned bufferLength, const char * name, idStr & teamName, int & teamSize, idStrList& bots)
+void afiBotManager::ParseForTeamName(void * defBuffer, unsigned bufferLength, const char * name, idStr & teamName, int & teamSize, idStrList& bots, idList<bool>& used)
 {
 	idDict teamProfile;
 	idParser parser;
@@ -578,18 +579,22 @@ void afiBotManager::ParseForTeamName(void * defBuffer, unsigned bufferLength, co
 
 	teamSize = atoi(sizeString);
 	bots.Resize(teamSize);
+	used.Resize(teamSize);
 
 	if (teamSize != 0) {
 		hasLeader = teamProfile.GetString("leader", "", tempString);
 		bots.Append(tempString);
+		used.Append(false);
 
 		if (teamSize != 1) {
 			hasVeteran = teamProfile.GetString("veteran", "", tempString);
 			bots.Append(tempString);
+			used.Append(false);
 
 			if (teamSize != 2) {
 				hasRecruit = teamProfile.GetString("recruit", "", tempString);
 				bots.Append(tempString);
+				used.Append(false);
 			}
 		}
 	}
@@ -757,7 +762,9 @@ bool afiBotManager::LoadTeam(idStr teamPakName, teamInfo_t *& outputTeamProfile)
 {
 	idStr teamName;
 	int teamSize;
-	idList<idStr> bots;
+	idStrList bots;
+	idList<bool> used;
+
 
 	char* defBuffer = NULL;
 	idStr defFileName;
@@ -785,13 +792,15 @@ bool afiBotManager::LoadTeam(idStr teamPakName, teamInfo_t *& outputTeamProfile)
 		return false;
 	}
 
-	ParseForTeamName((void*)defBuffer, defFileSize, defFileName, teamName, teamSize, bots);
+	ParseForTeamName((void*)defBuffer, defFileSize, defFileName, teamName, teamSize, bots, used);
 
 	outputTeamProfile = new teamInfo_t();
 
 	outputTeamProfile->teamName = teamName;
 	outputTeamProfile->size = teamSize;
 	outputTeamProfile->bots = bots;
+	outputTeamProfile->used = used;
+
 	fileSystem->WriteFile(va("loadedTeams/def/%s", defFileName.c_str()), defBuffer, defFileSize);
 
 	delete[] defBuffer;
@@ -940,7 +949,7 @@ void afiBotManager::Cmd_AddBot_f(const idCmdArgs& args) {
 
 	if (gameLocal.GameState() != GAMESTATE_ACTIVE) {
 		if (numQueBots < MAX_CLIENTS) {
-			common->Printf("QUEUE SUCCESS: Adding Bot to Que\n");
+			common->Printf("QUEUE SUCCESS: Adding Bot %s to Que\n" , classname.c_str());
 			cmdQue[numQueBots] = args;
 			numQueBots++;
 		}
@@ -971,6 +980,27 @@ void afiBotManager::Cmd_AddTeam_f(const idCmdArgs & args)
 	if (gameLocal.isClient) {
 		gameLocal.Printf("Teams may only be added on server\n");
 		return;
+	}
+
+	if (loadedTeams.Num() == 0)
+	{
+		common->Printf("No loaded teams available");
+		return;
+	}
+
+	for (int i = 0; i < loadedTeams.Num(); ++i)
+	{
+		if (loadedTeams[i]->teamName.Icmp(args.Argv(1)) == 0) {
+			common->Printf("Good choice, Team %s is the best!\n", loadedTeams[i]->teamName.c_str());
+			addedTeams.Append(loadedTeams[i]);
+			for (int j = 0; j < loadedTeams[i]->bots.Num(); ++j)
+			{
+				idCmdArgs tempArgs;
+				tempArgs.AppendArg(args.Argv(0));
+				tempArgs.AppendArg(loadedTeams[i]->bots[j].c_str());
+				Cmd_AddBot_f(tempArgs);
+			}
+		}
 	}
 
 	return;
@@ -1377,23 +1407,24 @@ void afiBotManager::SpawnBot(int clientNum) {
 
 			//Necessary part of entity spawning process to initialize all the variables
 			//from the hierarchy.
+
 			playerBody->CallSpawn();
 
-			playerBody->clientNum = clientNum;
-
-			//TODO: Make this for "addTeams" list, max of 2 teams at a time.
-
-			for (int i = 0; i < loadedTeams.Num(); ++i)
-			{
-				if (loadedTeams[i]) {
-					for (int j = 0; j < loadedTeams[0]->bots.Num(); ++j) {
-						if (loadedTeams[0]->bots[j] == botProfile->botName) {
+			for (int i = 0; i < addedTeams.Num(); ++i) {
+				if (addedTeams[i]) {
+					for (int j = 0; j < addedTeams[i]->bots.Num(); ++j) {
+						if (botProfile->botName == addedTeams[i]->bots[j] && !addedTeams[i]->used[j])
+						{
+							gameLocal.AppendPlayerEntities(addedTeams[i]->bots[j], i);
 							playerBody->team = i;
-							playerBody->name = loadedTeams[i]->teamName + "_";
+							playerBody->teamName = addedTeams[i]->teamName;
+							addedTeams[i]->used[j] = true;
 						}
 					}
 				}
 			}
+
+			playerBody->clientNum = clientNum;
 
 			playerBody->name += botProfile->botName;
 			//Link all the necessary components between brain and body.

@@ -109,6 +109,7 @@ typedef struct teamInfo_s {
 	idStr teamName;
 	int size;
 	idStrList bots;
+	idList<bool> used;
 
 	teamInfo_s() {
 		teamName = "";
@@ -225,9 +226,8 @@ public:
 	static bool					LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile);
 	static bool					LoadTeam(idStr teamPakName, teamInfo_t*& outputTeamProfile);
 	static void					LoadAllBots();
-	static void					LoadAllTeams();
 	static void					ParseForBotName(void* defBuffer, unsigned bufferLength, const char* name, idStr& botName, idStr& authorName, idStr& botType, idStr& botSpawnClass);
-	static void					ParseForTeamName(void* defBuffer, unsigned bufferLength, const char* name, idStr& teamName, int& teamSize, idStrList& bots);
+	static void					ParseForTeamName(void* defBuffer, unsigned bufferLength, const char* name, idStr& teamName, int& teamSize, idStrList& bots, idList<bool>& used);
 
 	afiBotManager();
 	~afiBotManager();
@@ -245,6 +245,7 @@ private:
 
 	static idList<botInfo_t*>	loadedBots;
 	static idList<teamInfo_t*>	loadedTeams;
+	static idList<teamInfo_t*>	addedTeams;
 	static unsigned int			numBots;
 	static int					numQueBots;
 

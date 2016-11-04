@@ -1529,6 +1529,14 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 					continue;
 				}
 				idPlayer *p = static_cast<idPlayer *>(ent);
+
+				for (int j = 0; j < gameLocal.playerEntities.Num(); ++j) {
+					if (gameLocal.playerEntities[j].name.Icmp((const char*) (p->name.c_str() + 4)) == 0 && !gameLocal.playerEntities[j].used) {
+						gameLocal.playerEntities[j].used = true;
+						p->team = gameLocal.playerEntities[j].team;
+					}
+				}
+
 				p->SetLeader(false); // don't carry the flag from previous games
 				if (gameLocal.gameType == GAME_TOURNEY && currentTourneyPlayer[0] != i && currentTourneyPlayer[1] != i) {
 					p->ServerSpectate(true);

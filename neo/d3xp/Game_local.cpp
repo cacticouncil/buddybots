@@ -3647,6 +3647,21 @@ void idGameLocal::SpawnMapEntities(void) {
 
 /*
 ================
+idGameLocal::AppendPlayerEntities
+================
+*/
+void idGameLocal::AppendPlayerEntities(const idStr name, const int team)
+{
+	spawnTeamInfo_t temp;
+
+	temp.name = name;
+	temp.team = team;
+
+	playerEntities.Append(temp);
+}
+
+/*
+================
 idGameLocal::AddEntityToHash
 ================
 */
