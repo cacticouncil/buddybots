@@ -1501,6 +1501,7 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 	idBitMsg	outMsg;
 	byte		msgBuf[MAX_GAME_MESSAGE_SIZE];
 	int			i;
+	int			j;
 
 	assert(news != gameState);
 	assert(!gameLocal.isClient);
@@ -1530,7 +1531,7 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 				}
 				idPlayer *p = static_cast<idPlayer *>(ent);
 
-				for (int j = 0; j < gameLocal.playerEntities.Num(); ++j) {
+				for (j = 0; j < gameLocal.playerEntities.Num(); ++j) {
 					if (gameLocal.playerEntities[j].name.Icmp((const char*) (p->name.c_str() + 4)) == 0 && !gameLocal.playerEntities[j].used) {
 						gameLocal.playerEntities[j].used = true;
 						if (p->team != gameLocal.playerEntities[j].team) {

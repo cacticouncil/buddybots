@@ -982,9 +982,29 @@ void afiBotManager::Cmd_AddTeam_f(const idCmdArgs & args)
 		return;
 	}
 
-	if (loadedTeams.Num() == 0)
-	{
+	if (loadedTeams.Num() == 0) {
 		common->Printf("\nNo loaded teams available");
+		return;
+	}
+
+	if (addedTeams.Num() == 2) {
+		common->Printf("2 teams is the max, please RemoveTeam a Team and try again.");
+		return;
+	}
+
+	//idStr classname = args.Argv(1);
+	//botInfo_t* botProfile = NULL;
+	//botProfile = FindBotProfile(classname);
+	//if (botProfile == NULL) {
+	//	gameLocal.Warning("No Loaded Bot Profile Named: %s \n", classname.c_str());
+	//	return;
+	//}
+
+	idStr teamName = args.Argv(1);
+	teamInfo_t* teamProfile = NULL;
+	teamProfile = FindTeamProfile(teamName);
+	if (teamProfile == NULL) {
+		gameLocal.Warning("No Loaded Team Profile Named: %s \n", teamName.c_str());
 		return;
 	}
 
