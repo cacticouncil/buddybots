@@ -58,7 +58,7 @@ const idVec3 DEFAULT_GRAVITY_VEC3( 0, 0, -DEFAULT_GRAVITY );
 
 const int	CINEMATIC_SKIP_DELAY	= SEC2MS( 2.0f );
 
-float tickRate = 1.0f;
+int tickRate = 1;
 
 #ifdef GAME_DLL
 

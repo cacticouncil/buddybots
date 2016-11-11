@@ -375,8 +375,7 @@ Gets number of captures in CTF game.
 1 = blue team
 ================
 */
-int idMultiplayerGame::GetFlagPoints(int team)
-{
+int idMultiplayerGame::GetFlagPoints(int team){
 	assert(team <= 1);
 
 	return teamPoints[team];
@@ -400,6 +399,15 @@ int	idMultiplayerGame::GetTotalTeamWins(int team) {
 
 	return teamWins[team];
 }
+
+void idMultiplayerGame::ResetScores(void) {
+	for (int i = 0; i < 2; ++i){
+		totalTeamCapturePoints[i] = 0;
+		totalTeamFragPoints[i] = 0;
+		teamWins[i] = 0;
+	}
+}
+
 /*
 ================
 idMultiplayerGame::UpdatePlayerRanks
@@ -854,12 +862,12 @@ void idMultiplayerGame::UpdateCTFScoreboard(idUserInterface *scoreBoard, idPlaye
 	// Set team scores
 	scoreBoard->SetStateInt("red_team_score", GetFlagPoints(0));
 	scoreBoard->SetStateInt("blue_team_score", GetFlagPoints(1));
-	scoreBoard->SetStateInt("red_team_total_capture_score", totalTeamCapturePoints[0]);
-	scoreBoard->SetStateInt("blue_team_total_capture_score", totalTeamCapturePoints[1]);
-	scoreBoard->SetStateInt("red_team_total_wins", teamWins[0]);
-	scoreBoard->SetStateInt("blue_team_total_wins", teamWins[1]);
-	scoreBoard->SetStateInt("red_team_total_frag_score", totalTeamFragPoints[0]);
-	scoreBoard->SetStateInt("blue_team_total_frag_score", totalTeamFragPoints[1]);
+	scoreBoard->SetStateInt("red_team_total_capture_score", GetTotalFlagPoints(0));
+	scoreBoard->SetStateInt("blue_team_total_capture_score", GetTotalFlagPoints(1));
+	scoreBoard->SetStateInt("red_team_total_wins", GetTotalTeamWins(0));
+	scoreBoard->SetStateInt("blue_team_total_wins", GetTotalTeamWins(1));
+	scoreBoard->SetStateInt("red_team_total_frag_score", GetTotalFragPoints(0));
+	scoreBoard->SetStateInt("blue_team_total_frag_score", GetTotalFragPoints(1));
 
 	// Handle flag status changed event
 	scoreBoard->HandleNamedEvent("BlueFlagStatusChange");
@@ -1089,13 +1097,9 @@ return winning team
 */
 int idMultiplayerGame::WinningTeam(void) {
 	if (teamPoints[0] > teamPoints[1]) {
-		teamWins[0] += 1;
-		AddToTotalTeamPoints();
 		return 0;
 	}
 	if (teamPoints[0] < teamPoints[1]) {
-		teamWins[1] += 1;
-		AddToTotalTeamPoints();
 		return 1;
 	}
 	return -1;
@@ -1108,7 +1112,8 @@ Keeps count of all points aquired
 by both teams throughout games
 ================
 */
-void idMultiplayerGame::AddToTotalTeamPoints(void) {
+void idMultiplayerGame::AddToTotalTeamPoints(int _team) {
+	teamWins[_team] += 1;
 	totalTeamCapturePoints[0] += teamPoints[0];
 	totalTeamCapturePoints[1] += teamPoints[1];
 }
@@ -1282,7 +1287,7 @@ void idMultiplayerGame::UpdateWinsLosses(idPlayer *winner) {
 #ifdef CTF
 	else if (IsGametypeFlagBased()) { /* CTF */
 		int winteam = WinningTeam();
-
+		AddToTotalTeamPoints(winteam);
 		if (winteam != -1)	// TODO : print a message telling it why the hell the game ended with no winning team?
 			for (int i = 0; i < gameLocal.numClients; i++) {
 				idEntity *ent = gameLocal.entities[i];
@@ -1573,6 +1578,12 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 #ifdef CTF
 		teamPoints[0] = 0;
 		teamPoints[1] = 0;
+		//totalTeamCapturePoints[0] = 0;
+		//totalTeamCapturePoints[1] = 0;
+		//totalTeamFragPoints[0] = 0;
+		//totalTeamFragPoints[1] = 0;
+		//teamWins[0] = 0;
+		//teamWins[1] = 0;
 
 		ClearHUDStatus();
 #endif
@@ -3788,6 +3799,7 @@ void idMultiplayerGame::DisconnectClient(int clientNum) {
 		lastWinner = -1;
 	}
 	UpdatePlayerRanks();
+	ResetScores();
 	CheckAbortGame();
 }
 

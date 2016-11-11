@@ -418,7 +418,7 @@ private:
 	// return team with most points
 	public:
 	int				WinningTeam(void);
-	void			AddToTotalTeamPoints(void);
+	void			AddToTotalTeamPoints( int _team);
 	private:
 #endif
 	void			NewState( gameState_t news, idPlayer *player = NULL );
@@ -457,6 +457,7 @@ public:
 	flagStatus_t    GetFlagStatus( int team );
 	void			TeamScoreCTF( int team, int delta );
 	void			PlayerScoreCTF( int playerIdx, int delta );
+	void			ResetScores( void );
 	// returns entityNum to team flag carrier, -1 if no flag carrier
 	int				GetFlagCarrier( int team );
 	void            UpdateScoreboardFlagStatus( void );

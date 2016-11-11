@@ -2412,11 +2412,28 @@ void Cmd_ChangeTickRate_f(const idCmdArgs& args) {
 		return;
 	}
 
+	bool acceptableString;
 	idStr tickChange = args.Argv(1);
-	tickRate = atof(tickChange.c_str());
-	gameLocal.Printf("SUCESS: Tickrate is ");
-	gameLocal.Printf(tickChange.c_str());
-	gameLocal.Printf("x\n");
+	if (tickChange.Length() == 0) {
+		acceptableString = false;
+	} else if (!tickChange.IsNumeric()) {
+		acceptableString = false;
+	} else {
+		acceptableString = true;
+	}
+
+
+	if (!acceptableString) {
+		tickChange = to_string(tickRate).c_str();
+		gameLocal.Printf("Tickrate is ");
+		gameLocal.Printf(tickChange.c_str());
+		gameLocal.Printf("x\n");
+	} else {
+		tickRate = atoi(tickChange.c_str());
+		gameLocal.Printf("Tickrate is ");
+		gameLocal.Printf(tickChange.c_str());
+		gameLocal.Printf("x\n");
+	}
 };
 
 /*
@@ -2533,7 +2550,7 @@ void idGameLocal::InitConsoleCommands( void ) {
 #endif
 	cmdSystem->AddCommand( "addBot", afiBotManager::Cmd_AddBot_f, CMD_FL_GAME, "add a bot to the server", idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
 	cmdSystem->AddCommand( "removeBot", afiBotManager::Cmd_RemoveBot_f,CMD_FL_GAME,"Remove a bot from the server" );
-	//cmdSystem->AddCommand("removeAllBots", afiBotManager::Cmd_RemoveAllBots_f, CMD_FL_GAME, "Remove all bots from the server");
+	cmdSystem->AddCommand("removeAllBots", afiBotManager::Cmd_RemoveAllBots_f, CMD_FL_GAME, "Remove all bots from the server");
 	cmdSystem->AddCommand( "reloadBot",afiBotManager::Cmd_ReloadBot_f,CMD_FL_GAME,"Reload a bot script");
 	cmdSystem->AddCommand( "reloadAllBots",afiBotManager::Cmd_ReloadAllBots_f,CMD_FL_GAME,"Reload all bot scripts" );
 	cmdSystem->AddCommand( "tickrate", Cmd_ChangeTickRate_f,CMD_FL_GAME, "Manipulate the game tick rate" );

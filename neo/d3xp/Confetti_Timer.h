@@ -3,5 +3,5 @@
 
 #include "Game_local.h"
 
-	extern float tickRate;			// Timer manipulator
+	extern int tickRate;			// Timer manipulator
 #endif

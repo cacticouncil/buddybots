@@ -1054,6 +1054,12 @@ void afiBotManager::RemoveBot( int clientNum ) {
 	if ( gameLocal.entities[ clientNum ] && gameLocal.entities[ clientNum ]->IsType( afiBotPlayer::Type ) ) {
 		cmdSystem->BufferCommandText( CMD_EXEC_NOW, va( "say Removing Bot '%s^0'\n", gameLocal.userInfo[ clientNum ].GetString( "ui_name" ) ) );
 		cmdSystem->BufferCommandText( CMD_EXEC_NOW, va( "kick %d\n", gameLocal.entities[ clientNum ]->entityNumber ) );
+
+		botSpawned[clientNum] = false;
+		persistArgs[clientNum].Clear();
+		gameLocal.ServerClientDisconnect(clientNum);
+
+		numBots--;
 	}
 }
 
