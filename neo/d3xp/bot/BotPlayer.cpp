@@ -469,7 +469,7 @@ void afiBotPlayer::UpdateViewAngles(void) {
 	 // gd: old version delta = delta * ( aimRate * arcHalf / arcDistance * ( 200.0f - arcDistance ) / ( 200.0f - arcHalf ) );
 		delta = delta * (aimRate * arcHalf / arcDistance * (arcHalf * 2 + arcOffset - arcDistance) / (arcHalf + arcOffset));
 		delta.roll = delta.roll * aimRate; // needed if, after ragdoll, roll might be 45 degrees still
-		newViewAngles = viewAngles + ((delta *  5) * (tickRate));
+		newViewAngles = viewAngles + ( ( delta *  5 ) * ( tickRate ) );
 	}
 
 	//newViewAngles to usrcmd

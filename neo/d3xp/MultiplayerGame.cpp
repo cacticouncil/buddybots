@@ -1641,6 +1641,22 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 			static_cast<idPlayer *>(ent)->ServerSpectate(true);
 		}
 		UpdateWinsLosses(player);
+		SetFlagMsg(true);
+		break;
+	}
+	case SCOREREVIEW: {
+		SetFlagMsg(false);
+		nextState = INACTIVE;	// used to abort a game. cancel out any upcoming state change
+								// set all players not ready and spectating
+		for (i = 0; i < gameLocal.numClients; i++) {
+			idEntity *ent = gameLocal.entities[i];
+			if (!ent || !ent->IsType(idPlayer::Type)) {
+				continue;
+			}
+			static_cast<idPlayer *>(ent)->forcedReady = false;
+			static_cast<idPlayer *>(ent)->ServerSpectate(true);
+		}
+		UpdateWinsLosses(player);
 #ifdef CTF
 		SetFlagMsg(true);
 #endif
@@ -1982,6 +1998,19 @@ void idMultiplayerGame::Run() {
 		if (nextState == INACTIVE) {
 			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
 			nextState = NEXTGAME;
+			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
+			float replayCount = 0.0f;
+			gameLocal.persistentLevelInfo.GetFloat("replay_count", "10", replayCount);
+			if (replayCount < 1) {
+				nextState = SCOREREVIEW;
+			}
+		}
+		break;
+	}
+	case SCOREREVIEW: {
+		if (nextState == INACTIVE) {
+			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
+			nextState = GAMEREVIEW;
 			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
 		}
 		break;
@@ -2787,7 +2816,7 @@ idMultiplayerGame::DrawScoreBoard
 ================
 */
 void idMultiplayerGame::DrawScoreBoard(idPlayer *player) {
-	if (player->scoreBoardOpen || gameState == GAMEREVIEW) {
+	if (player->scoreBoardOpen || gameState == GAMEREVIEW || gameState == SCOREREVIEW) {
 		if (!playerState[player->entityNumber].scoreBoardUp) {
 			scoreBoard->Activate(true, gameLocal.time);
 			playerState[player->entityNumber].scoreBoardUp = true;
@@ -3798,6 +3827,7 @@ void idMultiplayerGame::DisconnectClient(int clientNum) {
 	if (lastWinner == clientNum) {
 		lastWinner = -1;
 	}
+	gameLocal.persistentLevelInfo.Set("replay_count", "10");
 	UpdatePlayerRanks();
 	ResetScores();
 	CheckAbortGame();
