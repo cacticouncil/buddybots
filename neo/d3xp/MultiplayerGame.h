@@ -294,12 +294,14 @@ public:
 	void			ServerClientConnect( int clientNum );
 #ifdef CTF
 	void            ClearHUDStatus( void );
-	int             GetFlagPoints( int team );		// Team points in CTF
-	int				GetTotalFlagPoints( int team );	// Total team points in CTF
-	int				GetTotalFragPoints( int team );	// Total team frag points in CTF
-	int				GetTotalTeamWins( int team );	// Total team wins in CTF
-	void			SetFlagMsg( bool b );			// allow flag event messages to be sent
-	bool			IsFlagMsgOn( void );			// should flag event messages go through?
+	int             GetFlagPoints( int team );			// Team points in CTF
+	int				GetTotalFlagPoints( int team );		// Total team points in CTF
+	int				GetTotalFragPoints( int team );		// Total team frag points in CTF
+	int				GetTotalTeamWins( int team );		// Total team wins in CTF
+	int				GetTotalFlagReturns( int team );	// Total team flag returns
+	int				GetTotalKills( int team );			// Total team kills
+	void			SetFlagMsg( bool b );				// allow flag event messages to be sent
+	bool			IsFlagMsgOn( void );				// should flag event messages go through?
 	void			ClearGuis( void );
 
 	int             player_red_flag;				// Ent num of red flag carrier for HUD
@@ -378,9 +380,11 @@ private:
 	gameType_t		lastGameType;			// for restarts
 	int				startFragLimit;			// synchronize to clients in initial state, set on -> GAMEON
 
-	int				teamWins[2];			// Win count for Teams
-	int				totalTeamCapturePoints[2];		// Cumlative points for teams 
-	int				totalTeamFragPoints[2];	// Cumlative frag points for teams
+	int				teamWins[2];				// Win count for Teams
+	int				totalTeamCapturePoints[2];	// Cumlative points for teams 
+	int				totalTeamFragPoints[2];		// Cumlative frag points for teams
+	int				totalTeamFlagReturns[2];	// Cumlative Flag returns
+	int				totalTeamKills[2];			// Cumlative kill count
 
 #ifdef CTF
 	idItemTeam *	teamFlags[ 2 ];
