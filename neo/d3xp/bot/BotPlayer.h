@@ -118,7 +118,7 @@ public:
 	void					ClearInput( void );
 	void					ProcessInput( void );
 
-	virtual idEntity*		FindNearestItem( idStr item );
+	virtual idEntity*		FindNearestItem( const char* item );
 
 	void					SetBrain(afiBotBrain* newBrain);
 	afiBotBrain*			GetBrain(void) const;

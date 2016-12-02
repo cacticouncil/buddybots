@@ -529,7 +529,7 @@ void afiBotPlayer::ProcessCommands(void) {
 
 }
 
-idEntity* afiBotPlayer::FindNearestItem(idStr item){
+idEntity* afiBotPlayer::FindNearestItem(const char* item){
 	idEntity* entity;
 	for (int i = 0; i < MAX_GENTITIES; ++i)
 	{
@@ -539,7 +539,7 @@ idEntity* afiBotPlayer::FindNearestItem(idStr item){
 		{
 			if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type)))
 			{
-				if (idStr::FindText(entity->name, item.c_str(), false) == 0)
+				if (idStr::FindText(entity->name, item, false) == 0)
 				{
 					return entity;
 				}
