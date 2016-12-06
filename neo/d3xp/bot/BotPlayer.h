@@ -118,7 +118,7 @@ public:
 	void					ClearInput( void );
 	void					ProcessInput( void );
 
-	virtual idEntity*		FindNearestItem( const char* item );
+	//virtual idEntity*		FindItem( const char* item );
 
 	void					SetBrain(afiBotBrain* newBrain);
 	afiBotBrain*			GetBrain(void) const;
@@ -138,11 +138,13 @@ public:
 	virtual bool			GetMovePos( idVec3 &seekPos, idReachability** seekReach );
 	void					CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &newPos, idReachability* goalReach=0  );
 	void					BlockedFailSafe( void );
+	bool					InView( idEntity* entity );
 	virtual void			MoveTo( const idVec3 &pos, float speed );
 	virtual bool			MoveToPosition ( const idVec3 &pos, float range );
 	virtual bool			MoveToEntity( idEntity* entity );
 	virtual bool			MoveToPlayer( idPlayer *player );
-	virtual idEntity*		MoveToNearest( idStr item );
+	virtual idEntity*		MoveToNearest( const char* item );
+	virtual idEntity*		FindItem(const char* item);
 	virtual bool			PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
 	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;
 	virtual void			MoveToAttackPosition(idEntity* entity);
