@@ -1368,10 +1368,8 @@ void idMultiplayerGame::PlayerScoreCTF(int playerIdx, int delta) {
 	else
 		team = 1;
 
-	if ( delta == 5 )
+	if (delta == 5)
 		totalTeamFlagReturns[team] += 1;
-	if ( delta == 1 )
-		totalTeamKills[team] += 1;
 
 	playerState[playerIdx].fragCount += delta;
 	totalTeamFragPoints[team] += delta;
@@ -1425,6 +1423,7 @@ void idMultiplayerGame::TeamScore(int entityNumber, int team, int delta) {
 		if (player->team == team) {
 			playerState[player->entityNumber].teamFragCount += delta;
 			totalTeamFragPoints[team] += delta;
+			totalTeamKills[team] += 1;
 		}
 	}
 }
