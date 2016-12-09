@@ -181,6 +181,7 @@ public:
 		SUDDENDEATH,						// game is on but in sudden death, first frag wins
 		GAMEREVIEW,							// game is over, scoreboard is up. we wait si_gameReviewPause seconds (which has a min value)
 		NEXTGAME,
+		ENDREVIEW,							// game is over, grading scoreboard is up. we wait for the redo button or disconnect button to be pressed
 		SCOREREVIEW,						// game is over, grading scoreboard is up. we wait for the redo button or disconnect button to be pressed
 		STATE_COUNT
 	} gameState_t;
