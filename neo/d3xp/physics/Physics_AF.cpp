@@ -36,6 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "WorldSpawn.h"
 
 #include "physics/Physics_AF.h"
+#include "Confetti_Timer.h"
 
 CLASS_DECLARATION( idPhysics_Base, idPhysics_AF )
 END_CLASS
@@ -67,8 +68,6 @@ static int lastTimerReset = 0;
 static int numArticulatedFigures = 0;
 static idTimer timer_total, timer_pc, timer_ac, timer_collision, timer_lcp;
 #endif
-
-
 
 //===============================================================
 //
@@ -6608,7 +6607,7 @@ idPhysics_AF::idPhysics_AF( void ) {
 
 	memset( &current, 0, sizeof( current ) );
 	current.atRest = -1;
-	current.lastTimeStep = USERCMD_MSEC;
+	current.lastTimeStep = USERCMD_MSEC * tickRate;
 	saved = current;
 
 	linearFriction = 0.005f;

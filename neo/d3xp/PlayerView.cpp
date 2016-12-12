@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "gamesys/SaveGame.h"
 #include "GameBase.h"
 #include "Player.h"
+#include "Confetti_Timer.h"
 
 #include "PlayerView.h"
 
@@ -307,7 +308,7 @@ void idPlayerView::DamageImpulse( idVec3 localKickDir, const idDict *damageDef )
 	if ( blobTime ) {
 		screenBlob_t	*blob = GetScreenBlob();
 		blob->startFadeTime = gameLocal.slow.time;
-		blob->finishTime = gameLocal.slow.time + blobTime * g_blobTime.GetFloat() * ((float)gameLocal.msec / USERCMD_MSEC);
+		blob->finishTime = gameLocal.slow.time + blobTime * g_blobTime.GetFloat() * ((float)gameLocal.msec / ( USERCMD_MSEC * tickRate));
 
 		const char *materialName = damageDef->GetString( "mtr_blob" );
 		blob->material = declManager->FindMaterial( materialName );

@@ -47,6 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Misc.h"
 #include "Trigger.h"
 #include "bot/BotManager.h"
+#include "Confetti_Timer.h"
 
 #include "Game_local.h"
 
@@ -56,6 +57,8 @@ const float DEFAULT_GRAVITY			= 1066.0f;
 const idVec3 DEFAULT_GRAVITY_VEC3( 0, 0, -DEFAULT_GRAVITY );
 
 const int	CINEMATIC_SKIP_DELAY	= SEC2MS( 2.0f );
+
+int tickRate = 1;
 
 #ifdef GAME_DLL
 
@@ -1585,7 +1588,7 @@ bool idGameLocal::InitFromSaveGame( const char *mapName, idRenderWorld *renderWo
 		}
 	}
 	if ( gameSoundWorld ) {
-		gameSoundWorld->SetSlowmoSpeed( slowmoMsec / (float)USERCMD_MSEC );
+		gameSoundWorld->SetSlowmoSpeed( slowmoMsec / (float)(USERCMD_MSEC * tickRate) );
 	}
 #endif
 
@@ -4904,7 +4907,7 @@ void idGameLocal::ComputeSlowMsec() {
 
 		// stop the state
 		slowmoState = SLOWMO_STATE_OFF;
-		slowmoMsec = USERCMD_MSEC;
+		slowmoMsec = USERCMD_MSEC * tickRate;
 	}
 
 	// check the player state
@@ -4925,7 +4928,7 @@ void idGameLocal::ComputeSlowMsec() {
 		slowmoMsec = msec;
 		if ( gameSoundWorld ) {
 			gameSoundWorld->SetSlowmo( true );
-			gameSoundWorld->SetSlowmoSpeed( slowmoMsec / (float)USERCMD_MSEC );
+			gameSoundWorld->SetSlowmoSpeed( slowmoMsec / (float)( USERCMD_MSEC * tickRate) );
 		}
 	}
 	else if ( !powerupOn && slowmoState == SLOWMO_STATE_ON ) {
@@ -4950,7 +4953,7 @@ void idGameLocal::ComputeSlowMsec() {
 		}
 
 		if ( gameSoundWorld ) {
-			gameSoundWorld->SetSlowmoSpeed( slowmoMsec / (float)USERCMD_MSEC );
+			gameSoundWorld->SetSlowmoSpeed( slowmoMsec / (float)( USERCMD_MSEC * tickRate) );
 		}
 	}
 	else if ( slowmoState == SLOWMO_STATE_RAMPDOWN ) {
@@ -4968,7 +4971,7 @@ void idGameLocal::ComputeSlowMsec() {
 		}
 
 		if ( gameSoundWorld ) {
-			gameSoundWorld->SetSlowmoSpeed( slowmoMsec / (float)USERCMD_MSEC );
+			gameSoundWorld->SetSlowmoSpeed( slowmoMsec / (float)( USERCMD_MSEC * tickRate) );
 		}
 	}
 }
@@ -4979,19 +4982,19 @@ idGameLocal::ResetSlowTimeVars
 ============
 */
 void idGameLocal::ResetSlowTimeVars() {
-	msec				= USERCMD_MSEC;
-	slowmoMsec			= USERCMD_MSEC;
+	msec				= USERCMD_MSEC * tickRate;
+	slowmoMsec			= USERCMD_MSEC * tickRate;
 	slowmoState			= SLOWMO_STATE_OFF;
 
 	fast.framenum		= 0;
 	fast.previousTime	= 0;
 	fast.time			= 0;
-	fast.msec			= USERCMD_MSEC;
+	fast.msec			= USERCMD_MSEC * tickRate;
 
 	slow.framenum		= 0;
 	slow.previousTime	= 0;
 	slow.time			= 0;
-	slow.msec			= USERCMD_MSEC;
+	slow.msec			= USERCMD_MSEC * tickRate;
 }
 
 /*

@@ -137,6 +137,16 @@ idMultiplayerGame::idMultiplayerGame() {
 	player_blue_flag = -1;
 	player_red_flag = -1;
 #endif
+	totalTeamCapturePoints[0] = 0;
+	totalTeamCapturePoints[1] = 0;
+	teamWins[0] = 0;
+	teamWins[1] = 0;
+	totalTeamFragPoints[0] = 0;
+	totalTeamFragPoints[1] = 0;
+	totalTeamFlagReturns[0] = 0;
+	totalTeamFlagReturns[1] = 0;
+	totalTeamKills[0] = 0;
+	totalTeamKills[1] = 0;
 
 	Clear();
 }
@@ -205,7 +215,7 @@ void idMultiplayerGame::Reset() {
 	guiChat = uiManager->FindGui("guis/chat.gui", true, false, true);
 	mainGui = uiManager->FindGui("guis/mpmain.gui", true, false, true);
 	mapList = uiManager->AllocListGUI();
-	mapList->Config(mainGui, "mapList");
+	mapList->Config(mainGui, "mapList");        
 	// set this GUI so that our Draw function is still called when it becomes the active/fullscreen GUI
 	mainGui->SetStateBool("gameDraw", true);
 	mainGui->SetKeyBindingNames();
@@ -369,13 +379,52 @@ Gets number of captures in CTF game.
 1 = blue team
 ================
 */
-int idMultiplayerGame::GetFlagPoints(int team)
-{
+int idMultiplayerGame::GetFlagPoints(int team){
 	assert(team <= 1);
 
 	return teamPoints[team];
 }
 #endif
+
+int idMultiplayerGame::GetTotalFlagPoints(int team) {
+	assert(team <= 1);
+
+	return totalTeamCapturePoints[team];
+}
+
+int idMultiplayerGame::GetTotalFragPoints(int team) {
+	assert(team <= 1);
+
+	return totalTeamFragPoints[team];
+}
+
+int	idMultiplayerGame::GetTotalTeamWins(int team) {
+	assert(team <= 1);
+
+	return teamWins[team];
+}
+
+int	idMultiplayerGame::GetTotalFlagReturns(int team) {
+	assert(team <= 1);
+
+	return totalTeamFlagReturns[team];
+}
+
+int	idMultiplayerGame::GetTotalKills(int team) {
+	assert(team <= 1);
+
+	return totalTeamKills[team];
+}
+
+void idMultiplayerGame::ResetScores(void) {
+	for (int i = 0; i < 2; ++i){
+		totalTeamCapturePoints[i] = 0;
+		totalTeamFlagReturns[i] = 0;
+		totalTeamFragPoints[i] = 0;
+		totalTeamKills[i] = 0;
+		teamWins[i] = 0;
+	}
+}
 
 /*
 ================
@@ -829,8 +878,18 @@ void idMultiplayerGame::UpdateCTFScoreboard(idUserInterface *scoreBoard, idPlaye
 
 
 	// Set team scores
-	scoreBoard->SetStateInt("red_team_score", GetFlagPoints(0));
-	scoreBoard->SetStateInt("blue_team_score", GetFlagPoints(1));
+	scoreBoard->SetStateInt("red_team_score",					GetFlagPoints(0));
+	scoreBoard->SetStateInt("blue_team_score",					GetFlagPoints(1));
+	scoreBoard->SetStateInt("red_team_total_capture_score",		GetTotalFlagPoints(0));
+	scoreBoard->SetStateInt("blue_team_total_capture_score",	GetTotalFlagPoints(1));
+	scoreBoard->SetStateInt("red_team_total_wins",				GetTotalTeamWins(0));
+	scoreBoard->SetStateInt("blue_team_total_wins",				GetTotalTeamWins(1));
+	scoreBoard->SetStateInt("red_team_total_frag_score",		GetTotalFragPoints(0));
+	scoreBoard->SetStateInt("blue_team_total_frag_score",		GetTotalFragPoints(1));
+	scoreBoard->SetStateInt("red_team_total_flag_returns",		GetTotalFlagReturns(0));
+	scoreBoard->SetStateInt("blue_team_total_flag_returns",		GetTotalFlagReturns(1));
+	scoreBoard->SetStateInt("red_team_total_kills",				GetTotalKills(0));
+	scoreBoard->SetStateInt("blue_team_total_kills",			GetTotalKills(1));
 
 	// Handle flag status changed event
 	scoreBoard->HandleNamedEvent("BlueFlagStatusChange");
@@ -1059,11 +1118,26 @@ return winning team
 ================
 */
 int idMultiplayerGame::WinningTeam(void) {
-	if (teamPoints[0] > teamPoints[1])
+	if (teamPoints[0] > teamPoints[1]) {
 		return 0;
-	if (teamPoints[0] < teamPoints[1])
+	}
+	if (teamPoints[0] < teamPoints[1]) {
 		return 1;
+	}
 	return -1;
+}
+
+/*
+================
+idMultiplayerGame::AddToTotalTeamPoints
+Keeps count of all points aquired 
+by both teams throughout games
+================
+*/
+void idMultiplayerGame::AddToTotalTeamPoints(int _team) {
+	teamWins[_team] += 1;
+	totalTeamCapturePoints[0] += teamPoints[0];
+	totalTeamCapturePoints[1] += teamPoints[1];
 }
 
 /*
@@ -1235,7 +1309,7 @@ void idMultiplayerGame::UpdateWinsLosses(idPlayer *winner) {
 #ifdef CTF
 	else if (IsGametypeFlagBased()) { /* CTF */
 		int winteam = WinningTeam();
-
+		AddToTotalTeamPoints(winteam);
 		if (winteam != -1)	// TODO : print a message telling it why the hell the game ended with no winning team?
 			for (int i = 0; i < gameLocal.numClients; i++) {
 				idEntity *ent = gameLocal.entities[i];
@@ -1287,7 +1361,18 @@ void idMultiplayerGame::PlayerScoreCTF(int playerIdx, int delta) {
 	if (playerIdx < 0 || playerIdx >= MAX_CLIENTS)
 		return;
 
+	int team;
+
+	if ( playerIdx % 2 == 1 )
+		team = 0;
+	else
+		team = 1;
+
+	if (delta == 5)
+		totalTeamFlagReturns[team] += 1;
+
 	playerState[playerIdx].fragCount += delta;
+	totalTeamFragPoints[team] += delta;
 }
 
 /*
@@ -1337,6 +1422,8 @@ void idMultiplayerGame::TeamScore(int entityNumber, int team, int delta) {
 		idPlayer *player = static_cast<idPlayer *>(ent);
 		if (player->team == team) {
 			playerState[player->entityNumber].teamFragCount += delta;
+			totalTeamFragPoints[team] += delta;
+			totalTeamKills[team] += 1;
 		}
 	}
 }
@@ -1516,6 +1603,12 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 #ifdef CTF
 			teamPoints[0] = 0;
 			teamPoints[1] = 0;
+		//totalTeamCapturePoints[0] = 0;
+		//totalTeamCapturePoints[1] = 0;
+		//totalTeamFragPoints[0] = 0;
+		//totalTeamFragPoints[1] = 0;
+		//teamWins[0] = 0;
+		//teamWins[1] = 0;
 
 			ClearHUDStatus();
 #endif
@@ -1573,6 +1666,38 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 				static_cast<idPlayer *>(ent)->ServerSpectate(true);
 			}
 			UpdateWinsLosses(player);
+		SetFlagMsg(true);
+		break;
+	} case ENDREVIEW: {
+
+		SetFlagMsg(false);
+
+		nextState = INACTIVE;	// used to abort a game. cancel out any upcoming state change
+								// set all players not ready and spectating
+		for (i = 0; i < gameLocal.numClients; i++) {
+			idEntity *ent = gameLocal.entities[i];
+			if (!ent || !ent->IsType(idPlayer::Type)) {
+				continue;
+			}
+			static_cast<idPlayer *>(ent)->forcedReady = false;
+			static_cast<idPlayer *>(ent)->ServerSpectate(true);
+		}
+		UpdateWinsLosses(player);
+		SetFlagMsg(true);
+		break;
+	} case SCOREREVIEW: {
+		SetFlagMsg(false);
+		nextState = INACTIVE;	// used to abort a game. cancel out any upcoming state change
+								// set all players not ready and spectating
+		for (i = 0; i < gameLocal.numClients; i++) {
+			idEntity *ent = gameLocal.entities[i];
+			if (!ent || !ent->IsType(idPlayer::Type)) {
+				continue;
+			}
+			static_cast<idPlayer *>(ent)->forcedReady = false;
+			static_cast<idPlayer *>(ent)->ServerSpectate(true);
+		}
+		UpdateWinsLosses(player);
 #ifdef CTF
 			SetFlagMsg(true);
 #endif
@@ -1917,7 +2042,28 @@ void idMultiplayerGame::Run() {
 				nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
 			}
 			break;
+			float replayCount = 0.0f;
+			gameLocal.persistentLevelInfo.GetFloat("replay_count", "10", replayCount);
+			if (replayCount < 1) {
+				nextState = SCOREREVIEW;
+			}
 		}
+	case ENDREVIEW: {
+		if (nextState == INACTIVE) {
+			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
+			nextState = SCOREREVIEW;
+			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
+		}
+		break;
+	}
+	case SCOREREVIEW: {
+		if (nextState == INACTIVE) {
+			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
+			nextState = ENDREVIEW;
+			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
+		}
+		break;
+	}
 	case NEXTGAME: {
 			if (nextState == INACTIVE) {
 				// game rotation, new map, gametype etc.
@@ -2719,7 +2865,7 @@ idMultiplayerGame::DrawScoreBoard
 ================
 */
 void idMultiplayerGame::DrawScoreBoard(idPlayer *player) {
-	if (player->scoreBoardOpen || gameState == GAMEREVIEW) {
+	if (player->scoreBoardOpen || gameState == GAMEREVIEW || gameState == SCOREREVIEW || gameState == ENDREVIEW) {
 		if (!playerState[player->entityNumber].scoreBoardUp) {
 			scoreBoard->Activate(true, gameLocal.time);
 			playerState[player->entityNumber].scoreBoardUp = true;
@@ -3730,7 +3876,9 @@ void idMultiplayerGame::DisconnectClient(int clientNum) {
 	if (lastWinner == clientNum) {
 		lastWinner = -1;
 	}
+	gameLocal.persistentLevelInfo.Set("replay_count", "10");
 	UpdatePlayerRanks();
+	ResetScores();
 	CheckAbortGame();
 }
 
