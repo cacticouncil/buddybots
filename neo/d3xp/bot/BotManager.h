@@ -28,7 +28,7 @@ class afiBotManager;
 enum	BotType { CODE, SCRIPT, DLL };
 
 typedef afiBotBrain* (*CreateBotBrain_t)(botImport_t* dllSetup);
-typedef std::unordered_map<PyThreadState*,botWorkerThread*> threadMap_t;
+typedef std::unordered_map<PyThreadState*, botWorkerThread*> threadMap_t;
 
 
 //This custom call policy allows me to mitigate some of the losses in performance due to
@@ -90,7 +90,7 @@ typedef struct botInfo_s {
 			cmdArgs[iClient].Clear();
 			entityNum[iClient] = -1;
 		}
-		
+
 		botType = CODE;
 	}
 
@@ -125,6 +125,25 @@ typedef struct teamInfo_s {
 	}
 } teamInfo_t;
 
+typedef struct removeInfo_s {
+	idStr botName;
+	idStr teamName;
+	//For Team Removal Toggling
+	bool remove;
+
+	removeInfo_s() {
+		botName = "";
+		teamName = "";
+		remove = false;
+	}
+
+	~removeInfo_s() {
+		botName = "";
+		teamName = "";
+		remove = false;
+	}
+} removeInfo_t;
+
 //Worker thread class currently responsible for running the update tasks each frame for the bots
 //Unfortunately due to the Python GIL the benefit of this class is somewhat reduced since python code
 //will never be executing on more than one thread at a time.
@@ -132,18 +151,18 @@ class botWorkerThread {
 	friend class afiBotManager;
 
 public:
-	botWorkerThread(condition_variable* conditional_variable,mutex* thread_mutex,PyInterpreterState* mainState, unsigned int* initializeCounter );
-	~botWorkerThread( );
+	botWorkerThread(condition_variable* conditional_variable, mutex* thread_mutex, PyInterpreterState* mainState, unsigned int* initializeCounter);
+	~botWorkerThread();
 
-	void						InitializeForFrame( unsigned int endUpdateIndex );
-	void						RunWork( );
-	void						AddUpdateTask( afiBotBrain* newTask );
+	void						InitializeForFrame(unsigned int endUpdateIndex);
+	void						RunWork();
+	void						AddUpdateTask(afiBotBrain* newTask);
 protected:
 
 private:
-	bool						CheckWorkTime( );
-	bool						LookForMoreWork( );
-	void						RemoveFailedBot( int removeIndex );
+	bool						CheckWorkTime();
+	bool						LookForMoreWork();
+	void						RemoveFailedBot(int removeIndex);
 
 	afiBotBrain*				packedUpdateArray[MAX_CLIENTS];
 	atomic<int>					currentUpdateTask;
@@ -170,41 +189,48 @@ Responsible for the loading,adding,removing, and event dispatch for bots.
 */
 class  afiBotManager {
 public:
-	static void					PrintInfo( void );
-	static void					Initialize( void );
-	static void					Shutdown( void );
-	static void					UpdateUserInfo( void );
+	static void					PrintInfo(void);
+	static void					Initialize(void);
+	static void					Shutdown(void);
+	static void					UpdateUserInfo(void);
 	static void					ConsolePrint(const char* string);
 
-	static void					Cmd_BotInfo_f( const idCmdArgs& args );
-	static void					Cmd_AddBot_f( const idCmdArgs& args );
+	static void					Cmd_BotInfo_f(const idCmdArgs& args);
+	static void					Cmd_AddBot_f(const idCmdArgs& args);
 	static void					Cmd_AddTeam_f(const idCmdArgs& args);
-	static void					Cmd_RemoveBot_f( const idCmdArgs& args );
-	static void					Cmd_RemoveAllBots_f( const idCmdArgs & args );
-	static void					Cmd_ReloadBot_f( const idCmdArgs& args );
-	static void					Cmd_ReloadAllBots_f( const idCmdArgs& args);
-	static void					AddBot( const idCmdArgs& args );
-	static void					DropABot( void );
-	static void					RemoveBot( int clientNum );
-	static int					IsClientBot( int clientNum );
-	static void					SetBotDefNumber( int clientNum, int botDefNumber );
-	static int					GetBotDefNumber( int clientNum );
-	static idStr				GetBotClassname( int clientNum );
-	static void					SpawnBot( int clientNum );
-	static void					OnDisconnect( int clientNum );
+	static void					Cmd_RemoveBot_f(const idCmdArgs& args);
+	static void					Cmd_RemoveAllBots_f(const idCmdArgs & args);
+	static void					Cmd_RemoveTeam_f(const idCmdArgs& args);
+	static void					Cmd_RemoveAllTeams_f(const idCmdArgs& args);
+	static void					Cmd_ReloadBot_f(const idCmdArgs& args);
+	static void					Cmd_ReloadAllBots_f(const idCmdArgs& args);
+	static void					Cmd_PrintAllBots_f(const idCmdArgs& args);
+	static void					Cmd_RemoveBotIndex_f(const idCmdArgs& args);
+	static void					AddBot(const idCmdArgs& args);
+	static void					DropABot(void);
+	static void					RemoveBotMP(int clientNum);
+	static void					RemoveBotPersistArgs(const int i);
+	static void					RemoveBotCmdQue(const int i);
+	static int					IsClientBot(int clientNum);
+	static void					SetBotDefNumber(int clientNum, int botDefNumber);
+	static int					GetBotDefNumber(int clientNum);
+	static int					GetClientNumByPersistantArgs(const idCmdArgs& args);
+	static idStr				GetBotClassname(int clientNum);
+	static void					SpawnBot(int clientNum);
+	static void					OnDisconnect(int clientNum);
 
 	//Thread related functions
-	static void					InitializeThreadsForFrame(int deltaTimeMS );
-	static void					LaunchThreadsForFrame( );
-	static void					WaitForThreadsTimed(  );
+	static void					InitializeThreadsForFrame(int deltaTimeMS);
+	static void					LaunchThreadsForFrame();
+	static void					WaitForThreadsTimed();
 	static bool					isGameEnding();
 	static void					IncreaseThreadUpdateCount();
 	static void					DecreaseThreadUpdateCount();
-	static void					SetThreadState(PyThreadState* state,botWorkerThread* saveThread);
+	static void					SetThreadState(PyThreadState* state, botWorkerThread* saveThread);
 	static void					UpdateThreadState(PyThreadState* state);
 
-	static void					SaveMainThreadState( );
-	static void					RestoreMainThreadState( );
+	static void					SaveMainThreadState();
+	static void					RestoreMainThreadState();
 
 	static int					GetWinningTeam();
 	static idPlayer*			GetFlagCarrier(int team);
@@ -212,13 +238,14 @@ public:
 	static int					GetFlagStatus(int team);
 	static void					ProcessChat(const char* text);
 	static void					InitBotsFromMapRestart();
-	static idCmdArgs *			GetPersistArgs( int clientNum );
-	static usercmd_t *			GetUserCmd( int clientNum );
-	static void					SetUserCmd( int clientNum, usercmd_t * usrCmd );
+	static idCmdArgs *			GetPersistArgs(int clientNum);
+	static usercmd_t *			GetUserCmd(int clientNum);
+	static void					SetUserCmd(int clientNum, usercmd_t * usrCmd);
 	static void					WriteUserCmdsToSnapshot(idBitMsg& msg);
 	static void					ReadUserCmdsFromSnapshot(const idBitMsg& msg);
 	static void					AddBotInfo(botInfo_t* newBotInfo);
 	static void					AddTeamInfo(teamInfo_t* newTeamInfo);
+	static void					AddRemoveInfo(removeInfo_t* newRemoveInfo);
 	static afiBotBrain*			SpawnBrain(idStr botName, int clientNum);
 	static botInfo_t*			FindBotProfile(idStr botName);
 	static teamInfo_t*			FindTeamProfile(idStr teamName);
@@ -241,11 +268,12 @@ protected:
 	static usercmd_t			botCmds[MAX_CLIENTS];
 private:
 	template<typename T>
-	static void					SetDictionaryValue(T key,afiBotBrain* brain,idStr valStr);
-	static void					DistributeWorkToThreads( );
-	static void					InitializePython( );
+	static void					SetDictionaryValue(T key, afiBotBrain* brain, idStr valStr);
+	static void					DistributeWorkToThreads();
+	static void					InitializePython();
 
 	static idList<botInfo_t*>	loadedBots;
+	static idList<removeInfo_t*>removeBots;
 	static idList<teamInfo_t*>	loadedTeams;
 	static idList<teamInfo_t*>	addedTeams;
 	static unsigned int			numBots;

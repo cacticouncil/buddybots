@@ -32,6 +32,7 @@ idCmdArgs					afiBotManager::persistArgs[MAX_CLIENTS];
 usercmd_t					afiBotManager::botCmds[MAX_CLIENTS];
 idList<botInfo_t*>			afiBotManager::loadedBots;
 idList<teamInfo_t*>			afiBotManager::loadedTeams;
+idList<removeInfo_t*>		afiBotManager::removeBots;
 idList<teamInfo_t*>			afiBotManager::addedTeams;
 afiBotBrain*				afiBotManager::brainFastList[MAX_CLIENTS];
 botWorkerThread**			afiBotManager::workerThreadArray = nullptr;
@@ -157,6 +158,48 @@ void afiBotManager::Cmd_ReloadAllBots_f(const idCmdArgs & args) {
 
 		LoadAllBots();
 	}
+}
+
+void afiBotManager::Cmd_PrintAllBots_f(const idCmdArgs & args) {
+	for (int i = 0; i < MAX_CLIENTS; ++i) {
+		if (persistArgs[i].Argc() != 0) {
+			gameLocal.Printf("List1 Bot: %s, Team Name: %s, Index: %i\n", persistArgs[i].Argv(1), persistArgs[i].Argv(2), i);
+		}
+		if (cmdQue[i].Argc() != 0) {
+			gameLocal.Printf("List2 Bot: %s, Team Name: %s, Index: %i\n\n", cmdQue[i].Argv(1), cmdQue[i].Argv(2), i);
+		}
+	}
+}
+
+void afiBotManager::Cmd_RemoveBotIndex_f(const idCmdArgs & args) {
+	if (gameLocal.GameState() == GAMESTATE_NOMAP) {
+		idStr botString(args.Argv(2));
+		idStr list1("List1");
+		idStr list2("List2");
+		int botIndex = atoi(botString.c_str());
+
+		if (botIndex < 0 || botIndex >= MAX_CLIENTS) {
+			gameLocal.Printf("The index is not within the proper range, try again");
+			return;
+		}
+
+		if (list1.Icmp(args.Argv(1)) == 0) {
+			if (persistArgs[botIndex].Argc() != 0) {
+				gameLocal.Printf("List1 Bot: %s, Team Name: %s, Index: %i has been removed.\n", persistArgs[botIndex].Argv(1), persistArgs[botIndex].Argv(2), botIndex);
+				persistArgs[botIndex].Clear();
+			}
+		}
+
+		if (list2.Icmp(args.Argv(1)) == 0) {
+			if (cmdQue[botIndex].Argc() != 0) {
+				gameLocal.Printf("List2 Bot: %s, Team Name: %s, Index: %i has been removed.\n", cmdQue[botIndex].Argv(1), cmdQue[botIndex].Argv(2), botIndex);
+				cmdQue[botIndex].Clear();
+			}
+		}
+		return;
+	}
+
+	gameLocal.Printf("Bots may only be removed outside of the game.");
 }
 
 void afiBotManager::IncreaseThreadUpdateCount() {
@@ -922,6 +965,11 @@ void afiBotManager::AddTeamInfo(teamInfo_t * newTeamInfo)
 	loadedTeams.Append(newTeamInfo);
 }
 
+void afiBotManager::AddRemoveInfo(removeInfo_t * newRemoveInfo)
+{
+	removeBots.Append(newRemoveInfo);
+}
+
 void afiBotManager::UpdateUserInfo(void) {
 	assert(!gameLocal.isClient);
 	for (int i = MAX_CLIENTS - 1; i >= 0; i--) {
@@ -949,7 +997,15 @@ void afiBotManager::Cmd_AddBot_f(const idCmdArgs& args) {
 
 	if (gameLocal.GameState() != GAMESTATE_ACTIVE) {
 		if (numQueBots < MAX_CLIENTS) {
-			common->Printf("QUEUE SUCCESS: Adding Bot %s to Que\n\n" , classname.c_str());
+			common->Printf("QUEUE SUCCESS: Adding Bot %s to Que\n\n", classname.c_str());
+
+			removeInfo_t* remove = new removeInfo_t;
+			remove->botName = classname;
+			remove->teamName = args.Argv(2);
+			remove->remove = false;
+
+			AddRemoveInfo(remove);
+			//delete remove;
 			cmdQue[numQueBots] = args;
 			numQueBots++;
 		}
@@ -961,6 +1017,14 @@ void afiBotManager::Cmd_AddBot_f(const idCmdArgs& args) {
 	int numClients = 0;
 	for (int i = 0; i < MAX_CLIENTS; i++) {
 		if (gameLocal.entities[i]) {
+
+			removeInfo_t* remove = new removeInfo_t;
+			remove->botName = classname;
+			remove->teamName = args.Argv(2);
+			remove->remove = false;
+
+			AddRemoveInfo(remove);
+
 			numClients++;
 		}
 	}
@@ -988,23 +1052,22 @@ void afiBotManager::Cmd_AddTeam_f(const idCmdArgs & args)
 	}
 
 	if (addedTeams.Num() == 2) {
-		common->Printf("2 teams is the max, please RemoveTeam a Team and try again.");
+		common->Printf("\n2 teams is the max, please RemoveTeam a Team and try again.");
 		return;
 	}
 
-	//idStr classname = args.Argv(1);
-	//botInfo_t* botProfile = NULL;
-	//botProfile = FindBotProfile(classname);
-	//if (botProfile == NULL) {
-	//	gameLocal.Warning("No Loaded Bot Profile Named: %s \n", classname.c_str());
-	//	return;
-	//}
+	for (int i = 0; i < addedTeams.Num(); ++i) {
+		if (addedTeams[i]->teamName.Icmp(args.Argv(1)) == 0) {
+			gameLocal.Printf("There is already a team by that name. They can't fight themselves silly!");
+			return;
+		}
+	}
 
 	idStr teamName = args.Argv(1);
 	teamInfo_t* teamProfile = NULL;
 	teamProfile = FindTeamProfile(teamName);
 	if (teamProfile == NULL) {
-		gameLocal.Warning("No Loaded Team Profile Named: %s \n", teamName.c_str());
+		gameLocal.Warning("No Loaded Team Profile Named: %s\n", teamName.c_str());
 		return;
 	}
 
@@ -1018,11 +1081,11 @@ void afiBotManager::Cmd_AddTeam_f(const idCmdArgs & args)
 				idCmdArgs tempArgs;
 				tempArgs.AppendArg(args.Argv(0));
 				tempArgs.AppendArg(loadedTeams[i]->bots[j].c_str());
+				tempArgs.AppendArg(loadedTeams[i]->teamName);
 				Cmd_AddBot_f(tempArgs);
 			}
 		}
 	}
-
 	return;
 }
 
@@ -1032,6 +1095,14 @@ void afiBotManager::AddBot(const idCmdArgs& args) {
 		gameLocal.Printf("No bot def specified.");
 		return;
 	}
+
+	//for (int i = 0; i < removeBots.Num(); ++i) {
+	//	if (removeBots[i]->botName.Icmp(classname) == 0 && removeBots[i]->remove) {
+	//		delete removeBots[i];
+	//		removeBots.RemoveIndex(i);
+	//		return;
+	//	}
+	//}
 
 	const idDeclEntityDef *botDef = gameLocal.FindEntityDef(classname.c_str(), false);
 	if (!botDef) {
@@ -1065,44 +1136,120 @@ void afiBotManager::AddBot(const idCmdArgs& args) {
 }
 
 void afiBotManager::Cmd_RemoveBot_f(const idCmdArgs& args) {
-	if (!gameLocal.isMultiplayer) {
-		gameLocal.Printf("This isn't multiplayer, so there no bots to remove, so yeah, you're mental.\n");
+
+	if (gameLocal.GameState() == GAMESTATE_NOMAP) {
+		int i;
+		idStr checker(args.Argv(1));
+
+		for (i = 0; i < MAX_CLIENTS; ++i) {
+			if (persistArgs[i].Argc() != 0) {
+				if (checker.Icmp(persistArgs[i].Argv(1)) == 0) {
+					RemoveBotPersistArgs(i);
+					break;
+				}
+			}
+		}
+
+		for (i = 0; i < MAX_CLIENTS; ++i) {
+			if (cmdQue[i].Argc() != 0) {
+				if (checker.Icmp(cmdQue[i].Argv(1)) == 0) {
+					RemoveBotCmdQue(i);
+					break;
+				}
+			}
+		}
 		return;
 	}
 
-	if (!gameLocal.isServer) {
-		gameLocal.Printf("Bots may only be removed on server, only it has the powah!\n");
-		return;
-	}
-
-	idPlayer* player = gameLocal.GetClientByCmdArgs(args);
-	if (!player) {
-		gameLocal.Printf("usage: removeBot <client nickname> or removeBot <client index>\n");
-		return;
-	}
-	if (player && player->IsType(afiBotPlayer::Type)) {
-		RemoveBot(player->entityNumber);
-	}
-	else {
-		gameLocal.Printf("There is no spoon, I mean, bot...");
-		return;
-	}
+	gameLocal.Printf("Bots may only be removed outside of the game! Sorry buddy!\n\n");
 }
 
 void afiBotManager::Cmd_RemoveAllBots_f(const idCmdArgs & args) {
-	if (!gameLocal.isMultiplayer) {
-		gameLocal.Printf("RemoveAllBots can only be used in a multiplayer game\n");
+	if (gameLocal.GameState() == GAMESTATE_NOMAP) {
+		int i;
+
+		for (i = 0; i < MAX_CLIENTS; ++i) {
+			if (persistArgs[i].Argc() != 0) {
+				RemoveBotPersistArgs(i);
+			}
+
+			if (cmdQue[i].Argc() != 0) {
+				RemoveBotCmdQue(i);
+			}
+		}
+
+		gameLocal.Printf("All previously added bots will be removed.\n\n");
+		addedTeams.Clear();
 		return;
 	}
 
-	if (gameLocal.isClient) {
-		gameLocal.Printf("You have no such power. This is a server command\n");
+	gameLocal.Printf("Bots may only be removed outside of the game! Sorry buddy!\n\n");
+}
+
+void afiBotManager::Cmd_RemoveTeam_f(const idCmdArgs & args) {
+	idStr checkTeam(args.Argv(1));
+
+	if (gameLocal.GameState() == GAMESTATE_NOMAP) {
+		for (int i = 0; i < addedTeams.Num(); ++i) {
+			if (addedTeams[i]->teamName.Icmp(checkTeam) == 0) {
+				for (int j = 0; j < MAX_CLIENTS; ++j) {
+					if (persistArgs[j].Argc() > 2) {
+						if (checkTeam.Icmp(persistArgs[j].Argv(2)) == 0 && addedTeams[i]->bots[0].Icmp(persistArgs[j].Argv(1))) {
+							RemoveBotPersistArgs(j);
+						}
+						if (checkTeam.Icmp(persistArgs[j].Argv(2)) == 0 && addedTeams[i]->bots[1].Icmp(persistArgs[j].Argv(1))) {
+							RemoveBotPersistArgs(j);
+						}
+						if (checkTeam.Icmp(persistArgs[j].Argv(2)) == 0 && addedTeams[i]->bots[2].Icmp(persistArgs[j].Argv(1))) {
+							RemoveBotPersistArgs(j);
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < addedTeams.Num(); ++i) {
+			if (addedTeams[i]->teamName.Icmp(checkTeam) == 0) {
+				for (int j = 0; j < MAX_CLIENTS; ++j) {
+					if (cmdQue[j].Argc() > 2) {
+						if (checkTeam.Icmp(cmdQue[j].Argv(2)) == 0 && addedTeams[i]->bots[0].Icmp(cmdQue[j].Argv(1))) {
+							RemoveBotCmdQue(j);
+						}
+						if (checkTeam.Icmp(cmdQue[j].Argv(2)) == 0 && addedTeams[i]->bots[1].Icmp(cmdQue[j].Argv(1))) {
+							RemoveBotCmdQue(j);
+						}
+						if (checkTeam.Icmp(cmdQue[j].Argv(2)) == 0 && addedTeams[i]->bots[2].Icmp(cmdQue[j].Argv(1))) {
+							RemoveBotCmdQue(j);
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < addedTeams.Num(); ++i) {
+			if (addedTeams[i]->teamName.Icmp(args.Argv(1)) == 0) {
+				addedTeams.RemoveIndex(i);
+			}
+		}
 		return;
 	}
 
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		RemoveBot(i);
+	gameLocal.Printf("Teams may only be removed outside of the game.\n");
+}
+
+void afiBotManager::Cmd_RemoveAllTeams_f(const idCmdArgs & args) {
+	if (gameLocal.GameState() == GAMESTATE_NOMAP) {
+		while (addedTeams.Num() != 0) {
+			idStr remove(addedTeams[0]->teamName);
+			idCmdArgs removal;
+			removal.AppendArg(args.Argv(0));
+			removal.AppendArg(remove.c_str());
+			Cmd_RemoveTeam_f(removal);
+		}
+		gameLocal.Printf("All teams previously added will be removed.\n");
+		return;
 	}
+	gameLocal.Printf("Teams can only be removed outside of the game.\n");
 }
 
 void afiBotManager::Cmd_ReloadBot_f(const idCmdArgs& args) {
@@ -1254,43 +1401,54 @@ botInfo_t* afiBotManager::ReloadPak(botInfo_t* botProfile, int clientNum) {
 		//to the botBrain class defined in the dll.
 		//Since the entityDef spawns the afiBotPlayer class not the derived botBrain class.
 		ParseForBotName((void*)defBuffer, defFileSize, defFileName, botName, authorName, botType, botSpawnClass);
-
 	}
 }
 
 void afiBotManager::DropABot(void) {
-	if (!gameLocal.isMultiplayer) {
-		gameLocal.Printf("DropABot can only be used in a multiplayer game\n");
-		return;
-	}
+	//if (!gameLocal.isMultiplayer) {
+	//	gameLocal.Printf("DropABot can only be used in a multiplayer game\n");
+	//	return;
+	//}
 
-	if (gameLocal.isClient) {
-		gameLocal.Printf("You have no such power. This is a server command\n");
-		return;
-	}
+	//if (gameLocal.isClient) {
+	//	gameLocal.Printf("You have no such power. This is a server command\n");
+	//	return;
+	//}
 
-	//Remove the first bot we find.
-	for (int i = 0; i < MAX_CLIENTS; i++) {
-		if (gameLocal.entities[i] && gameLocal.entities[i]->IsType(afiBotPlayer::Type)) {
-			RemoveBot(i);
-			break;
-		}
-	}
+	////Remove the first bot we find.
+	//for (int i = 0; i < MAX_CLIENTS; i++) {
+	//	if (gameLocal.entities[i] && gameLocal.entities[i]->IsType(afiBotPlayer::Type)) {
+	//		RemoveBotMP(i);
+	//		break;
+	//	}
+	//}
 }
 
-void afiBotManager::RemoveBot(int clientNum) {
-	//persistArgs[ clientNum ].Clear();
-	//botSpawned[ clientNum ] = false;
+void afiBotManager::RemoveBotMP(int clientNum) {
 	if (gameLocal.entities[clientNum] && gameLocal.entities[clientNum]->IsType(afiBotPlayer::Type)) {
+
 		cmdSystem->BufferCommandText(CMD_EXEC_NOW, va("say Removing Bot '%s^0'\n", gameLocal.userInfo[clientNum].GetString("ui_name")));
 		cmdSystem->BufferCommandText(CMD_EXEC_NOW, va("kick %d\n", gameLocal.entities[clientNum]->entityNumber));
 
 		botSpawned[clientNum] = false;
+		cmdQue[clientNum].Clear();
 		persistArgs[clientNum].Clear();
 		gameLocal.ServerClientDisconnect(clientNum);
 
 		numBots--;
 	}
+}
+
+void afiBotManager::RemoveBotPersistArgs(const int i) {
+	gameLocal.Printf("Bot %s will be removed from the game.\n", persistArgs[i].Argv(1));
+	persistArgs[i].Clear();
+	botSpawned[i] = false;
+}
+
+void afiBotManager::RemoveBotCmdQue(const int i) {
+	gameLocal.Printf("Bot %s will be removed from the queue.\n", cmdQue[i].Argv(1));
+	cmdQue[i].Clear();
+	botSpawned[i] = false;
 }
 
 int afiBotManager::IsClientBot(int clientNum) {
@@ -1309,6 +1467,28 @@ Gets the bot's entityDef number
 */
 int afiBotManager::GetBotDefNumber(int clientNum) {
 	return botEntityDefNumber[clientNum];
+}
+
+/*
+===================
+afiBotManager::GetClientNumByPersistantArgs
+Is broken.
+Esteban Isaiah Nazario
+===================
+*/
+int afiBotManager::GetClientNumByPersistantArgs(const idCmdArgs & args) {
+	idStr compareString(args.Argv(1));
+	for (int i = 0; i < MAX_CLIENTS; ++i)
+	{
+		if (compareString.Icmp(cmdQue[i].Argv(1)) == 0) {
+			return i;
+		}
+
+		//if (*cmdQue[i].Argv(1) == *args.Argv(1)) {
+		//	return i;
+		//}
+	}
+	return -1;
 }
 
 /*
@@ -1439,8 +1619,8 @@ void afiBotManager::SpawnBot(int clientNum) {
 			for (int i = 0; i < addedTeams.Num(); ++i) {
 				if (addedTeams[i]) {
 					for (int j = 0; j < addedTeams[i]->bots.Num(); ++j) {
-						if (botProfile->botName == addedTeams[i]->bots[j] && !addedTeams[i]->used[j])
-						{
+						if (botProfile->botName == addedTeams[i]->bots[j] && !addedTeams[i]->used[j]) {
+							idStr temp = botProfile->teamName;
 							gameLocal.AppendPlayerEntities(addedTeams[i]->bots[j], i);
 							playerBody->team = i;
 							playerBody->teamName = addedTeams[i]->teamName;
@@ -1685,5 +1865,8 @@ afiBotManager::~afiBotManager
 ===================
 */
 afiBotManager::~afiBotManager() {
+	for (int i = 0; i < removeBots.Num(); ++i) {
+		delete removeBots[i];
+	}
 
 }

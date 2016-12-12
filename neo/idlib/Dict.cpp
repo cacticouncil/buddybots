@@ -330,6 +330,7 @@ idDict::Set
 void idDict::Set( const char *key, const char *value ) {
 	int i;
 	idKeyValue kv;
+	const char* temp = "replay_count";
 
 	if ( key == NULL || key[0] == '\0' ) {
 		return;
