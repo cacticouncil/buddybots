@@ -206,10 +206,10 @@ void idMultiplayerGame::Reset() {
 #ifdef CTF
 	// CTF uses its own scoreboard
 	if (IsGametypeFlagBased())
-		scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
+		scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
 	else
-#endif
 		scoreBoard = uiManager->FindGui("guis/scoreboard.gui", true, false, true);
+#endif
 
 	spectateGui = uiManager->FindGui("guis/spectate.gui", true, false, true);
 	guiChat = uiManager->FindGui("guis/chat.gui", true, false, true);
@@ -1346,8 +1346,9 @@ void idMultiplayerGame::TeamScoreCTF(int team, int delta) {
 	if (team < 0 || team > 1)
 		return;
 
+	
 	teamPoints[team] += delta;
-
+	
 	if (gameState == GAMEON || gameState == SUDDENDEATH)
 		PrintMessageEvent(-1, MSG_SCOREUPDATE, teamPoints[0], teamPoints[1]);
 }
@@ -1358,6 +1359,7 @@ idMultiplayerGame::PlayerScoreCTF
 ================
 */
 void idMultiplayerGame::PlayerScoreCTF(int playerIdx, int delta) {
+
 	if (playerIdx < 0 || playerIdx >= MAX_CLIENTS)
 		return;
 
@@ -1370,8 +1372,7 @@ void idMultiplayerGame::PlayerScoreCTF(int playerIdx, int delta) {
 
 	if ( delta == 5 )
 		totalTeamFlagReturns[team] += 1;
-	if ( delta == 1 )
-		totalTeamKills[team] += 1;
+	
 
 	playerState[playerIdx].fragCount += delta;
 	totalTeamFragPoints[team] += delta;
@@ -1416,6 +1417,10 @@ idMultiplayerGame::TeamScore
 */
 void idMultiplayerGame::TeamScore(int entityNumber, int team, int delta) {
 	playerState[entityNumber].fragCount += delta;
+
+	//if (delta == 1)
+	//	totalTeamKills[team] += 1;
+
 	for (int i = 0; i < gameLocal.numClients; i++) {
 		idEntity *ent = gameLocal.entities[i];
 		if (!ent || !ent->IsType(idPlayer::Type)) {
@@ -4667,7 +4672,7 @@ idMultiplayerGame::ReloadScoreboard
 void idMultiplayerGame::ReloadScoreboard() {
 	// CTF uses its own scoreboard
 	if (IsGametypeFlagBased())
-		scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
+		scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
 	else
 		scoreBoard = uiManager->FindGui("guis/scoreboard.gui", true, false, true);
 

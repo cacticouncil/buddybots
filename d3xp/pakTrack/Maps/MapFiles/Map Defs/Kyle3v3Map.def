@@ -1,0 +1,8 @@
+mapDef game/mp/Kyle3v3Map2 {
+	"name"		"Kyle3v3"
+	"Deathmatch"		"0"
+	"Team DM"		"0"
+	"Last Man"		"0"
+	"Tourney"		"0"
+	"CTF"		"1"
+}
