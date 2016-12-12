@@ -1,4 +1,4 @@
-mapDef game/mp/Kyle3v3Map2 {
+mapDef game/mp/Kyle3v3Map {
 	"name"		"Kyle3v3"
 	"Deathmatch"		"0"
 	"Team DM"		"0"
