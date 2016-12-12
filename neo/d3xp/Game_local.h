@@ -96,6 +96,18 @@ extern const int NUM_RENDER_PORTAL_BITS;
 
 ===============================================================================
 */
+typedef struct spawnTeamInfo_s {
+	idStr name;
+	int team;
+	bool used;
+
+	spawnTeamInfo_s() {
+		name = "";
+		team = -1;
+		used = false;
+	}
+} spawnTeamInfo_t;
+
 typedef struct entityState_s {
 	int						entityNumber;
 	idBitMsg				state;
@@ -254,6 +266,7 @@ public:
 	usercmd_t				usercmds[MAX_CLIENTS];	// client input commands
 	idDict					persistentPlayerInfo[MAX_CLIENTS];
 	idEntity *				entities[MAX_GENTITIES];// index to entities
+	idList<spawnTeamInfo_t> playerEntities;			// info for player entities for team spawning
 	int						spawnIds[MAX_GENTITIES];// for use in idEntityPtr
 	int						firstFreeIndex;			// first free index in the entities array
 	int						num_entities;			// current number <= MAX_GENTITIES
@@ -467,6 +480,7 @@ public:
 	bool					SkipCinematic( void );
 	void					CalcFov( float base_fov, float &fov_x, float &fov_y ) const;
 
+	void					AppendPlayerEntities(const idStr name, const int team);
 	void					AddEntityToHash( const char *name, idEntity *ent );
 	bool					RemoveEntityFromHash( const char *name, idEntity *ent );
 	int						GetTargets( const idDict &args, idList< idEntityPtr<idEntity> > &list, const char *ref ) const;

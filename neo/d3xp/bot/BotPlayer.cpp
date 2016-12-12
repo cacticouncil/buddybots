@@ -170,13 +170,12 @@ bool afiBotPlayer::SwitchWeapon(const char* weaponName) {
 
 	SelectWeapon(weaponSlot, false);
 
-	if (idealWeapon != weaponSlot)
+	if (idealWeapon != weaponSlot) {
 		return false;
+	}
 
 
 	return true;
-
-
 }
 
 int afiBotPlayer::HasAmmo(const char* weaponName) {

@@ -167,6 +167,7 @@ public:
 	boost::python::list		FindItemsInView();
 
 	idStr					botName;
+	idStr					teamName;
 	int						clientNum;
 
 protected:

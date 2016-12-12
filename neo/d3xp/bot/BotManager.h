@@ -2,6 +2,7 @@
 ===========================================================================
 File: BotManager.h
 Author: John Wileczek
+Edited by: Esteban Isaiah Nazario
 Description: Bot client management involving adding, removing, and event
 dispatch to bots.
 ===========================================================================
@@ -70,6 +71,7 @@ namespace boost {
 typedef struct botInfo_s {
 	idStr				pakName;
 	idStr				botName;
+	idStr				teamName;
 	idStr				authorName;
 	idStr				botSpawnClass;
 	object				scriptInstances[MAX_CLIENTS];
@@ -81,6 +83,7 @@ typedef struct botInfo_s {
 	idCmdArgs			cmdArgs[MAX_CLIENTS];
 	botInfo_s() {
 		botName = "";
+		teamName = "";
 		authorName = "";
 		for (unsigned int iClient = 0; iClient < MAX_CLIENTS; iClient++) {
 			clientNum[iClient] = -1;
@@ -93,6 +96,7 @@ typedef struct botInfo_s {
 
 	~botInfo_s() {
 		botName = "";
+		teamName = "";
 		authorName = "";
 		for (unsigned int iClient = 0; iClient < MAX_CLIENTS; iClient++) {
 			clientNum[iClient] = 0;
@@ -101,6 +105,25 @@ typedef struct botInfo_s {
 		}
 	}
 } botInfo_t;
+
+typedef struct teamInfo_s {
+	idStr teamName;
+	int size;
+	idStrList bots;
+	idList<bool> used;
+
+	teamInfo_s() {
+		teamName = "";
+		size = 0;
+	}
+
+	~teamInfo_s() {
+		teamName = "";
+		size = 0;
+
+		bots.Clear();
+	}
+} teamInfo_t;
 
 //Worker thread class currently responsible for running the update tasks each frame for the bots
 //Unfortunately due to the Python GIL the benefit of this class is somewhat reduced since python code
@@ -155,6 +178,7 @@ public:
 
 	static void					Cmd_BotInfo_f( const idCmdArgs& args );
 	static void					Cmd_AddBot_f( const idCmdArgs& args );
+	static void					Cmd_AddTeam_f(const idCmdArgs& args);
 	static void					Cmd_RemoveBot_f( const idCmdArgs& args );
 	static void					Cmd_RemoveAllBots_f( const idCmdArgs & args );
 	static void					Cmd_ReloadBot_f( const idCmdArgs& args );
@@ -194,14 +218,18 @@ public:
 	static void					WriteUserCmdsToSnapshot(idBitMsg& msg);
 	static void					ReadUserCmdsFromSnapshot(const idBitMsg& msg);
 	static void					AddBotInfo(botInfo_t* newBotInfo);
+	static void					AddTeamInfo(teamInfo_t* newTeamInfo);
 	static afiBotBrain*			SpawnBrain(idStr botName, int clientNum);
 	static botInfo_t*			FindBotProfile(idStr botName);
+	static teamInfo_t*			FindTeamProfile(idStr teamName);
 	static botInfo_t*			FindBotProfileByIndex(int clientNum);
 	static botInfo_t*			FindBotProfileByClassName(idStr botClassName);
 	static botInfo_t*			ReloadPak(botInfo_t* botProfile, int clientNum);
 	static bool					LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile);
+	static bool					LoadTeam(idStr teamPakName, teamInfo_t*& outputTeamProfile);
 	static void					LoadAllBots();
 	static void					ParseForBotName(void* defBuffer, unsigned bufferLength, const char* name, idStr& botName, idStr& authorName, idStr& botType, idStr& botSpawnClass);
+	static void					ParseForTeamName(void* defBuffer, unsigned bufferLength, const char* name, idStr& teamName, int& teamSize, idStrList& bots, idList<bool>& used);
 
 	afiBotManager();
 	~afiBotManager();
@@ -218,6 +246,8 @@ private:
 	static void					InitializePython( );
 
 	static idList<botInfo_t*>	loadedBots;
+	static idList<teamInfo_t*>	loadedTeams;
+	static idList<teamInfo_t*>	addedTeams;
 	static unsigned int			numBots;
 	static int					numQueBots;
 

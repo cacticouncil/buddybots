@@ -108,7 +108,7 @@ idDict &idDict::operator=( const idDict &other ) {
 	argHash = other.argHash;
 
 	for ( i = 0; i < args.Num(); i++ ) {
-		args[i].key = globalKeys.CopyString( args[i].key );
+ 		args[i].key = globalKeys.CopyString( args[i].key );
 		args[i].value = globalValues.CopyString( args[i].value );
 	}
 
