@@ -29,6 +29,7 @@ enum	BotType { CODE, SCRIPT, DLL };
 typedef afiBotBrain* (*CreateBotBrain_t)(botImport_t* dllSetup);
 typedef std::unordered_map<PyThreadState*,botWorkerThread*> threadMap_t;
 
+
 //This custom call policy allows me to mitigate some of the losses in performance due to
 //the python GIL. When Some c++ functions are exectued from python scripts we can give up control
 //of the GIL for the duration of the function.

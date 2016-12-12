@@ -46,6 +46,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Entity.h"
 
+#include <memory>
+
 /*
 ===============================================================================
 
@@ -70,13 +72,14 @@ namespace boost
 
 BOOST_PYTHON_MODULE(idEntity) {
 	import("idVec3");
+	import("idEntity");
 
-	class_<idEntity>("idEntity")
+	class_<idEntity, std::shared_ptr<idEntity>>("idEntity")
 		.def("DistanceTo",distanceEntity)
 		.def("DistanceTo",distancePosition)
 		.def("GetPosition",&idEntity::GetPosition)
+		.def("isHidden",&idEntity::IsHidden)
 	;
-		
 }
 
 idVec3 idEntity::GetPosition( void ) {
