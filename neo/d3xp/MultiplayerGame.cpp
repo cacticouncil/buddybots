@@ -1370,9 +1370,8 @@ void idMultiplayerGame::PlayerScoreCTF(int playerIdx, int delta) {
 	else
 		team = 1;
 
-	if ( delta == 5 )
+	if (delta == 5)
 		totalTeamFlagReturns[team] += 1;
-	
 
 	playerState[playerIdx].fragCount += delta;
 	totalTeamFragPoints[team] += delta;
@@ -1675,8 +1674,24 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 		UpdateWinsLosses(player);
 		SetFlagMsg(true);
 		break;
-	}
-	case SCOREREVIEW: {
+	} case ENDREVIEW: {
+
+		SetFlagMsg(false);
+
+		nextState = INACTIVE;	// used to abort a game. cancel out any upcoming state change
+								// set all players not ready and spectating
+		for (i = 0; i < gameLocal.numClients; i++) {
+			idEntity *ent = gameLocal.entities[i];
+			if (!ent || !ent->IsType(idPlayer::Type)) {
+				continue;
+			}
+			static_cast<idPlayer *>(ent)->forcedReady = false;
+			static_cast<idPlayer *>(ent)->ServerSpectate(true);
+		}
+		UpdateWinsLosses(player);
+		SetFlagMsg(true);
+		break;
+	} case SCOREREVIEW: {
 		SetFlagMsg(false);
 		nextState = INACTIVE;	// used to abort a game. cancel out any upcoming state change
 								// set all players not ready and spectating
@@ -2039,10 +2054,18 @@ void idMultiplayerGame::Run() {
 		}
 		break;
 	}
+	case ENDREVIEW: {
+		if (nextState == INACTIVE) {
+			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
+			nextState = SCOREREVIEW;
+			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
+		}
+		break;
+	}
 	case SCOREREVIEW: {
 		if (nextState == INACTIVE) {
 			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
-			nextState = GAMEREVIEW;
+			nextState = ENDREVIEW;
 			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
 		}
 		break;
@@ -2848,7 +2871,7 @@ idMultiplayerGame::DrawScoreBoard
 ================
 */
 void idMultiplayerGame::DrawScoreBoard(idPlayer *player) {
-	if (player->scoreBoardOpen || gameState == GAMEREVIEW || gameState == SCOREREVIEW) {
+	if (player->scoreBoardOpen || gameState == GAMEREVIEW || gameState == SCOREREVIEW || gameState == ENDREVIEW) {
 		if (!playerState[player->entityNumber].scoreBoardUp) {
 			scoreBoard->Activate(true, gameLocal.time);
 			playerState[player->entityNumber].scoreBoardUp = true;

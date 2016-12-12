@@ -55,7 +55,8 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 
 	class_<afiBotPlayer, bases<idPlayer>, shared_ptr<afiBotPlayer>>("afiBotPlayer", no_init)
 		.def("__init__",			make_constructor(&CreateBotPlayer))
-		.def("FindNearestItem",		&afiBotPlayer::FindNearestItem,		return_value_policy<reference_existing_object>(), release_gil_policy())
+		.def("FindItem",			&afiBotPlayer::FindItem,			return_value_policy<reference_existing_object>(), release_gil_policy())
+		.def("InView",				&afiBotPlayer::InView)
 		.def("MoveTo",				&afiBotPlayer::MoveTo)
 		.def("MoveToPosition",		&afiBotPlayer::MoveToPosition)
 		.def("MoveToEntity",		&afiBotPlayer::MoveToEntity)
@@ -153,6 +154,10 @@ void afiBotPlayer::SetAAS() {
 	}
 
 	gameLocal.Error("Bot cannot find AAS file for map\n"); // TinMan: No aas, no play.
+}
+
+bool afiBotPlayer::InView(idEntity* entity) {
+	return CanSee(entity, true);
 }
 
 bool afiBotPlayer::SwitchWeapon(const char* weaponName) {
@@ -529,23 +534,20 @@ void afiBotPlayer::ProcessCommands(void) {
 
 }
 
-idEntity* afiBotPlayer::FindNearestItem(idStr item){
+idEntity* afiBotPlayer::FindItem(const char* item){
 	idEntity* entity;
-	for (int i = 0; i < MAX_GENTITIES; ++i)
-	{
-		entity = gameLocal.entities[i];
 
-		if (entity)
-		{
-			if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type)))
-			{
-				if (idStr::FindText(entity->name, item.c_str(), false) == 0)
-				{
+	for (int i = 0; i < MAX_GENTITIES; ++i) {
+		entity = gameLocal.entities[i];
+		if (entity) {
+			if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type))) {
+				if (idStr::FindText(entity->name, item, false) == 0) {
 					return entity;
 				}
 			}
 		}
 	}
+
 	return 0;
 }
 

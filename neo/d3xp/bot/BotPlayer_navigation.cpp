@@ -149,9 +149,9 @@ bool afiBotPlayer::MoveToEntity( idEntity* entity )
 BotPlayer::MoveToNearest
 ===================
 */
-idEntity* afiBotPlayer::MoveToNearest( idStr item )
+idEntity* afiBotPlayer::MoveToNearest( const char* item )
 {
-	idEntity* nearest = FindNearestItem( item );
+	idEntity* nearest = FindItem( item );
 
 	if ( nearest )
 	{
