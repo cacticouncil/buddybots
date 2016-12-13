@@ -2559,6 +2559,14 @@ void idGameLocal::InitConsoleCommands( void ) {
 	cmdSystem->AddCommand( "reloadAllBots", afiBotManager::Cmd_ReloadAllBots_f, CMD_FL_GAME,"Reload all bot scripts" );
 	cmdSystem->AddCommand( "printallbots", afiBotManager::Cmd_PrintAllBots_f, CMD_FL_GAME, "Prints the names, teams, and indicies of all bots");
 	cmdSystem->AddCommand("removebotindex", afiBotManager::Cmd_RemoveBotIndex_f, CMD_FL_GAME, "Removes the bot at the given index");
+<<<<<<< HEAD
+=======
+	cmdSystem->AddCommand( "addBot",				afiBotManager::Cmd_AddBot_f,			CMD_FL_GAME,	"add a bot to the server",				idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
+	cmdSystem->AddCommand( "removeBot",				afiBotManager::Cmd_RemoveBot_f,			CMD_FL_GAME,	"Remove a bot from the server" );
+	cmdSystem->AddCommand("removeAllBots",			afiBotManager::Cmd_RemoveAllBots_f,		CMD_FL_GAME,	"Remove all bots from the server");
+	cmdSystem->AddCommand( "reloadBot",				afiBotManager::Cmd_ReloadBot_f,			CMD_FL_GAME,	"Reload a bot script");
+	cmdSystem->AddCommand( "reloadAllBots",			afiBotManager::Cmd_ReloadAllBots_f,		CMD_FL_GAME,	"Reload all bot scripts" );
+>>>>>>> origin/buddybots_ctf
 	cmdSystem->AddCommand( "tickrate",				Cmd_ChangeTickRate_f,					CMD_FL_GAME,	"Manipulate the game tick rate" );
 }
 

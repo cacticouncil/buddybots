@@ -1607,14 +1607,27 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 			networkSystem->ServerSendReliableMessage(-1, outMsg);
 
 #ifdef CTF
+<<<<<<< HEAD
 			teamPoints[0] = 0;
 			teamPoints[1] = 0;
+=======
+<<<<<<< HEAD
+			teamPoints[0] = 0;
+			teamPoints[1] = 0;
+=======
+		teamPoints[0] = 0;
+		teamPoints[1] = 0;
+>>>>>>> origin/buddybots_ctf
 		//totalTeamCapturePoints[0] = 0;
 		//totalTeamCapturePoints[1] = 0;
 		//totalTeamFragPoints[0] = 0;
 		//totalTeamFragPoints[1] = 0;
 		//teamWins[0] = 0;
 		//teamWins[1] = 0;
+<<<<<<< HEAD
+=======
+>>>>>>> buddybots_Dylan
+>>>>>>> origin/buddybots_ctf
 
 			ClearHUDStatus();
 #endif
@@ -1683,7 +1696,17 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 				static_cast<idPlayer *>(ent)->forcedReady = false;
 				static_cast<idPlayer *>(ent)->ServerSpectate(true);
 			}
+<<<<<<< HEAD
 			UpdateWinsLosses(player);
+=======
+<<<<<<< HEAD
+			UpdateWinsLosses(player);
+=======
+			static_cast<idPlayer *>(ent)->forcedReady = false;
+			static_cast<idPlayer *>(ent)->ServerSpectate(true);
+		}
+		UpdateWinsLosses(player);
+>>>>>>> origin/buddybots_ctf
 		SetFlagMsg(true);
 		break;
 	} case ENDREVIEW: {
@@ -1716,6 +1739,10 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 			static_cast<idPlayer *>(ent)->ServerSpectate(true);
 		}
 		UpdateWinsLosses(player);
+<<<<<<< HEAD
+=======
+>>>>>>> buddybots_Dylan
+>>>>>>> origin/buddybots_ctf
 #ifdef CTF
 			SetFlagMsg(true);
 #endif
@@ -2054,12 +2081,24 @@ void idMultiplayerGame::Run() {
 
 	switch (gameState) {
 	case GAMEREVIEW: {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> origin/buddybots_ctf
 			if (nextState == INACTIVE) {
 				gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
 				nextState = NEXTGAME;
 				nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
 			}
 			break;
+<<<<<<< HEAD
+=======
+=======
+		if (nextState == INACTIVE) {
+			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
+			nextState = NEXTGAME;
+			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
+>>>>>>> origin/buddybots_ctf
 			float replayCount = 0.0f;
 			gameLocal.persistentLevelInfo.GetFloat("replay_count", "10", replayCount);
 			if (replayCount < 1) {
@@ -2079,6 +2118,10 @@ void idMultiplayerGame::Run() {
 			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
 			nextState = ENDREVIEW;
 			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
+<<<<<<< HEAD
+=======
+>>>>>>> buddybots_Dylan
+>>>>>>> origin/buddybots_ctf
 		}
 		break;
 	}

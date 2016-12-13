@@ -1436,12 +1436,15 @@ void afiBotManager::RemoveBotMP(int clientNum) {
 		gameLocal.ServerClientDisconnect(clientNum);
 
 		numBots--;
+<<<<<<< HEAD
 
 		botSpawned[clientNum] = false;
 		persistArgs[clientNum].Clear();
 		gameLocal.ServerClientDisconnect(clientNum);
 
 		numBots--;
+=======
+>>>>>>> origin/buddybots_ctf
 	}
 }
 
