@@ -206,16 +206,16 @@ void idMultiplayerGame::Reset() {
 #ifdef CTF
 	// CTF uses its own scoreboard
 	if (IsGametypeFlagBased())
-		scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
+		scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
 	else
-#endif
 		scoreBoard = uiManager->FindGui("guis/scoreboard.gui", true, false, true);
+#endif
 
 	spectateGui = uiManager->FindGui("guis/spectate.gui", true, false, true);
 	guiChat = uiManager->FindGui("guis/chat.gui", true, false, true);
 	mainGui = uiManager->FindGui("guis/mpmain.gui", true, false, true);
 	mapList = uiManager->AllocListGUI();
-	mapList->Config(mainGui, "mapList");        
+	mapList->Config(mainGui, "mapList");
 	// set this GUI so that our Draw function is still called when it becomes the active/fullscreen GUI
 	mainGui->SetStateBool("gameDraw", true);
 	mainGui->SetKeyBindingNames();
@@ -379,7 +379,7 @@ Gets number of captures in CTF game.
 1 = blue team
 ================
 */
-int idMultiplayerGame::GetFlagPoints(int team){
+int idMultiplayerGame::GetFlagPoints(int team) {
 	assert(team <= 1);
 
 	return teamPoints[team];
@@ -417,7 +417,7 @@ int	idMultiplayerGame::GetTotalKills(int team) {
 }
 
 void idMultiplayerGame::ResetScores(void) {
-	for (int i = 0; i < 2; ++i){
+	for (int i = 0; i < 2; ++i) {
 		totalTeamCapturePoints[i] = 0;
 		totalTeamFlagReturns[i] = 0;
 		totalTeamFragPoints[i] = 0;
@@ -878,18 +878,18 @@ void idMultiplayerGame::UpdateCTFScoreboard(idUserInterface *scoreBoard, idPlaye
 
 
 	// Set team scores
-	scoreBoard->SetStateInt("red_team_score",					GetFlagPoints(0));
-	scoreBoard->SetStateInt("blue_team_score",					GetFlagPoints(1));
-	scoreBoard->SetStateInt("red_team_total_capture_score",		GetTotalFlagPoints(0));
-	scoreBoard->SetStateInt("blue_team_total_capture_score",	GetTotalFlagPoints(1));
-	scoreBoard->SetStateInt("red_team_total_wins",				GetTotalTeamWins(0));
-	scoreBoard->SetStateInt("blue_team_total_wins",				GetTotalTeamWins(1));
-	scoreBoard->SetStateInt("red_team_total_frag_score",		GetTotalFragPoints(0));
-	scoreBoard->SetStateInt("blue_team_total_frag_score",		GetTotalFragPoints(1));
-	scoreBoard->SetStateInt("red_team_total_flag_returns",		GetTotalFlagReturns(0));
-	scoreBoard->SetStateInt("blue_team_total_flag_returns",		GetTotalFlagReturns(1));
-	scoreBoard->SetStateInt("red_team_total_kills",				GetTotalKills(0));
-	scoreBoard->SetStateInt("blue_team_total_kills",			GetTotalKills(1));
+	scoreBoard->SetStateInt("red_team_score", GetFlagPoints(0));
+	scoreBoard->SetStateInt("blue_team_score", GetFlagPoints(1));
+	scoreBoard->SetStateInt("red_team_total_capture_score", GetTotalFlagPoints(0));
+	scoreBoard->SetStateInt("blue_team_total_capture_score", GetTotalFlagPoints(1));
+	scoreBoard->SetStateInt("red_team_total_wins", GetTotalTeamWins(0));
+	scoreBoard->SetStateInt("blue_team_total_wins", GetTotalTeamWins(1));
+	scoreBoard->SetStateInt("red_team_total_frag_score", GetTotalFragPoints(0));
+	scoreBoard->SetStateInt("blue_team_total_frag_score", GetTotalFragPoints(1));
+	scoreBoard->SetStateInt("red_team_total_flag_returns", GetTotalFlagReturns(0));
+	scoreBoard->SetStateInt("blue_team_total_flag_returns", GetTotalFlagReturns(1));
+	scoreBoard->SetStateInt("red_team_total_kills", GetTotalKills(0));
+	scoreBoard->SetStateInt("blue_team_total_kills", GetTotalKills(1));
 
 	// Handle flag status changed event
 	scoreBoard->HandleNamedEvent("BlueFlagStatusChange");
@@ -1130,7 +1130,7 @@ int idMultiplayerGame::WinningTeam(void) {
 /*
 ================
 idMultiplayerGame::AddToTotalTeamPoints
-Keeps count of all points aquired 
+Keeps count of all points aquired
 by both teams throughout games
 ================
 */
@@ -1346,6 +1346,7 @@ void idMultiplayerGame::TeamScoreCTF(int team, int delta) {
 	if (team < 0 || team > 1)
 		return;
 
+
 	teamPoints[team] += delta;
 
 	if (gameState == GAMEON || gameState == SUDDENDEATH)
@@ -1358,12 +1359,13 @@ idMultiplayerGame::PlayerScoreCTF
 ================
 */
 void idMultiplayerGame::PlayerScoreCTF(int playerIdx, int delta) {
+
 	if (playerIdx < 0 || playerIdx >= MAX_CLIENTS)
 		return;
 
 	int team;
 
-	if ( playerIdx % 2 == 1 )
+	if (playerIdx % 2 == 1)
 		team = 0;
 	else
 		team = 1;
@@ -1414,6 +1416,10 @@ idMultiplayerGame::TeamScore
 */
 void idMultiplayerGame::TeamScore(int entityNumber, int team, int delta) {
 	playerState[entityNumber].fragCount += delta;
+
+	//if (delta == 1)
+	//	totalTeamKills[team] += 1;
+
 	for (int i = 0; i < gameLocal.numClients; i++) {
 		idEntity *ent = gameLocal.entities[i];
 		if (!ent || !ent->IsType(idPlayer::Type)) {
@@ -1423,7 +1429,6 @@ void idMultiplayerGame::TeamScore(int entityNumber, int team, int delta) {
 		if (player->team == team) {
 			playerState[player->entityNumber].teamFragCount += delta;
 			totalTeamFragPoints[team] += delta;
-			totalTeamKills[team] += 1;
 		}
 	}
 }
@@ -1462,10 +1467,10 @@ void idMultiplayerGame::PlayerDeath(idPlayer *dead, idPlayer *killer, bool telef
 		}
 	}
 
-		if (dead->IsType(afiBotPlayer::Type)) {
-			afiBotPlayer* deadBot = (afiBotPlayer*)dead;
-			deadBot->GetBrain()->OnDeath(dead, killer, dir, damage);
-		}
+	if (dead->IsType(afiBotPlayer::Type)) {
+		afiBotPlayer* deadBot = (afiBotPlayer*)dead;
+		deadBot->GetBrain()->OnDeath(dead, killer, dir, damage);
+	}
 
 	if (killer && killer == dead) {
 		PrintMessageEvent(-1, MSG_SUICIDE, dead->entityNumber);
@@ -1595,100 +1600,92 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 	gameLocal.DPrintf("%s -> %s\n", GameStateStrings[gameState], GameStateStrings[news]);
 	switch (news) {
 	case GAMEON: {
-			gameLocal.LocalMapRestart();
-			outMsg.Init(msgBuf, sizeof(msgBuf));
-			outMsg.WriteByte(GAME_RELIABLE_MESSAGE_RESTART);
-			outMsg.WriteBits(0, 1);
-			networkSystem->ServerSendReliableMessage(-1, outMsg);
+		gameLocal.LocalMapRestart();
+		outMsg.Init(msgBuf, sizeof(msgBuf));
+		outMsg.WriteByte(GAME_RELIABLE_MESSAGE_RESTART);
+		outMsg.WriteBits(0, 1);
+		networkSystem->ServerSendReliableMessage(-1, outMsg);
 
 #ifdef CTF
-<<<<<<< HEAD
-			teamPoints[0] = 0;
-			teamPoints[1] = 0;
-=======
+
 		teamPoints[0] = 0;
 		teamPoints[1] = 0;
+
 		//totalTeamCapturePoints[0] = 0;
 		//totalTeamCapturePoints[1] = 0;
 		//totalTeamFragPoints[0] = 0;
 		//totalTeamFragPoints[1] = 0;
 		//teamWins[0] = 0;
 		//teamWins[1] = 0;
->>>>>>> buddybots_Dylan
 
-			ClearHUDStatus();
+		ClearHUDStatus();
 #endif
 
-			PlayGlobalSound(-1, SND_FIGHT);
-			matchStartedTime = gameLocal.time;
-			fragLimitTimeout = 0;
-			for (i = 0; i < gameLocal.numClients; i++) {
-				idEntity *ent = gameLocal.entities[i];
-				if (!ent || !ent->IsType(idPlayer::Type)) {
-					continue;
-				}
-				idPlayer *p = static_cast<idPlayer *>(ent);
+		PlayGlobalSound(-1, SND_FIGHT);
+		matchStartedTime = gameLocal.time;
+		fragLimitTimeout = 0;
+		for (i = 0; i < gameLocal.numClients; i++) {
+			idEntity *ent = gameLocal.entities[i];
+			if (!ent || !ent->IsType(idPlayer::Type)) {
+				continue;
+			}
+			idPlayer *p = static_cast<idPlayer *>(ent);
 
-				for (j = 0; j < gameLocal.playerEntities.Num(); ++j) {
-					if (gameLocal.playerEntities[j].name.Icmp((const char*) (p->name.c_str() + 4)) == 0 && !gameLocal.playerEntities[j].used) {
-						gameLocal.playerEntities[j].used = true;
-						if (p->team != gameLocal.playerEntities[j].team) {
-							gameLocal.SwitchTeam(i, gameLocal.playerEntities[j].team);
-							p->team = gameLocal.playerEntities[j].team;
-							p->UpdateSkinSetup(false);
-						}
+			for (j = 0; j < gameLocal.playerEntities.Num(); ++j) {
+				if (gameLocal.playerEntities[j].name.Icmp((const char*)(p->name.c_str() + 4)) == 0 && !gameLocal.playerEntities[j].used) {
+					gameLocal.playerEntities[j].used = true;
+					if (p->team != gameLocal.playerEntities[j].team) {
+						gameLocal.SwitchTeam(i, gameLocal.playerEntities[j].team);
+						p->team = gameLocal.playerEntities[j].team;
+						p->UpdateSkinSetup(false);
 					}
-				}
-
-				p->SetLeader(false); // don't carry the flag from previous games
-				if (gameLocal.gameType == GAME_TOURNEY && currentTourneyPlayer[0] != i && currentTourneyPlayer[1] != i) {
-					p->ServerSpectate(true);
-					p->tourneyRank++;
-				}
-				else {
-					int fragLimit = gameLocal.serverInfo.GetInt("si_fragLimit");
-					int startingCount = (gameLocal.gameType == GAME_LASTMAN) ? fragLimit : 0;
-					playerState[i].fragCount = startingCount;
-					playerState[i].teamFragCount = startingCount;
-					if (!static_cast<idPlayer *>(ent)->wantSpectate) {
-						static_cast<idPlayer *>(ent)->ServerSpectate(false);
-						if (gameLocal.gameType == GAME_TOURNEY) {
-							p->tourneyRank = 0;
-						}
-					}
-				}
-				if (CanPlay(p)) {
-					p->lastManPresent = true;
-				}
-				else {
-					p->lastManPresent = false;
 				}
 			}
-			cvarSystem->SetCVarString("ui_ready", "Not Ready");
-			switchThrottle[1] = 0;	// passby the throttle
-			startFragLimit = gameLocal.serverInfo.GetInt("si_fragLimit");
-			break;
+
+			p->SetLeader(false); // don't carry the flag from previous games
+			if (gameLocal.gameType == GAME_TOURNEY && currentTourneyPlayer[0] != i && currentTourneyPlayer[1] != i) {
+				p->ServerSpectate(true);
+				p->tourneyRank++;
+			}
+			else {
+				int fragLimit = gameLocal.serverInfo.GetInt("si_fragLimit");
+				int startingCount = (gameLocal.gameType == GAME_LASTMAN) ? fragLimit : 0;
+				playerState[i].fragCount = startingCount;
+				playerState[i].teamFragCount = startingCount;
+				if (!static_cast<idPlayer *>(ent)->wantSpectate) {
+					static_cast<idPlayer *>(ent)->ServerSpectate(false);
+					if (gameLocal.gameType == GAME_TOURNEY) {
+						p->tourneyRank = 0;
+					}
+				}
+			}
+			if (CanPlay(p)) {
+				p->lastManPresent = true;
+			}
+			else {
+				p->lastManPresent = false;
+			}
 		}
+		cvarSystem->SetCVarString("ui_ready", "Not Ready");
+		switchThrottle[1] = 0;	// passby the throttle
+		startFragLimit = gameLocal.serverInfo.GetInt("si_fragLimit");
+		break;
+	}
 	case GAMEREVIEW: {
 #ifdef CTF
-			SetFlagMsg(false);
+		SetFlagMsg(false);
 #endif
-			nextState = INACTIVE;	// used to abort a game. cancel out any upcoming state change
-			// set all players not ready and spectating
-			for (i = 0; i < gameLocal.numClients; i++) {
-				idEntity *ent = gameLocal.entities[i];
-				if (!ent || !ent->IsType(idPlayer::Type)) {
-					continue;
-				}
-				static_cast<idPlayer *>(ent)->forcedReady = false;
-				static_cast<idPlayer *>(ent)->ServerSpectate(true);
+		nextState = INACTIVE;	// used to abort a game. cancel out any upcoming state change
+		// set all players not ready and spectating
+		for (i = 0; i < gameLocal.numClients; i++) {
+			idEntity *ent = gameLocal.entities[i];
+			if (!ent || !ent->IsType(idPlayer::Type)) {
+				continue;
 			}
-<<<<<<< HEAD
-			UpdateWinsLosses(player);
-=======
 			static_cast<idPlayer *>(ent)->forcedReady = false;
 			static_cast<idPlayer *>(ent)->ServerSpectate(true);
 		}
+
 		UpdateWinsLosses(player);
 		SetFlagMsg(true);
 		break;
@@ -1722,46 +1719,45 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 			static_cast<idPlayer *>(ent)->ServerSpectate(true);
 		}
 		UpdateWinsLosses(player);
->>>>>>> buddybots_Dylan
 #ifdef CTF
-			SetFlagMsg(true);
+		SetFlagMsg(true);
 #endif
-			break;
-		}
+		break;
+	}
 	case SUDDENDEATH: {
-			PrintMessageEvent(-1, MSG_SUDDENDEATH);
-			PlayGlobalSound(-1, SND_SUDDENDEATH);
-			break;
-		}
+		PrintMessageEvent(-1, MSG_SUDDENDEATH);
+		PlayGlobalSound(-1, SND_SUDDENDEATH);
+		break;
+	}
 	case COUNTDOWN: {
-			idBitMsg	outMsg;
-			byte		msgBuf[128];
+		idBitMsg	outMsg;
+		byte		msgBuf[128];
 
-			warmupEndTime = gameLocal.time + 1000 * cvarSystem->GetCVarInteger("g_countDown");
+		warmupEndTime = gameLocal.time + 1000 * cvarSystem->GetCVarInteger("g_countDown");
 
-			outMsg.Init(msgBuf, sizeof(msgBuf));
-			outMsg.WriteByte(GAME_RELIABLE_MESSAGE_WARMUPTIME);
-			outMsg.WriteInt(warmupEndTime);
-			networkSystem->ServerSendReliableMessage(-1, outMsg);
+		outMsg.Init(msgBuf, sizeof(msgBuf));
+		outMsg.WriteByte(GAME_RELIABLE_MESSAGE_WARMUPTIME);
+		outMsg.WriteInt(warmupEndTime);
+		networkSystem->ServerSendReliableMessage(-1, outMsg);
 
-			break;
-		}
+		break;
+	}
 #ifdef CTF
 	case WARMUP: {
-			teamPoints[0] = 0;
-			teamPoints[1] = 0;
+		teamPoints[0] = 0;
+		teamPoints[1] = 0;
 
-			if (IsGametypeFlagBased()) {
-				// reset player scores to zero, only required for CTF
-				for (i = 0; i < gameLocal.numClients; i++) {
-					idEntity *ent = gameLocal.entities[i];
-					if (!ent || !ent->IsType(idPlayer::Type)) {
-						continue;
-					}
-					playerState[i].fragCount = 0;
+		if (IsGametypeFlagBased()) {
+			// reset player scores to zero, only required for CTF
+			for (i = 0; i < gameLocal.numClients; i++) {
+				idEntity *ent = gameLocal.entities[i];
+				if (!ent || !ent->IsType(idPlayer::Type)) {
+					continue;
 				}
+				playerState[i].fragCount = 0;
 			}
 		}
+	}
 #endif
 	default:
 		break;
@@ -2058,17 +2054,8 @@ void idMultiplayerGame::Run() {
 	}
 
 	warmupText = "";
-
 	switch (gameState) {
 	case GAMEREVIEW: {
-<<<<<<< HEAD
-			if (nextState == INACTIVE) {
-				gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
-				nextState = NEXTGAME;
-				nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
-			}
-			break;
-=======
 		if (nextState == INACTIVE) {
 			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
 			nextState = NEXTGAME;
@@ -2078,9 +2065,8 @@ void idMultiplayerGame::Run() {
 			if (replayCount < 1) {
 				nextState = SCOREREVIEW;
 			}
+			break;
 		}
-		break;
-	}
 	case ENDREVIEW: {
 		if (nextState == INACTIVE) {
 			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
@@ -2094,165 +2080,166 @@ void idMultiplayerGame::Run() {
 			gameReviewPause = cvarSystem->GetCVarInteger("g_gameReviewPause");
 			nextState = ENDREVIEW;
 			nextStateSwitch = gameLocal.time + 1000 * gameReviewPause;
->>>>>>> buddybots_Dylan
 		}
+		break;
+	}
 	case NEXTGAME: {
-			if (nextState == INACTIVE) {
-				// game rotation, new map, gametype etc.
-				if (gameLocal.NextMap()) {
-					cmdSystem->BufferCommandText(CMD_EXEC_APPEND, "serverMapRestart\n");
-					return;
-				}
+		if (nextState == INACTIVE) {
+			// game rotation, new map, gametype etc.
+			if (gameLocal.NextMap()) {
+				cmdSystem->BufferCommandText(CMD_EXEC_APPEND, "serverMapRestart\n");
+				return;
+			}
 #ifdef CTF
-				// make sure flags are returned
-				if (IsGametypeFlagBased()) {
-					idItemTeam * flag;
-					flag = GetTeamFlag(0);
-					if (flag) {
-						flag->Return();
-					}
-					flag = GetTeamFlag(1);
-					if (flag) {
-						flag->Return();
-					}
+			// make sure flags are returned
+			if (IsGametypeFlagBased()) {
+				idItemTeam * flag;
+				flag = GetTeamFlag(0);
+				if (flag) {
+					flag->Return();
 				}
+				flag = GetTeamFlag(1);
+				if (flag) {
+					flag->Return();
+				}
+			}
 #endif
-				NewState(WARMUP);
-				if (gameLocal.gameType == GAME_TOURNEY) {
-					CycleTourneyPlayers();
-				}
-				// put everyone back in from endgame spectate
-				for (i = 0; i < gameLocal.numClients; i++) {
-					idEntity *ent = gameLocal.entities[i];
-					if (ent && ent->IsType(idPlayer::Type)) {
-						if (!static_cast<idPlayer *>(ent)->wantSpectate) {
-							CheckRespawns(static_cast<idPlayer *>(ent));
-						}
+			NewState(WARMUP);
+			if (gameLocal.gameType == GAME_TOURNEY) {
+				CycleTourneyPlayers();
+			}
+			// put everyone back in from endgame spectate
+			for (i = 0; i < gameLocal.numClients; i++) {
+				idEntity *ent = gameLocal.entities[i];
+				if (ent && ent->IsType(idPlayer::Type)) {
+					if (!static_cast<idPlayer *>(ent)->wantSpectate) {
+						CheckRespawns(static_cast<idPlayer *>(ent));
 					}
 				}
 			}
-			break;
 		}
+		break;
+	}
 	case WARMUP: {
-			if (AllPlayersReady()) {
-				NewState(COUNTDOWN);
-				nextState = GAMEON;
-				nextStateSwitch = gameLocal.time + 1000 * cvarSystem->GetCVarInteger("g_countDown");
-			}
-			warmupText = "Warming up.. waiting for players to get ready";
-			one = two = three = false;
-			break;
+		if (AllPlayersReady()) {
+			NewState(COUNTDOWN);
+			nextState = GAMEON;
+			nextStateSwitch = gameLocal.time + 1000 * cvarSystem->GetCVarInteger("g_countDown");
 		}
+		warmupText = "Warming up.. waiting for players to get ready";
+		one = two = three = false;
+		break;
+	}
 	case COUNTDOWN: {
-			timeLeft = (nextStateSwitch - gameLocal.time) / 1000 + 1;
-			if (timeLeft == 3 && !three) {
-				PlayGlobalSound(-1, SND_THREE);
-				three = true;
-			}
-			else if (timeLeft == 2 && !two) {
-				PlayGlobalSound(-1, SND_TWO);
-				two = true;
-			}
-			else if (timeLeft == 1 && !one) {
-				PlayGlobalSound(-1, SND_ONE);
-				one = true;
-			}
-			warmupText = va("Match starts in %i", timeLeft);
-			break;
+		timeLeft = (nextStateSwitch - gameLocal.time) / 1000 + 1;
+		if (timeLeft == 3 && !three) {
+			PlayGlobalSound(-1, SND_THREE);
+			three = true;
 		}
+		else if (timeLeft == 2 && !two) {
+			PlayGlobalSound(-1, SND_TWO);
+			two = true;
+		}
+		else if (timeLeft == 1 && !one) {
+			PlayGlobalSound(-1, SND_ONE);
+			one = true;
+		}
+		warmupText = va("Match starts in %i", timeLeft);
+		break;
+	}
 	case GAMEON: {
 #ifdef CTF
-			if (IsGametypeFlagBased()) { /* CTF */
-				// totally different logic branch for CTF
-				if (PointLimitHit()) {
-					int team = WinningTeam();
-					assert(team != -1);
+		if (IsGametypeFlagBased()) { /* CTF */
+			// totally different logic branch for CTF
+			if (PointLimitHit()) {
+				int team = WinningTeam();
+				assert(team != -1);
 
-					NewState(GAMEREVIEW, NULL);
-					PrintMessageEvent(-1, MSG_POINTLIMIT, team);
-				}
-				else if (TimeLimitHit()) {
-					int team = WinningTeam();
-					if (EnoughClientsToPlay() && team == -1) {
-						NewState(SUDDENDEATH);
-					}
-					else {
-						NewState(GAMEREVIEW, NULL);
-						PrintMessageEvent(-1, MSG_TIMELIMIT);
-					}
-				}
-				break;
+				NewState(GAMEREVIEW, NULL);
+				PrintMessageEvent(-1, MSG_POINTLIMIT, team);
 			}
-#endif
-
-			player = FragLimitHit();
-			if (player) {
-				// delay between detecting frag limit and ending game. let the death anims play
-				if (!fragLimitTimeout) {
-					common->DPrintf("enter FragLimit timeout, player %d is leader\n", player->entityNumber);
-					fragLimitTimeout = gameLocal.time + FRAGLIMIT_DELAY;
-				}
-				if (gameLocal.time > fragLimitTimeout) {
-					NewState(GAMEREVIEW, player);
-					PrintMessageEvent(-1, MSG_FRAGLIMIT, player->entityNumber);
-				}
-			}
-			else {
-				if (fragLimitTimeout) {
-					// frag limit was hit and cancelled. means the two teams got even during FRAGLIMIT_DELAY
-					// enter sudden death, the next frag leader will win
-					SuddenRespawn();
-					PrintMessageEvent(-1, MSG_HOLYSHIT);
-					fragLimitTimeout = 0;
+			else if (TimeLimitHit()) {
+				int team = WinningTeam();
+				if (EnoughClientsToPlay() && team == -1) {
 					NewState(SUDDENDEATH);
 				}
-				else if (TimeLimitHit()) {
-					player = FragLeader();
-					if (!player) {
-						NewState(SUDDENDEATH);
-					}
-					else {
-						NewState(GAMEREVIEW, player);
-						PrintMessageEvent(-1, MSG_TIMELIMIT);
-					}
+				else {
+					NewState(GAMEREVIEW, NULL);
+					PrintMessageEvent(-1, MSG_TIMELIMIT);
 				}
 			}
 			break;
 		}
-	case SUDDENDEATH: {
-#ifdef CTF
-			if (IsGametypeFlagBased()) { /* CTF */
-				int team = WinningTeam();
-				if (team != -1) {
-					// TODO : implement pointLimitTimeout
-					NewState(GAMEREVIEW, NULL);
-					PrintMessageEvent(-1, MSG_POINTLIMIT, team);
-				}
-				break;
-			}
 #endif
 
-			player = FragLeader();
-			if (player) {
-				if (!fragLimitTimeout) {
-					common->DPrintf("enter sudden death FragLeader timeout, player %d is leader\n", player->entityNumber);
-					fragLimitTimeout = gameLocal.time + FRAGLIMIT_DELAY;
-				}
-				if (gameLocal.time > fragLimitTimeout) {
-					NewState(GAMEREVIEW, player);
-					PrintMessageEvent(-1, MSG_FRAGLIMIT, player->entityNumber);
-				}
+		player = FragLimitHit();
+		if (player) {
+			// delay between detecting frag limit and ending game. let the death anims play
+			if (!fragLimitTimeout) {
+				common->DPrintf("enter FragLimit timeout, player %d is leader\n", player->entityNumber);
+				fragLimitTimeout = gameLocal.time + FRAGLIMIT_DELAY;
 			}
-			else if (fragLimitTimeout) {
+			if (gameLocal.time > fragLimitTimeout) {
+				NewState(GAMEREVIEW, player);
+				PrintMessageEvent(-1, MSG_FRAGLIMIT, player->entityNumber);
+			}
+		}
+		else {
+			if (fragLimitTimeout) {
+				// frag limit was hit and cancelled. means the two teams got even during FRAGLIMIT_DELAY
+				// enter sudden death, the next frag leader will win
 				SuddenRespawn();
 				PrintMessageEvent(-1, MSG_HOLYSHIT);
 				fragLimitTimeout = 0;
+				NewState(SUDDENDEATH);
+			}
+			else if (TimeLimitHit()) {
+				player = FragLeader();
+				if (!player) {
+					NewState(SUDDENDEATH);
+				}
+				else {
+					NewState(GAMEREVIEW, player);
+					PrintMessageEvent(-1, MSG_TIMELIMIT);
+				}
+			}
+		}
+		break;
+	}
+	case SUDDENDEATH: {
+#ifdef CTF
+		if (IsGametypeFlagBased()) { /* CTF */
+			int team = WinningTeam();
+			if (team != -1) {
+				// TODO : implement pointLimitTimeout
+				NewState(GAMEREVIEW, NULL);
+				PrintMessageEvent(-1, MSG_POINTLIMIT, team);
 			}
 			break;
 		}
+#endif
+
+		player = FragLeader();
+		if (player) {
+			if (!fragLimitTimeout) {
+				common->DPrintf("enter sudden death FragLeader timeout, player %d is leader\n", player->entityNumber);
+				fragLimitTimeout = gameLocal.time + FRAGLIMIT_DELAY;
+			}
+			if (gameLocal.time > fragLimitTimeout) {
+				NewState(GAMEREVIEW, player);
+				PrintMessageEvent(-1, MSG_FRAGLIMIT, player->entityNumber);
+			}
+		}
+		else if (fragLimitTimeout) {
+			SuddenRespawn();
+			PrintMessageEvent(-1, MSG_HOLYSHIT);
+			fragLimitTimeout = 0;
+		}
+		break;
+	}
+	}
 	}
 }
-
 /*
 ================
 idMultiplayerGame::UpdateMainGui
@@ -3858,31 +3845,31 @@ void idMultiplayerGame::ServerCallVote(int clientNum, const idBitMsg &msg) {
 		ClientStartVote(clientNum, va(common->GetLanguageDict()->GetString("#str_04302"), vote_clientNum, gameLocal.userInfo[vote_clientNum].GetString("ui_name")));
 		break;
 	case VOTE_MAP: {
-			if (idStr::FindText(gameLocal.serverInfo.GetString("si_map"), value) != -1) {
-				gameLocal.ServerSendChatMessage(clientNum, "server", va(common->GetLanguageDict()->GetString("#str_04295"), value));
-				common->DPrintf("client %d: already running the voted map: %s\n", clientNum, value);
-				return;
-			}
-			int				num = fileSystem->GetNumMaps();
-			int				i;
-			const idDict	*dict;
-			bool			haveMap = false;
-			for (i = 0; i < num; i++) {
-				dict = fileSystem->GetMapDecl(i);
-				if (dict && !idStr::Icmp(dict->GetString("path"), value)) {
-					haveMap = true;
-					break;
-				}
-			}
-			if (!haveMap) {
-				gameLocal.ServerSendChatMessage(clientNum, "server", va(common->GetLanguageDict()->GetString("#str_04296"), value));
-				common->Printf("client %d: map not found: %s\n", clientNum, value);
-				return;
-			}
-			ServerStartVote(clientNum, voteIndex, value);
-			ClientStartVote(clientNum, va(common->GetLanguageDict()->GetString("#str_04256"), common->GetLanguageDict()->GetString(dict ? dict->GetString("name") : value)));
-			break;
+		if (idStr::FindText(gameLocal.serverInfo.GetString("si_map"), value) != -1) {
+			gameLocal.ServerSendChatMessage(clientNum, "server", va(common->GetLanguageDict()->GetString("#str_04295"), value));
+			common->DPrintf("client %d: already running the voted map: %s\n", clientNum, value);
+			return;
 		}
+		int				num = fileSystem->GetNumMaps();
+		int				i;
+		const idDict	*dict;
+		bool			haveMap = false;
+		for (i = 0; i < num; i++) {
+			dict = fileSystem->GetMapDecl(i);
+			if (dict && !idStr::Icmp(dict->GetString("path"), value)) {
+				haveMap = true;
+				break;
+			}
+		}
+		if (!haveMap) {
+			gameLocal.ServerSendChatMessage(clientNum, "server", va(common->GetLanguageDict()->GetString("#str_04296"), value));
+			common->Printf("client %d: map not found: %s\n", clientNum, value);
+			return;
+		}
+		ServerStartVote(clientNum, voteIndex, value);
+		ClientStartVote(clientNum, va(common->GetLanguageDict()->GetString("#str_04256"), common->GetLanguageDict()->GetString(dict ? dict->GetString("name") : value)));
+		break;
+	}
 	case VOTE_SPECTATORS:
 		if (gameLocal.serverInfo.GetBool("si_spectators")) {
 			ServerStartVote(clientNum, voteIndex, "");
@@ -4721,7 +4708,7 @@ idMultiplayerGame::ReloadScoreboard
 void idMultiplayerGame::ReloadScoreboard() {
 	// CTF uses its own scoreboard
 	if (IsGametypeFlagBased())
-		scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
+		scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
 	else
 		scoreBoard = uiManager->FindGui("guis/scoreboard.gui", true, false, true);
 
