@@ -207,6 +207,7 @@ void idMultiplayerGame::Reset() {
 	// CTF uses its own scoreboard
 	if (IsGametypeFlagBased())
 		scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
+		//scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
 	else
 		scoreBoard = uiManager->FindGui("guis/scoreboard.gui", true, false, true);
 #endif
@@ -1136,8 +1137,8 @@ by both teams throughout games
 */
 void idMultiplayerGame::AddToTotalTeamPoints(int _team) {
 	teamWins[_team] += 1;
-	totalTeamCapturePoints[0] += teamPoints[0];
-	totalTeamCapturePoints[1] += teamPoints[1];
+	//totalTeamCapturePoints[0] += teamPoints[0];
+	//totalTeamCapturePoints[1] += teamPoints[1];
 }
 
 /*
@@ -1372,6 +1373,8 @@ void idMultiplayerGame::PlayerScoreCTF(int playerIdx, int delta) {
 
 	if (delta == 5)
 		totalTeamFlagReturns[team] += 1;
+	if (delta == 10)
+		totalTeamCapturePoints[team] += 1;
 
 	playerState[playerIdx].fragCount += delta;
 	totalTeamFragPoints[team] += delta;
@@ -1417,8 +1420,10 @@ idMultiplayerGame::TeamScore
 void idMultiplayerGame::TeamScore(int entityNumber, int team, int delta) {
 	playerState[entityNumber].fragCount += delta;
 
-	//if (delta == 1)
-	//	totalTeamKills[team] += 1;
+	if (delta == 1) {
+		totalTeamKills[team] += 1;
+		totalTeamFragPoints[team] += delta;
+	}
 
 	for (int i = 0; i < gameLocal.numClients; i++) {
 		idEntity *ent = gameLocal.entities[i];
@@ -1428,7 +1433,6 @@ void idMultiplayerGame::TeamScore(int entityNumber, int team, int delta) {
 		idPlayer *player = static_cast<idPlayer *>(ent);
 		if (player->team == team) {
 			playerState[player->entityNumber].teamFragCount += delta;
-			totalTeamFragPoints[team] += delta;
 		}
 	}
 }
@@ -1610,13 +1614,6 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 
 		teamPoints[0] = 0;
 		teamPoints[1] = 0;
-
-		//totalTeamCapturePoints[0] = 0;
-		//totalTeamCapturePoints[1] = 0;
-		//totalTeamFragPoints[0] = 0;
-		//totalTeamFragPoints[1] = 0;
-		//teamWins[0] = 0;
-		//teamWins[1] = 0;
 
 		ClearHUDStatus();
 #endif
