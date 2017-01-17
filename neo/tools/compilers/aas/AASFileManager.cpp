@@ -71,5 +71,8 @@ idAASFileManagerLocal::FreeAAS
 ================
 */
 void idAASFileManagerLocal::FreeAAS( idAASFile *file ) {
-	delete file;
+	if (file->GetArea(0).reach && file->GetArea(0).rev_reach) {
+		if (file->GetName())
+			delete file;
+	}
 }

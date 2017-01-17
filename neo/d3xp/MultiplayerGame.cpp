@@ -265,6 +265,18 @@ void idMultiplayerGame::SpawnPlayer(int clientNum) {
 
 /*
 ================
+idMultiplayerGame::ForceSpectate
+================
+*/
+void idMultiplayerGame::ForceSpectate( int clientNum ) {
+	idPlayer* player;
+	player = static_cast<idPlayer *>(gameLocal.entities[clientNum]);
+	
+	player->Spectate(true);
+}
+
+/*
+================
 idMultiplayerGame::Clear
 ================
 */
@@ -4706,6 +4718,7 @@ void idMultiplayerGame::ReloadScoreboard() {
 	// CTF uses its own scoreboard
 	if (IsGametypeFlagBased())
 		scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
+		//scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
 	else
 		scoreBoard = uiManager->FindGui("guis/scoreboard.gui", true, false, true);
 

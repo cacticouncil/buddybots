@@ -275,6 +275,9 @@ public:
 
 	void			Precache( void );
 
+	// Changes the user to a spectator to observer the bots
+	void			ForceSpectate( int clientNum );
+
 	// throttle UI switch rates
 	void			ThrottleUserInfo( void );
 	void			ToggleSpectate( void );
