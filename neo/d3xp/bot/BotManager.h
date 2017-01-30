@@ -194,6 +194,7 @@ public:
 	static void					Shutdown(void);
 	static void					UpdateUserInfo(void);
 	static void					ConsolePrint(const char* string);
+	static void					AddBotGUIWrite();
 
 	static void					Cmd_BotInfo_f(const idCmdArgs& args);
 	static void					Cmd_AddBot_f(const idCmdArgs& args);
@@ -206,6 +207,7 @@ public:
 	static void					Cmd_ReloadAllBots_f(const idCmdArgs& args);
 	static void					Cmd_PrintAllBots_f(const idCmdArgs& args);
 	static void					Cmd_RemoveBotIndex_f(const idCmdArgs& args);
+	static void					Cmd_AddBotGUIRead(const idCmdArgs& args);
 	static void					AddBot(const idCmdArgs& args);
 	static void					DropABot(void);
 	static void					RemoveBotMP(int clientNum);
@@ -255,6 +257,8 @@ public:
 	static bool					LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile);
 	static bool					LoadTeam(idStr teamPakName, teamInfo_t*& outputTeamProfile);
 	static void					LoadAllBots();
+	static int					GetBotNum();
+	static idStr				GetBotName(int index);
 	static void					ParseForBotName(void* defBuffer, unsigned bufferLength, const char* name, idStr& botName, idStr& authorName, idStr& botType, idStr& botSpawnClass);
 	static void					ParseForTeamName(void* defBuffer, unsigned bufferLength, const char* name, idStr& teamName, int& teamSize, idStrList& bots, idList<bool>& used);
 
@@ -276,8 +280,10 @@ private:
 	static idList<removeInfo_t*>removeBots;
 	static idList<teamInfo_t*>	loadedTeams;
 	static idList<teamInfo_t*>	addedTeams;
+	static idStr				allLoadedBots;
 	static unsigned int			numBots;
 	static int					numQueBots;
+	static const char*			loadedBotFile;
 
 	//Worker thread control variables
 	static unsigned int			workerThreadCount;

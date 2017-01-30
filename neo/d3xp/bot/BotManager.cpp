@@ -23,6 +23,8 @@ afiBotManager *				BotManager = &afiBotManagerLocal;
 
 unsigned int				afiBotManager::numBots = 0;
 int							afiBotManager::numQueBots = 0;
+const char*					afiBotManager::loadedBotFile = "loadedbots.txt";
+idStr						afiBotManager::allLoadedBots;
 int							afiBotManager::botEntityDefNumber[MAX_CLIENTS];
 bool						afiBotManager::botSpawned[MAX_CLIENTS];
 atomic<bool>				afiBotManager::gameEnd = false;
@@ -790,9 +792,8 @@ bool afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
 			//Setup python object to spawn the bot class later on.
 			outputBotProfile->botClassInstance = gameLocal.globalNamespace[botSpawnClass.c_str()];
 		}
+
 	}
-
-
 
 	delete[] defBuffer;
 	//Memory created on the engine heap must also be freed on the engine heap
@@ -887,6 +888,12 @@ void afiBotManager::LoadAllBots() {
 		AddBotInfo(newBotProfiles[botLoadCount]);
 	}
 
+	for (int i = 0; i < loadedBots.Num(); ++i) {
+			allLoadedBots += (loadedBots[i]->botName + "\r\n");
+		}
+
+	fileSystem->WriteFile(va("loadedBots/%s", loadedBotFile), allLoadedBots.c_str(), allLoadedBots.LengthWithoutColors());
+
 	teamInfo_t** newTeamProfiles = new teamInfo_t*[numTeamPaks];
 
 	for (iTeamPak = 0; iTeamPak < numTeamPaks; ++iTeamPak, ++teamLoadCount) {
@@ -923,6 +930,14 @@ void afiBotManager::LoadAllBots() {
 	delete[] newBotProfiles;
 	fileSystem->FreeFileList(brainPaks);
 	fileSystem->FreeFileList(teamPaks);
+}
+
+int afiBotManager::GetBotNum() {
+	return loadedBots.Num();
+}
+
+idStr afiBotManager::GetBotName(int index) {
+	return loadedBots[index]->botName;
 }
 
 botInfo_t* afiBotManager::FindBotProfileByIndex(int clientNum) {

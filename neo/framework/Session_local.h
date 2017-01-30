@@ -246,6 +246,10 @@ public:
 	idUserInterface *	guiInGame;
 	idUserInterface *	guiMainMenu;
 	idListGUI *			guiMainMenu_MapList;		// easy map list handling
+	const char *		guiFileRead;
+	char *				guiFileChar;
+	idListGUI *			guiMainMenu_BotList;		// easy bot list handling
+	idListGUI *			guiMainMenu_QueuedBotList;	// List of bots loaded into the game queue
 	idUserInterface *	guiRestartMenu;
 	idUserInterface *	guiLoading;
 	idUserInterface *	guiIntro;
