@@ -6384,7 +6384,473 @@ windowDef SaveGameParent {
 //--LOAD GAME SCREEN--//
 
 //********************************************************************************************************************************//
+////////////////////////////////Test Load bot/////////////////////////
+windowDef LoadGameParentBot {
+	rect		0, 0, 0, 0
+	float LoadGameSelected	0
 
+	//section Load Game background
+	windowDef LoadGameBackgroundBot {
+		rect		0, 0, 640, 480
+		visible 1
+
+//BUTTONS TO CONTENT BRIDGE
+
+ 		//section bg bridge part 1
+		windowDef LoadGameBgBridge1Bot {
+			rect		185, 380, -16, 16
+			background	"gui/mainmenu/cframe_small"
+			matcolor	0.2 ,0.42 ,0.67 ,0
+			noevents	1
+		}
+ 		//section bg bridge part 2
+		windowDef LoadGameBgBridge2Bot {
+			rect		201, 396, -16, 16
+			background	"gui/mainmenu/cframe_small"
+			matcolor	0.2 ,0.42 ,0.67 ,0
+			noevents	1
+		}
+		//section bg bridge part 3
+		windowDef LoadGameBgBridge3Bot {
+			rect		201, 380, 225, 16
+			backcolor	0.2 ,0.42 ,0.67 ,0
+			noevents	1
+		}
+		//section bg bridge part 4
+		windowDef LoadGameBgBridge4Bot {
+			rect		217, 396, 193, 16
+			backcolor	0.2 ,0.42 ,0.67 ,0
+			noevents	1
+		}
+		//section bg bridge part 5
+		windowDef LoadGameBgBridge5Bot {
+			rect		426, 380, 16, 16
+			background	"gui/mainmenu/cframe_small"
+			matcolor	0.2 ,0.42 ,0.67 ,0
+			noevents	1
+		}
+		//section bg bridge part 6
+		windowDef LoadGameBgBridge6Bot {
+			rect		410, 396, 16, 16
+			background	"gui/mainmenu/cframe_small"
+			matcolor	0.2 ,0.42 ,0.67 ,0
+			noevents	1
+		}
+
+//BUTTONS TO CONTENT FLAIR
+
+		//section bg flair part 1
+		windowDef LoadGameBgFlair1Bot {
+			rect		476, 265, 7, 7
+			background	"gui/mainmenu/cframe_small2"
+			matcolor	0.4 ,0.6 ,0.8 ,0
+			noevents	1
+		}
+		//section bg flair part 2
+		windowDef LoadGameBgFlair2Bot {
+			rect		476, 272, -7, -7
+			background	"gui/mainmenu/cframe_small2"
+			matcolor	0.4 ,0.6 ,0.8 ,0
+			noevents	1
+		}
+		//section bg flair part 3
+		windowDef LoadGameBgFlair3Bot {
+			rect		476, 272, 7, 0
+			backcolor	0.4 ,0.6 ,0.8 ,0
+			noevents	1
+		}
+		//section bg flair part 4
+		windowDef LoadGameBgFlair4Bot {
+			rect		174, 380, -7, 7
+			background	"gui/mainmenu/cframe_small"
+			matcolor	0.4 ,0.6 ,0.8 ,0
+			noevents	1
+		}
+		//section bg flair part 5
+		windowDef LoadGameBgFlair5Bot {
+			rect		181, 380, 0, 7
+			backcolor	0.4 ,0.6 ,0.8 ,0
+			noevents	1
+		}
+		//section bg flair part 6
+		windowDef LoadGameBgFlair6Bot {
+			rect		181, 380, 7, -7
+			background	"gui/mainmenu/cframe_small"
+			matcolor	0.4 ,0.6 ,0.8 ,0
+			noevents	1
+		}
+
+//CONTENT AREA
+
+		//background part 1
+		windowDef LoadGameBgMain1Bot {
+			rect		150, 188, -32, -32
+			background	"gui/mainmenu/content_smallcorner"
+			matcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 2
+		windowDef LoadGameBgMain2Bot {
+			rect		182, 188, 268, 32
+			backcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 3
+		windowDef LoadGameBgMain3Bot {
+			rect		450, 188, -32, -32
+			background	"gui/mainmenu/content_corner"
+			matcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 4
+		windowDef LoadGameBgMain4Bot {
+			rect		150, 220, 324, 126
+		//	backcolor	0.13 ,0.24 ,0.35 ,0.7
+			backcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 5
+		windowDef LoadGameBgMain5Bot {
+			rect		474, 262, -8, -8
+			background	"gui/mainmenu/cframe_small2"
+			matcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 6
+		windowDef LoadGameBgMain6Bot {
+			rect		474, 220, 8, 42
+			backcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 7
+		windowDef LoadGameBgMain7Bot {
+			rect		150, 346, -32, 32
+			background	"gui/mainmenu/content_smallcorner"
+			matcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 8
+		windowDef LoadGameBgMain8Bot {
+			rect		182, 346, 260, 32
+			backcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 9
+		windowDef LoadGameBgMain9Bot {
+			rect		442, 346, -32, 32
+			background	"gui/mainmenu/content_corner"
+			matcolor	0.18 ,0.25 ,0.32 ,0
+			noevents	1
+		}
+		//background part 14 Overglow
+		windowDef LoadGameBgMain14Bot {
+			rect		153, 191, 340, 279
+			background	"gui/mainmenu/content_glow"
+			matcolor	1, 1, 1, 0
+			noevents	1
+		}
+	}
+
+	//section Load Game content
+	windowDef LoadGameContentBot {
+		rect		53, 48, 540, 330
+		visible 0
+
+		//Title
+		windowDef LGTitleTextBot {
+			rect		20, 5, 320, 20
+			text		"LOAD BOT"
+			textscale	0.32
+			textaligny	-3
+			forecolor	1, 1, 1, 1
+		}
+		//Title bar
+		windowDef LGCTitleBarBot {
+			rect		5, 23, 510, 2
+			backcolor	0.6 ,0.8 ,1 ,0.2
+			noevents	1
+		}
+
+		//black background
+		windowDef LGCBG1Bot {
+			rect		5, 50, 410, 240
+			backcolor	0, 0, 0, 0.6
+			bordercolor 	0, 0, 0, 1
+			bordersize 	1
+		}
+
+		//LOAD GAME CONTENT
+		windowDef LGCLoadGamesBot {
+			rect		7, 56, 406, 232
+
+			listDef LGCLoadListBot {
+				rect	0, 0, 406, 232
+				foreColor	1, 1, 1, 1
+				bordercolor	0.3 ,0.52 ,0.5 ,0.5
+				textscale	0.25
+				listName	"botList"//"loadGame"
+				tabstops	"2, 230, 312"
+				font	"fonts/an"
+
+				onAction {
+					set "cmd" "play guisounds_click3" ;
+					set "cmd" "BOTScan"; //"updateSaveGameInfo" ;
+					resetTime "LGCBtn1" "0" ;
+					resetTime "LGCBtn2" "0" ;
+				}
+
+				onEnter {
+					set "cmd" "play guisounds_menuclickup" ;
+					set "cmd" "addBot" ;
+				}
+			}
+		}
+
+		//Title Text
+			windowDef LGCText1Bot {
+			rect		7, 38, 195, 10
+			text		"BOT NAME"
+			font		"fonts/bank"
+			textscale	0.25
+			textaligny	-9
+			forecolor	0.6, 0.8, 0.8, 1
+		}
+
+		//Title Text
+		windowDef LGCText2Bot {
+			rect		240, 38, 195, 10
+			text		"Load Bot"
+			font		"fonts/bank"
+			textscale	0.25
+			textaligny	-9
+			forecolor	0.6, 0.8, 0.8, 1
+		}
+
+		//Title Text
+		windowDef LGCText3Bot {
+			rect		322, 38, 195, 10
+			text		"Load Bot"
+			font		"fonts/bank"
+			textscale	0.25
+			textaligny	-9
+			forecolor	0.6, 0.8, 0.8, 1
+		}
+
+		windowDef LGCLevelshotBot {
+			rect		422, 50, 105, 79
+			background	" "
+			matcolor 	1, 1, 1, 1
+			bordersize 	1
+			bordercolor 	0.4, 0.6, 0.6, 1
+			noevents	1
+		}
+
+		windowDef LGCBox1_1Bot {
+			rect		518, 129, -9, -9
+			background	"gui/mainmenu/cframe_small2"
+			matcolor	0.6, 0.8, 1, 0.1
+			noevents	1
+		}
+		windowDef LGCBox1_2Bot {
+			rect		422, 129, 96, 96
+			backcolor	0.6, 0.8, 1, 0.1
+			noevents	1
+		}
+		windowDef LGCBox1_3Bot {
+			rect		422, 225, 86, 19
+			backcolor	0.6, 0.8, 1, 0.1
+			noevents	1
+		}
+		windowDef LGCBox1_4Bot {
+			rect		508, 218, 16, -32
+			background	"gui/mainmenu/button_cornerangle"
+			matcolor	0.6, 0.8, 1, 0.1
+			noevents	1
+		}
+
+		//LOAD GAME CONTENT
+		windowDef LGCLoadGameSpecificBot {
+			rect		425, 140, 90, 100
+
+			//Title Text
+			windowDef LGCTextTempS1Bot {
+				rect		0, 30, 90, 60
+			//	text		"gui::saveGameDescription"
+				text		"gui::saveGameDifficulty"
+				font		"fonts/bank"
+				textscale	0.24
+				textaligny	-9
+				forecolor	0.6, 0.8, 0.8, 1
+				visible 0
+			}
+			//Title Text
+			windowDef LGCTextTempS2Bot {
+				rect		0, 0, 90, 10
+				text		"bot"//"gui::saveGameDate"
+				font		"fonts/bank"
+				textscale	0.25
+				textaligny	-9
+				forecolor	1, 1, 1, 1
+			}
+			windowDef LGCTextTempS3Bot {
+				rect		0, 15, 90, 10
+				text		" "//"gui::saveGameTime"
+				font		"fonts/bank"
+				textscale	0.25
+				textaligny	-9
+				textalign	0
+				forecolor	0.6, 0.8, 0.8, 1
+				visible 1
+			}
+		}
+
+		//button 1
+		windowDef LGCBtn1Bot {
+			rect		418, 244, 110, 28
+			text		"Load Bot" //"#str_02188" // Load Game
+			textscale	0.25
+			textaligny	4
+			forecolor	0.6, 1, 1, 1
+
+			onTime 0 {
+				if ( "gui::loadGame_sel_0" >= 0 ) {
+					set "forecolor" "0.6 1 1 1" ;
+					set "LGCBtn1EdgeGBot::matcolor" "0.5 0.7 0.8 0.5" ;
+					set "LGCBtn1BorderGBot::matcolor" "0.5 0.7 0.8 0.5" ;
+					set "LGCBtn1CornerGBot::matcolor" "0.5 0.7 0.8 0.5" ;
+					set "noevents" "0"
+				} else {
+					set "forecolor" "1 1 1 0.5" ;
+					set "LGCBtn1EdgeGBot::matcolor" "0.4 0.45 0.6 0.5" ;
+					set "LGCBtn1BorderGBot::matcolor" "0.4 0.45 0.6 0.5" ;
+					set "LGCBtn1CornerGBot::matcolor" "0.4 0.45 0.6 0.5" ;
+					set "noevents" "1"
+				}
+			}
+
+			onMouseEnter {
+				transition "forecolor" "0.6 1 1 1" "1 1 1 1" "250" ;
+				transition "LGCBtn1EdgeGBot::matcolor" "0.8 0.9 1 1" "0.6 0.8 0.9 1" "250" ;
+				transition "LGCBtn1BorderGBot::matcolor" "0.8 0.9 1 1" "0.6 0.8 0.9 1" "250" ;
+				transition "LGCBtn1CornerGBot::matcolor" "0.8 0.9 1 1" "0.6 0.8 0.9 1" "250" ;
+
+				resetTime "ToolTip1" "0" ;
+				set "ToolTip1::text" "#str_02189" ;
+				set "ToolTip2::text" "#str_02189" ;
+			}
+			onMouseExit {
+				transition "forecolor" "1 1 1 1" "0.6 1 1 1" "250" ;
+				transition "LGCBtn1EdgeGBot::matcolor" "0.6 0.8 0.9 1" "0.5 0.7 0.8 0.5" "400" ;
+				transition "LGCBtn1BorderGBot::matcolor" "0.6 0.8 0.9 1" "0.5 0.7 0.8 0.5" "400" ;
+				transition "LGCBtn1CornerGBot::matcolor" "0.6 0.8 0.9 1" "0.5 0.7 0.8 0.5" "400" ;
+
+				resetTime "ToolTip2" "0" ;
+			}
+
+			onAction {
+				set	"cmd"	"play guisounds_menuclickup" ;
+			}
+			onActionRelease {
+				set	"cmd"	"addbot"//"loadGame"//change to load bot
+			}
+
+			//button edge 1 GLOW
+			windowDef LGCBtn1EdgeGBot {
+				rect		0, 0, 16, 32
+				background	"gui/mainmenu/buttonG_cornersquare2"
+				matcolor	0.5 ,0.7 ,0.8 ,0.5
+				noevents	1
+			}
+			//button side 1 GLOW
+			windowDef LGCBtn1BorderGBot {
+				rect		16, 0, 75, 32
+				background	"gui/mainmenu/buttonG_middlesm2"
+				matcolor	0.5 ,0.7 ,0.8 ,0.5
+				noevents	1
+			}
+			//button corner 1 GLOW
+			windowDef LGCBtn1CornerGBot {
+				rect		91, 0, 16, 32
+				background	"gui/mainmenu/buttonG_cornerangle2"
+				matcolor	0.5 ,0.7 ,0.8 ,0.5
+				noevents	1
+			}
+		}
+
+		//button 2
+		windowDef LGCBtn2Bot {
+			rect		418, 266, 110, 28
+			text		"Remove Bot"//"#str_02190" // Delete
+			textscale	0.25
+			textaligny	4
+			forecolor	0.6, 1, 1, 1
+
+			onTime 0 {
+				if ( "gui::loadGame_sel_0" >= 0 ) {
+					set "forecolor" "0.6 1 1 1" ;
+					set "LGCBtn2EdgeGBot::matcolor" "0.5 0.7 0.8 0.5" ;
+					set "LGCBtn2BorderGBot::matcolor" "0.5 0.7 0.8 0.5" ;
+					set "LGCBtn2CornerGBot::matcolor" "0.5 0.7 0.8 0.5" ;
+					set "noevents" "0"
+				} else {
+					set "forecolor" "1 1 1 0.5" ;
+					set "LGCBtn2EdgeGBot::matcolor" "0.4 0.45 0.6 0.5" ;
+					set "LGCBtn2BorderGBot::matcolor" "0.4 0.45 0.6 0.5" ;
+					set "LGCBtn2CornerGBot::matcolor" "0.4 0.45 0.6 0.5" ;
+					set "noevents" "1"
+				}
+			}
+
+			onMouseEnter {
+				transition "forecolor" "0.6 1 1 1" "1 1 1 1" "250" ;
+				transition "LGCBtn2EdgeGBot::matcolor" "0.8 0.9 1 1" "0.6 0.8 0.9 1" "250" ;
+				transition "LGCBtn2BorderGBot::matcolor" "0.8 0.9 1 1" "0.6 0.8 0.9 1" "250" ;
+				transition "LGCBtn2CornerGBot::matcolor" "0.8 0.9 1 1" "0.6 0.8 0.9 1" "250" ;
+
+				resetTime "ToolTip1" "0" ;
+				set "ToolTip1::text" "#str_02191" ;
+				set "ToolTip2::text" "#str_02191" ;
+			}
+			onMouseExit {
+				transition "forecolor" "1 1 1 1" "0.6 1 1 1" "250" ;
+				transition "LGCBtn2EdgeGBot::matcolor" "0.6 0.8 0.9 1" "0.5 0.7 0.8 0.5" "400" ;
+				transition "LGCBtn2BorderGBot::matcolor" "0.6 0.8 0.9 1" "0.5 0.7 0.8 0.5" "400" ;
+				transition "LGCBtn2CornerGBot::matcolor" "0.6 0.8 0.9 1" "0.5 0.7 0.8 0.5" "400" ;
+
+				resetTime "ToolTip2" "0" ;
+			}
+
+			onAction {
+				set	"cmd"	"play guisounds_menuclickup" ;
+				set "cmd"   "removeBot";
+				resetTime "AnimDSGUp" "0" ;
+			}
+
+			//button edge 2 GLOW
+			windowDef LGCBtn2EdgeGBot {
+				rect		0, 0, 16, 32
+				background	"gui/mainmenu/buttonG_cornersquare2"
+				matcolor	0.5 ,0.7 ,0.8 ,0.5
+				noevents	1
+			}
+			//button side 2 GLOW
+			windowDef LGCBtn2BorderGBot {
+				rect		16, 0, 75, 32
+				background	"gui/mainmenu/buttonG_middlesm2"
+				matcolor	0.5 ,0.7 ,0.8 ,0.5
+				noevents	1
+			}
+			//button corner 2 GLOW
+			windowDef LGCBtn2CornerGBot {
+				rect		91, 0, 16, 32
+				background	"gui/mainmenu/buttonG_cornerangle2"
+				matcolor	0.5 ,0.7 ,0.8 ,0.5
+				noevents	1
+			}
+		}
+	}
+}
+/////////////////////////////////////////Test bot load end//////////////////////////////////////////////////
 windowDef LoadGameParent {
 	rect		0, 0, 0, 0
 	float LoadGameSelected	0
@@ -6559,7 +7025,7 @@ windowDef LoadGameParent {
 		//Title
 		windowDef LGTitleText {
 			rect		20, 5, 320, 20
-			text		"#str_02187"
+			text		"LOAD TEAM"
 			textscale	0.32
 			textaligny	-3
 			forecolor	1, 1, 1, 1
@@ -6588,7 +7054,7 @@ windowDef LoadGameParent {
 				foreColor	1, 1, 1, 1
 				bordercolor	0.3 ,0.52 ,0.5 ,0.5
 				textscale	0.25
-				listName	"loadGame"
+				listName	"botList"
 				tabstops	"2, 230, 312"
 				font	"fonts/an"
 
@@ -6601,7 +7067,7 @@ windowDef LoadGameParent {
 
 				onEnter {
 					set "cmd" "play guisounds_menuclickup" ;
-					set "cmd" "loadGame" ;
+					set "cmd" "addBot" ;
 				}
 			}
 		}
@@ -6609,7 +7075,7 @@ windowDef LoadGameParent {
 		//Title Text
 			windowDef LGCText1 {
 			rect		7, 38, 195, 10
-			text		"#str_02181"
+			text		"TEAM NAME"
 			font		"fonts/bank"
 			textscale	0.25
 			textaligny	-9
@@ -6619,7 +7085,7 @@ windowDef LoadGameParent {
 		//Title Text
 		windowDef LGCText2 {
 			rect		240, 38, 195, 10
-			text		"#str_02182"
+			text		"TEAM"
 			font		"fonts/bank"
 			textscale	0.25
 			textaligny	-9
@@ -6629,7 +7095,7 @@ windowDef LoadGameParent {
 		//Title Text
 		windowDef LGCText3 {
 			rect		322, 38, 195, 10
-			text		"#str_02183"
+			text		"TEAM"
 			font		"fonts/bank"
 			textscale	0.25
 			textaligny	-9
@@ -6638,7 +7104,7 @@ windowDef LoadGameParent {
 
 		windowDef LGCLevelshot {
 			rect		422, 50, 105, 79
-			background	"gui::loadgame_shot"
+			background	" "
 			matcolor 	1, 1, 1, 1
 			bordersize 	1
 			bordercolor 	0.4, 0.6, 0.6, 1
@@ -6686,7 +7152,7 @@ windowDef LoadGameParent {
 			//Title Text
 			windowDef LGCTextTempS2 {
 				rect		0, 0, 90, 10
-				text		"gui::saveGameDate"
+				text		"bot"//"gui::saveGameDate"
 				font		"fonts/bank"
 				textscale	0.25
 				textaligny	-9
@@ -6694,7 +7160,7 @@ windowDef LoadGameParent {
 			}
 			windowDef LGCTextTempS3 {
 				rect		0, 15, 90, 10
-				text		"gui::saveGameTime"
+				text		" "//"gui::saveGameTime"
 				font		"fonts/bank"
 				textscale	0.25
 				textaligny	-9
@@ -6707,7 +7173,7 @@ windowDef LoadGameParent {
 		//button 1
 		windowDef LGCBtn1 {
 			rect		418, 244, 110, 28
-			text		"#str_02188" // Load Game
+			text		"Load Team" //"#str_02188" // Load Game
 			textscale	0.25
 			textaligny	4
 			forecolor	0.6, 1, 1, 1
@@ -6751,7 +7217,7 @@ windowDef LoadGameParent {
 				set	"cmd"	"play guisounds_menuclickup" ;
 			}
 			onActionRelease {
-				set	"cmd"	"loadGame" ;
+				set	"cmd"	"addbot" ;//change to load bot
 			}
 
 			//button edge 1 GLOW
@@ -6780,7 +7246,7 @@ windowDef LoadGameParent {
 		//button 2
 		windowDef LGCBtn2 {
 			rect		418, 266, 110, 28
-			text		"#str_02190" // Delete
+			text		"Remove Team"//"#str_02190" // Delete
 			textscale	0.25
 			textaligny	4
 			forecolor	0.6, 1, 1, 1
@@ -7951,7 +8417,7 @@ windowDef MultiplayerNavParent {
 	//new game button Text
 	windowDef NewGameBtnText {
 		rect		53, 415, 160, 21
-		text		"Add Bot"
+		text		"Add Bots"
 		textscale	0.26
 		textalign	1
 		textaligny	-1
@@ -7971,8 +8437,8 @@ windowDef MultiplayerNavParent {
 
 			onAction {
 				transition	"matcolor" "1 1 1 0.5" "1 1 1 0.3" "300" ;
-				
-				set "cmd" "exec" "addbot WolverineBot"; 
+				set "cmd" "BOTScan" ;				
+				//set "cmd" "exec" "addbot WolverineBot"; 
 			}
 
 		}
@@ -8038,45 +8504,77 @@ windowDef MultiplayerNavParent {
 				}
 			}
 		}
-		
-		onAction {
+		 onAction {
 			set "exitanim" "0" ;
-			if ("desktop::selected" == 2) 
-			{
+			if ("desktop::selected" == 3) {
 				set	"cmd"	"play guisounds_menuclickdown" ;
-				resetTime "AnimNGToMain" "0" ;
+				resetTime "AnimLGToMainBot" "0" ;
 				set "desktop::selected" "0" ;
 				transition "forecolor" "1 1 1 0.1" "1 1 1 1" "200" ;
-			} else 
-			{
+				set "ToolTip1::text" "#str_02213" ;
+				set "ToolTip2::text" "#str_02213" ;
+			} else {
 				transition "forecolor" "1 1 1 1" "1 1 1 0.1" "200" ;
 				set	"cmd"	"play guisounds_menuclickup" ;
-				set "cmd" "exec" "addbot WolverineBot";
-				//if ("desktop::selected" == 1) {
-				//	resetTime "AnimOptionsToMain" "0" ;
-				//}
-				//if ("desktop::selected" == 3) {
-				//	resetTime "AnimLGToMain" "0" ;
-				//}
-				//if ("desktop::selected" == 4) {
-				//	resetTime "AnimMPToMain" "0" ;
-				//}
-				//if ("desktop::selected" == 7) {
-				//	resetTime "AnimModsDown" "0" ;
-				//	resetTime "LogoUp" "0" ;
-				//	resetTime "TopBarSlideIn" "0" ;
-				//}
-				//resetTime "AnimMainToNG" "0" ;
-				//set "desktop::selected" "2" ;
-				//if ("desktop::roqon" == 1) {
-				////	resetTime "Transition3" "0" ;
-				//}
-				//if ("LogoDown::logo" == 0) {
-				//	resetTime "LogoUp" "0" ;
-				//}
+				set "cmd" "BOTScan";
+				//set "cmd" "exec" "removebot WolverineBot";
+				if ("desktop::selected" == 1) {
+					resetTime "AnimOptionsToMain" "0" ;
+				}
+				if ("desktop::selected" == 2) {
+					resetTime "AnimNGToMain" "0" ;
+				}
+				if ("desktop::selected" == 4) {
+					resetTime "AnimMPToMain" "0" ;
+				}
+				if ("desktop::selected" == 6) {
+					resetTime "AnimSGToMain" "0" ;
+				}
+				if ("desktop::selected" == 7) {
+					resetTime "AnimModsDown" "0" ;
+				}
+				resetTime "AnimMainToLGBot" "0" ;
+				set "desktop::selected" "3" ;
 			}
-			
 		}
+		//onAction {
+		//	set "exitanim" "0" ;
+		//	if ("desktop::selected" == 2) 
+		//	{
+		//		set	"cmd"	"play guisounds_menuclickdown" ;
+		//		resetTime "AnimNGToMain" "0" ;
+		//		set "desktop::selected" "0" ;
+		//		transition "forecolor" "1 1 1 0.1" "1 1 1 1" "200" ;
+		//	} else 
+		//	{
+		//		transition "forecolor" "1 1 1 1" "1 1 1 0.1" "200" ;
+		//		set	"cmd"	"play guisounds_menuclickup" ;
+		//		set "cmd" "exec" "addbot WolverineBot";
+		//		//if ("desktop::selected" == 1) {
+		//		//	resetTime "AnimOptionsToMain" "0" ;
+		//		//}
+		//		//if ("desktop::selected" == 3) {
+		//		//	resetTime "AnimLGToMain" "0" ;
+		//		//}
+		//		//if ("desktop::selected" == 4) {
+		//		//	resetTime "AnimMPToMain" "0" ;
+		//		//}
+		//		//if ("desktop::selected" == 7) {
+		//		//	resetTime "AnimModsDown" "0" ;
+		//		//	resetTime "LogoUp" "0" ;
+		//		//	resetTime "TopBarSlideIn" "0" ;
+		//		//}
+		//		//resetTime "AnimMainToNG" "0" ;
+		//		//set "desktop::selected" "2" ;
+		//		//if ("desktop::roqon" == 1) {
+		//		////	resetTime "Transition3" "0" ;
+		//		//}
+		//		//if ("LogoDown::logo" == 0) {
+		//		//	resetTime "LogoUp" "0" ;
+		//		//}
+		//	}
+		//	
+		//}
 	}
 
 	//save game button Text
@@ -8179,7 +8677,7 @@ windowDef MultiplayerNavParent {
 	//load game button Text
 	windowDef LoadBtnText {
 		rect		240, 415, 170, 21
-		text		"Remove Bot"//"#str_02187"
+		text		"Add Team"//"#str_02187"
 		textscale	0.26
 		textalign	1
 		textaligny	-1
@@ -8191,8 +8689,8 @@ windowDef MultiplayerNavParent {
 			set "exitanim" "1" ;
 			if ("desktop::selected" == 3) {
 				resetTime "ToolTip1" "0" ;
-				set "ToolTip1::text" "Remove a Bot from the Game Queue"; //"#str_02212" ;
-				set "ToolTip2::text" "Remove a Bot from the Game Queue"; //"#str_02212" ;
+				set "ToolTip1::text" "Add/Remove a Bot Team from the Game Queue"; //"#str_02212" ;
+				set "ToolTip2::text" "Add/Remove a Bot Team from the Game Queue"; //"#str_02212" ;
 			} else {
 				transition "LoadBtnLCornerG::matcolor" "0.8 0.9 1 1" "0.55 0.65 0.75 1" "250" ;
 				transition "LoadBtnMiddleG::matcolor" "0.8 0.9 1 1" "0.55 0.65 0.75 1" "250" ;
@@ -8209,8 +8707,8 @@ windowDef MultiplayerNavParent {
 				transition "forecolor" "1 1 1 1" "1 1 1 1" "200" ;
 		
 				resetTime "ToolTip1" "0" ;
-				set "ToolTip1::text" "Remove a Bot from the Game Queue"; //"#str_02213" ;
-				set "ToolTip2::text" "Remove a Bot from the Game Queue"; //"#str_02213" ;
+				set "ToolTip1::text" "Add/Remove a Bot Team from the Game Queue"; //"#str_02213" ;
+				set "ToolTip2::text" "Add/Remove a Bot Team from the Game Queue"; //"#str_02213" ;
 			}
 		}
 		
@@ -8262,24 +8760,24 @@ windowDef MultiplayerNavParent {
 			} else {
 				transition "forecolor" "1 1 1 1" "1 1 1 0.1" "200" ;
 				set	"cmd"	"play guisounds_menuclickup" ;
-				set "cmd" "exec" "removebot WolverineBot";
-				//if ("desktop::selected" == 1) {
-				//	resetTime "AnimOptionsToMain" "0" ;
-				//}
-				//if ("desktop::selected" == 2) {
-				//	resetTime "AnimNGToMain" "0" ;
-				//}
-				//if ("desktop::selected" == 4) {
-				//	resetTime "AnimMPToMain" "0" ;
-				//}
-				//if ("desktop::selected" == 6) {
-				//	resetTime "AnimSGToMain" "0" ;
-				//}
-				//if ("desktop::selected" == 7) {
-				//	resetTime "AnimModsDown" "0" ;
-				//}
-				//resetTime "AnimMainToLG" "0" ;
-				//set "desktop::selected" "3" ;
+				//set "cmd" "exec" "removebot WolverineBot";
+				if ("desktop::selected" == 1) {
+					resetTime "AnimOptionsToMain" "0" ;
+				}
+				if ("desktop::selected" == 2) {
+					resetTime "AnimNGToMain" "0" ;
+				}
+				if ("desktop::selected" == 4) {
+					resetTime "AnimMPToMain" "0" ;
+				}
+				if ("desktop::selected" == 6) {
+					resetTime "AnimSGToMain" "0" ;
+				}
+				if ("desktop::selected" == 7) {
+					resetTime "AnimModsDown" "0" ;
+				}
+				resetTime "AnimMainToLG" "0" ;
+				set "desktop::selected" "3" ;
 			}
 		}
 	}
@@ -13184,7 +13682,7 @@ windowDef MultiplayerLANParent {
 			bordercolor	0.4, 0.6, 0.6, 0.5
 			textscale 	0.25
 			font		"fonts/bank"
-			listName	"mapList"
+			listName	"mapList" 
 
 			onAction {
 				set "cmd" "play guisounds_menuclickup ; click_mapList" ;
@@ -13316,7 +13814,7 @@ windowDef MultiplayerLANParent {
 				choices		"#str_00100137"
 				// you can use both cvar and gui, gui is in choiceType 0 all the time so it works with scripts
 				cvar		"si_gameType"
-				gui		"currentGameType"
+				gui		    "currentGameType"
 				currentChoice	0
 				choiceType	1
 				font		"fonts/bank"
@@ -21109,7 +21607,264 @@ windowDef MultiplayerLANParent {
 			set "MPPSBackground::visible" "0" ;
 		}
 	}
+//////////////////////////////////Load Bot Gui//////////////////////////////////////////
+//main window to load game animation for bot
+	windowDef AnimMainToLGBot {
+		rect		0, 0, 0, 0
+		visible		0
+		notime		1
 
+		onTime 50 {
+			set "ClickCatcher::rect" "0 0 640 480" ;
+			set "LoadGameParentBot::rect" "0 0 640 480" ;
+			set "LoadBtnLCornerHB::visible" "0" ;
+			set "LoadBtnMiddleH::visible" "0" ;
+			set "LoadBtnRCornerH::visible" "0" ;
+			resetTime "ToolTip1" "0" ;
+			set "ToolTip1::text" "#str_02347" ;
+			set "ToolTip2::text" "#str_02347" ;
+
+			if ("LogoDown::logo" == 1) {
+				resetTime "LogoDown" "0" ;
+				resetTime "TopBarSlideOut" "0" ;
+			}
+
+			transition "LoadGameBackgroundBot::rect" "30 0 640 480" "0 0 640 480" "300" ;
+			transition "LoadGameBgBridge4Bot::rect" "217 396 173 16" "217 396 193 16" "300";
+			transition "LoadGameBgBridge6Bot::rect" "390 396 16 16" "410 396 16 16" "300" ;
+
+			transition "OptionsBtnText::forecolor" "1 1 1 1" "1 1 1 0.5" "200" ;
+
+			transition "MultiplayerBtnText::forecolor" "1 1 1 1" "1 1 1 0.5" "200" ;
+			transition "MultiplayerBtnLCornerG::matcolor" "0.55 0.65 0.75 0.5" "0.55 0.65 0.75 0" "200" ;
+			transition "MultiplayerBtnMiddleG::matcolor" "0.55 0.65 0.75 0.5" "0.55 0.65 0.75 0" "200" ;
+			transition "MultiplayerBtnRCornerG::matcolor" "0.55 0.65 0.75 0.5" "0.55 0.65 0.75 0" "200" ;
+
+			transition "NewGameBtnText::forecolor" "1 1 1 1" "1 1 1 0.5" "200" ;
+			transition "NewGameBtnLCornerG::matcolor" "0.55 0.65 0.75 0.5" "0.55 0.65 0.75 0" "200" ;
+			transition "NewGameBtnMiddleG::matcolor" "0.55 0.65 0.75 0.5" "0.55 0.65 0.75 0" "200" ;
+			transition "NewGameBtnRCornerG::matcolor" "0.55 0.65 0.75 0.5" "0.55 0.65 0.75 0" "200" ;
+
+			transition "LoadBtnLCornerG::matcolor" "0.55 0.65 0.75 1" "0.55 0.65 0.75 0" "250" ;
+			transition "LoadBtnMiddleG::matcolor" "0.55 0.65 0.75 1" "0.55 0.65 0.75 0" "250" ;
+			transition "LoadBtnRCornerG::matcolor" "0.55 0.65 0.75 1" "0.55 0.65 0.75 0" "250" ;
+
+			transition "StopGameBtnText::forecolor" "1 1 1 1" "1 1 1 0.5" "200" ;
+			transition "SaveGameBtnText::forecolor" "1 1 1 1" "1 1 1 0.5" "200" ;
+
+			transition "LoadBtnLCornerBG::matcolor" "1 1 1 0.7" "0.45 0.55 0.7 0.4" "50" ;
+			transition "LoadBtnMiddleBG::matcolor" "1 1 1 0.7" "0.45 0.55 0.7 0.4" "50" ;
+			transition "LoadBtnRCornerBG::matcolor" "1 1 1 0.7" "0.45 0.55 0.7 0.4" "50" ;
+		}
+
+		onTime 60 {
+			transition "LoadBtnLCornerBG::matcolor" "1 1 1 0.7" "0.45 0.55 0.7 0.4" "300" ;
+			transition "LoadBtnMiddleBG::matcolor" "1 1 1 0.7" "0.45 0.55 0.7 0.4" "300" ;
+			transition "LoadBtnRCornerBG::matcolor" "1 1 1 0.7" "0.45 0.55 0.7 0.4" "300" ;
+		}
+
+		onTime 0 {
+			resetTime "LGCBtn1" "0" ;
+			resetTime "LGCBtn2" "0" ;
+
+			transition "LoadGameBgBridge3Bot::rect" "201 380 225 16" "201 380 329 16" "400" "0.2" "0.8" ;
+			transition "LoadGameBgBridge5Bot::rect" "426 380 16 16" "530 380 16 16" "400" "0.2" "0.8" ;
+
+			transition "LoadGameBgFlair1Bot::rect" "476 265 7 7" "580 184 7 7" "400" "0.2" "0.8" ;
+			transition "LoadGameBgFlair2Bot::rect" "476 272 -7 -7" "580 272 -7 -7" "400" "0.2" "0.8" ;
+			transition "LoadGameBgFlair3Bot::rect" "476 272 7 0" "580 191 7 81" "400" "0.2" "0.8" ;
+			transition "LoadGameBgFlair4Bot::rect" "174 380 -7 7" "121 380 -7 7" "400" "0.2" "0.8" ;
+			transition "LoadGameBgFlair5Bot::rect" "181 380 0 7" "128 380 53 7" "400" "0.2" "0.8" ;
+
+			transition "LoadGameBgMain1Bot::rect" "150 188 -32 -32" "50 45 -32 -32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain2Bot::rect" "182 188 268 32" "82 45 472 32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain3Bot::rect" "450 188 -32 -32" "554 45 -32 -32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain4Bot::rect" "150 220 324 126" "50 77 528 269" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain5Bot::rect" "474 262 -8 -8" "578 182 -8 -8" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain6Bot::rect" "474 220 8 42" "578 77 8 105" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain7Bot::rect" "150 346 -32 32" "50 346 -32 32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain8Bot::rect" "182 346 260 32" "82 346 464 32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain9Bot::rect" "442 346 -32 32" "546 346 -32 32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain14Bot::rect" "153 191 340 279" "53 48 340 279" "400" "0.2" "0.8" ;
+
+
+			transition "LoadGameBgMain14Bot::matcolor" "1 1 1 0" "1 1 1 0.18" "400" ;
+
+			transition "LoadGameBgBridge1Bot::matcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "50" ;
+			transition "LoadGameBgBridge2Bot::matcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "50" ;
+			transition "LoadGameBgBridge3Bot::backcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "50" ;
+			transition "LoadGameBgBridge4Bot::backcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "50" ;
+			transition "LoadGameBgBridge5Bot::matcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "50" ;
+			transition "LoadGameBgBridge6Bot::matcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "50" ;
+		}
+		onTime 50 {
+			transition "LoadGameBgBridge1Bot::matcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "300" ;
+			transition "LoadGameBgBridge2Bot::matcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "300" ;
+			transition "LoadGameBgBridge3Bot::backcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "300" ;
+			transition "LoadGameBgBridge4Bot::backcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "300" ;
+			transition "LoadGameBgBridge5Bot::matcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "300" ;
+			transition "LoadGameBgBridge6Bot::matcolor" "1 1 1 0.4" "0.2 0.42 0.67 0.15" "300" ;
+
+			transition "LoadGameBgMain1Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+			transition "LoadGameBgMain2Bot::backcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+			transition "LoadGameBgMain3Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+			transition "LoadGameBgMain4Bot::backcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+			transition "LoadGameBgMain5Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+			transition "LoadGameBgMain6Bot::backcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+			transition "LoadGameBgMain7Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+			transition "LoadGameBgMain8Bot::backcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+			transition "LoadGameBgMain9Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "50" ;
+		}
+		onTime 100 {
+			transition "LoadGameBgMain1Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+			transition "LoadGameBgMain2Bot::backcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+			transition "LoadGameBgMain3Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+			transition "LoadGameBgMain4Bot::backcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+			transition "LoadGameBgMain5Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+			transition "LoadGameBgMain6Bot::backcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+			transition "LoadGameBgMain7Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+			transition "LoadGameBgMain8Bot::backcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+			transition "LoadGameBgMain9Bot::matcolor" "1 1 1 0.4" "0.18 0.25 0.32 0.8" "300" ;
+
+			transition "LoadGameBgFlair1Bot::matcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "50" ;
+			transition "LoadGameBgFlair2Bot::matcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "50" ;
+			transition "LoadGameBgFlair3Bot::backcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "50" ;
+			transition "LoadGameBgFlair4Bot::matcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "50" ;
+			transition "LoadGameBgFlair5Bot::backcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "50" ;
+			transition "LoadGameBgFlair6Bot::matcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "50" ;
+		}
+		onTime 150 {
+			transition "LoadGameBgFlair1Bot::matcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "200" ;
+			transition "LoadGameBgFlair2Bot::matcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "200" ;
+			transition "LoadGameBgFlair3Bot::backcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "200" ;
+			transition "LoadGameBgFlair4Bot::matcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "200" ;
+			transition "LoadGameBgFlair5Bot::backcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "200" ;
+			transition "LoadGameBgFlair6Bot::matcolor" "1 1 1 0.4" "0.4 0.6 0.8 0.2" "200" ;
+		}
+		onTime 425 {
+			set "LoadGameContentBot::visible" "1" ;
+			set "LoadBtnLCornerH::matcolor" "0.55 0.65 0.75 0" ;
+			set "LoadBtnMiddleH::matcolor" "0.55 0.65 0.75 0" ;
+			set "LoadBtnRCornerH::matcolor" "0.55 0.65 0.75 0" ;
+
+			set "ClickCatcher::rect" "0 414 640 66"
+		}
+		onTime 800 {
+			if ("AnimMPUp::clickcatch" == 0) {
+				set "ClickCatcher::rect" "0 0 0 0" ;
+			}
+		}
+	}
+
+//
+	windowDef AnimLGToMainBot {
+		rect		0, 0, 0, 0
+		visible		0
+		notime		1
+
+		onTime 0 {
+			set "ClickCatcher::rect" "0 0 640 480" ;
+			set "LoadGameContentBot::visible" "0" ;
+
+			set "LoadBtnLCornerH::visible" "1" ;
+			set "LoadBtnMiddleH::visible" "1" ;
+			set "LoadBtnRCornerH::visible" "1" ;
+
+			resetTime "ToolTip1" "0" ;
+			//set "ToolTip1::text" "#str_02348" ;
+			//set "ToolTip2::text" "#str_02348" ;
+
+			if ("desktop::selected" == 0) {
+				transition "MultiplayerBtnText::forecolor" "1 1 1 0.5" "1 1 1 1" "200" ;
+				transition "MultiplayerBtnLCornerG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "300" ;
+				transition "MultiplayerBtnMiddleG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "300" ;
+				transition "MultiplayerBtnRCornerG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "300" ;
+				transition "NewGameBtnText::forecolor" "1 1 1 0.5" "1 1 1 1" "200" ;
+				transition "NewGameBtnLCornerG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "300" ;
+				transition "NewGameBtnMiddleG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "300" ;
+				transition "NewGameBtnRCornerG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "300" ;
+
+				transition "StopGameBtnText::forecolor" "1 1 1 0.5" "1 1 1 1" "200" ;
+				transition "SaveGameBtnText::forecolor" "1 1 1 0.5" "1 1 1 1" "200" ;
+
+				if ("LogoDown::logo" == 0) {
+					resetTime "LogoUp" "0" ;
+					resetTime "TopBarSlideIn" "0" ;
+				}
+			}
+
+			transition "LoadBtnLCornerBGBot::matcolor" "1 1 1 0.4" "0.45 0.55 0.7 0.3" "50" ;
+			transition "LoadBtnMiddleBGBot::matcolor" "1 1 1 0.4" "0.45 0.55 0.7 0.3" "50" ;
+			transition "LoadBtnRCornerBGBot::matcolor" "1 1 1 0.4" "0.45 0.55 0.7 0.3" "50" ;
+
+			transition "LoadGameBgMain1Bot::matcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain2Bot::backcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain3Bot::matcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain4Bot::backcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain5Bot::matcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain6Bot::backcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain7Bot::matcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain8Bot::backcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain9Bot::matcolor" "0.18 0.25 0.32 0.8" "0.18 0.25 0.32 0" "200" ;
+			transition "LoadGameBgMain14Bot::matcolor" "1 1 1 0.18" "1 1 1 0" "200" ;
+
+			transition "LoadGameBgFlair1Bot::matcolor" "0.4 0.6 0.8 0.2" "0.4 0.6 0.8 0" "200" ;
+			transition "LoadGameBgFlair2Bot::matcolor" "0.4 0.6 0.8 0.2" "0.4 0.6 0.8 0" "200" ;
+			transition "LoadGameBgFlair3Bot::backcolor" "0.4 0.6 0.8 0.2" "0.4 0.6 0.8 0" "200" ;
+			transition "LoadGameBgFlair4Bot::matcolor" "0.4 0.6 0.8 0.2" "0.4 0.6 0.8 0" "200" ;
+			transition "LoadGameBgFlair5Bot::backcolor" "0.4 0.6 0.8 0.2" "0.4 0.6 0.8 0" "200" ;
+			transition "LoadGameBgFlair6Bot::matcolor" "0.4 0.6 0.8 0.2" "0.4 0.6 0.8 0" "200" ;
+
+			transition "LoadGameBgBridge1Bot::matcolor" "0.2 0.42 0.67 0.15" "0.2 0.42 0.67 0" "200" ;
+			transition "LoadGameBgBridge2Bot::matcolor" "0.2 0.42 0.67 0.15" "0.2 0.42 0.67 0" "200" ;
+			transition "LoadGameBgBridge3Bot::backcolor" "0.2 0.42 0.67 0.15" "0.2 0.42 0.67 0" "200" ;
+			transition "LoadGameBgBridge4Bot::backcolor" "0.2 0.42 0.67 0.15" "0.2 0.42 0.67 0" "200" ;
+			transition "LoadGameBgBridge5Bot::matcolor" "0.2 0.42 0.67 0.15" "0.2 0.42 0.67 0" "200" ;
+			transition "LoadGameBgBridge6Bot::matcolor" "0.2 0.42 0.67 0.15" "0.2 0.42 0.67 0" "200" ;
+
+			transition "LoadGameBgBridge3Bot::rect" "201 380 329 16" "201 380 225 16" "400" "0.2" "0.8" ;
+			transition "LoadGameBgBridge5Bot::rect" "530 380 16 16" "426 380 16 16" "400" "0.2" "0.8" ;
+
+			transition "LoadGameBgFlair1Bot::rect" "580 184 7 7" "476 265 7 7" "400" "0.2" "0.8" ;
+			transition "LoadGameBgFlair2Bot::rect" "580 272 -7 -7" "476 272 -7 -7" "400" "0.2" "0.8" ;
+			transition "LoadGameBgFlair3Bot::rect" "580 191 7 81" "476 272 7 0" "400" "0.2" "0.8" ;
+			transition "LoadGameBgFlair4Bot::rect" "121 380 -7 7" "174 380 -7 7" "400" "0.2" "0.8" ;
+			transition "LoadGameBgFlair5Bot::rect" "128 380 53 7" "181 380 0 7" "400" "0.2" "0.8" ;
+
+			transition "LoadGameBgMain1Bot::rect" "50 45 -32 -32" "150 188 -32 -32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain2Bot::rect" "82 45 472 32" "182 188 268 32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain3Bot::rect" "554 45 -32 -32" "450 188 -32 -32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain4Bot::rect" "50 77 528 269" "150 220 324 126" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain5Bot::rect" "578 182 -8 -8" "474 262 -8 -8" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain6Bot::rect" "578 77 8 105" "474 220 8 42" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain7Bot::rect" "50 346 -32 32" "150 346 -32 32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain8Bot::rect" "82 346 464 32" "182 346 260 32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain9Bot::rect" "546 346 -32 32" "442 346 -32 32" "400" "0.2" "0.8" ;
+			transition "LoadGameBgMain14Bot::rect" "53 48 340 279" "153 191 340 279" "400" "0.2" "0.8" ;
+		}
+
+		onTime 60 {
+			transition "LoadBtnLCornerBG::matcolor" "1 1 1 0.4" "0.45 0.55 0.7 0.3" "200" ;
+			transition "LoadBtnMiddleBG::matcolor" "1 1 1 0.4" "0.45 0.55 0.7 0.3" "200" ;
+			transition "LoadBtnRCornerBG::matcolor" "1 1 1 0.4" "0.45 0.55 0.7 0.3" "200" ;
+		}
+
+		onTime 300 {
+			if ("desktop::selected" == 0) {
+				transition "LoadBtnLCornerG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "100" ;
+				transition "LoadBtnMiddleG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "100" ;
+				transition "LoadBtnRCornerG::matcolor" "0.55 0.65 0.75 0" "0.55 0.65 0.75 0.5" "100" ;
+			}
+			set "LoadGameContentBot::visible" "0" ;
+			set "LoadGameParentBot::rect" "0 0 0 0" ;
+		}
+		onTime 800 {
+			if ("AnimMPUp::clickcatch" == 0) {
+				set "ClickCatcher::rect" "0 0 0 0" ;
+			}
+		}
+	}
+///////////////////////////////////////Load Bot Gui End//////////////////////////////////////////////////////////////////	
 	//main window to load game animation
 	windowDef AnimMainToLG {
 		rect		0, 0, 0, 0

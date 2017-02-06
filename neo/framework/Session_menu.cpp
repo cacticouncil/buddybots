@@ -250,6 +250,24 @@ void idSessionLocal::SetModsMenuGuiVars(void) {
 	fileSystem->FreeModList(list);
 }
 
+/*
+===============
+idSessionLocal::SetBotMenuGuiVars
+===============
+*/
+void idSessionLocal::SetBotMenuGuiVars(void) {
+	int i, botnum;
+
+	botnum = guiMainMenu_BotList->Num();
+
+	// Build the gui list
+	for (i = 0; i < botnum; i++) {
+		guiActive->SetStateString(va("botList_item_%i", i), "Bot");
+	}
+
+	guiActive->DeleteStateVar(va("botList_item_%i", (char)botnum));
+	guiActive->SetStateString("botList_sel_0", "-1");
+}
 
 /*
 ===============
@@ -284,6 +302,20 @@ void idSessionLocal::SetMainMenuSkin(void) {
 	}
 	guiMainMenu->SetStateInt(va("skin%i", skinId), 1);
 }
+
+/////////////////////////////////////////////////////////////
+//          I love you, baby,                              //
+//          And if it's quite alright,                     //
+//          I need you, baby,                              //
+//          To warm a lonely night.                        //
+//          I love you, baby.                              //
+//          Trust in me when I say :                       //
+//          Oh, pretty baby,                               //
+//          Don't bring me down, I pray.                   //
+//          Oh, pretty baby, now that I found you, stay    //
+//          And let me love you, baby.                     //
+//          Let me love you.                               //
+/////////////////////////////////////////////////////////////
 
 /*
 ===============
@@ -334,7 +366,7 @@ void idSessionLocal::SetMainMenuGuiVars(void) {
 	SetPbMenuGuiVars();
 }
 
-/*
+/*    
 ==============
 idSessionLocal::HandleSaveGameMenuCommands
 ==============
@@ -782,7 +814,10 @@ void idSessionLocal::HandleMainMenuCommands(const char *menuCommand) {
 
 			for (loop = 0; loop < botCount; ++loop) {
 				guiMainMenu_BotList->Add(loop, guiBotNames[loop].c_str());
+				guiMainMenu_BotList->SetSelection(guiMainMenu_BotList->Num() - 1);
 			}
+
+			SetBotMenuGuiVars();
 			continue;
 		}
 
