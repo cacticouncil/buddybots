@@ -1459,27 +1459,28 @@ void idMultiplayerGame::PlayerDeath(idPlayer *dead, idPlayer *killer, bool telef
 
 	// don't do PrintMessageEvent and shit
 	assert(!gameLocal.isClient);
+	if (gameState != WARMUP && gameState != COUNTDOWN) {
+		if (killer) {
+			if (gameLocal.gameType == GAME_LASTMAN) {
+				playerState[dead->entityNumber].fragCount--;
 
-	if (killer) {
-		if (gameLocal.gameType == GAME_LASTMAN) {
-			playerState[dead->entityNumber].fragCount--;
-
-		}
-		else if (IsGametypeTeamBased()) { /* CTF */
-			if (killer == dead || killer->team == dead->team) {
-				// suicide or teamkill
-				TeamScore(killer->entityNumber, killer->team, -1);
+			}
+			else if (IsGametypeTeamBased()) { /* CTF */
+				if (killer == dead || killer->team == dead->team) {
+					// suicide or teamkill
+					TeamScore(killer->entityNumber, killer->team, -1);
+				}
+				else {
+					TeamScore(killer->entityNumber, killer->team, +1);
+				}
 			}
 			else {
-				TeamScore(killer->entityNumber, killer->team, +1);
+				playerState[killer->entityNumber].fragCount += (killer == dead) ? -1 : 1;
 			}
-		}
-		else {
-			playerState[killer->entityNumber].fragCount += (killer == dead) ? -1 : 1;
-		}
-		if (killer->IsType(afiBotPlayer::Type)) {
-			afiBotPlayer* killerBot = (afiBotPlayer*)killer;
-			killerBot->GetBrain()->OnKill(dead, killer, dir, damage);
+			if (killer->IsType(afiBotPlayer::Type)) {
+				afiBotPlayer* killerBot = (afiBotPlayer*)killer;
+				killerBot->GetBrain()->OnKill(dead, killer, dir, damage);
+			}
 		}
 	}
 
