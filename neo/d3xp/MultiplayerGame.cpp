@@ -1712,7 +1712,6 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 			static_cast<idPlayer *>(ent)->forcedReady = false;
 			static_cast<idPlayer *>(ent)->ServerSpectate(true);
 		}
-		UpdateWinsLosses(player);
 		SetFlagMsg(true);
 		break;
 	} case SCOREREVIEW: {
@@ -1727,7 +1726,6 @@ void idMultiplayerGame::NewState(gameState_t news, idPlayer *player) {
 			static_cast<idPlayer *>(ent)->forcedReady = false;
 			static_cast<idPlayer *>(ent)->ServerSpectate(true);
 		}
-		UpdateWinsLosses(player);
 #ifdef CTF
 		SetFlagMsg(true);
 #endif
