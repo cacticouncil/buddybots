@@ -5877,7 +5877,7 @@ windowDef ModsMenuParent {
 				foreColor	1, 1, 1, 1
 				bordercolor	0.3 ,0.52 ,0.5 ,0.5
 				textscale	0.25
-				listName	"modsList"
+				listName	"modslist"
 				font	"fonts/an"
 
 				onAction {
@@ -5887,7 +5887,10 @@ windowDef ModsMenuParent {
 
 				onEnter {
 					set "cmd" "play guisounds_menuclickup" ;
-					set "cmd" "loadMod" ;
+					//set	"cmd" "addBot";
+					//set "cmd" "exec" "addBot" ;
+					set "cmd" "loadGame";
+					
 				}
 			}
 		}
@@ -5901,7 +5904,7 @@ windowDef ModsMenuParent {
 			forecolor	0.6, 1, 1, 1
 
 			onTime 0 {
-				if ( "gui::modsList_sel_0" >= 0 ) {
+				if ( "gui::modList_sel_0" >= 0 ) {
 					set "forecolor" "0.6 1 1 1" ;
 					set "MMCBtn1EdgeG::matcolor" "0.5 0.7 0.8 0.5" ;
 					set "MMCBtn1BorderG::matcolor" "0.5 0.7 0.8 0.5" ;
@@ -5937,9 +5940,17 @@ windowDef ModsMenuParent {
 
 			onAction {
 				set	"cmd"	"play guisounds_menuclickup" ;
+				//set	"cmd" "addBot" ;
+				//set "cmd" "exec" "addBot" ;
+				
 			}
 			onActionRelease {
-				set	"cmd"	"loadMod" ;
+				
+				//set "cmd" "exec" "addBot" gui::botList_item_0;
+				set "cmd" "loadGame";
+				//set "cmd" "exec" "addBot" ;
+				//set	"cmd" "addBot" ;
+
 			}
 
 			//button edge 1 GLOW
@@ -6594,14 +6605,16 @@ windowDef LoadGameParentBot {
 
 				onAction {
 					set "cmd" "play guisounds_click3" ;
-					set "cmd" "BOTScan"; //"updateSaveGameInfo" ;
+					//set "cmd" "updateSaveGameInfo" ;
 					resetTime "LGCBtn1" "0" ;
 					resetTime "LGCBtn2" "0" ;
+					set "cmd" "exec" "addbot";
+					
 				}
 
 				onEnter {
 					set "cmd" "play guisounds_menuclickup" ;
-					set "cmd" "addBot" ;
+					set "cmd" "exec" "addBot" ;//loadgame
 				}
 			}
 		}
@@ -6609,7 +6622,7 @@ windowDef LoadGameParentBot {
 		//Title Text
 			windowDef LGCText1Bot {
 			rect		7, 38, 195, 10
-			text		"BOT NAME"
+			text		" "//"BOT NAME"
 			font		"fonts/bank"
 			textscale	0.25
 			textaligny	-9
@@ -6619,7 +6632,7 @@ windowDef LoadGameParentBot {
 		//Title Text
 		windowDef LGCText2Bot {
 			rect		240, 38, 195, 10
-			text		"Load Bot"
+			text		"Available Bots"
 			font		"fonts/bank"
 			textscale	0.25
 			textaligny	-9
@@ -6629,7 +6642,7 @@ windowDef LoadGameParentBot {
 		//Title Text
 		windowDef LGCText3Bot {
 			rect		322, 38, 195, 10
-			text		"Load Bot"
+			text		" "//"Load Bot"
 			font		"fonts/bank"
 			textscale	0.25
 			textaligny	-9
@@ -6675,7 +6688,7 @@ windowDef LoadGameParentBot {
 			//Title Text
 			windowDef LGCTextTempS1Bot {
 				rect		0, 30, 90, 60
-			//	text		"gui::saveGameDescription"
+			//	text		"gui::botList_sel_0"
 				text		"gui::saveGameDifficulty"
 				font		"fonts/bank"
 				textscale	0.24
@@ -6713,7 +6726,7 @@ windowDef LoadGameParentBot {
 			forecolor	0.6, 1, 1, 1
 
 			onTime 0 {
-				if ( "gui::loadGame_sel_0" >= 0 ) {
+				if ( "gui::botList_item_0" >= 0 ) {
 					set "forecolor" "0.6 1 1 1" ;
 					set "LGCBtn1EdgeGBot::matcolor" "0.5 0.7 0.8 0.5" ;
 					set "LGCBtn1BorderGBot::matcolor" "0.5 0.7 0.8 0.5" ;
@@ -6751,7 +6764,8 @@ windowDef LoadGameParentBot {
 				set	"cmd"	"play guisounds_menuclickup" ;
 			}
 			onActionRelease {
-				set	"cmd"	"addbot"//"loadGame"//change to load bot
+				set	"cmd"	"addBot" ;//change to load bot
+				//set "cmd" "exec" "addBot";
 			}
 
 			//button edge 1 GLOW
@@ -6786,7 +6800,7 @@ windowDef LoadGameParentBot {
 			forecolor	0.6, 1, 1, 1
 
 			onTime 0 {
-				if ( "gui::loadGame_sel_0" >= 0 ) {
+				if ( "gui::botList_item_0" >= 0 ) {
 					set "forecolor" "0.6 1 1 1" ;
 					set "LGCBtn2EdgeGBot::matcolor" "0.5 0.7 0.8 0.5" ;
 					set "LGCBtn2BorderGBot::matcolor" "0.5 0.7 0.8 0.5" ;
@@ -6823,7 +6837,7 @@ windowDef LoadGameParentBot {
 			onAction {
 				set	"cmd"	"play guisounds_menuclickup" ;
 				set "cmd"   "removeBot";
-				resetTime "AnimDSGUp" "0" ;
+				//resetTime "AnimDSGUp" "0" ;
 			}
 
 			//button edge 2 GLOW
@@ -7067,7 +7081,7 @@ windowDef LoadGameParent {
 
 				onEnter {
 					set "cmd" "play guisounds_menuclickup" ;
-					set "cmd" "addBot" ;
+					set "cmd" "loadGame" ;
 				}
 			}
 		}
@@ -8417,7 +8431,7 @@ windowDef MultiplayerNavParent {
 	//new game button Text
 	windowDef NewGameBtnText {
 		rect		53, 415, 160, 21
-		text		"Add Bots"
+		text		"ADD BOTS"
 		textscale	0.26
 		textalign	1
 		textaligny	-1
@@ -8437,7 +8451,6 @@ windowDef MultiplayerNavParent {
 
 			onAction {
 				transition	"matcolor" "1 1 1 0.5" "1 1 1 0.3" "300" ;
-				set "cmd" "BOTScan" ;				
 				//set "cmd" "exec" "addbot WolverineBot"; 
 			}
 
@@ -8677,7 +8690,7 @@ windowDef MultiplayerNavParent {
 	//load game button Text
 	windowDef LoadBtnText {
 		rect		240, 415, 170, 21
-		text		"Add Team"//"#str_02187"
+		text		"ADD TEAM"//"#str_02187"
 		textscale	0.26
 		textalign	1
 		textaligny	-1
@@ -13682,7 +13695,7 @@ windowDef MultiplayerLANParent {
 			bordercolor	0.4, 0.6, 0.6, 0.5
 			textscale 	0.25
 			font		"fonts/bank"
-			listName	"mapList" 
+			listName	"botlist"//"mapList" 
 
 			onAction {
 				set "cmd" "play guisounds_menuclickup ; click_mapList" ;
