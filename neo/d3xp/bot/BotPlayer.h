@@ -151,6 +151,8 @@ public:
 	void					Attack(void);
 	void					StopAttack(void);
 	void					Jump(void);
+	void					SaveLastTarget(idEntity* entity);
+	idEntity*				GetLastTarget(void);
 	void					LookInDirection(const idVec3& dir);
 	void					LookAtPosition(const idVec3& pos);
 	void					UpdateAIMoveFlag(aiMoveFlag_t flag);
@@ -186,6 +188,7 @@ protected:
 	idVec3					lastLookAtPosition;
 	float					aimRate;
 
+	idEntity*				target;
 	botMoveState_t			move;
 	aiInput_t				aiInput;
 	usercmd_t				botcmd;

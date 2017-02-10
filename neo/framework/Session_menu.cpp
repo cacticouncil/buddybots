@@ -303,20 +303,6 @@ void idSessionLocal::SetMainMenuSkin(void) {
 	guiMainMenu->SetStateInt(va("skin%i", skinId), 1);
 }
 
-/////////////////////////////////////////////////////////////
-//          I love you, baby,                              //
-//          And if it's quite alright,                     //
-//          I need you, baby,                              //
-//          To warm a lonely night.                        //
-//          I love you, baby.                              //
-//          Trust in me when I say :                       //
-//          Oh, pretty baby,                               //
-//          Don't bring me down, I pray.                   //
-//          Oh, pretty baby, now that I found you, stay    //
-//          And let me love you, baby.                     //
-//          Let me love you.                               //
-/////////////////////////////////////////////////////////////
-
 /*
 ===============
 idSessionLocal::SetPbMenuGuiVars

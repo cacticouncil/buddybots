@@ -1,8 +1,0 @@
-mapDef game/mp/Kyle2v2Map {
-	"name"		"Kyle2v2"
-	"Deathmatch"		"0"
-	"Team DM"		"0"
-	"Last Man"		"0"
-	"Tourney"		"0"
-	"CTF"		"1"
-}

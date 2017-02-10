@@ -77,6 +77,8 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 		.def("GetPosition",			&afiBotPlayer::GetPosition)
 		.def("NextWeapon",			&afiBotPlayer::NextWeapon)
 		.def("UpdateAIMoveFlag",	&afiBotPlayer::UpdateAIMoveFlag)
+		.def("SaveLastTarget",		&afiBotPlayer::SaveLastTarget)
+		.def("GetLastTarget",		&afiBotPlayer::GetLastTarget,		return_value_policy<reference_existing_object>())
 		.def_readonly("health",		&afiBotPlayer::health)
 		.def_readonly("team",		&afiBotPlayer::team)
 		.def_readonly("spectator",	&afiBotPlayer::spectator)
@@ -212,6 +214,7 @@ void afiBotPlayer::SpawnToPoint(const idVec3	&spawn_origin, const idAngles &spaw
 	respawning = true;
 
 	Init();
+	target = NULL;
 
 	fl.noknockback = false;
 
@@ -554,6 +557,13 @@ void afiBotPlayer::UpdateAIMoveFlag(aiMoveFlag_t flag){
 	aiInput.moveFlag = flag;
 }
 
+void afiBotPlayer::SaveLastTarget(idEntity* entity) {
+	target = entity;
+}
+
+idEntity* afiBotPlayer::GetLastTarget(void) {
+	return target;
+}
 /*
 ===================
 BotPlayer::Attack

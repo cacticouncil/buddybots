@@ -1,0 +1,634 @@
+Version 2
+// entity 0
+{
+"classname" "worldspawn"
+// primitive 0
+{
+ brushDef3
+ {
+  ( 1 -0.0000002687 0 -1167.9998779297 ) ( ( 0.0078125019 0 -0.5000001788 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 1023.9998779297 ) ( ( 0.0078125019 0 0.5000001788 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002689 1 0 -640.0003051758 ) ( ( 0.0078125019 0 8.000002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( -0.0078125019 -0.0000000021 0.5000036359 ) ( 0.0000000021 -0.0078125019 8 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( -0.0078125009 0.0000000021 0.5000022054 ) ( -0.0000000021 -0.0078125019 -8 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000002687 -1 0 544.0003662109 ) ( ( 0.0078125019 0 -8.000002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 1
+{
+ brushDef3
+ {
+  ( -0.0000002687 -1 0 544.0003662109 ) ( ( 0.0078125019 0 -9.375002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( -0.0078125019 0.0000000021 0.5625036955 ) ( -0.0000000021 -0.0078125019 -9.375 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( -0.0078125019 -0.0000000021 0.5625036955 ) ( 0.0000000021 -0.0078125009 9.375 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002687 1 0 -608.0003662109 ) ( ( 0.0078125019 0 9.375002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 1263.9998779297 ) ( ( 0.0078125019 0 0.5625002384 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 -0.0000002687 0 -1327.9998779297 ) ( ( 0.0078125019 0 -0.5625002384 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 2
+{
+ brushDef3
+ {
+  ( 0.7660441995 -0.6427878737 0 -1202.9979248047 ) ( ( 0.0078125019 0 -7.5889582634 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.6427878737 -0.7660441995 0 587.3826904297 ) ( ( 0.0078125019 0 -22.6484584808 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.7660441995 0.6427878737 0 1171.0043945313 ) ( ( 0.0078125019 0 7.5889582634 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.6427878737 0.7660441995 0 -715.3884277344 ) ( ( 0.0078125019 0 22.6484584808 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -72 ) ( ( -0.0059847212 -0.0050217807 7.5889568329 ) ( 0.0050217807 -0.0059847212 22.6484622955 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( -0.0059847212 0.0050217807 7.5889568329 ) ( -0.0050217807 -0.0059847212 -22.6484622955 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 3
+{
+ brushDef3
+ {
+  ( -0.7660443783 0.6427876949 0 1150.2783203125 ) ( ( 0.0078125 0 7.8379497528 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.6427876949 0.7660443783 0 -1387.2622070313 ) ( ( 0.0078125 0 -4.2633948326 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.7660443783 -0.6427876949 0 -1182.2857666016 ) ( ( 0.0078125 0 -7.8379497528 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.6427876949 -0.7660443783 0 1259.2525634766 ) ( ( 0.0078125 0 4.2633948326 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -72 ) ( ( 0.0059847222 0.0050217789 -7.837949276 ) ( -0.0050217789 0.0059847222 4.2633957863 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0059847222 -0.0050217789 -7.837949276 ) ( 0.0050217789 0.0059847222 -4.2633957863 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 4
+{
+ brushDef3
+ {
+  ( -1 0 0 768 ) ( ( 0.0078125 0 -1 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -320 ) ( ( 0.0078125 0 7.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -832 ) ( ( 0.0078125 0 -7.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 -7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1088 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 5
+{
+ brushDef3
+ {
+  ( 1 -0.0000002687 0 -1407.9998779297 ) ( ( 0.0078125019 0 -2.3125002384 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 767.9998779297 ) ( ( 0.0078125019 0 2.3125002384 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002687 1 0 -832.0002441406 ) ( ( 0.0078125019 0 10.000002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( -0.0078125009 -0.0000000021 2.3125019073 ) ( 0.0000000021 -0.0078125019 10 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( -0.0078125019 0.0000000021 2.3125030994 ) ( -0.0000000021 -0.0078125019 -10 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000002687 -1 0 768.0002441406 ) ( ( 0.0078125019 0 -10.000002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 6
+{
+ brushDef3
+ {
+  ( 1 -0.0000006717 0 -1087.9995117188 ) ( ( 0.0078125047 0 -3.2500030994 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( -0.0000000053 -0.0078125047 -12.2499990463 ) ( 0.0078125047 -0.0000000052 -3.2500069141 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( -0.0000000052 0.0078125028 -12.2499980927 ) ( -0.0078125028 -0.0000000053 3.2500061989 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000006719 0 1023.9996337891 ) ( ( 0.0078125047 0 3.2500030994 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000006721 -1 0 464.0006408691 ) ( ( 0.0078125047 0 -12.2500038147 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000006717 1 0 -544.000793457 ) ( ( 0.0078125047 0 12.2500038147 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 7
+{
+ brushDef3
+ {
+  ( 1 -0.0000002687 0 -831.9998779297 ) ( ( 0.0078125019 0 -2.1875002384 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 767.9998779297 ) ( ( 0.0078125019 0 2.1875002384 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002687 1 0 -768.0002441406 ) ( ( 0.0078125019 0 9.875002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( -0.0078125 -0.0000000021 2.1875019073 ) ( 0.0000000021 -0.0078125009 9.875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( -0.0078125019 0.0000000021 2.1875030994 ) ( -0.0000000021 -0.0078125019 -9.875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000002685 -1 0 320.0003356934 ) ( ( 0.0078125019 0 -9.875002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 8
+{
+ brushDef3
+ {
+  ( -1 0 0 2240 ) ( ( 0.0078125 0 -2.1875 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2304 ) ( ( 0.0078125 0 2.1875 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -768 ) ( ( 0.0078125 0 -14.125 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0078125 0 2.1875 ) ( 0 0.0078125 -14.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0078125 0 2.1875 ) ( 0 0.0078125 14.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 320 ) ( ( 0.0078125 0 14.125 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 9
+{
+ brushDef3
+ {
+  ( -1 0.0000004028 0 1984.0002441406 ) ( ( 0.0078125028 0 -3.250002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0000000032 0.0078125028 11.7500076294 ) ( -0.0078125028 0.0000000031 -3.2499947548 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0000000031 -0.0078125028 11.7500076294 ) ( 0.0078125009 0.0000000032 3.249994278 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 -0.0000004028 0 -2048.0002441406 ) ( ( 0.0078125028 0 3.250002861 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000004034 1 0 463.9991455078 ) ( ( 0.0078125028 0 11.7500047684 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000004031 -1 0 -543.999206543 ) ( ( 0.0078125028 0 -11.7500047684 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 10
+{
+ brushDef3
+ {
+  ( -1 0 0 1664 ) ( ( 0.0078125 0 -2.3125 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2304 ) ( ( 0.0078125 0 2.3125 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -832 ) ( ( 0.0078125 0 -14 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0078125 0 2.3125 ) ( 0 0.0078125 -14 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0078125 0 2.3125 ) ( 0 0.0078125 14 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 768 ) ( ( 0.0078125 0 14 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 11
+{
+ brushDef3
+ {
+  ( -1 0 0 1744 ) ( ( 0.0078125 0 -0.5625 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1808 ) ( ( 0.0078125 0 0.5625 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -608 ) ( ( 0.0078125 0 -14.625 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0078125 0 0.5625 ) ( 0 0.0078125 -14.625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0078125 0 0.5625 ) ( 0 0.0078125 14.625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 544 ) ( ( 0.0078125 0 14.625 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 12
+{
+ brushDef3
+ {
+  ( 0 1 0 544 ) ( ( 0.0078125 0 16 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 16 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 -16 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -640 ) ( ( 0.0078125 0 -16 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2048 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1904 ) ( ( 0.0078125 0 -0.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 13
+{
+ brushDef3
+ {
+  ( 0 1 0 544 ) ( ( 0.0078125 0 7.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 -7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -832 ) ( ( 0.0078125 0 -7.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1664 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 832 ) ( ( 0.0078125 0 -0.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 14
+{
+ brushDef3
+ {
+  ( -1 0 0 1344 ) ( ( 0.0078125 0 -4.75 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 96 ) ( ( 0.0078125 0 -0.5 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2048 ) ( ( 0.0078125 0 4.75 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -608 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 24 ) ( ( 0.0078125 0 4.75 ) ( 0 0.0078125 0.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -32 ) ( ( 0.0078125 0 4.75 ) ( 0 0.0078125 -0.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 15
+{
+ brushDef3
+ {
+  ( -1 0 0 1360 ) ( ( 0.0078125 0 -4.875 ) ( 0 0.0078125 -0.1875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 112 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 -0.1875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2032 ) ( ( 0.0078125 0 4.875 ) ( 0 0.0078125 -0.1875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -592 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 -0.1875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 16 ) ( ( 0.0078125 0 4.875 ) ( 0 0.0078125 0.375 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -24 ) ( ( 0.0078125 0 4.875 ) ( 0 0.0078125 -0.375 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 16
+{
+ brushDef3
+ {
+  ( -1 0 0 1376 ) ( ( 0.0078125 0 -5 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 128 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2016 ) ( ( 0.0078125 0 5 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -576 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 8 ) ( ( 0.0078125 0 5 ) ( 0 0.0078125 0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -16 ) ( ( 0.0078125 0 5 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 17
+{
+ brushDef3
+ {
+  ( -1 0 0 1392 ) ( ( 0.0078125 0 -5.125 ) ( 0 0.0078125 -0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 144 ) ( ( 0.0078125 0 -0.125 ) ( 0 0.0078125 -0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2000 ) ( ( 0.0078125 0 5.125 ) ( 0 0.0078125 -0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -560 ) ( ( 0.0078125 0 0.125 ) ( 0 0.0078125 -0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 0 ) ( ( 0.0078125 0 5.125 ) ( 0 0.0078125 0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -8 ) ( ( 0.0078125 0 5.125 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 18
+{
+ brushDef3
+ {
+  ( -1 0 0 1408 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 160 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1984 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -544 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -8 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 0 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 19
+{
+ brushDef3
+ {
+  ( 0 0 -1 -32 ) ( ( 0.0078125 0 -0.75 ) ( 0 0.0078125 -0.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 24 ) ( ( 0.0078125 0 -0.75 ) ( 0 0.0078125 0.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 96 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1728 ) ( ( 0.0078125 0 -0.75 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -608 ) ( ( 0.0078125 0 -0.5 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1024 ) ( ( 0.0078125 0 0.75 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 20
+{
+ brushDef3
+ {
+  ( 0 0 -1 40 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -48 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 96 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1600 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -112 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1472 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 21
+{
+ brushDef3
+ {
+  ( 0 0 -1 40 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -48 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002687 1 0 95.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 1472 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000002687 -1 0 -111.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 -0.0000002687 0 -1600 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 22
+{
+ brushDef3
+ {
+  ( 0 0 -1 -24 ) ( ( 0.0078125 0 -0.625 ) ( 0 0.0078125 -0.375 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 16 ) ( ( 0.0078125 0 -0.625 ) ( 0 0.0078125 0.375 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 112 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 -0.1875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1712 ) ( ( 0.0078125 0 -0.625 ) ( 0 0.0078125 -0.1875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -592 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 -0.1875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1040 ) ( ( 0.0078125 0 0.625 ) ( 0 0.0078125 -0.1875 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 23
+{
+ brushDef3
+ {
+  ( 0 0 -1 -40 ) ( ( 0.0078125 0 -1.0625 ) ( 0 0.0078125 -1 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 32 ) ( ( 0.0078125 0 -1.0625 ) ( 0 0.0078125 1 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -832 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 -0.3125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2304 ) ( ( 0.0078125 0 -1.0625 ) ( 0 0.0078125 -0.3125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -832 ) ( ( 0.0078125 0 -1 ) ( 0 0.0078125 -0.3125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 832 ) ( ( 0.0078125 0 1.0625 ) ( 0 0.0078125 -0.3125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 24
+{
+ brushDef3
+ {
+  ( 0 0 -1 -16 ) ( ( 0.0078125 0 -0.5 ) ( 0 0.0078125 -0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 8 ) ( ( 0.0078125 0 -0.5 ) ( 0 0.0078125 0.25 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 128 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1696 ) ( ( 0.0078125 0 -0.5 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -576 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1056 ) ( ( 0.0078125 0 0.5 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 25
+{
+ brushDef3
+ {
+  ( 0 0 -1 -8 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 -0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 0 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0.125 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 144 ) ( ( 0.0078125 0 0.125 ) ( 0 0.0078125 -0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1680 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 -0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -560 ) ( ( 0.0078125 0 -0.125 ) ( 0 0.0078125 -0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1072 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 -0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 26
+{
+ brushDef3
+ {
+  ( 0 0 -1 0 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -8 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 160 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1664 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -544 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1088 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 27
+{
+ brushDef3
+ {
+  ( 0 0 -1 8 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -16 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002687 1 0 159.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 1472 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000002687 -1 0 -175.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 -0.0000002687 0 -1600 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 28
+{
+ brushDef3
+ {
+  ( 0 0 -1 16 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -24 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002687 1 0 143.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 1472 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000002687 -1 0 -159.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 -0.0000002687 0 -1600 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 29
+{
+ brushDef3
+ {
+  ( 0 0 -1 24 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -32 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002687 1 0 127.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 1472 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000002687 -1 0 -143.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 -0.0000002687 0 -1600 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 30
+{
+ brushDef3
+ {
+  ( 0 0 -1 32 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -40 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0.0000002687 1 0 111.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0.0000002687 0 1472 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -0.0000002687 -1 0 -127.9995727539 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 -0.0000002687 0 -1600 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 31
+{
+ brushDef3
+ {
+  ( 0 0 -1 48 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -56 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -96 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1600 ) ( ( 0.0078125 0 -0.25 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -96 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1472 ) ( ( 0.0078125 0 0.25 ) ( 0 0.0078125 0.0625 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 32
+{
+ brushDef3
+ {
+  ( 0 0 -1 32 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -40 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 112 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1600 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -128 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1472 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 33
+{
+ brushDef3
+ {
+  ( 0 0 -1 24 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -32 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 128 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1600 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -144 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1472 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 34
+{
+ brushDef3
+ {
+  ( 0 0 -1 16 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -24 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 144 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1600 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -160 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1472 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 35
+{
+ brushDef3
+ {
+  ( 0 0 -1 8 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -16 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 160 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -1600 ) ( ( 0.0078125 0 -0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -176 ) ( ( 0.0078125 0 0 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1472 ) ( ( 0.0078125 0 0.375 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 36
+{
+ brushDef3
+ {
+  ( 0 0 0 1472 ) ( ( 0.125 0 0 ) ( 0 0.1580678672 165.5860443115 ) ) "_emptyname" 0 0 0
+  ( 0 0 0 1472 ) ( ( -0.125 0 0 ) ( 0 -0.1580678672 -165.5860443115 ) ) "_emptyname" 0 0 0
+  ( 0 0 0 1472 ) ( ( 0.1237835065 -0.0219987947 -24.3923168182 ) ( 0.01739664 0.1565295607 152.8053283691 ) ) "_emptyname" 0 0 0
+  ( 0 0 0 1472 ) ( ( 0.125 0 0 ) ( 0 0.1580678672 154.4015655518 ) ) "_emptyname" 0 0 0
+  ( 0 0 0 1472 ) ( ( 0.1237835065 0.0219987947 24.3923168182 ) ( -0.01739664 0.1565295607 152.8053283691 ) ) "_emptyname" 0 0 0
+  ( 0 0 0 1472 ) ( ( 0.125 0 0 ) ( 0 0.1580678672 154.4015655518 ) ) "_emptyname" 0 0 0
+ }
+}
+// primitive 37
+{
+ brushDef3
+ {
+  ( -1 0 0 832 ) ( ( 0.0078125 0 -1 ) ( 0 0.0078125 1.75 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -832 ) ( ( 0.0078125 0 7.5 ) ( 0 0.0078125 1.75 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2304 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 1.75 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -832 ) ( ( 0.0078125 0 -7.5 ) ( 0 0.0078125 1.75 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -392 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 -7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 384 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 38
+{
+ brushDef3
+ {
+  ( 0 1 0 -832 ) ( ( 0.0078125 0 7.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2304 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 -320 ) ( ( 0.0078125 0 -7.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 -7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( -1 0 0 1984 ) ( ( 0.0078125 0 -1 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+// primitive 39
+{
+ brushDef3
+ {
+  ( -1 0 0 1408 ) ( ( 0.0078125 0 -1 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 1 0 -832 ) ( ( 0.0078125 0 7.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 1 0 0 -2304 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 1 -384 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 -7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 0 -1 -64 ) ( ( 0.0078125 0 1 ) ( 0 0.0078125 7.5 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+  ( 0 -1 0 544 ) ( ( 0.0078125 0 -7.5 ) ( 0 0.0078125 0 ) ) "textures/base_wall/a_factoutwall1_01b_fin" 0 0 0
+ }
+}
+}
+// entity 1
+{
+"classname" "info_player_deathmatch"
+"name" "info_player_deathmatch_6"
+"origin" "1984 -688 -32"
+"angle" "180"
+"team" "0"
+}
+// entity 2
+{
+"classname" "info_player_deathmatch"
+"name" "info_player_deathmatch_5"
+"origin" "2112 -544 -32"
+"angle" "90"
+"team" "0"
+}
+// entity 3
+{
+"classname" "info_player_deathmatch"
+"name" "info_player_deathmatch_1"
+"origin" "960 544 -32"
+"angle" "-90"
+"team" "1"
+}
+// entity 4
+{
+"classname" "trigger_ctf_blueflag"
+"name" "trigger_ctf_blueflag_1"
+"origin" "1216 464 56"
+"model" "trigger_ctf_blueflag_1"
+// primitive 0
+{
+ brushDef3
+ {
+  ( 0 0 -1 -48 ) ( ( 0.0625 0 1.5 ) ( 0 0.0625 -1 ) ) "textures/common/trigmulti" 0 0 0
+  ( 0 0 1 -56 ) ( ( 0.0625 0 1.5 ) ( 0 0.0625 1 ) ) "textures/common/trigmulti" 0 0 0
+  ( 0 -1 0 -24 ) ( ( 0.0625 0 1 ) ( 0 0.0625 0 ) ) "textures/common/trigmulti" 0 0 0
+  ( 1 0 0 -16 ) ( ( 0.0625 0 1.5 ) ( 0 0.0625 0 ) ) "textures/common/trigmulti" 0 0 0
+  ( 0 1 0 -32 ) ( ( 0.0625 0 -1 ) ( 0 0.0625 0 ) ) "textures/common/trigmulti" 0 0 0
+  ( -1 0 0 -16 ) ( ( 0.0625 0 -1.5 ) ( 0 0.0625 0 ) ) "textures/common/trigmulti" 0 0 0
+ }
+}
+}
+// entity 5
+{
+"classname" "trigger_ctf_redflag"
+"name" "trigger_ctf_redflag_1"
+"origin" "1856 -440 96"
+"model" "trigger_ctf_redflag_1"
+// primitive 0
+{
+ brushDef3
+ {
+  ( 0 0 -1 -88 ) ( ( 0.0625 0 1 ) ( 0 0.0625 -1 ) ) "textures/common/trigmulti" 0 0 0
+  ( 0 0 1 -16 ) ( ( 0.0625 0 1 ) ( 0 0.0625 1 ) ) "textures/common/trigmulti" 0 0 0
+  ( 0 -1 0 -16 ) ( ( 0.0625 0 1 ) ( 0 0.0625 0 ) ) "textures/common/trigmulti" 0 0 0
+  ( 1 0 0 -16 ) ( ( 0.0625 0 1 ) ( 0 0.0625 0 ) ) "textures/common/trigmulti" 0 0 0
+  ( 0 1 0 -40 ) ( ( 0.0625 0 -1 ) ( 0 0.0625 0 ) ) "textures/common/trigmulti" 0 0 0
+  ( -1 0 0 -16 ) ( ( 0.0625 0 -1 ) ( 0 0.0625 0 ) ) "textures/common/trigmulti" 0 0 0
+ }
+}
+}
+// entity 6
+{
+"classname" "weapon_handgrenade"
+"name" "weapon_handgrenade_1"
+"origin" "1536 0 56"
+}
+// entity 7
+{
+"classname" "weapon_shotgun"
+"name" "weapon_shotgun_1"
+"origin" "1856 256 -32"
+}
+// entity 8
+{
+"classname" "light"
+"name" "light_10"
+"origin" "928 704 96"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0"
+"_color" "0.51 0.55 1"
+"light_radius" "600 600 600"
+}
+// entity 9
+{
+"classname" "light"
+"name" "light_9"
+"origin" "2144 -704 96"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0"
+"_color" "0.9 0.36 0.4"
+"light_radius" "600 600 600"
+}
+// entity 10
+{
+"script_taken" "red_flag_taken"
+"script_returned" "red_flag_returned"
+"script_captured" "red_flag_captured"
+"classname" "team_ctf_redflag"
+"name" "team_ctf_redflag_1"
+"origin" "1856 -448 80"
+}
+// entity 11
+{
+"script_taken" "blue_flag_taken"
+"script_returned" "blue_flag_returned"
+"script_captured" "blue_flag_captured"
+"classname" "team_ctf_blueflag"
+"name" "team_ctf_blueflag_1"
+"origin" "1216 448 64"
+}
+// entity 12
+{
+"classname" "info_player_start"
+"name" "info_player_start_1"
+"origin" "1136 368 8"
+}
+// entity 13
+{
+"classname" "light"
+"name" "light_8"
+"origin" "1536 0 224"
+"noshadows" "0"
+"nospecular" "0"
+"nodiffuse" "0"
+"falloff" "0"
+"_color" "1 1 1"
+"light_radius" "1000 1000 1000"
+}
+// entity 14
+{
+"classname" "weapon_shotgun"
+"name" "weapon_shotgun_2"
+"origin" "1216 -256 -32"
+"angle" "180"
+}
+// entity 15
+{
+"classname" "info_player_deathmatch"
+"name" "info_player_deathmatch_2"
+"origin" "1088 688 -32"
+"angle" ""
+"team" "1"
+}
