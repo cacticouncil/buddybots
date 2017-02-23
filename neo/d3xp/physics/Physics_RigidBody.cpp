@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "gamesys/SysCvar.h"
 #include "Entity.h"
 #include "Player.h"
+#include "../Confetti_Timer.h"
 
 #include "physics/Physics_RigidBody.h"
 
@@ -48,7 +49,6 @@ static int lastTimerReset = 0;
 static int numRigidBodies = 0;
 static idTimer timer_total, timer_collision;
 #endif
-
 
 /*
 ================
@@ -447,7 +447,7 @@ idPhysics_RigidBody::idPhysics_RigidBody( void ) {
 	memset( &current, 0, sizeof( current ) );
 
 	current.atRest = -1;
-	current.lastTimeStep = USERCMD_MSEC;
+	current.lastTimeStep = USERCMD_MSEC * tickRate;
 
 	current.i.position.Zero();
 	current.i.orientation.Identity();

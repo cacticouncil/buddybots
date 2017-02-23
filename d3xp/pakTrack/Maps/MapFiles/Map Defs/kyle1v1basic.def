@@ -1,0 +1,8 @@
+mapDef game/mp/kyle1v1basic {
+	"name"		"Clear Garden"
+	"Deathmatch"		"0"
+	"Team DM"		"0"
+	"Last Man"		"0"
+	"Tourney"		"0"
+	"CTF"		"1"
+}

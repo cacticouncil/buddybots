@@ -246,6 +246,10 @@ public:
 	idUserInterface *	guiInGame;
 	idUserInterface *	guiMainMenu;
 	idListGUI *			guiMainMenu_MapList;		// easy map list handling
+	const char *		guiFileRead;
+	char *				guiFileChar;
+	idListGUI *			guiMainMenu_BotList;		// easy bot list handling
+	idListGUI *			guiMainMenu_QueuedBotList;	// List of bots loaded into the game queue
 	idUserInterface *	guiRestartMenu;
 	idUserInterface *	guiLoading;
 	idUserInterface *	guiIntro;
@@ -320,7 +324,7 @@ public:
 
 	idStrList			loadGameList;
 	idStrList			modsList;
-
+	idStrList			guiBotNames;
 	idUserInterface *	GetActiveMenu();
 
 	void				DispatchCommand( idUserInterface *gui, const char *menuCommand, bool doIngame = true );
@@ -340,6 +344,7 @@ public:
 	void				SetSaveGameGuiVars( void );
 	void				SetMainMenuGuiVars( void );
 	void				SetModsMenuGuiVars( void );
+	void				SetBotMenuGuiVars( void );
 	void				SetMainMenuSkin( void );
 	void				SetPbMenuGuiVars( void );
 

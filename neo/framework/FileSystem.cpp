@@ -170,8 +170,6 @@ for instance to base a mod of D3 + D3XP assets, fs_game mymod, fs_game_base d3xp
 =============================================================================
 */
 
-
-
 // define to fix special-cases for GetPackStatus so that files that shipped in
 // the wrong place for Doom 3 don't break pure servers.
 #define DOOM3_PURE_SPECIAL_CASES

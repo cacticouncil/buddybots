@@ -42,6 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Fx.h"
 #include "Misc.h"
 #include "bot/BotManager.h"
+#include "../Confetti_Timer.h"
 
 #include "SysCmds.h"
 
@@ -924,6 +925,7 @@ Removes the specified entity
 */
 void Cmd_Remove_f( const idCmdArgs &args ) {
 	if ( !gameLocal.GetLocalPlayer() || !gameLocal.CheatsOk( false ) ) {
+		gameLocal.Printf("GetLocalPlayer false, or Cheats are not okay");
 		return;
 	}
 	if ( args.Argc() != 2 ) {
@@ -2400,6 +2402,42 @@ void Cmd_TestId_f( const idCmdArgs &args ) {
 }
 
 /*
+===============
+Cmd_ChangeTickRate
+changes the tick rate to increase/decease speed
+===============
+*/
+void Cmd_ChangeTickRate_f(const idCmdArgs& args) {
+	if (gameLocal.isClient) { // !gameLocal.isServer isn't valid soon enough for some reason
+		gameLocal.Printf("Tick rate may only be changed on server\n");
+		return;
+	}
+
+	bool acceptableString;
+	idStr tickChange = args.Argv(1);
+	if (tickChange.Length() == 0) {
+		acceptableString = false;
+	} else if (!tickChange.IsNumeric()) {
+		acceptableString = false;
+	} else {
+		acceptableString = true;
+	}
+
+
+	if (!acceptableString) {
+		tickChange = to_string(tickRate).c_str();
+		gameLocal.Printf("Tickrate is ");
+		gameLocal.Printf(tickChange.c_str());
+		gameLocal.Printf("x\n");
+	} else {
+		tickRate = atoi(tickChange.c_str());
+		gameLocal.Printf("Tickrate is ");
+		gameLocal.Printf(tickChange.c_str());
+		gameLocal.Printf("x\n");
+	}
+};
+
+/*
 =================
 idGameLocal::InitConsoleCommands
 
@@ -2511,10 +2549,22 @@ void idGameLocal::InitConsoleCommands( void ) {
 #ifdef _D3XP
 	cmdSystem->AddCommand( "setActorState",			Cmd_SetActorState_f,		CMD_FL_GAME|CMD_FL_CHEAT,	"Manually sets an actors script state", idGameLocal::ArgCompletion_EntityName );
 #endif
-	cmdSystem->AddCommand( "addBot", afiBotManager::Cmd_AddBot_f, CMD_FL_GAME, "add a bot to the server", idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
-	cmdSystem->AddCommand( "removeBot", afiBotManager::Cmd_RemoveBot_f,CMD_FL_GAME,"Remove a bot from the server" );
-	cmdSystem->AddCommand( "reloadBot",afiBotManager::Cmd_ReloadBot_f,CMD_FL_GAME,"Reload a bot script");
-	cmdSystem->AddCommand( "reloadAllBots",afiBotManager::Cmd_ReloadAllBots_f,CMD_FL_GAME,"Reload all bot scripts" );
+	cmdSystem->AddCommand( "addBot",				afiBotManager::Cmd_AddBot_f,			CMD_FL_GAME,	"add a bot to the server",									idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
+	cmdSystem->AddCommand( "addTeam",				afiBotManager::Cmd_AddTeam_f,			CMD_FL_GAME,	"add team and all bots to the server",						idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF>);
+	cmdSystem->AddCommand( "removeBot",				afiBotManager::Cmd_RemoveBot_f,			CMD_FL_GAME,	"Remove a bot from the server" );
+	cmdSystem->AddCommand( "removeAllBots",			afiBotManager::Cmd_RemoveAllBots_f,		CMD_FL_GAME,	"Remove all bots from the server");
+	cmdSystem->AddCommand( "removeTeam",			afiBotManager::Cmd_RemoveTeam_f,		CMD_FL_GAME,	"Remove all bots in a team, and the team from the server");
+	cmdSystem->AddCommand( "removeAllTeams",		afiBotManager::Cmd_RemoveAllTeams_f,	CMD_FL_GAME,	"Remove all bots on teams, and all teams from the server");
+	cmdSystem->AddCommand( "reloadBot",				afiBotManager::Cmd_ReloadBot_f,			CMD_FL_GAME,	"Reload a bot script");
+	cmdSystem->AddCommand( "reloadAllBots",			afiBotManager::Cmd_ReloadAllBots_f,		CMD_FL_GAME,	"Reload all bot scripts" );
+	cmdSystem->AddCommand( "printallbots",			afiBotManager::Cmd_PrintAllBots_f,		CMD_FL_GAME,	"Prints the names, teams, and indicies of all bots");
+	cmdSystem->AddCommand("removebotindex",			afiBotManager::Cmd_RemoveBotIndex_f,	CMD_FL_GAME,	"Removes the bot at the given index");
+	cmdSystem->AddCommand( "addBot",				afiBotManager::Cmd_AddBot_f,			CMD_FL_GAME,	"add a bot to the server",									idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
+	cmdSystem->AddCommand( "removeBot",				afiBotManager::Cmd_RemoveBot_f,			CMD_FL_GAME,	"Remove a bot from the server" );
+	cmdSystem->AddCommand("removeAllBots",			afiBotManager::Cmd_RemoveAllBots_f,		CMD_FL_GAME,	"Remove all bots from the server");
+	cmdSystem->AddCommand( "reloadBot",				afiBotManager::Cmd_ReloadBot_f,			CMD_FL_GAME,	"Reload a bot script");
+	cmdSystem->AddCommand( "reloadAllBots",			afiBotManager::Cmd_ReloadAllBots_f,		CMD_FL_GAME,	"Reload all bot scripts" );
+	cmdSystem->AddCommand( "tickrate",				Cmd_ChangeTickRate_f,					CMD_FL_GAME,	"Manipulate the game tick rate" );
 }
 
 /*

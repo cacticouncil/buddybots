@@ -108,7 +108,7 @@ idDict &idDict::operator=( const idDict &other ) {
 	argHash = other.argHash;
 
 	for ( i = 0; i < args.Num(); i++ ) {
-		args[i].key = globalKeys.CopyString( args[i].key );
+ 		args[i].key = globalKeys.CopyString( args[i].key );
 		args[i].value = globalValues.CopyString( args[i].value );
 	}
 
@@ -330,6 +330,7 @@ idDict::Set
 void idDict::Set( const char *key, const char *value ) {
 	int i;
 	idKeyValue kv;
+	const char* temp = "replay_count";
 
 	if ( key == NULL || key[0] == '\0' ) {
 		return;

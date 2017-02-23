@@ -181,6 +181,8 @@ public:
 		SUDDENDEATH,						// game is on but in sudden death, first frag wins
 		GAMEREVIEW,							// game is over, scoreboard is up. we wait si_gameReviewPause seconds (which has a min value)
 		NEXTGAME,
+		ENDREVIEW,							// game is over, grading scoreboard is up. we wait for the redo button or disconnect button to be pressed
+		SCOREREVIEW,						// game is over, grading scoreboard is up. we wait for the redo button or disconnect button to be pressed
 		STATE_COUNT
 	} gameState_t;
 	static const char *GameStateStrings[ STATE_COUNT ];
@@ -273,6 +275,9 @@ public:
 
 	void			Precache( void );
 
+	// Changes the user to a spectator to observer the bots
+	void			ForceSpectate( int clientNum );
+
 	// throttle UI switch rates
 	void			ThrottleUserInfo( void );
 	void			ToggleSpectate( void );
@@ -293,13 +298,18 @@ public:
 	void			ServerClientConnect( int clientNum );
 #ifdef CTF
 	void            ClearHUDStatus( void );
-	int             GetFlagPoints( int team );	// Team points in CTF
-	void			SetFlagMsg( bool b );		// allow flag event messages to be sent
-	bool			IsFlagMsgOn( void );		// should flag event messages go through?
+	int             GetFlagPoints( int team );			// Team points in CTF
+	int				GetTotalFlagPoints( int team );		// Total team points in CTF
+	int				GetTotalFragPoints( int team );		// Total team frag points in CTF
+	int				GetTotalTeamWins( int team );		// Total team wins in CTF
+	int				GetTotalFlagReturns( int team );	// Total team flag returns
+	int				GetTotalKills( int team );			// Total team kills
+	void			SetFlagMsg( bool b );				// allow flag event messages to be sent
+	bool			IsFlagMsgOn( void );				// should flag event messages go through?
 	void			ClearGuis( void );
 
-	int             player_red_flag;            // Ent num of red flag carrier for HUD
-	int             player_blue_flag;           // Ent num of blue flag carrier for HUD
+	int             player_red_flag;				// Ent num of red flag carrier for HUD
+	int             player_blue_flag;				// Ent num of blue flag carrier for HUD
 
 #endif
 	void			PlayerStats( int clientNum, char *data, const int len );
@@ -374,6 +384,12 @@ private:
 	gameType_t		lastGameType;			// for restarts
 	int				startFragLimit;			// synchronize to clients in initial state, set on -> GAMEON
 
+	int				teamWins[2];				// Win count for Teams
+	int				totalTeamCapturePoints[2];	// Cumlative points for teams 
+	int				totalTeamFragPoints[2];		// Cumlative frag points for teams
+	int				totalTeamFlagReturns[2];	// Cumlative Flag returns
+	int				totalTeamKills[2];			// Cumlative kill count
+
 #ifdef CTF
 	idItemTeam *	teamFlags[ 2 ];
 	int				teamPoints[ 2 ];
@@ -411,6 +427,7 @@ private:
 	// return team with most points
 	public:
 	int				WinningTeam(void);
+	void			AddToTotalTeamPoints( int _team);
 	private:
 #endif
 	void			NewState( gameState_t news, idPlayer *player = NULL );
@@ -449,6 +466,7 @@ public:
 	flagStatus_t    GetFlagStatus( int team );
 	void			TeamScoreCTF( int team, int delta );
 	void			PlayerScoreCTF( int playerIdx, int delta );
+	void			ResetScores( void );
 	// returns entityNum to team flag carrier, -1 if no flag carrier
 	int				GetFlagCarrier( int team );
 	void            UpdateScoreboardFlagStatus( void );

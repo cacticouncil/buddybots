@@ -18,18 +18,20 @@ const int SPECTATE_RAISE = 25;
 #include "framework/DeclEntityDef.h"
 #include "BotManager.h"
 #include "idlib/geometry/JointTransform.h"
+#include "Confetti_Timer.h"
 
-idCVar	bot_debugBot( "bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOCHEAT, "debug a specific bot -1 disable, -2 all bots, otherwise clientnum", -2, MAX_CLIENTS );
+idCVar	bot_debugBot("bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOCHEAT, "debug a specific bot -1 disable, -2 all bots, otherwise clientnum", -2, MAX_CLIENTS);
 
-CLASS_DECLARATION( idPlayer, afiBotPlayer )
-	END_CLASS
+CLASS_DECLARATION(idPlayer, afiBotPlayer)
+END_CLASS
 
-	void noOpDelete(afiBotPlayer*) { }
-void noOpDeletePlayer(idPlayer*) {}
+void noOpDelete(afiBotPlayer*) { }
+void noOpDeletePlayer(idPlayer*) { }
+void noOpDeleteEntity(idEntity*) { }
 
 std::shared_ptr<afiBotPlayer> CreateBotPlayer() {
 
-	return std::shared_ptr<afiBotPlayer>(new afiBotPlayer(),&noOpDelete);
+	return std::shared_ptr<afiBotPlayer>(new afiBotPlayer(), &noOpDelete);
 }
 
 // Workaround for problem in VS14
@@ -44,57 +46,84 @@ namespace boost
 }
 
 BOOST_PYTHON_MODULE(afiBotPlayer) {
-		//import("idVec3");
-		//import("idAngles");
-		//import("idEntity");
-		//import("afiBotBrain");
-		//import("afiBotManager");
-		import("idPlayer");
+	//import("idVec3");
+	//import("idAngles");
+	//import("idEntity");
+	//import("afiBotBrain");
+	//import("afiBotManager");
+	import("idPlayer");
 
-		class_<afiBotPlayer,bases<idPlayer>,shared_ptr<afiBotPlayer>>("afiBotPlayer",no_init)
-			.def("__init__",make_constructor(&CreateBotPlayer))
-			.def("FindNearestItem",&afiBotPlayer::FindNearestItem,return_value_policy<reference_existing_object>(),release_gil_policy())
-			.def("MoveTo",&afiBotPlayer::MoveTo)
-			.def("MoveToPosition",&afiBotPlayer::MoveToPosition)
-			.def("MoveToEntity",&afiBotPlayer::MoveToEntity)
-			.def("MoveToPlayer",&afiBotPlayer::MoveToPlayer)
-			.def("Attack",&afiBotPlayer::Attack)
-			.def("Jump",&afiBotPlayer::Jump)
-			.def("LookInDirection",&afiBotPlayer::LookInDirection)
-			.def("LookAtPosition",&afiBotPlayer::LookAtPosition)
-			.def("MoveToNearest",&afiBotPlayer::MoveToNearest,return_value_policy<reference_existing_object>())
-			.def("PathToGoal",&afiBotPlayer::PathToGoal)
-			.def("ReachedPos",&afiBotPlayer::ReachedPos,release_gil_policy())
-			.def("SwitchWeapon",&afiBotPlayer::SwitchWeapon)
-			.def("HasAmmo",&afiBotPlayer::HasAmmo)
-			.def("FindNearbyPlayers",&afiBotPlayer::FindNearbyPlayers)
-			.def("GetPosition",&afiBotPlayer::GetPosition)
-			.def_readonly("health",&afiBotPlayer::health)
-			.def_readonly("team",&afiBotPlayer::team)
-			.def_readonly("spectator",&afiBotPlayer::spectator)
-			;
+	class_<afiBotPlayer, bases<idPlayer>, shared_ptr<afiBotPlayer>>("afiBotPlayer", no_init)
+		.def("__init__",			make_constructor(&CreateBotPlayer))
+		.def("FindItem",			&afiBotPlayer::FindItem,			return_value_policy<reference_existing_object>(), release_gil_policy())
+		.def("InView",				&afiBotPlayer::InView)
+		.def("MoveTo",				&afiBotPlayer::MoveTo)
+		.def("MoveToPosition",		&afiBotPlayer::MoveToPosition)
+		.def("MoveToEntity",		&afiBotPlayer::MoveToEntity)
+		.def("MoveToPlayer",		&afiBotPlayer::MoveToPlayer)
+		.def("Attack",				&afiBotPlayer::Attack)
+		.def("StopAttack",			&afiBotPlayer::StopAttack)
+		.def("Jump",				&afiBotPlayer::Jump)
+		.def("LookInDirection",		&afiBotPlayer::LookInDirection)
+		.def("LookAtPosition",		&afiBotPlayer::LookAtPosition)
+		.def("MoveToNearest",		&afiBotPlayer::MoveToNearest,		return_value_policy<reference_existing_object>())
+		.def("PathToGoal",			&afiBotPlayer::PathToGoal)
+		.def("ReachedPos",			&afiBotPlayer::ReachedPos,			release_gil_policy())
+		.def("SwitchWeapon",		&afiBotPlayer::SwitchWeapon)
+		.def("HasAmmo",				&afiBotPlayer::HasAmmo)
+		.def("AmmoInClip",			&afiBotPlayer::AmmoInClip)
+		.def("FindNearbyPlayers",	&afiBotPlayer::FindNearbyPlayers)
+		.def("FindItemsInView",		&afiBotPlayer::FindItemsInView)
+		.def("GetPosition",			&afiBotPlayer::GetPosition)
+		.def("NextWeapon",			&afiBotPlayer::NextWeapon)
+		.def("UpdateAIMoveFlag",	&afiBotPlayer::UpdateAIMoveFlag)
+		.def("SaveLastTarget",		&afiBotPlayer::SaveLastTarget)
+		.def("GetLastTarget",		&afiBotPlayer::GetLastTarget,		return_value_policy<reference_existing_object>())
+		.def_readonly("health",		&afiBotPlayer::health)
+		.def_readonly("team",		&afiBotPlayer::team)
+		.def_readonly("spectator",	&afiBotPlayer::spectator)
+		;
 }
 
-	boost::python::list afiBotPlayer::FindNearbyPlayers() {
+boost::python::list afiBotPlayer::FindNearbyPlayers() {
 
-		boost::python::list nearbyPlayers = boost::python::list();
-		unsigned int numClients = gameLocal.numClients;
-		for (unsigned int iClient = 0; iClient < numClients; ++iClient) {
+	boost::python::list nearbyPlayers = boost::python::list();
+	unsigned int numClients = gameLocal.numClients;
+	for (unsigned int iClient = 0; iClient < numClients; ++iClient) {
 
-			idPlayer* player = gameLocal.GetClientByNum(iClient);
-			if (player != nullptr) {
-				if (CanSee(player, true)) {
-					nearbyPlayers.append(shared_ptr<idPlayer>(player, &noOpDeletePlayer));
+		idPlayer* player = gameLocal.GetClientByNum(iClient);
+		if (player != nullptr) {
+			if (CanSee(player, true)) {
+				nearbyPlayers.append(shared_ptr<idPlayer>(player, &noOpDeletePlayer));
+			}
+		}
+	}
+
+	return nearbyPlayers;
+}
+
+boost::python::list afiBotPlayer::FindItemsInView() {
+
+	boost::python::list nearbyItems = boost::python::list();
+
+	for (int iEntity = 0; iEntity < MAX_GENTITIES; ++iEntity) {
+
+		idEntity* entity = gameLocal.entities[iEntity];
+		if (entity) {
+			if (CanSee(entity, true)) {
+				if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type))){
+					nearbyItems.append(shared_ptr<idEntity>(entity, &noOpDeleteEntity));
 				}
 			}
 		}
-
-		return nearbyPlayers;
 	}
 
+	return nearbyItems;
+}
+
 afiBotPlayer::afiBotPlayer() : idPlayer() {
-	memset( &botcmd, 0, sizeof( botcmd ) );
-	memset( &aiInput, 0, sizeof( aiInput ) );
+	memset(&botcmd, 0, sizeof(botcmd));
+	memset(&aiInput, 0, sizeof(aiInput));
 	//Oh if I only had a brain
 	brain = nullptr;
 }
@@ -113,19 +142,24 @@ afiBotBrain* afiBotPlayer::GetBrain() const {
 }
 
 void afiBotPlayer::SetAAS() {
-	aas = gameLocal.GetAAS( "aas48" );
-	if ( aas ) {
+	aas = gameLocal.GetAAS("aas48");
+	if (aas) {
 		const idAASSettings *settings = aas->GetSettings();
-		if ( settings ) {
+		if (settings) {
 			float height = settings->maxStepHeight;
-			physicsObj.SetMaxStepHeight( height );
+			physicsObj.SetMaxStepHeight(height);
 			return;
-		} else {
+		}
+		else {
 			aas = NULL;
 		}
 	}
 
-	gameLocal.Error( "Bot cannot find AAS file for map\n" ); // TinMan: No aas, no play.
+	gameLocal.Error("Bot cannot find AAS file for map\n"); // TinMan: No aas, no play.
+}
+
+bool afiBotPlayer::InView(idEntity* entity) {
+	return CanSee(entity, true);
 }
 
 bool afiBotPlayer::SwitchWeapon(const char* weaponName) {
@@ -138,13 +172,12 @@ bool afiBotPlayer::SwitchWeapon(const char* weaponName) {
 
 	SelectWeapon(weaponSlot, false);
 
-	if (idealWeapon != weaponSlot)
+	if (idealWeapon != weaponSlot) {
 		return false;
+	}
 
-		
+
 	return true;
-
-
 }
 
 int afiBotPlayer::HasAmmo(const char* weaponName) {
@@ -157,6 +190,11 @@ int afiBotPlayer::HasAmmo(const char* weaponName) {
 
 	return inventory.HasAmmo(weaponName, true, this);
 
+}
+
+void afiBotPlayer::AmmoInClip() {
+	if (weapon.GetEntity()->AmmoInClip() == 0)
+		weapon.GetEntity()->Reload();
 }
 
 void afiBotPlayer::SpawnFromSpawnSpot() {
@@ -176,6 +214,7 @@ void afiBotPlayer::SpawnToPoint(const idVec3	&spawn_origin, const idAngles &spaw
 	respawning = true;
 
 	Init();
+	target = NULL;
 
 	fl.noknockback = false;
 
@@ -319,44 +358,44 @@ void afiBotPlayer::Damage(idEntity *inflictor, idEntity *attacker, const idVec3 
 }
 
 void afiBotPlayer::Spawn() {
-	if ( gameLocal.isClient ) {
+	if (gameLocal.isClient) {
 		return;
 	}
 
 	// Set user info
 	idDict* userInfo = GetUserInfo();
 	const idKeyValue* arg = NULL;
-	arg = spawnArgs.MatchPrefix( "ui_", arg );
-	while ( arg ) {
-		userInfo->Set( arg->GetKey().c_str(), arg->GetValue().c_str() );
-		arg = spawnArgs.MatchPrefix( "ui_", arg );
+	arg = spawnArgs.MatchPrefix("ui_", arg);
+	while (arg) {
+		userInfo->Set(arg->GetKey().c_str(), arg->GetValue().c_str());
+		arg = spawnArgs.MatchPrefix("ui_", arg);
 	}
 
-	if ( idStr::Length( userInfo->GetString( "ui_name" ) ) < 1 ) {
-		userInfo->Set( "ui_name", va( "bot%d", entityNumber ) );
+	if (idStr::Length(userInfo->GetString("ui_name")) < 1) {
+		userInfo->Set("ui_name", va("bot%d", entityNumber));
 	}
 
-	userInfo->Set( "ui_team", spawnArgs.GetInt( "team" ) ? "Red" : "Blue" ); // ui_team is "Red"/"Blue" NOTE: may actually be "Blue"/"Red" need to check for that.
+	userInfo->Set("ui_team", spawnArgs.GetInt("team") ? "Red" : "Blue"); // ui_team is "Red"/"Blue" NOTE: may actually be "Blue"/"Red" need to check for that.
 
-	cmdSystem->BufferCommandText( CMD_EXEC_NOW, va( "updateUI %d\n", entityNumber ) ); // get engine to propagate userinfo changes
+	cmdSystem->BufferCommandText(CMD_EXEC_NOW, va("updateUI %d\n", entityNumber)); // get engine to propagate userinfo changes
 
-	afiBotManager::SetUserCmd( entityNumber, &botcmd );
+	afiBotManager::SetUserCmd(entityNumber, &botcmd);
 }
 
-void afiBotPlayer::PrepareForRestart( void ) {
+void afiBotPlayer::PrepareForRestart(void) {
 	idPlayer::PrepareForRestart();
 
 	//	memset( &aiInput, 0, sizeof( aiInput ) );
 	// TODO: botcmd?
 }
 
-void afiBotPlayer::Restart( void ) {
+void afiBotPlayer::Restart(void) {
 	idPlayer::Restart();
 
-	BecomeActive( TH_THINK );
+	BecomeActive(TH_THINK);
 }
 
-void afiBotPlayer::Think( void ) {
+void afiBotPlayer::Think(void) {
 	idPlayer::Think();
 
 	if (thinkFlags & TH_THINK) {
@@ -368,25 +407,25 @@ void afiBotPlayer::Think( void ) {
 	}
 }
 
-void afiBotPlayer::ClearInput( void ) {
+void afiBotPlayer::ClearInput(void) {
 	//aiInput.moveDirection.Zero();
 	//aiInput.moveSpeed = 0.f;
 	//aiInput.viewDirection.Zero();
-	memset( &aiInput.commands, 0, sizeof( aiCommands_t ) );
-	memset( &aiInput.moveFlag, 0, sizeof( aiMoveFlag_t ) );
+	memset(&aiInput.commands, 0, sizeof(aiCommands_t));
+	memset(&aiInput.moveFlag, 0, sizeof(aiMoveFlag_t));
 }
 
-void afiBotPlayer::ProcessInput( void ) {
+void afiBotPlayer::ProcessInput(void) {
 	// Clear Old Output
-	memset( &botcmd, 0, sizeof( botcmd ) );
+	memset(&botcmd, 0, sizeof(botcmd));
 
 	UpdateViewAngles();
 	ProcessMove();
 	ProcessCommands();
-	afiBotManager::SetUserCmd( entityNumber, &botcmd ); //Post usercmd so GetBotInput can do it's magic
+	afiBotManager::SetUserCmd(entityNumber, &botcmd); //Post usercmd so GetBotInput can do it's magic
 }
 
-void afiBotPlayer::UpdateViewAngles( void ) {
+void afiBotPlayer::UpdateViewAngles(void) {
 	idAngles 	idealViewAngles;
 	float		arcOffset = 20.0f;
 	float		arcHalf = 0.0f;
@@ -396,129 +435,151 @@ void afiBotPlayer::UpdateViewAngles( void ) {
 	idAngles 	newViewAngles;
 	//aiInput.viewDirection.Normalize();
 	idVec3 eyePosition = GetEyePosition();
-	assert( aiInput.viewType >= VIEW_DIR && aiInput.viewType <= VIEW_POS );
-	if ( aiInput.viewType == VIEW_DIR ) {
+	assert(aiInput.viewType >= VIEW_DIR && aiInput.viewType <= VIEW_POS);
+	if (aiInput.viewType == VIEW_DIR) {
 		idealViewAngles = aiInput.viewDirection.ToAngles();
 		viewPos = aiInput.viewDirection + eyePosition;
-	} else if ( aiInput.viewType == VIEW_POS ) {
+	}
+	else if (aiInput.viewType == VIEW_POS) {
 		idealViewAngles = (aiInput.viewDirection - eyePosition).ToAngles();
 		viewPos = aiInput.viewDirection;
-	} else {
-		gameLocal.Warning( "BotPlayer::UpdateViewAngles - Unknown viewType" );
+	}
+	else {
+		gameLocal.Warning("BotPlayer::UpdateViewAngles - Unknown viewType");
 		idealViewAngles.Zero();
 	}
 
 	idealViewAngles = idVec3(viewPos - eyePosition).ToAngles();
 
-	idAngles delta = ( idealViewAngles - viewAngles ).Normalize180();
-	arcDistance = idMath::Sqrt( Square( delta.yaw ) + Square( delta.pitch ) );
+	idAngles delta = (idealViewAngles - viewAngles).Normalize180();
+	arcDistance = idMath::Sqrt(Square(delta.yaw) + Square(delta.pitch));
 
-	idAngles deltaAngles = ( idealViewAngles - lastViewAngles ).Normalize180();
-	float deltaArcDistance = idMath::Sqrt( Square( deltaAngles.yaw ) + Square( deltaAngles.pitch ) );
-	if ( deltaArcDistance > 20.0f || arcDistance > arcHalf * 2 ) {
-		arcHalf = arcDistance / 2;
+	idAngles deltaAngles = (idealViewAngles - lastViewAngles).Normalize180();
+	float deltaArcDistance = idMath::Sqrt(Square(deltaAngles.yaw) + Square(deltaAngles.pitch));
+	if (deltaArcDistance > 20.0f || arcDistance > arcHalf * 2) {
+		arcHalf = arcDistance * 0.5f;
 	}
 
 	lastViewAngles = idealViewAngles;
 
-	aimRate = idMath::ClampFloat( 0.1f, 1.0f, aimRate );
+	aimRate = idMath::ClampFloat(0.1f, 1.0f, aimRate);
 
 	// Calculate Acceleration or Deceleration
-	if ( arcDistance <= arcHalf ) { // if arcDistance is less than half way point, decelerate to target normally
+	if (arcDistance <= arcHalf) { // if arcDistance is less than half way point, decelerate to target normally
 		newViewAngles = viewAngles + delta * aimRate;
-	} else if ( arcDistance > 0.0f ) { // if arcDistance is greater than half way point, accelerate to target
-		// Arc distances get reversed relative to initial arcDistance plus the offset,
-		//     which gives initial movement some velocity.
-		//     Then the crosshair accelerates to the arcHalf point.
-		//     The change in angle is calculated from the scaled aimRate.
-		// gd: old version delta = delta * ( aimRate * arcHalf / arcDistance * ( 200.0f - arcDistance ) / ( 200.0f - arcHalf ) );
-		delta = delta * ( aimRate * arcHalf / arcDistance * ( arcHalf * 2 + arcOffset - arcDistance ) / ( arcHalf + arcOffset ) );
+	}
+	else if (arcDistance > 0.0f) { // if arcDistance is greater than half way point, accelerate to target
+	 // Arc distances get reversed relative to initial arcDistance plus the offset,
+	 //     which gives initial movement some velocity.
+	 //     Then the crosshair accelerates to the arcHalf point.
+	 //     The change in angle is calculated from the scaled aimRate.
+	 // gd: old version delta = delta * ( aimRate * arcHalf / arcDistance * ( 200.0f - arcDistance ) / ( 200.0f - arcHalf ) );
+		delta = delta * (aimRate * arcHalf / arcDistance * (arcHalf * 2 + arcOffset - arcDistance) / (arcHalf + arcOffset));
 		delta.roll = delta.roll * aimRate; // needed if, after ragdoll, roll might be 45 degrees still
-		newViewAngles = viewAngles + delta;
+		newViewAngles = viewAngles + ( ( delta ) *  ( 4 + tickRate ) );
 	}
 
 	//newViewAngles to usrcmd
 	const idAngles & deltaViewAngles = GetDeltaViewAngles();
-	for ( int i = 0; i < 3; i++ ) {
-		botcmd.angles[i] = ANGLE2SHORT( newViewAngles[i] - deltaViewAngles[i] );
+	for (int i = 0; i < 3; i++) {
+		botcmd.angles[i] = ANGLE2SHORT(newViewAngles[i] - deltaViewAngles[i]);
 	}
 }
 
-void afiBotPlayer::ProcessMove( void ) {
+void afiBotPlayer::ProcessMove(void) {
 	//Grab vectors of viewangles for movement
 	idVec3 forward, right;
-	idAngles angles( 0, viewAngles.yaw , NULL );
-	angles.ToVectors( &forward, &right, NULL );
+	idAngles angles(0, viewAngles.yaw, NULL);
+	angles.ToVectors(&forward, &right, NULL);
 
 	//aiInput.moveSpeed = pm_speed.GetFloat(); //the speed scaling below relies on speed being set each frame else it will whittle it down to 0, since the navigation state doesn't seem to be using fine grained speed control (human players don't exactly have it anyway) just using max.
 	//float inspeed = aiInput.moveSpeed;
-	int maxSpeed = 160.0f;//pm_speed.GetFloat(); //this may not work for speed? TEST
-	aiInput.moveSpeed = idMath::ClampFloat( -maxSpeed, maxSpeed, aiInput.moveSpeed );
-	aiInput.moveSpeed = aiInput.moveSpeed * 127 / maxSpeed; //Scale from [0, 400] to [0, 127]
+	float maxSpeed = 160.0f;//pm_speed.GetFloat(); //this may not work for speed? TEST
+	aiInput.moveSpeed = idMath::ClampFloat(-maxSpeed, maxSpeed, aiInput.moveSpeed);
+	aiInput.moveSpeed = aiInput.moveSpeed * 127.0f / maxSpeed; //Scale from [0, 400] to [0, 127]
 
 	aiInput.moveDirection.z = 0; //normalize can be smaller than wanted with a very large z value (like walk off ledge)
 	aiInput.moveDirection.Normalize();
 
-	botcmd.forwardmove = ( forward * aiInput.moveDirection ) * aiInput.moveSpeed;
-	botcmd.rightmove	= ( right * aiInput.moveDirection ) * aiInput.moveSpeed;
-	botcmd.upmove		= abs( forward.z ) * aiInput.moveDirection.z * aiInput.moveSpeed;
+	botcmd.forwardmove = (forward * aiInput.moveDirection) * aiInput.moveSpeed;
+	botcmd.rightmove = (right * aiInput.moveDirection) * aiInput.moveSpeed;
+	botcmd.upmove = abs(forward.z) * aiInput.moveDirection.z * aiInput.moveSpeed;
+	
 	// MoveFlags
 	aiMoveFlag_t moveFlag = aiInput.moveFlag;
-	if ( moveFlag == JUMP ) {
+	if (moveFlag == JUMP) {
 		botcmd.upmove += 127.0f;
 	}
-	if ( moveFlag == CROUCH ) {
+	if (moveFlag == CROUCH) {
 		botcmd.upmove -= 127.0f;
 	}
 
-	if ( moveFlag == RUN ) {
+	if (moveFlag == RUN) {
 		botcmd.buttons |= BUTTON_RUN;
 	}
 
+	//physicsObj.SetSpeed(aiInput.moveSpeed,pm_crouchspeed.GetFloat());
+
 }
 
-void afiBotPlayer::ProcessCommands( void ) {
+void afiBotPlayer::ProcessCommands(void) {
 	aiCommands_t * commands = &aiInput.commands;
 
 	//Throw in buttons
-	if ( commands->attack ) {
+	if (commands->attack) {
 		botcmd.buttons |= BUTTON_ATTACK;
 	}
 
-	if( commands->zoom ) {
+	if (commands->zoom) {
 		botcmd.buttons |= BUTTON_ZOOM;
 	}
 
 }
 
-idEntity* afiBotPlayer::FindNearestItem( idStr item )
-{
+idEntity* afiBotPlayer::FindItem(const char* item){
 	idEntity* entity;
-	for (int i = 0; i < MAX_GENTITIES; ++i)
-	{
-		entity = gameLocal.entities[i];
 
-		if (entity)
-		{
-			if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type)))
-			{
-				if (idStr::FindText(entity->name,item.c_str(), false) == 0)
-				{
+	for (int i = 0; i < MAX_GENTITIES; ++i) {
+		entity = gameLocal.entities[i];
+		if (entity) {
+			if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type))) {
+				if (idStr::FindText(entity->name, item, false) == 0) {
 					return entity;
 				}
 			}
 		}
 	}
+
 	return 0;
 }
 
+void afiBotPlayer::UpdateAIMoveFlag(aiMoveFlag_t flag){
+	aiInput.moveFlag = flag;
+}
+
+void afiBotPlayer::SaveLastTarget(idEntity* entity) {
+	target = entity;
+}
+
+idEntity* afiBotPlayer::GetLastTarget(void) {
+	return target;
+}
 /*
 ===================
 BotPlayer::Attack
 ===================
 */
-void afiBotPlayer::Attack( void ) {
+void afiBotPlayer::Attack(void) {
 	aiInput.commands.attack = true;
+}
+
+/*
+===================
+BotPlayer::StopAttack
+===================
+*/
+void afiBotPlayer::StopAttack(void) {
+	aiInput.commands.attack = false;
 }
 
 /*
@@ -526,7 +587,7 @@ void afiBotPlayer::Attack( void ) {
 afiBotPlayer::Jump
 =====================
 */
-void afiBotPlayer::Jump( void ) {
+void afiBotPlayer::Jump(void) {
 	aiInput.moveFlag = JUMP;
 }
 
@@ -535,7 +596,7 @@ void afiBotPlayer::Jump( void ) {
 afiBotPlayer::LookInDirection
 =====================
 */
-void afiBotPlayer::LookInDirection( const idVec3 &dir ) {
+void afiBotPlayer::LookInDirection(const idVec3 &dir) {
 	aiInput.viewDirection = dir;
 	aiInput.viewType = VIEW_DIR;
 }
@@ -545,7 +606,7 @@ void afiBotPlayer::LookInDirection( const idVec3 &dir ) {
 afiBotPlayer::LookAtPosition
 =====================
 */
-void afiBotPlayer::LookAtPosition( const idVec3 &pos ) {
+void afiBotPlayer::LookAtPosition(const idVec3 &pos) {
 	aiInput.viewDirection = pos;
 	aiInput.viewType = VIEW_POS;
 }

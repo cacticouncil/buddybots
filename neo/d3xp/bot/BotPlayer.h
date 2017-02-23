@@ -118,13 +118,14 @@ public:
 	void					ClearInput( void );
 	void					ProcessInput( void );
 
-	virtual idEntity*		FindNearestItem( idStr item );
+	//virtual idEntity*		FindItem( const char* item );
 
 	void					SetBrain(afiBotBrain* newBrain);
 	afiBotBrain*			GetBrain(void) const;
 
 	bool					SwitchWeapon(const char* weaponName);
 	int						HasAmmo(const char* weaponName);
+	void					AmmoInClip();
 
 
 	void					SpawnFromSpawnSpot(void);
@@ -137,18 +138,24 @@ public:
 	virtual bool			GetMovePos( idVec3 &seekPos, idReachability** seekReach );
 	void					CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &newPos, idReachability* goalReach=0  );
 	void					BlockedFailSafe( void );
+	bool					InView( idEntity* entity );
 	virtual void			MoveTo( const idVec3 &pos, float speed );
 	virtual bool			MoveToPosition ( const idVec3 &pos, float range );
 	virtual bool			MoveToEntity( idEntity* entity );
 	virtual bool			MoveToPlayer( idPlayer *player );
-	virtual idEntity*		MoveToNearest( idStr item );
+	virtual idEntity*		MoveToNearest( const char* item );
+	virtual idEntity*		FindItem(const char* item);
 	virtual bool			PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
 	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;
 	virtual void			MoveToAttackPosition(idEntity* entity);
 	void					Attack(void);
+	void					StopAttack(void);
 	void					Jump(void);
+	void					SaveLastTarget(idEntity* entity);
+	idEntity*				GetLastTarget(void);
 	void					LookInDirection(const idVec3& dir);
 	void					LookAtPosition(const idVec3& pos);
+	void					UpdateAIMoveFlag(aiMoveFlag_t flag);
 
 	void					Damage(idEntity *inflictor, idEntity *attacker, const idVec3 &dir, const char *damageDefName, const float damageScale, const int location);
 	//void					Killed(idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location);
@@ -159,9 +166,12 @@ public:
 	virtual void			StopMove( moveStatus_t status );
 
 	boost::python::list		FindNearbyPlayers();
-	
+	boost::python::list		FindItemsInView();
+
 	idStr					botName;
+	idStr					teamName;
 	int						clientNum;
+
 protected:
 
 	virtual void			DrawRoute( void ) const;
@@ -178,6 +188,7 @@ protected:
 	idVec3					lastLookAtPosition;
 	float					aimRate;
 
+	idEntity*				target;
 	botMoveState_t			move;
 	aiInput_t				aiInput;
 	usercmd_t				botcmd;

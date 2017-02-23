@@ -365,11 +365,15 @@ void idGameLocal::ServerClientDisconnect( int clientNum ) {
 	FreeSnapshotsOlderThanSequence( clientNum, 0x7FFFFFFF );
 
 	// free entity states stored for this client
-	for ( i = 0; i < MAX_GENTITIES; i++ ) {
+	for ( i = 0; i < MAX_GENTITIES; ++i ) {
 		if ( clientEntityStates[ clientNum ][ i ] ) {
 			entityStateAllocator.Free( clientEntityStates[ clientNum ][ i ] );
 			clientEntityStates[ clientNum ][ i ] = NULL;
 		}
+	}
+
+	for (i = 0; i < gameLocal.playerEntities.Num(); ++i) {
+		gameLocal.playerEntities[i].used = false;
 	}
 
 	// clear the client PVS

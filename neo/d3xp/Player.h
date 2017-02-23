@@ -520,6 +520,9 @@ public:
 	void					RemoveWeapon( const char *weap );
 	bool					CanShowWeaponViewmodel( void ) const;
 
+	int						GetHealth(void);
+	int						GetTeam(void);
+
 	void					AddAIKill( void );
 	void					SetSoulCubeProjectile( idProjectile *projectile );
 
