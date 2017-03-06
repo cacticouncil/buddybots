@@ -28,28 +28,23 @@ dropletConfig.setValue '''
     },
     "palette": [
       {
-        'name': 'Input/output',
+        'name': 'Basic',
         'color': 'blue',
         'blocks': [
           {
-            'block': "print 'hello'",
+            'block': "self.body.MoveToPosition(arg)",
           },
           {
-            'block': "input('Enter a number')",
-            'wrapperContext': expressionContext
+            'block': "self.body.LookAtPosition(arg)",
           },
           {
-            'block': "raw_input('Enter a string')",
-            'wrapperContext': expressionContext
+            'block': "self.body.AmmoInClip(arg)",
           },
           {
-            'block': 'myFunction(drop, down)'
+            'block': "self.body.Attack(arg)"
           },
           {
-            'block': 'colorTest(0, 1)'
-          },
-          {
-            'block': 'nestedFn(nestedFn(nestedFn))'
+            'block': "self.body.StopAttack(arg)"
           }
         ]
       },
