@@ -102,13 +102,15 @@
             </div>
         </div>
         <div id="export">
-            Export
+            <!--Export-->
+            <form><input type="button" value="Export" onClick="console.save(localStorage.getItem('text'),'text.py')"></form>
         </div>
     </div>
     <script src="lib/jquery.min.js"></script>
     <script src="lib/coffee-script.js"></script>
+    <script src="lib/console-save.js"></script>
     <script src="vendor/ace/ace.js"></script>
     <script src="src/droplet-full.js"></script>
-    <script src="BBtest2.coffee" type="text/coffeescript"></script>
+    <script src="BBtest3.coffee" type="text/coffeescript"></script>
 </body>
 </html>

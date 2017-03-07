@@ -28,42 +28,6 @@ dropletConfig.setValue '''
     },
     "palette": [
       {
-        'name': 'Basic',
-        'color': 'blue',
-        'blocks': [
-          {
-            'block': "self.body.MoveToPosition(arg)",
-          },
-          {
-            'block': "self.body.LookAtPosition(arg)",
-          },
-          {
-            'block': "self.body.AmmoInClip(arg)",
-          },
-          {
-            'block': "self.body.Attack(arg)"
-          },
-          {
-            'block': "self.body.StopAttack(arg)"
-          }
-        ]
-      },
-      {
-        'name': 'Control flow',
-        'color': 'control',
-        'blocks': [
-          {
-            'block': "for i in range(0, 10):\\n  print 'hello'",
-          },
-          {
-            'block': "if a == b:\\n  print 'hello'",
-          },
-          {
-            'block': "while a < b:\\n  print 'hello'",
-          }
-        ]
-      },
-      {
         'name': 'Struct',
         'color': 'purple',
         'blocks': [
@@ -88,11 +52,139 @@ dropletConfig.setValue '''
         ]
       },
       {
+        'name': 'Functions',
+        'color': 'blue',
+        'blocks': [
+          {
+            'block': "InView(arg)",
+          },
+          {
+            'block': "FindNearbyPlayers()",
+          },
+          {
+            'block': "FindItemsInView()",
+          },
+          {
+            'block': "MoveToPosition(arg, arg)",
+          },
+          {
+            'block': "LookAtPosition(arg)",
+          },
+          {
+            'block': "Attack()"
+          },
+          {
+            'block': "StopAttack()"
+          },
+          {
+            'block': "FindItem(arg)"
+          },
+          {
+            'block': "HasAmmo(arg)"
+          },
+          {
+            'block': "SwitchWeapon(arg)"
+          },
+          {
+            'block': "AmmoInClip()"
+          },
+          {
+            'block': "UpdateAiMoveFlag(arg)"
+          }
+        ]
+      },
+      {
+        'name': 'Control&Flags',
+        'color': 'orange',
+        'blocks': [
+          {
+            'block': "for i in range(0, 10):\\n  return ''",
+          },
+          {
+            'block': "if a == b:\\n  return ''",
+          },
+          {
+            'block': "while a < b:\\n  return ''",
+          },
+          {
+            'block': "NULLMOVE",
+          },
+          {
+            'block': "CROUCH",
+          },
+          {
+            'block': "JUMP",
+          },
+          {
+            'block': "WALK",
+          },
+          {
+            'block': "RUN",
+          },
+        ]
+      },
+      {
         'name': 'Variables',
-        'color': 'red',
+        'color': 'green',
         'blocks': [
           {
             'block': 'a = 1'
+          },
+          {
+            'block': "weapon_flashlight"
+          },
+          {
+            'block': "weapon_pistol"
+          },
+          {
+            'block': "weapon_machinegun_mp"
+          },
+          {
+            'block': "weapon_shotgun"
+          },
+          {
+            'block': "weapon_rocketlauncher"
+          },
+          {
+            'block': "weapon_handgrenade"
+          },
+          {
+            'block': "weapon_chainsaw"
+          },
+          {
+            'block': "weapon_fists"
+          },
+          {
+            'block': "item_medkit"
+          },
+          {
+            'block': "item_medkit_small"
+          },
+        ]
+      },
+      {
+        'name': 'Logic',
+        'color': 'teal',
+        'blocks': [
+          {
+            'block': 'a == b',
+            'wrapperContext': expressionContext
+          },
+          {
+            'block': 'a < b',
+            'wrapperContext': expressionContext
+          },
+          {
+            'block': 'a > b',
+            'wrapperContext': expressionContext
+          },
+          {
+            'block': 'a and b',
+            'wrapperContext': expressionContext
+          },
+          {
+            'block': 'a or b',
+            'wrapperContext': expressionContext
           }
         ]
       },
@@ -122,32 +214,6 @@ dropletConfig.setValue '''
           },
           {
             'block': 'a ** b',
-            'wrapperContext': expressionContext
-          }
-        ]
-      },
-      {
-        'name': 'Logic',
-        'color': 'teal',
-        'blocks': [
-          {
-            'block': 'a == b',
-            'wrapperContext': expressionContext
-          },
-          {
-            'block': 'a < b',
-            'wrapperContext': expressionContext
-          },
-          {
-            'block': 'a > b',
-            'wrapperContext': expressionContext
-          },
-          {
-            'block': 'a and b',
-            'wrapperContext': expressionContext
-          },
-          {
-            'block': 'a or b',
             'wrapperContext': expressionContext
           }
         ]
