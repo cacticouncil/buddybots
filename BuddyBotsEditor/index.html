@@ -21,9 +21,17 @@
 
         #droplet-config {
             position: absolute;
-            top: 25px;
+            top: 225px;
             bottom: 0;
             left: 0;
+            right: 0;
+        }
+
+        #info-config{
+            position: absolute;
+            top: 50px;
+            bottom: 0;
+            left: 25px;
             right: 0;
         }
 
@@ -44,7 +52,29 @@
             right: 0;
         }
 
-        #toggle, #update {
+        #toggle{
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 25px;
+            cursor: pointer;
+            background-color: #7ddb9c;
+            text-align: center;
+        }
+
+        #update {
+            position: absolute;
+            top: 200px;
+            left: 0;
+            right: 0;
+            height: 25px;
+            cursor: pointer;
+            background-color: #7ddb9c;
+            text-align: center;
+        }
+
+        #info{
             position: absolute;
             top: 0;
             left: 0;
@@ -85,6 +115,14 @@
 </head>
 <body>
     <div id="left-panel">
+        <div id="info">
+            Info
+        </div>
+        <div id="info-config">
+            author:<input type="text" id="author" value="">               
+            ui_name:<input type="text" id="scriptclass" value="">
+            <input type="button" value="Save" onClick="WriteToFile()">
+        </div>
         <div id="update">
             Update
         </div>
