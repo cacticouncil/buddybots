@@ -119,9 +119,11 @@
             Info
         </div>
         <div id="info-config">
-            author:<input type="text" id="author" value="">               
-            ui_name:<input type="text" id="scriptclass" value="">
-            <input type="button" value="Save" onClick="WriteToFile()">
+            <form action="SaveUserInfo.php" method="POST">
+                Username:<input name="username" type="text" /><br>               
+                AIname:<input name="uiname" type="text" /><br>
+                <input type="submit" name="submit" value="Update">
+            </form>
         </div>
         <div id="update">
             Update

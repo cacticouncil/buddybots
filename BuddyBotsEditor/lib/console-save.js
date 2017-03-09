@@ -26,11 +26,11 @@
 })(console)
 
 function WriteToFile() {
-    var author = document.getElementById("author")
+    var author = document.getElementById("author").value
     //if (typeof author === "object") {
     //    author = JSON.stringify(author, undefined, 4)
     //}
-    var ui_name = document.getElementById("ui_name")
+    var ui_name = document.getElementById("scriptclass").value
     //if (typeof ui_name === "object") {
     //    ui_name = JSON.stringify(ui_name, undefined, 4)
     //}
