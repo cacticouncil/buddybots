@@ -120,9 +120,9 @@
         </div>
         <div id="info-config">
             <form action="SaveUserInfo.php" method="POST">
-                Username:<input name="username" type="text" /><br>               
+                Auther:<input name="username" type="text" /><br>               
                 AIname:<input name="uiname" type="text" /><br>
-                <input type="submit" name="submit" value="Update">
+                <input type="submit" name="submit" value="GetBots">
             </form>
         </div>
         <div id="update">
@@ -143,7 +143,7 @@
         </div>
         <div id="export">
             <!--Export-->
-            <form><input type="button" value="Export" onClick="console.save(localStorage.getItem('text'),'text.py')"></form>
+            <form><input type="button" value="Save" onClick="console.save(localStorage.getItem('text'),'botscode.py')"></form>
         </div>
     </div>
     <script src="lib/jquery.min.js"></script>
