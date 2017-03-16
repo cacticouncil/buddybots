@@ -1,0 +1,196 @@
+<html>
+<head>
+    <title>BuddyBots editor</title>
+    <link rel="stylesheet" type="text/css" href="css/droplet.css" />
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script>window.$ = window.jQuery = require('jquery');</script>
+    <style>
+        #container {
+            position: absolute;
+            top: 45px;
+            bottom: 25px;
+            right: 25px;
+            left: 25px;
+        }
+
+        #left-panel {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 500px;
+            left: 0;
+        }
+
+        #droplet-config {
+            position: absolute;
+            top: 225px;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        #info-config{
+            position: absolute;
+            top: 50px;
+            bottom: 0;
+            left: 25px;
+            right: 0;
+        }
+
+        #droplet-editor-wrapper {
+            position: absolute;
+            top: 25px;
+            bottom: 25px;
+            right: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        #right-panel {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 525px;
+            right: 0;
+        }
+
+        #toggle{
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 25px;
+            cursor: pointer;
+            background-color: #7ddb9c;
+            text-align: center;
+        }
+
+        #update {
+            position: absolute;
+            top: 200px;
+            left: 0;
+            right: 0;
+            height: 25px;
+            cursor: pointer;
+            background-color: #7ddb9c;
+            text-align: center;
+        }
+
+        #info{
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 25px;
+            cursor: pointer;
+            background-color: #7ddb9c;
+            text-align: center;
+        }
+
+        #close {
+            position: absolute;
+            left: -25px;
+            width: 25px;
+            top: 0;
+            bottom: 0;
+            background-color: #FDD;
+            cursor: pointer;
+        }
+
+        #export{
+            position: absolute;
+            bottom: 0px;
+            left: 0;
+            right: 0;
+            height: 25px;
+            cursor: pointer;
+            background-color: #52a6d8;
+            text-align: center;
+        }
+
+        .droplet-palette-scroller{
+	      	top:160px !important;
+	      	overflow-x: scroll;
+	      }
+
+    </style>
+</head>
+<body>
+    <!--<div id="left-panel">
+        <div id="info">
+            Info
+        </div>
+        <div id="info-config">
+            <form action="SaveUserInfo.php" method="POST">
+                Auther:<input name="username" type="text" /><br>               
+                AIname:<input name="uiname" type="text" /><br>
+                <input type="submit" name="submit" value="GetBots">
+            </form>
+        </div>
+        <div id="update">
+            Update
+        </div>
+        <div id="droplet-config">
+        </div>
+    </div>
+    <div id="right-panel">
+        <div id="close">
+        </div>-->
+        <div id="droplet-config" style="display:none;"></div>
+        <div id="toggle">
+            Toggle
+        </div>
+        <div id="droplet-editor-wrapper">
+            <div id="droplet-editor">
+            </div>
+        </div>
+        <div id="export">
+            Export
+            <!--<form><input type="button" value="Save" onClick="console.save(localStorage.getItem('text'),'botscode.py')"></form>-->
+        </div>
+    <!--</div>-->
+    <script src="lib/jquery.min.js"></script>
+    <script src="lib/coffee-script.js"></script>
+    <script src="lib/console-save.js"></script>
+    <script src="vendor/ace/ace.js"></script>
+    <script src="src/droplet-full.js"></script>
+    <script src="BBtest3.coffee" type="text/coffeescript"></script>
+    <script>
+        $('#export').click(function () { 
+            //const remote = require('electron').remote;
+            //const BrowserWindow = remote.BrowserWindow;
+            //var win = new BrowserWindow({ width: 400, height: 300 });
+            //var ipcRenderer = require('electron').ipcRenderer;
+            //ipcRenderer.send('show-prefs');
+
+            //win.loadURL(url.format({
+            //    pathname: path.join(__dirname, 'login.html'),
+            //    protocol: 'file:',
+            //    slashes: true
+            //}))
+
+            //win.on('closed', function () {
+            //    win = null;
+            //});
+            //win.show();
+
+            var filename = 'console.py'
+            var data = localStorage.getItem('text')
+
+            if (typeof data === "object") {
+                data = JSON.stringify(data, undefined, 4)
+            }
+
+            var blob = new Blob([data], { type: 'text/py' }),
+                e = document.createEvent('MouseEvents'),
+                a = document.createElement('a')
+
+            a.download = filename
+            a.href = window.URL.createObjectURL(blob)
+            a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
+            e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+            a.dispatchEvent(e)
+        })
+    </script>
+</body>
+</html>
