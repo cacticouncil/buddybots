@@ -258,9 +258,9 @@ configCurrentlyOut = localStorage.getItem('configOut') is 'yes'
 updateConfigDrawerState = ->
   if configCurrentlyOut
     $('#left-panel').css 'left', '0px'
-    $('#right-panel').css 'left', '525px'
+    $('#right-panel').css 'left', '225px'
   else
-    $('#left-panel').css 'left', '-500px'
+    $('#left-panel').css 'left', '-200px'
     $('#right-panel').css 'left', '25px'
 
   editor.resize()
