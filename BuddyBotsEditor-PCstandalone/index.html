@@ -108,6 +108,17 @@
             text-align: center;
         }
 
+        #quickstart{
+            position: absolute;
+            bottom: 0px;
+            left: 0;
+            right: 0;
+            height: 25px;
+            cursor: pointer;
+            background-color: #52a6d8;
+            text-align: center;
+        }
+
         .droplet-palette-scroller{
 	      	top:160px !important;
 	      	overflow-x: scroll;
@@ -126,6 +137,9 @@
                 AIname:<input id="ainame" type="text" /><br>
                 <!--<input type="submit" name="submit" value="GetBots">-->
             </form>
+        </div>
+        <div id="quickstart">
+            QuickStart
         </div>
         <!--<div id="update">
             Update
@@ -209,5 +223,12 @@
             });
         })
     </script>
+    <!--<script>
+        //$('#quickstart').click(function () {
+        //    var data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *"//\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\\n def Think(self , deltaTimeMS):\\n return botInput\n def Spawn(self,spawnDict):\\n return\n def Restart(self):\\n return"
+        //    localStorage.clear()
+        //    localStorage.setItem('text',data)
+        //})
+    </script>-->
 </body>
 </html>

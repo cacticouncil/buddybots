@@ -41,13 +41,25 @@ dropletConfig.setValue '''
             'block': 'from statemachine import something'
           },
           {
-            'block': "def myMethod(arg):\\n  return ''",
+            'block': "def myMethod(arg):\\n  return",
           },
           {
-            'block': "class myClass(arg):\\n  return ''",
+            'block': "class myClass(arg):\\n  return",
           },
           {
             'block': "return ''",
+          },
+          {
+            'block': "self.part"
+          },
+          {
+            'block': "self.part.function"
+          },
+          {
+            'block': "afiBotManager.function"
+          },
+          {
+            'block': "botInput.part"
           },
         ]
       },
@@ -90,7 +102,19 @@ dropletConfig.setValue '''
           },
           {
             'block': "UpdateAiMoveFlag(arg)"
-          }
+          },
+          {
+            'block': "aiInput_t()"
+          },
+          {
+            'block': "ConsolePrint(arg)"
+          },
+          {
+            'block': "GetFlagStatus(arg)"
+          },
+          {
+            'block': "GetFlag(arg)"
+          },
         ]
       },
       {
@@ -98,13 +122,13 @@ dropletConfig.setValue '''
         'color': 'orange',
         'blocks': [
           {
-            'block': "for i in range(0, 10):\\n  return ''",
+            'block': "for i in range(0, 10):\\n  return",
           },
           {
-            'block': "if a == b:\\n  return ''",
+            'block': "if a == b:\\n  return",
           },
           {
-            'block': "while a < b:\\n  return ''",
+            'block': "while a < b:\\n  return",
           },
           {
             'block': "NULLMOVE",
@@ -120,6 +144,12 @@ dropletConfig.setValue '''
           },
           {
             'block': "RUN",
+          },
+          {
+            'block': "flagStatus_t.FLAGSTATUS_INBASE",
+          },
+          {
+            'block': "aiMoveFlag_t.NULLMOVE",
           },
         ]
       },
@@ -159,6 +189,27 @@ dropletConfig.setValue '''
           },
           {
             'block': "item_medkit_small"
+          },
+          {
+            'block': "body"
+          },
+          {
+            'block': "enemyFlag"
+          },
+          {
+            'block': "ourFlag"
+          },
+          {
+            'block': "spawnDict"
+          },
+          {
+            'block': "enemyTeam"
+          },
+          {
+            'block': "myTeam"
+          },
+          {
+            'block': "moveFlag"
           },
         ]
       },
@@ -231,6 +282,7 @@ createEditor = (options) ->
   editor.aceEditor.getSession().setUseWrapMode true
 
   # Initialize to starting text
+  localStorage.clear()
   editor.setValue localStorage.getItem('text') ? ''
 
   editor.on 'change', ->
@@ -247,6 +299,12 @@ $('#toggle').on 'click', ->
 $('#export').on 'click', ->
   content = localStorage.getItem('text')
   console.log(content);
+
+$('#quickstart').on 'click', ->
+  localStorage.clear()
+  data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
+  localStorage.setItem('text',data)
+  editor.setValue localStorage.getItem('text')
 
 # Stuff for testing convenience
 $('#update').on 'click', ->
