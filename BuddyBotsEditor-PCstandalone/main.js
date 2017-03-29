@@ -38,14 +38,7 @@ app.on('ready', function () {
 
     mainWindow.loadURL('file://' + __dirname + '/index.html')
 
-    var logWindow = new BrowserWindow({
-        width: 400,
-        height: 400,
-        show: false
-    })
-
-    logWindow.loadURL('file://' + __dirname + '/login.html')
-
+    require('./menu/mainmenu')
     //ipcRenderer.on('show-prefs', function () {
     //    logWindow.show()
     //})
