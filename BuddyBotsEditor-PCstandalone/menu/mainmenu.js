@@ -1,6 +1,7 @@
 const {Menu} = require('electron')
 const electron = require('electron')
 const app = electron.app
+var windows = require('./guide')
 
 const template = [
   {
@@ -8,9 +9,6 @@ const template = [
       submenu:[
           {
               label:'New'
-          },
-          {
-              label:'Load'
           },
           {
               label:'Exit',
@@ -22,7 +20,8 @@ const template = [
       role: 'help',
       submenu: [
         {
-            label: 'Guide'
+            label: 'Guide',
+            click: function () { windows.create() }
         },
         {
             label:'About',
