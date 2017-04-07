@@ -7,9 +7,9 @@ const template = [
   {
       label:'File',
       submenu:[
-          {
-              label:'New'
-          },
+          //{
+          //    label:'New'
+          //},
           {
               label:'Exit',
               role:'close'
@@ -22,10 +22,6 @@ const template = [
         {
             label: 'Guide',
             click: function () { windows.create() }
-        },
-        {
-            label:'About',
-            role:'about'
         },
         {
             label: 'Learn More',

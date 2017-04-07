@@ -7,7 +7,7 @@ ipcMain.on('create-window', create)
 function create() {
     var guideWindow = new BrowserWindow({
         width: 800,
-        height: 400,
+        height: 800,
         frame: false
     })
 

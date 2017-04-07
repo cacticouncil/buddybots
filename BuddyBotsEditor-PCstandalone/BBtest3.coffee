@@ -302,9 +302,12 @@ $('#export').on 'click', ->
 
 $('#quickstart').on 'click', ->
   localStorage.clear()
-  data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
-  localStorage.setItem('text',data)
-  editor.setValue localStorage.getItem('text')
+  if document.getElementById('username').value && document.getElementById('ainame').value
+    data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
+    localStorage.setItem('text',data)
+    editor.setValue localStorage.getItem('text')
+  else
+    alert("Need both Author name and bot name")#data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + "SampleBots" + ".pk4\")\nfrom statemachine import *\nclass " + "SampleBots" + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
 
 # Stuff for testing convenience
 $('#update').on 'click', ->

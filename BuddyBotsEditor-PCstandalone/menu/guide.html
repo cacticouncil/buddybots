@@ -3,8 +3,8 @@
     <title>Guide</title>
     <style>
         #close {
-            position: absolute;
-            bottom: 0px;
+            position: fixed;
+            top: 0px;
             left: 0;
             right: 0;
             height: 25px;
@@ -13,17 +13,21 @@
             text-align: center;
         }
 
-        #content {
-            position: absolute;
-            top: 0;
-            bottom: 25px;
+        #info {
+            position: fixed;
+            top: 25px;
+            bottom: 0;
             left: 25px;
             right: 0px;
+            overflow-y:auto
         }
     </style>
 </head>
 <body>
-    <div id="content">
+    <div id="close">
+        Close
+    </div>
+    <div id="info">
         <p>
             Info:
             <br />The location of the bot.pk4’s are in the d3xp\botPaks
@@ -36,26 +40,144 @@
         <p>
             to create your bots:
             <br />Step-1:
-            <br />enter your name and your bot name on the left
+            <br />&nbsp;&nbsp;&nbsp;enter your name and your bot name on the left
             <br />Step-2:
-            <br />click the "QuickStart" button on the bottom to get the basic struct of bots code
+            <br />&nbsp;&nbsp;&nbsp;click the "QuickStart" button on the bottom to get the basic struct of bots code
             <br />Step-3:
-            <br />drag and drop the functions or commands to complete your bot
+            <br />&nbsp;&nbsp;&nbsp;drag and drop the functions or commands to complete your bot
             <br />Step-4:
-            <br />click the "Export" button to export and save your bot to your disk
+            <br />&nbsp;&nbsp;&nbsp;click the "Export" button to export and save your bot to your disk
+        </p>
+
+        <p>
+            Functions and command:
+            <br /> bool InView(IdEntity* entity)
+            <br /> &nbsp;&nbsp;&nbsp;-Returns wether the entity passed in is in view or not
+            <br /> List<Entity*> FindNearbyPlayers()
+            <br /> &nbsp;&nbsp;&nbsp;-Returns a list of idPlayer that are in the bots line of sight
+            <br /> List<Entity*> FindItemsInView()
+            <br /> &nbsp;&nbsp;&nbsp;-Returns a list of idEntity that are in the bots line of sight
+            <br /> MoveToPosition(vec3 pos, int range)
+            <br /> &nbsp;&nbsp;&nbsp;-Tells bot to move to this position and the range is for ???
+            <br /> LookAtPosition(vec3 pos)
+            <br /> &nbsp;&nbsp;&nbsp;-Tells bot to look at this position
+            <br /> Attack()
+            <br /> &nbsp;&nbsp;&nbsp;-Tells bot to start firing weapon (will switch to other weapons if out of ammo, except for fists)
+            <br /> StopAttack()
+            <br /> &nbsp;&nbsp;&nbsp;-Tells bot to stop firing weapon
+            <br /> Entity* FindItem(const char* item)
+            <br /> &nbsp;&nbsp;&nbsp;-Goes through entity list to find all items of that name on that map. Returns the first one found in the list.
+            <br /> int HasAmmo(const char* weaponName)
+            <br /> &nbsp;&nbsp;&nbsp;-Returns how much ammo the weapon passed in has.
+            <br /> bool SwitchWeapon(const char* weaponName)
+            <br /> &nbsp;&nbsp;&nbsp;-Returns weather or not the passed in weapon name is available to equip, if it is, it will be equip.
+            <br /> AmmoInClip()
+            <br /> &nbsp;&nbsp;&nbsp;-Checks if the current equipped weapon has ammo in the current clip. If it doesn't, it will reload the weapon.
+            <br /> UpdateAiMoveFlag(aiMoveFlag_t flag)
+            <br /> &nbsp;&nbsp;&nbsp;-Changes the movement state of the AI
+        </p>
+
+        <p>
+            AiMove Flags:
+            <br /> NULLMOVE
+            <br /> &nbsp;&nbsp;&nbsp;-Stops moving
+            <br /> CROUCH
+            <br /> JUMP
+            <br /> &nbsp;&nbsp;&nbsp;-Doesn't work as of this moment
+            <br /> WALK
+            <br /> RUN
+        </p>
+
+        <p>
+            Weapon List:
+            <br /> weapon_flashlight
+            <br /> weapon_pistol
+            <br /> weapon_machinegun_mp
+            <br /> weapon_shotgun
+            <br /> weapon_rocketlauncher
+            <br /> weapon_handgrenade
+            <br /> weapon_chainsaw
+            <br /> weapon_fists
+        </p>
+
+        <p>
+            Item List:
+            <br /> item_medkit
+            <br /> item_medkit_small
+        </p>
+
+        <p>
+            Console Commands:
+            <br /> Addbot
+            <br /> &nbsp;&nbsp;&nbsp;-Adds the bot typed to the play queue
+            <br /> &nbsp;&nbsp;&nbsp;-Ex. Addbot samplebot
+            <br /> Removebot
+            <br /> &nbsp;&nbsp;&nbsp;-Remove the bot typed from the queue
+            <br /> &nbsp;&nbsp;&nbsp;-Ex. Removebot samplebot
+            <br /> Removeallbots
+            <br /> &nbsp;&nbsp;&nbsp;-Remove all bots from the queue
+            <br /> Addteam
+            <br /> &nbsp;&nbsp;&nbsp;-Add the team typed to the play queue. They will be forced into a team when the game.
+            <br /> &nbsp;&nbsp;&nbsp;-Ex. Addteam lightside
+            <br /> Removeallteams
+            <br /> &nbsp;&nbsp;&nbsp;-Removes all teams from the play queue. If there is a team in the queue, it must be removed by this command.
+            <br /> Removebotindex
+            <br /> &nbsp;&nbsp;&nbsp;-Remove specific bot from the queue. The index is giving with the printallbots as well as what list it is on.
+            <br /> &nbsp;&nbsp;&nbsp;-Ex. Removebotindex list2 1
+            <br /> Printallbots
+            <br /> &nbsp;&nbsp;&nbsp;-Prints all the bots currently in the play queue
+            <br />
+            <br />
+        </p>
+
+        <p>
+            Sample bots:
+            <br />
+            <br /> &nbsp;&nbsp;import sys
+            <br /> &nbsp;&nbsp;sys.path.append("./d3xp/botPaks/SampleBot.pk4")
+            <br /> &nbsp;&nbsp;from statemachine import *
+            <br />
+            <br /> &nbsp;&nbsp;class SampleBot(afiBotBrain):
+            <br /> &nbsp;&nbsp;&emsp;def Think(self , deltaTimeMS):
+            <br /> &nbsp;&nbsp;&emsp;&emsp;botInput = aiInput_t()
+            <br /> &nbsp;&nbsp;&emsp;&emsp;botInput.moveFlag = aiMoveFlag_t.NULLMOVE
+            <br /> &nbsp;&nbsp;&emsp;&emsp;if afiBotManager.GetFlagStatus(self.enemyTeam) == flagStatus_t.FLAGSTATUS_INBASE:
+            <br /> &nbsp;&nbsp;&emsp;&emsp;&emsp;self.enemyFlag = afiBotManager.GetFlag(self.enemyTeam)
+            <br /> &nbsp;&nbsp;&emsp;&emsp;&emsp;self.body.MoveToPosition(self.enemyFlag.GetPosition(),8)
+            <br /> &nbsp;&nbsp;&emsp;&emsp;&emsp;self.body.LookAtPosition(self.enemyFlag.GetPosition())
+            <br /> &nbsp;&nbsp;&emsp;&emsp;elif afiBotManager.GetFlagStatus(self.enemyTeam) == flagStatus_t.FLAGSTATUS_TAKEN:
+            <br /> &nbsp;&nbsp;&emsp;&emsp;&emsp;self.ourFlag = afiBotManager.GetFlag(self.myTeam)
+            <br /> &nbsp;&nbsp;&emsp;&emsp;&emsp;self.body.MoveToPosition(self.ourFlag.GetPosition(),8)
+            <br /> &nbsp;&nbsp;&emsp;&emsp;&emsp;self.body.LookAtPosition(self.ourFlag.GetPosition())
+            <br /> 
+            <br /> &nbsp;&nbsp;&emsp;&emsp;return botInput
+            <br /> 
+            <br /> &nbsp;&nbsp;&emsp;def Spawn(self,spawnDict):
+            <br /> &nbsp;&nbsp;&emsp;&emsp;self.spawnDict = spawnDict
+            <br /> &nbsp;&nbsp;&emsp;&emsp;self.enemyTeam = 0
+            <br /> &nbsp;&nbsp;&emsp;&emsp;self.myTeam = self.body.team
+            <br /> &nbsp;&nbsp;&emsp;&emsp;afiBotManager.ConsolePrint("Grabbed Our Flag")
+            <br /> &nbsp;&nbsp;&emsp;&emsp;str = "BoitanoBot Team = {}\n".format(self.myTeam)
+            <br /> &nbsp;&nbsp;&emsp;&emsp;afiBotManager.ConsolePrint(str)
+            <br /> &nbsp;&nbsp;&emsp;&emsp;if self.myTeam == 0:
+            <br /> &nbsp;&nbsp;&emsp;&emsp;&emsp;self.enemyTeam = 1
+            <br /> &nbsp;&nbsp;&emsp;&emsp;return
+            <br /> 
+            <br /> &nbsp;&nbsp;&emsp;def Restart(self):
+            <br /> &nbsp;&nbsp;&emsp;&emsp;return
+            <br />
+            <br />
         </p>
     </div>
-
-    <div id="close">
-        Close
-    </div>
-    <script>
-        const remote = require('electron').remote;
-        $('#close').click(function () {
-            const remote = require('electron').remote;
-            var window = require;
-            window.close();
-        })
-    </script>
+    <script src="close.js"></script>
+    <!--<script>
+        //const remote = require('electron').remote;
+        //$('#close').click(function () {
+            
+        //    //const remote = require('electron').remote;
+        //    //var window = require;
+        //    //window.close();
+        //})
+    </script>-->
 </body>
 </html>
