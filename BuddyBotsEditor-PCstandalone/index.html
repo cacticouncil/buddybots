@@ -189,38 +189,41 @@
             //    win = null;
             //});
             //win.show();
+            if (document.getElementById('username').value && document.getElementById('ainame').value) {
+                var filename = document.getElementById('ainame').value + '_main.py'// 'console.py'
+                var data = localStorage.getItem('text')
 
-            var filename = document.getElementById('ainame').value +'_main.py'// 'console.py'
-            var data = localStorage.getItem('text')
+                var deffile = document.getElementById('ainame').value + '.def'
+                var defcon = "entityDef " + document.getElementById('ainame').value + "{\n\"inherit\"		\"bot\"	\n\"author\"		\"" + document.getElementById('username').value + "\"\n\"bot_type\"		\"Script\"\n\"scriptclass\"	\"" + document.getElementById('ainame').value + "\"\n\"ui_name\"		\"" + document.getElementById('ainame').value + "\"\n}"
 
-            var deffile = document.getElementById('ainame').value + '.def'
-            var defcon = "entityDef " + document.getElementById('ainame').value + "{\n\"inherit\"		\"bot\"	\n\"author\"		\"" + document.getElementById('username').value + "\"\n\"bot_type\"		\"Script\"\n\"scriptclass\"	\"" + document.getElementById('ainame').value + "\"\n\"ui_name\"		\"" + document.getElementById('ainame').value + "\"\n}"
+                var importfile = 'statemachine.py'
+                var importcon = "from afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\n\nclass IState:\ndef __init__(self,owner):\nself.owner = owner\nreturn\ndef Update(self):\nreturn\ndef Init(self):\nreturn\ndef Shutdown(self):\nreturn\ndef DetermineNewState(self,currState):\nreturn\ndef Transition(self,newState):\nreturn\n\n\n\nclass AssaultFlag(IState):\ndef __init__(self,owner):\nself.owner = owner\nreturn\ndef Update(self):\nreturn transition\ndef Init(self):\nreturn\ndef Shutdown(self):\nreturn\ndef DetermineNewState(self,currState):\n\return"
+                //if (typeof data === "object") {
+                //    data = JSON.stringify(data, undefined, 4)
+                //}
 
-            var importfile = 'statemachine.py'
-            var importcon = "from afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\n\nclass IState:\ndef __init__(self,owner):\nself.owner = owner\nreturn\ndef Update(self):\nreturn\ndef Init(self):\nreturn\ndef Shutdown(self):\nreturn\ndef DetermineNewState(self,currState):\nreturn\ndef Transition(self,newState):\nreturn\n\n\n\nclass AssaultFlag(IState):\ndef __init__(self,owner):\nself.owner = owner\nreturn\ndef Update(self):\nreturn transition\ndef Init(self):\nreturn\ndef Shutdown(self):\nreturn\ndef DetermineNewState(self,currState):\n\return"
-            //if (typeof data === "object") {
-            //    data = JSON.stringify(data, undefined, 4)
-            //}
+                //var blob = new Blob([data], { type: 'text/py' }),
+                //    e = document.createEvent('MouseEvents'),
+                //    a = document.createElement('a')
 
-            //var blob = new Blob([data], { type: 'text/py' }),
-            //    e = document.createEvent('MouseEvents'),
-            //    a = document.createElement('a')
-
-            //a.download = filename
-            //a.href = window.URL.createObjectURL(blob)
-            //a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
-            //e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-            //a.dispatchEvent(e)
-            var zip = new JSZip();
-            zip.file(filename, data);
-            zip.file(deffile, defcon);
-            zip.file(importfile, importcon);
-            zip.generateAsync({ type: "blob" })
-            .then(function (content) {
-                // see FileSaver.js
-                var zipname = document.getElementById('ainame').value + '.pk4'
-                saveAs(content, zipname);
-            });
+                //a.download = filename
+                //a.href = window.URL.createObjectURL(blob)
+                //a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
+                //e.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+                //a.dispatchEvent(e)
+                var zip = new JSZip();
+                zip.file(filename, data);
+                zip.file(deffile, defcon);
+                zip.file(importfile, importcon);
+                zip.generateAsync({ type: "blob" })
+                .then(function (content) {
+                    // see FileSaver.js
+                    var zipname = document.getElementById('ainame').value + '.pk4'
+                    saveAs(content, zipname);
+                });
+            }
+            else
+                alert("Need both Author name and bot name");
         })
     </script>
     <!--<script>
