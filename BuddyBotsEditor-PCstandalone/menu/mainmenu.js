@@ -2,6 +2,9 @@ const {Menu} = require('electron')
 const electron = require('electron')
 const app = electron.app
 var windows = require('./guide')
+//const events = require('events')
+//const emitter = new events()
+//const ipc = require('electron').ipcRenderer;
 
 const template = [
   {
@@ -22,6 +25,7 @@ const template = [
         {
             label: 'Guide',
             click: function () { windows.create() }
+            //click: function () { ipc.send('show') }
         },
         {
             label: 'Learn More',

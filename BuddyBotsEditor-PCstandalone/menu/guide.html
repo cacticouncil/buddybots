@@ -15,7 +15,7 @@
 
         #info {
             position: fixed;
-            top: 0;
+            top: 25px;
             bottom: 0;
             left: 25px;
             right: 0px;
@@ -24,9 +24,9 @@
     </style>
 </head>
 <body>
-    <!--<div id="close">
+    <div id="close">
         Close
-    </div>-->
+    </div>
     <div id="info">
         <p>
             Info:
@@ -170,6 +170,13 @@
         </p>
     </div>
     <script src="close.js"></script>
+    <script type="text/javascript">
+    const remote = require('electron').remote;
+    document.getElementById("close").addEventListener("click", function (e) {
+        var window = remote.getCurrentWindow();
+        window.close();
+    });
+    </script>
     <!--<script>
         //const remote = require('electron').remote;
         //$('#close').click(function () {

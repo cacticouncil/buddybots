@@ -3,8 +3,9 @@ const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
-const ipcMain = require('electron').ipcMain
-var Gwindow = require('./menu/guide.js')
+//const ipcMain = require('electron').ipcMain
+//var Gwindow = require('./menu/guide.js')
+//const ipcRenderer = require('electron').ipcRenderer
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -23,7 +24,6 @@ function createWindow () {
 
     // Emitted when the window is closed.
     win.on('closed', () => {
-        Gwindow.closeGuide()
         win = null
     })
 }
@@ -40,6 +40,8 @@ app.on('ready', function () {
 
     mainWindow.loadURL('file://' + __dirname + '/index.html')
 
+    mainWindow.openDevTools();
+
     //var guideWindow = new BrowserWindow({
     //    width: 800,
     //    height: 400,
@@ -48,17 +50,17 @@ app.on('ready', function () {
 
     //guideWindow.loadURL('file://' + __dirname + '/guide.html')
 
-    require('./menu/mainmenu')
-
-    //ipcMain.on('show-prefs', function () {
+    //ipcMain.on('show', function () {
     //    guideWindow.show()
     //})
 
-    //ipcMain.on('hide-prefs', function () {
+    //ipcMain.on('hide', function () {
     //    guideWindow.hide()
     //})
+
+    require('./menu/mainmenu')
+
     mainWindow.on('closed', () => {
-        Gwindow.closeGuide()
         mainWindow = null
     })
 })
@@ -67,9 +69,8 @@ app.on('ready', function () {
 app.on('window-all-closed', () => {
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    //Gwindow.closeGuide()
+     //Gwindow.closeGuide()
     if (process.platform !== 'darwin') {
-        Gwindow.closeGuide()
         app.quit()
     }
 })

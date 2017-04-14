@@ -284,6 +284,9 @@ createEditor = (options) ->
   # Initialize to starting text
   localStorage.clear()
   editor.setValue localStorage.getItem('text') ? ''
+  #basedata = "import sys\nsys.path.append(\"./d3xp/botPaks/Sample.pk4\")\nfrom statemachine import *\nclass Sample(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
+  #localStorage.setItem('text',basedata)
+  #editor.setValue localStorage.getItem('text')
 
   editor.on 'change', ->
     localStorage.setItem 'text', editor.getValue()
@@ -298,7 +301,17 @@ $('#toggle').on 'click', ->
 
 $('#export').on 'click', ->
   content = localStorage.getItem('text')
-  console.log(content);
+  check1 = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):"
+  check2 = "return botInput\n def Spawn(self,spawnDict):"
+  check3 = "  return\n def Restart(self):"
+  if content.indexOf(check1)>=0 && content.indexOf(check2)>=0 && content.indexOf(check3)>=0
+     document.getElementById('check').value = "Correct"
+     console.log(content);
+  else
+     document.getElementById('check').value = "Incorrect"
+     alert("Bot structure is not correct Please check guide")
+     #localStorage.clear()
+     #localStorage.setItem('text',"Incorrect bot structure")
 
 $('#quickstart').on 'click', ->
   localStorage.clear()

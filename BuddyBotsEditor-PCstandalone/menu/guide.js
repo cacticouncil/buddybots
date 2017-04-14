@@ -3,12 +3,15 @@ var BrowserWindow = electron.BrowserWindow
 var ipcMain = electron.ipcMain
 
 ipcMain.on('create-window', create)
+ipcMain.on('close-window', closeGuide)
 
 var ifOpen = true
 
+var guideWindow = null
+
 function create() {
     if (ifOpen) {
-        var guideWindow = new BrowserWindow({
+        guideWindow = new BrowserWindow({
             width: 800,
             height: 800,
             //frame: false
@@ -30,10 +33,10 @@ function create() {
 
 function closeGuide() {
     ifOpen = true
-    guideWindow = null
+    guideWindow.close()
     //if (process.platform !== 'darwin') {
     //    app.quit()
     //}
 }
 
-module.exports = { create, closeGuide }
+module.exports = { create,closeGuide }
