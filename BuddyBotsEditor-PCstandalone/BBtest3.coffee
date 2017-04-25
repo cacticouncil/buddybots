@@ -316,11 +316,21 @@ $('#export').on 'click', ->
 $('#quickstart').on 'click', ->
   localStorage.clear()
   if document.getElementById('username').value && document.getElementById('ainame').value
-    data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
-    localStorage.setItem('text',data)
-    editor.setValue localStorage.getItem('text')
+    if document.getElementById('ainame').value == "is" || document.getElementById('ainame').value == "if" || document.getElementById('ainame').value == "of" || document.getElementById('ainame').value == "as" || document.getElementById('ainame').value == "return" || document.getElementById('ainame').value == "import" || document.getElementById('ainame').value == "def" || document.getElementById('ainame').value == "from" || document.getElementById('ainame').value == "class" || document.getElementById('ainame').value == "for" || document.getElementById('ainame').value == "in" || document.getElementById('ainame').value == "while" || document.getElementById('ainame').value == "range"
+       alert("Ainame is invalid")
+    else
+       data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
+       localStorage.setItem('text',data)
+       editor.setValue localStorage.getItem('text')
   else
     alert("Need both Author name and bot name")#data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + "SampleBots" + ".pk4\")\nfrom statemachine import *\nclass " + "SampleBots" + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
+
+$('#restart').on 'click', ->
+  localStorage.clear()
+  document.getElementById('username').value = ''
+  document.getElementById('ainame').value = ''
+  localStorage.setItem('text',"")
+  editor.setValue localStorage.getItem('text')
 
 # Stuff for testing convenience
 $('#update').on 'click', ->

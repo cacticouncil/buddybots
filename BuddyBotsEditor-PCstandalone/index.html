@@ -108,7 +108,7 @@
             text-align: center;
         }
 
-        #quickstart{
+        #restart{
             position: absolute;
             bottom: 0px;
             left: 0;
@@ -116,6 +116,17 @@
             height: 25px;
             cursor: pointer;
             background-color: #52a6d8;
+            text-align: center;
+        }
+
+        #quickstart{
+            position: absolute;
+            bottom: 25px;
+            left: 0;
+            right: 0;
+            height: 25px;
+            cursor: pointer;
+            background-color: #bccce5;
             text-align: center;
         }
 
@@ -133,13 +144,16 @@
         </div>
         <div id="info-config">
             <form action="SaveUserInfo.php" method="POST">
-                Auther:<input id="username" type="text" /><br>               
-                AIname:<input id="ainame" type="text" /><br>
+                Author:<input id="username" type="text" onkeyup="value=value.replace(/[^\w\.\/]/ig,'')"/><br>               
+                AIname:<input id="ainame" type="text" onkeyup="value=value.replace(/[^\w\.\/]/ig,'')"/><br>
                 <!--<input type="submit" name="submit" value="GetBots">-->
             </form>
         </div>
         <div id="quickstart">
             QuickStart
+        </div>
+        <div id="restart">
+            Restart
         </div>
         <!--<div id="update">
             Update
@@ -214,12 +228,5 @@
                 alert("Need both Author name and bot name");
         })
     </script>
-    <!--<script>
-        //$('#quickstart').click(function () {
-        //    var data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *"//\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\\n def Think(self , deltaTimeMS):\\n return botInput\n def Spawn(self,spawnDict):\\n return\n def Restart(self):\\n return"
-        //    localStorage.clear()
-        //    localStorage.setItem('text',data)
-        //})
-    </script>-->
 </body>
 </html>
