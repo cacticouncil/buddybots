@@ -35,16 +35,19 @@ dropletConfig.setValue '''
             'block': 'import sys'
           },
           {
-            'block': "sys.path.append(arg)",
+            'block': 'from statemachine import *'
           },
           {
-            'block': 'from statemachine import something'
+            'block': "def Think(self , deltaTimeMS):\\n  return",
           },
           {
-            'block': "def myMethod(arg):\\n  return",
+            'block': "def  Spawn(self,spawnDict):\\n  return",
           },
           {
-            'block': "class myClass(arg):\\n  return",
+            'block': "def  Restart(self):\\n  return",
+          },
+          {
+            'block': "class YourBotName(afiBotBrain):\\n  return",
           },
           {
             'block': "return ''",
@@ -301,7 +304,7 @@ $('#toggle').on 'click', ->
 
 $('#export').on 'click', ->
   content = localStorage.getItem('text')
-  check1 = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):"
+  check1 = "import sys\nfrom afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  botInput = aiInput_t()"
   check2 = "return botInput\n def Spawn(self,spawnDict):"
   check3 = "  return\n def Restart(self):"
   if content.indexOf(check1)>=0 && content.indexOf(check2)>=0 && content.indexOf(check3)>=0
@@ -319,7 +322,7 @@ $('#quickstart').on 'click', ->
     if document.getElementById('ainame').value == "is" || document.getElementById('ainame').value == "if" || document.getElementById('ainame').value == "of" || document.getElementById('ainame').value == "as" || document.getElementById('ainame').value == "return" || document.getElementById('ainame').value == "import" || document.getElementById('ainame').value == "def" || document.getElementById('ainame').value == "from" || document.getElementById('ainame').value == "class" || document.getElementById('ainame').value == "for" || document.getElementById('ainame').value == "in" || document.getElementById('ainame').value == "while" || document.getElementById('ainame').value == "range"
        alert("Ainame is invalid")
     else
-       data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + document.getElementById('ainame').value + ".pk4\")\nfrom statemachine import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
+       data = "import sys\nfrom afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  botInput = aiInput_t()\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
        localStorage.setItem('text',data)
        editor.setValue localStorage.getItem('text')
   else

@@ -47,9 +47,194 @@
             <br />&nbsp;&nbsp;&nbsp;drag and drop the functions or commands to complete your bot
             <br />Step-4:
             <br />&nbsp;&nbsp;&nbsp;click the "Export" button to export and save your bot to your disk
+            <br />
+            <br />
         </p>
 
         <p>
+            afiBotManager - Global/Static instance:
+            <br /> GetFlag
+            <br /> &nbsp;&nbsp;&nbsp;- Takes in team ID return idEntity
+            <br /> GetFlagStatus
+            <br /> &nbsp;&nbsp;&nbsp;- Returns a flagStatus_t
+            <br /> GetFlagCarrier
+            <br /> &nbsp;&nbsp;&nbsp;- Takes team ID, returns idPlayer NOT WORKING
+            <br /> GetWinningTeam
+            <br /> &nbsp;&nbsp;&nbsp;- Return winning team ID NOTWORKING
+            <br /> ConsolePrint
+            <br /> &nbsp;&nbsp;&nbsp;- Prints passed in string
+            <br />
+            <br />
+        </p>
+
+        <p>
+            afiBotBrain - What python based bot class scripts should inherit from
+            <br /> Overrides:
+            <br /> &nbsp;Think
+            <br /> &nbsp;&nbsp;&nbsp;- Called once a frame once server is started with loaded bot
+            <br /> &nbsp;&nbsp;&nbsp;- Returns an aiInput_t for the bot. The use of this is currently undefined and returning a new instance of aiInput_t() each frame will function correctly.
+            <br /> &nbsp;Spawn
+            <br /> &nbsp;&nbsp;&nbsp;- Called when bot is spawned
+            <br /> &nbsp;Restart
+            <br /> &nbsp;&nbsp;&nbsp;- Called when bot is restarted
+            <br />
+            <br /> Contains:
+            <br /> &nbsp;Body
+            <br /> &nbsp;&nbsp;&nbsp;- Instance of afiBotPlayer
+            <br /> &nbsp;PhysicsObject
+            <br /> &nbsp;&nbsp;&nbsp;- Readonly instance of idPhysics_Player
+            <br />
+            <br />
+        </p>
+
+        <p>
+            flagStatus_t enum containning {FLAGSTATUS_INBASE, FLAGSTATUS_TAKEN, FLAGSTATUS_STRAY}
+            <br />
+            <br />
+        </p>
+
+        <p>
+            afiBotPlayer - Accessed as self.body in Python scripts inherited from afiBotBrain
+            <br /> Methods:
+            <br /> &nbsp;FindItem
+            <br /> &nbsp;&nbsp;&nbsp; params: item - string based name of item to find
+            <br /> &nbsp;&nbsp;&nbsp; returns idEntity reference to nearest instance of item found with name matching string "item"
+            <br />
+            <br /> &nbsp;InView
+            <br /> &nbsp;&nbsp;&nbsp; params: entity - idEntity you wish to know if is in view
+            <br /> &nbsp;&nbsp;&nbsp; returns true if the entity is in view
+            <br />
+            <br /> &nbsp;MoveTo
+            <br /> &nbsp;&nbsp;&nbsp; params: pos - idVec3 representing the position to move to
+            <br /> &nbsp;&nbsp;&nbsp;         speed - float based value for speed. //What is the acceptible range? Does this override "UpdateAIMoveFlag"?
+            <br />
+            <br /> &nbsp;MoveToPosition
+            <br /> &nbsp;&nbsp;&nbsp; params: pos - idVec3 representing the position to move to
+            <br /> &nbsp;&nbsp;&nbsp;         range - float based value for acceptible stopping distance from pos
+            <br /> &nbsp;&nbsp;&nbsp; returns true if defined location to move to is reachable
+            <br />
+            <br /> &nbsp;MoveToEntity
+            <br /> &nbsp;&nbsp;&nbsp; params: entity - the idEntity to move to
+            <br /> &nbsp;&nbsp;&nbsp; returns true if defined location to move to is reachable
+            <br />
+            <br /> &nbsp;MoveToPlayer
+            <br /> &nbsp;&nbsp;&nbsp; params: player - the idPlayer to move to
+            <br /> &nbsp;&nbsp;&nbsp; returns true if defined location to move to is reachable
+            <br />
+            <br /> &nbsp;Attack
+            <br /> &nbsp;&nbsp;&nbsp; - Tells bot to attack.
+            <br /> &nbsp;&nbsp;&nbsp; *Note* Is the rest of this passage true? The bot will use its currently equiped weapon if possible, and will reload if needed. The bot will switch weapons if the current one is completely out of reserve ammo as well. The bot will not aim, and will simply attack in the direction it is currently facing.
+            <br />
+            <br /> &nbsp;StopAttack
+            <br /> &nbsp;&nbsp;&nbsp; - Tells the bot to stop attacking.
+            <br />
+            <br /> &nbsp;Jump
+            <br /> &nbsp;&nbsp;&nbsp; - Sets the bots move flag to jump
+            <br />
+            <br /> &nbsp;LookInDirection
+            <br /> &nbsp;&nbsp;&nbsp; params: dir - idVec3 representing the direction the bot should face.
+            <br />
+            <br /> &nbsp;LookAtPosition
+            <br /> &nbsp;&nbsp;&nbsp; params: pos - idVec3 representing the position the bot should look at.
+            <br />
+            <br /> &nbsp;MoveToNearest
+            <br /> &nbsp;&nbsp;&nbsp; - Tells bot to move to the nearest instance of the passed in item name, if one exists
+            <br /> &nbsp;&nbsp;&nbsp; params: item - String name of item to move to nearest instance of
+            <br /> &nbsp;&nbsp;&nbsp; returns the idEntity reference to item being moved to, or null if the specified item does not exist.
+            <br />
+            <br /> &nbsp;PathToGoal 
+            <br /> &nbsp;&nbsp;&nbsp; N/A
+            <br />
+            <br /> &nbsp;ReachedPos 
+            <br /> &nbsp;&nbsp;&nbsp; - Queries if the bot is within a specified range of a specified location
+            <br /> &nbsp;&nbsp;&nbsp; params: pos - idVec3 position to test
+            <br /> &nbsp;&nbsp;&nbsp;         range - float based distance to check if bot is within range of pos
+            <br /> &nbsp;&nbsp;&nbsp; returns true if the bot's distance from pos is less than range
+            <br />
+            <br /> &nbsp;SwitchWeapon 
+            <br /> &nbsp;&nbsp;&nbsp; - Causes the bot to switch to using the specified weapon
+            <br /> &nbsp;&nbsp;&nbsp; params: weaponName - The name of the weapon to switch to
+            <br /> &nbsp;&nbsp;&nbsp; returns true if the weapon specified was switched to, false if the bot doe not have the desired weapon
+            <br />
+            <br /> &nbsp;HasAmmo 
+            <br /> &nbsp;&nbsp;&nbsp; - Queries how much ammo the bot has for the specified weapon
+            <br /> &nbsp;&nbsp;&nbsp; params: weaponName - name of the weapon to query
+            <br /> &nbsp;&nbsp;&nbsp; returns the amount of ammo remainning in the specified weapon, or 0 if the bot does not have the weapon
+            <br />
+            <br /> &nbsp;AmmoInClip 
+            <br /> &nbsp;&nbsp;&nbsp; - Reloads teh bots current weapon if the weapon clip is empty
+            <br />
+            <br /> &nbsp;FindNearbyPlayers
+            <br /> &nbsp;&nbsp;&nbsp; - Returns a list of players that are in view of the bot
+            <br />
+            <br /> &nbsp;FindItemsInView
+            <br /> &nbsp;&nbsp;&nbsp; - Returns a list of items that are in view of the bot
+            <br />
+            <br /> &nbsp;GetPosition
+            <br /> &nbsp;&nbsp;&nbsp; - Returns a idVec3 representing the bots position
+            <br />
+            <br /> &nbsp;NextWeapon 
+            <br /> &nbsp;&nbsp;&nbsp; - Causes the bot to use the next weapon currently available in their inventory
+            <br />
+            <br /> &nbsp;UpdateAIMoveFlag 
+            <br /> &nbsp;&nbsp;&nbsp; - Causes the bot to change its movement style between crouching, jumping, walking or running
+            <br /> &nbsp;&nbsp;&nbsp; params: flag - The aiMoveFlag_t of the desired movement style
+            <br />
+            <br /> &nbsp;SaveLastTarget 
+            <br /> &nbsp;&nbsp;&nbsp; - Stores an entity target to be retrieved later.
+            <br /> &nbsp;&nbsp;&nbsp; params: entity - The idEntity you wish to store
+            <br />
+            <br /> &nbsp;GetLastTarget 
+            <br /> &nbsp;&nbsp;&nbsp; - Gives access to an entity previously stored using SaveLastTarget
+            <br />
+            <br />Read only properties:
+            <br />health - integer representing current health, out of 100?
+            <br />team - integer representing team ID, either 0 or 1
+            <br />spectator - Integer representing binary spectator status?
+            <br />
+            <br />
+        </p>
+
+        <p>
+            aiMoveFlag_t - Enumeration of possible movement styles
+            <br /> NULLMOVE
+            <br /> &nbsp;&nbsp;&nbsp;-Stops moving
+            <br /> CROUCH
+            <br /> JUMP
+            <br /> WALK
+            <br /> RUN
+            <br />
+            <br />
+        </p>
+
+        <p>
+            aiInput - structure returned from BotBrain Think override, use is not currently understood.
+            <br /> viewDirection - idVec3
+            <br /> viewType - aiViewType_t
+            <br /> moveDirection - idVec3
+            <br /> moveSpeed - float
+            <br /> moveFlag - aiMoveFlag_t
+            <br /> commands - aiCommands_t
+            <br />
+            <br />
+        </p>
+
+        <p>
+            aiViewType_t - Enumeration of possible view types, used to define if a target is a position or direction in certain methods
+            <br /> VIEW_DIR
+            <br /> VIEW_POS
+            <br />
+            <br />
+        </p>
+
+        <p>
+            aiCommands_t - Use not understood - Structure containing the following
+            <br /> attack - bool
+            <br /> zoom - bool
+            <br />
+            <br />
+        </p>
+        <!--<p>
             Functions and command:
             <br /> bool InView(IdEntity* entity)
             <br /> &nbsp;&nbsp;&nbsp;-Returns wether the entity passed in is in view or not
@@ -128,14 +313,19 @@
             <br /> &nbsp;&nbsp;&nbsp;-Prints all the bots currently in the play queue
             <br />
             <br />
-        </p>
+        </p>-->
 
         <p>
             Sample bots:
             <br />
             <br /> &nbsp;&nbsp;import sys
-            <br /> &nbsp;&nbsp;sys.path.append("./d3xp/botPaks/SampleBot.pk4")
-            <br /> &nbsp;&nbsp;from statemachine import *
+            <br /> &nbsp;&nbsp;from afiBotBrain import *
+            <br /> &nbsp;&nbsp;from afiBotManager import *
+            <br /> &nbsp;&nbsp;from afiBotPlayer import *
+            <br /> &nbsp;&nbsp;from idPlayer import *
+            <br /> &nbsp;&nbsp;from idActor import *
+            <br /> &nbsp;&nbsp;from idEntity import *
+            <br /> &nbsp;&nbsp;from idVec3 import *
             <br />
             <br /> &nbsp;&nbsp;class SampleBot(afiBotBrain):
             <br /> &nbsp;&nbsp;&emsp;def Think(self , deltaTimeMS):
@@ -168,6 +358,7 @@
             <br />
             <br />
         </p>
+
     </div>
     <script src="close.js"></script>
     <script type="text/javascript">
