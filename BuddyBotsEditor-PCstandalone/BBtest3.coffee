@@ -17,11 +17,10 @@ dropletConfig.setValue '''
           "color": "purple",
           "dropdown": [['foo', 'bar'], ['baz', 'qux']]
         },
-        'colorTest': {
-          'color': 'yellow',
-          'dropdown': [null, ['1', '2', '3']]
+        'self': {
+          'color': 'yellow'
         },
-        'nestedFn': {
+        'import': {
           'color': 'pink'
         }
       }
@@ -32,22 +31,40 @@ dropletConfig.setValue '''
         'color': 'purple',
         'blocks': [
           {
-            'block': 'import sys'
+            'block': "import sys"
           },
           {
-            'block': 'from statemachine import *'
+            'block': "from statemachine import *"
           },
           {
-            'block': "def Think(self , deltaTimeMS):\\n  return",
+            'block': "def Think(self, deltaTimeMS):\\n  return",
           },
           {
-            'block': "def  Spawn(self,spawnDict):\\n  return",
+            'block':"botInput = aiInput_t()"
+          },
+          {
+            'block': "def  Spawn(self, spawnDict):\\n  return",
           },
           {
             'block': "def  Restart(self):\\n  return",
           },
           {
             'block': "class YourBotName(afiBotBrain):\\n  return",
+          },
+          {
+            'block': "botInput = aiInput_t()",
+          },
+          {
+            'block': "self.spawnDict = spawnDict",
+          },
+          {
+            'block': "self.enemyTeam = 0",
+          },
+          {
+            'block': "self.myTeam = self.body.team",
+          },
+          {
+            'block': "if self.myTeam == 0:\\n  self.enemyTeam = 1",
           },
           {
             'block': "return ''",
@@ -71,19 +88,22 @@ dropletConfig.setValue '''
         'color': 'blue',
         'blocks': [
           {
-            'block': "InView(arg)",
+            'block': "FindItem(item)"
           },
           {
-            'block': "FindNearbyPlayers()",
+            'block': "InView(entity)",
           },
           {
-            'block': "FindItemsInView()",
+            'block': "MoveTo(pos,speed)",
           },
           {
-            'block': "MoveToPosition(arg, arg)",
+            'block': "MoveToPosition(pos, rang)",
           },
           {
-            'block': "LookAtPosition(arg)",
+            'block': "MoveToEntity(entity)",
+          },
+          {
+            'block': "MoveToPlayer(player)",
           },
           {
             'block': "Attack()"
@@ -92,19 +112,55 @@ dropletConfig.setValue '''
             'block': "StopAttack()"
           },
           {
-            'block': "FindItem(arg)"
+            'block': "Jump()"
           },
           {
-            'block': "HasAmmo(arg)"
+            'block': "LookInDirection(direction)",
           },
           {
-            'block': "SwitchWeapon(arg)"
+            'block': "LookAtPosition(pos)",
           },
+          {
+            'block': "MoveToNearest(item)",
+          },
+          {
+            'block': "MoveToNearest(item)",
+          },
+          {
+            'block': "PathToGoal()",
+          },
+          {
+            'block': "ReachedPos(pos,rang)",
+          },
+          {
+            'block': "SwitchWeapon(weaponName)"
+          },
+          {
+            'block': "HasAmmo(weaponName)"
+          },      
           {
             'block': "AmmoInClip()"
           },
           {
-            'block': "UpdateAiMoveFlag(arg)"
+            'block': "FindNearbyPlayers()",
+          },
+          {
+            'block': "FindItemsInView()",
+          },
+          {
+            'block': "GetPosition()",
+          },
+          {
+            'block': "NextWeapon()",
+          },
+          {
+            'block': "UpdateAIMoveFlag(flag)"
+          },
+          {
+            'block': "SaveLastTarget(entity)"
+          },
+          {
+            'block': "GetLastTarget()"
           },
           {
             'block': "aiInput_t()"
@@ -322,18 +378,27 @@ $('#quickstart').on 'click', ->
     if document.getElementById('ainame').value == "is" || document.getElementById('ainame').value == "if" || document.getElementById('ainame').value == "of" || document.getElementById('ainame').value == "as" || document.getElementById('ainame').value == "return" || document.getElementById('ainame').value == "import" || document.getElementById('ainame').value == "def" || document.getElementById('ainame').value == "from" || document.getElementById('ainame').value == "class" || document.getElementById('ainame').value == "for" || document.getElementById('ainame').value == "in" || document.getElementById('ainame').value == "while" || document.getElementById('ainame').value == "range"
        alert("Ainame is invalid")
     else
-       data = "import sys\nfrom afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  botInput = aiInput_t()\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
+       data = "import sys\nfrom afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  botInput = aiInput_t()\n  return botInput\n def Spawn(self,spawnDict):\n  self.spawnDict = spawnDict\n  self.enemyTeam = 0\n  self.myTeam = self.body.team\n  if self.myTeam == 0:\n    self.enemyTeam = 1\n  return\n def Restart(self):\n  return"
        localStorage.setItem('text',data)
        editor.setValue localStorage.getItem('text')
   else
     alert("Need both Author name and bot name")#data = "import sys\nsys.path.append(\"./d3xp/botPaks/" + "SampleBots" + ".pk4\")\nfrom statemachine import *\nclass " + "SampleBots" + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  return botInput\n def Spawn(self,spawnDict):\n  return\n def Restart(self):\n  return"
 
-$('#restart').on 'click', ->
+$('#new').on 'click', ->
   localStorage.clear()
   document.getElementById('username').value = ''
   document.getElementById('ainame').value = ''
   localStorage.setItem('text',"")
   editor.setValue localStorage.getItem('text')
+
+$('#restart').on 'click', ->
+  localStorage.clear()
+  if document.getElementById('ainame').value == "is" || document.getElementById('ainame').value == "if" || document.getElementById('ainame').value == "of" || document.getElementById('ainame').value == "as" || document.getElementById('ainame').value == "return" || document.getElementById('ainame').value == "import" || document.getElementById('ainame').value == "def" || document.getElementById('ainame').value == "from" || document.getElementById('ainame').value == "class" || document.getElementById('ainame').value == "for" || document.getElementById('ainame').value == "in" || document.getElementById('ainame').value == "while" || document.getElementById('ainame').value == "range"
+     alert("Ainame is invalid")
+  else
+     data = "import sys\nfrom afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  botInput = aiInput_t()\n  return botInput\n def Spawn(self,spawnDict):\n  self.spawnDict = spawnDict\n  self.enemyTeam = 0\n  self.myTeam = self.body.team\n  if self.myTeam == 0:\n    self.enemyTeam = 1\n  return\n def Restart(self):\n  return"
+     localStorage.setItem('text',data)
+     editor.setValue localStorage.getItem('text')
 
 # Stuff for testing convenience
 $('#update').on 'click', ->
