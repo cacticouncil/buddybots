@@ -20,6 +20,12 @@ dropletConfig.setValue '''
         'self': {
           'color': 'yellow'
         },
+        'afiBotManager': {
+          'color': 'green'
+        },
+        'botInput': {
+          'color': 'red'
+        },
         'import': {
           'color': 'pink'
         }
@@ -41,6 +47,12 @@ dropletConfig.setValue '''
           },
           {
             'block':"botInput = aiInput_t()"
+          },
+          {
+            'block':"botInput.moveFlag = aiMoveFlag_t.NULLMOVE"
+          },
+          {
+            'block':"botInput.moveFlag = aiMoveFlag_t.RUN"
           },
           {
             'block': "def  Spawn(self, spawnDict):\\n  return",
@@ -73,10 +85,13 @@ dropletConfig.setValue '''
             'block': "self.part"
           },
           {
-            'block': "self.part.function"
+            'block': "self.enemyFlag"
           },
           {
-            'block': "afiBotManager.function"
+            'block': "self.enemyTeam"
+          },
+          {
+            'block': "self.ourFlag"
           },
           {
             'block': "botInput.part"
@@ -87,6 +102,15 @@ dropletConfig.setValue '''
         'name': 'Functions',
         'color': 'blue',
         'blocks': [
+          {
+            'block': "aiInput_t()"
+          },
+          {
+            'block': "ConsolePrint(arg)"
+          },
+          {
+            'block': "self.body.function"
+          },
           {
             'block': "FindItem(item)"
           },
@@ -163,16 +187,19 @@ dropletConfig.setValue '''
             'block': "GetLastTarget()"
           },
           {
-            'block': "aiInput_t()"
-          },
-          {
-            'block': "ConsolePrint(arg)"
+            'block': "afiBotManager.function"
           },
           {
             'block': "GetFlagStatus(arg)"
           },
           {
             'block': "GetFlag(arg)"
+          },
+          {
+            'block': "GetHealthByID(BotID)"
+          },
+          {
+            'block': "GetTeamByID(BotID)"
           },
         ]
       },
