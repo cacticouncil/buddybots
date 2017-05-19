@@ -26,9 +26,6 @@ dropletConfig.setValue '''
         'botInput': {
           'color': 'red'
         },
-        'import': {
-          'color': 'pink'
-        }
       }
     },
     "palette": [
@@ -399,6 +396,14 @@ $('#export').on 'click', ->
      #localStorage.clear()
      #localStorage.setItem('text',"Incorrect bot structure")
 
+$('#showexample').on 'click', ->
+  localStorage.clear()
+  document.getElementById('username').value = 'Sample'
+  document.getElementById('ainame').value = 'Sample'
+  data = "import sys\nfrom afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\nclass Sample(afiBotBrain):\n def Think(self , deltaTimeMS):\n  botInput = aiInput_t()\n  botInput.moveFlag = aiMoveFlag_t.NULLMOVE\n  if afiBotManager.GetFlagStatus(self.enemyTeam) == flagStatus_t.FLAGSTATUS_INBASE:\n    self.enemyFlag = afiBotManager.GetFlag(self.enemyTeam)\n    self.body.MoveToPosition(self.enemyFlag.GetPosition(),8)\n    self.body.LookAtPosition(self.enemyFlag.GetPosition())\n  elif afiBotManager.GetFlagStatus(self.enemyTeam) == flagStatus_t.FLAGSTATUS_TAKEN:\n    self.ourFlag = afiBotManager.GetFlag(self.myTeam)\n    self.body.MoveToPosition(self.ourFlag.GetPosition(),8)\n    self.body.LookAtPosition(self.ourFlag.GetPosition())\n  return botInput\n def Spawn(self,spawnDict):\n  self.spawnDict = spawnDict\n  self.enemyTeam = 0\n  self.myTeam = self.body.team\n  if self.myTeam == 0:\n    self.enemyTeam = 1\n  return\n def Restart(self):\n  return"
+  localStorage.setItem('text',data)
+  editor.setValue localStorage.getItem('text')
+
 $('#quickstart').on 'click', ->
   localStorage.clear()
   if document.getElementById('username').value && document.getElementById('ainame').value
@@ -419,13 +424,24 @@ $('#new').on 'click', ->
   editor.setValue localStorage.getItem('text')
 
 $('#restart').on 'click', ->
-  localStorage.clear()
-  if document.getElementById('ainame').value == "is" || document.getElementById('ainame').value == "if" || document.getElementById('ainame').value == "of" || document.getElementById('ainame').value == "as" || document.getElementById('ainame').value == "return" || document.getElementById('ainame').value == "import" || document.getElementById('ainame').value == "def" || document.getElementById('ainame').value == "from" || document.getElementById('ainame').value == "class" || document.getElementById('ainame').value == "for" || document.getElementById('ainame').value == "in" || document.getElementById('ainame').value == "while" || document.getElementById('ainame').value == "range"
-     alert("Ainame is invalid")
-  else
-     data = "import sys\nfrom afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  botInput = aiInput_t()\n  return botInput\n def Spawn(self,spawnDict):\n  self.spawnDict = spawnDict\n  self.enemyTeam = 0\n  self.myTeam = self.body.team\n  if self.myTeam == 0:\n    self.enemyTeam = 1\n  return\n def Restart(self):\n  return"
-     localStorage.setItem('text',data)
-     editor.setValue localStorage.getItem('text')
+  if localStorage.getItem('text') != ""
+    localStorage.clear()
+    if document.getElementById('username').value && document.getElementById('ainame').value
+        if document.getElementById('ainame').value == "is" || document.getElementById('ainame').value == "if" || document.getElementById('ainame').value == "of" || document.getElementById('ainame').value == "as" || document.getElementById('ainame').value == "return" || document.getElementById('ainame').value == "import" || document.getElementById('ainame').value == "def" || document.getElementById('ainame').value == "from" || document.getElementById('ainame').value == "class" || document.getElementById('ainame').value == "for" || document.getElementById('ainame').value == "in" || document.getElementById('ainame').value == "while" || document.getElementById('ainame').value == "range"
+            alert("Ainame is invalid")
+        else
+            data = "import sys\nfrom afiBotBrain import *\nfrom afiBotManager import *\nfrom afiBotPlayer import *\nfrom idPlayer import *\nfrom idActor import *\nfrom idEntity import *\nfrom idVec3 import *\nclass " + document.getElementById('ainame').value + "(afiBotBrain):\n def Think(self , deltaTimeMS):\n  botInput = aiInput_t()\n  return botInput\n def Spawn(self,spawnDict):\n  self.spawnDict = spawnDict\n  self.enemyTeam = 0\n  self.myTeam = self.body.team\n  if self.myTeam == 0:\n    self.enemyTeam = 1\n  return\n def Restart(self):\n  return"
+            localStorage.setItem('text',data)
+            editor.setValue localStorage.getItem('text')
+    else
+        alert("Need both Author name and bot name")
+
+$('#clearteam').on 'click', ->
+  document.getElementById('teamname').value = ''
+  document.getElementById('leader').value = ''
+  document.getElementById('veteran').value = ''
+  document.getElementById('recruit').value = ''
+  document.getElementById('recruit2').value = ''
 
 # Stuff for testing convenience
 $('#update').on 'click', ->
