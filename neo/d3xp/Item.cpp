@@ -1320,12 +1320,20 @@ void idItemTeam::UpdateGuis( void ) {
 		if ( player == NULL || player->hud == NULL )
 			continue;
 
-		player->hud->SetStateInt( "red_flagstatus", gameLocal.mpGame.GetFlagStatus( 0 ) );
-		player->hud->SetStateInt( "blue_flagstatus", gameLocal.mpGame.GetFlagStatus( 1 ) );
-
-		player->hud->SetStateInt( "red_team_score",  gameLocal.mpGame.GetFlagPoints( 0 ) );
-		player->hud->SetStateInt( "blue_team_score", gameLocal.mpGame.GetFlagPoints( 1 ) );
-
+		player->hud->SetStateInt( "red_flagstatus",					gameLocal.mpGame.GetFlagStatus( 0 ) );
+		player->hud->SetStateInt( "blue_flagstatus",				gameLocal.mpGame.GetFlagStatus( 1 ) );
+		player->hud->SetStateInt( "red_team_score",					gameLocal.mpGame.GetFlagPoints( 0 ) );
+		player->hud->SetStateInt( "blue_team_score",				gameLocal.mpGame.GetFlagPoints( 1 ) );
+		player->hud->SetStateInt( "red_team_total_capture_score",	gameLocal.mpGame.GetTotalFlagPoints( 0 ) );
+		player->hud->SetStateInt( "blue_team_total_capture_score",	gameLocal.mpGame.GetTotalFlagPoints( 1 ) );
+		player->hud->SetStateInt( "red_team_total_frag_score",		gameLocal.mpGame.GetTotalFragPoints( 0 ) );
+		player->hud->SetStateInt( "blue_team_total_frag_score",		gameLocal.mpGame.GetTotalFragPoints( 1 ) );
+		player->hud->SetStateInt( "red_team_total_wins",			gameLocal.mpGame.GetTotalTeamWins( 0 ) );
+		player->hud->SetStateInt( "blue_team_total_wins",			gameLocal.mpGame.GetTotalTeamWins( 1 ) );
+		player->hud->SetStateInt( "red_team_total_flag_returns",	gameLocal.mpGame.GetTotalFlagReturns( 0 ) );
+		player->hud->SetStateInt( "blue_team_total_flag_returns",	gameLocal.mpGame.GetTotalFlagReturns( 1 ) );
+		player->hud->SetStateInt( "red_team_total_flag_returns",	gameLocal.mpGame.GetTotalKills( 0 ) );
+		player->hud->SetStateInt( "blue_team_total_kills",			gameLocal.mpGame.GetTotalKills( 1 ) );
 	}
 
 }

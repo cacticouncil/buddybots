@@ -1227,6 +1227,10 @@ idThread::Event_SetPersistantArg
 ================
 */
 void idThread::Event_SetPersistantArg( const char *key, const char *value ) {
+	const char* temp = "replay_count";
+	if(*key == *temp) {
+		gameLocal.Printf("Found it");
+	}
 	gameLocal.persistentLevelInfo.Set( key, value );
 }
 

@@ -1477,7 +1477,7 @@ void idStaticEntity::Spawn( void ) {
 	hidden = spawnArgs.GetBool( "hide" );
 
 	if ( solid && !hidden ) {
-		GetPhysics()->SetContents( CONTENTS_SOLID );
+		GetPhysics()->SetContents( CONTENTS_SOLID|CONTENTS_OPAQUE ); // TinMan: *test* set so ai can see it
 	} else {
 		GetPhysics()->SetContents( 0 );
 	}
@@ -1578,7 +1578,7 @@ idStaticEntity::Show
 void idStaticEntity::Show( void ) {
 	idEntity::Show();
 	if ( spawnArgs.GetBool( "solid" ) ) {
-		GetPhysics()->SetContents( CONTENTS_SOLID );
+		GetPhysics()->SetContents( CONTENTS_SOLID|CONTENTS_OPAQUE ); // TinMan: *test* set so ai can see it
 	}
 }
 

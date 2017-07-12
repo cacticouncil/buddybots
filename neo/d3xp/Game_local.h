@@ -96,6 +96,18 @@ extern const int NUM_RENDER_PORTAL_BITS;
 
 ===============================================================================
 */
+typedef struct spawnTeamInfo_s {
+	idStr name;
+	int team;
+	bool used;
+
+	spawnTeamInfo_s() {
+		name = "";
+		team = -1;
+		used = false;
+	}
+} spawnTeamInfo_t;
+
 typedef struct entityState_s {
 	int						entityNumber;
 	idBitMsg				state;
@@ -254,6 +266,7 @@ public:
 	usercmd_t				usercmds[MAX_CLIENTS];	// client input commands
 	idDict					persistentPlayerInfo[MAX_CLIENTS];
 	idEntity *				entities[MAX_GENTITIES];// index to entities
+	idList<spawnTeamInfo_t> playerEntities;			// info for player entities for team spawning
 	int						spawnIds[MAX_GENTITIES];// for use in idEntityPtr
 	int						firstFreeIndex;			// first free index in the entities array
 	int						num_entities;			// current number <= MAX_GENTITIES
@@ -354,6 +367,7 @@ public:
 	// ---------------------- Public idGame Interface -------------------
 
 							idGameLocal();
+							~idGameLocal();
 
 	virtual void			Init( void );
 	virtual void			Shutdown( void );
@@ -397,8 +411,20 @@ public:
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
-	// ---------------------- Public idGameLocal Interface -------------------
+	object					main;
+	object					globalNamespace;
 
+	void					HandlePythonError();
+
+	//Function necessary to hook into entity spawning.
+	void					SetSpawnArgs(const idDict& args);
+
+	//Function called by the server when it needs the usercmd for the current frame.
+	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
+
+//	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };
+
+	// ---------------------- Public idGameLocal Interface -------------------
 	void					Printf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
 	void					DPrintf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
 	void					Warning( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
@@ -454,6 +480,7 @@ public:
 	bool					SkipCinematic( void );
 	void					CalcFov( float base_fov, float &fov_x, float &fov_y ) const;
 
+	void					AppendPlayerEntities(const idStr name, const int team);
 	void					AddEntityToHash( const char *name, idEntity *ent );
 	bool					RemoveEntityFromHash( const char *name, idEntity *ent );
 	int						GetTargets( const idDict &args, idList< idEntityPtr<idEntity> > &list, const char *ref ) const;
@@ -714,5 +741,8 @@ typedef enum {
 extern const float	DEFAULT_GRAVITY;
 extern const idVec3	DEFAULT_GRAVITY_VEC3;
 extern const int	CINEMATIC_SKIP_DELAY;
+
+//#include "bot/BotManager.h"
+//#include "bot/BotPlayer.h"
 
 #endif	/* !__GAME_LOCAL_H__ */

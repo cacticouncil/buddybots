@@ -36,6 +36,7 @@ include(GNUInstallDirs OPTIONAL RESULT_VARIABLE GNUINSTALLDIRS)
 option(CORE			"Build the core" ON)
 option(BASE			"Build the base game code" ON)
 option(D3XP			"Build the d3xp game code" ON)
+option(MODS			"Build game code for additional mods" OFF)
 option(DEDICATED	"Build the dedicated server" OFF)
 option(ONATIVE		"Optimize for the host CPU" OFF)
 option(SDL2			"Use SDL2 instead of SDL1.2" ON)
@@ -87,6 +88,12 @@ if(DHEWM3LIBS)
 endif()
 
 # libs
+find_package(Boost 1.57 REQUIRED COMPONENTS python) 
+include_directories(${Boost_INCLUDE_DIRS}) 
+
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIR})
+
 find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIRS})
 
@@ -211,11 +218,18 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	endif()
 elseif(MSVC)
 	add_compile_options(/W4)
+	add_compile_options(/wd4018) # signed/unsigned mismatch
 	add_compile_options(/wd4100) # unreferenced formal parameter
+	add_compile_options(/wd4125) # decimal digit terminates octal escape sequence
 	add_compile_options(/wd4127) # conditional expression is constant
 	add_compile_options(/wd4244) # possible loss of data
 	add_compile_options(/wd4245) # signed/unsigned mismatch
 	add_compile_options(/wd4267) # possible loss of data
+	add_compile_options(/wd4389) # signed/unsigned mismatch
+	add_compile_options(/wd4456) # declaration hides previous local declaration	
+	add_compile_options(/wd4457) # declaration hides function parameter	
+	add_compile_options(/wd4458) # declaration hides class member	
+	add_compile_options(/wd4459) # declaration hides global declaration	
 	add_compile_options(/wd4714) # 'function' marked as __forceinline not inlined
 	add_compile_options(/wd4996) # 'function': was declared deprecated
 	add_compile_options(/wd4068) # unknown pragma
@@ -660,6 +674,15 @@ set(src_d3xp
 	d3xp/physics/Force_Grab.cpp
 )
 
+set(src_bot
+	d3xp/bot/BotAASBuild.cpp
+	d3xp/bot/BotBrain.cpp
+	d3xp/bot/BotManager.cpp
+	d3xp/bot/BotManager_thread.cpp
+	d3xp/bot/BotPlayer.cpp
+	d3xp/bot/BotPlayer_navigation.cpp
+)
+
 set(src_core
 	${src_renderer}
 	${src_framework}
@@ -768,6 +791,8 @@ if(CORE)
 		${ZLIB_LIBRARY}
 		${SDLx_LIBRARY}
 		${sys_libs}
+		${Boost_LIBRARIES}
+		${PYTHON_LIBRARY}
 	)
 
 	if(NOT APPLE AND NOT WIN32)
@@ -798,6 +823,8 @@ if(DEDICATED)
 		${ZLIB_LIBRARY}
 		${SDLx_LIBRARY}
 		${sys_libs}
+		${Boost_LIBRARIES}
+		${PYTHON_LIBRARY}
 	)
 
 	if(NOT APPLE AND NOT WIN32)
@@ -816,7 +843,7 @@ if(BASE)
 	set_target_properties(base PROPERTIES COMPILE_FLAGS "-I${CMAKE_SOURCE_DIR}/game")
 	set_target_properties(base PROPERTIES LINK_FLAGS "${ldflags}")
 	set_target_properties(base PROPERTIES INSTALL_NAME_DIR "@executable_path")
-	target_link_libraries(base idlib)
+	target_link_libraries(base idlib ${Boost_LIBRARIES} ${PYTHON_LIBRARY})
 
 	if(NOT APPLE AND NOT WIN32)
 		install(TARGETS base
@@ -828,13 +855,13 @@ if(BASE)
 endif()
 
 if(D3XP)
-	add_library(d3xp SHARED ${src_d3xp})
+	add_library(d3xp SHARED ${src_d3xp} ${src_bot})
 	set_target_properties(d3xp PROPERTIES PREFIX "")
 	set_target_properties(d3xp PROPERTIES COMPILE_DEFINITIONS "GAME_DLL;_D3XP;CTF")
 	set_target_properties(d3xp PROPERTIES COMPILE_FLAGS "-I${CMAKE_SOURCE_DIR}/d3xp")
 	set_target_properties(d3xp PROPERTIES LINK_FLAGS "${ldflags}")
 	set_target_properties(d3xp PROPERTIES INSTALL_NAME_DIR "@executable_path")
-	target_link_libraries(d3xp idlib)
+	target_link_libraries(d3xp idlib ${Boost_LIBRARIES} ${PYTHON_LIBRARY})
 
 	if(NOT APPLE AND NOT WIN32)
 		install(TARGETS d3xp
@@ -844,3 +871,8 @@ if(D3XP)
 		)
 	endif()
 endif()
+
+if (MODS)
+	add_subdirectory(mods)
+endif()
+

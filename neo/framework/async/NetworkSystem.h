@@ -59,6 +59,7 @@ public:
 	virtual int				ClientGetOutgoingRate( void );
 	virtual int				ClientGetIncomingRate( void );
 	virtual float			ClientGetIncomingPacketLoss( void );
+	virtual int				ServerConnectBot();
 };
 
 extern idNetworkSystem *	networkSystem;

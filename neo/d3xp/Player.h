@@ -417,13 +417,14 @@ public:
 	virtual void			Show( void );
 
 	void					Init( void );
-	void					PrepareForRestart( void );
+	virtual void			PrepareForRestart( void );
+
 	virtual void			Restart( void );
 	void					LinkScriptVariables( void );
 	void					SetupWeaponEntity( void );
 	void					SelectInitialSpawnPoint( idVec3 &origin, idAngles &angles );
-	void					SpawnFromSpawnSpot( void );
-	void					SpawnToPoint( const idVec3	&spawn_origin, const idAngles &spawn_angles );
+	virtual void			SpawnFromSpawnSpot(void);
+	virtual void			SpawnToPoint( const idVec3	&spawn_origin, const idAngles &spawn_angles );
 	void					SetClipModel( void );	// spectator mode uses a different bbox size
 
 	void					SavePersistantInfo( void );
@@ -518,6 +519,9 @@ public:
 	void					WeaponRisingCallback( void );
 	void					RemoveWeapon( const char *weap );
 	bool					CanShowWeaponViewmodel( void ) const;
+
+	int						GetHealth(void);
+	int						GetTeam(void);
 
 	void					AddAIKill( void );
 	void					SetSoulCubeProjectile( idProjectile *projectile );
@@ -624,8 +628,10 @@ private:
 	jointHandle_t			chestJoint;
 	jointHandle_t			headJoint;
 
+protected:
 	idPhysics_Player		physicsObj;			// player physics
 
+private:
 	idList<aasLocation_t>	aasLocation;		// for AI tracking the player
 
 	int						bobFoot;
@@ -635,17 +641,25 @@ private:
 	float					xyspeed;
 	int						stepUpTime;
 	float					stepUpDelta;
+
+	protected:
 	float					idealLegsYaw;
 	float					legsYaw;
 	bool					legsForward;
 	float					oldViewYaw;
+
+private:
 	idAngles				viewBobAngles;
 	idVec3					viewBob;
 	int						landChange;
 	int						landTime;
 
 	int						currentWeapon;
+
+protected:
 	int						idealWeapon;
+
+private:
 	int						previousWeapon;
 	int						weaponSwitchTime;
 	bool					weaponEnabled;
@@ -677,8 +691,10 @@ private:
 	float					influenceRadius;
 	const idDeclSkin *		influenceSkin;
 
+protected:
 	idCamera *				privateCameraView;
 
+private:
 	static const int		NUM_LOGGED_VIEW_ANGLES = 64;		// for weapon turning angle offsets
 	idAngles				loggedViewAngles[NUM_LOGGED_VIEW_ANGLES];	// [gameLocal.framenum&(LOGGED_VIEW_ANGLES-1)]
 	static const int		NUM_LOGGED_ACCELS = 16;			// for weapon turning angle offsets
@@ -723,10 +739,12 @@ private:
 
 	// mp
 	bool					ready;					// from userInfo
+protected:
 	bool					respawning;				// set to true while in SpawnToPoint for telefrag checks
+
+private:
 	bool					leader;					// for sudden death situations
 	int						lastSpectateChange;
-	int						lastTeleFX;
 	unsigned int			lastSnapshotSequence;	// track state hitches on clients
 	bool					weaponCatchup;			// raise up the weapon silently ( state catchups )
 	int						MPAim;					// player num in aim
@@ -734,8 +752,12 @@ private:
 	int						lastMPAimTime;			// last time the aim changed
 	int						MPAimFadeTime;			// for GUI fade
 	bool					MPAimHighlight;
-	bool					isTelefragged;			// proper obituaries
 
+	protected:
+	bool					isTelefragged;			// proper obituaries
+	int						lastTeleFX;
+
+private:
 	idPlayerIcon			playerIcon;
 
 	bool					selfSmooth;

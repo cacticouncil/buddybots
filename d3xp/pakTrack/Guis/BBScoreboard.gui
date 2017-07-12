@@ -1,0 +1,295 @@
+windowDef Desktop
+{
+	rect	0,0,640,480
+	windowDef BlueTeam
+	{
+		rect	10,60,290,255
+		visible	1
+		backcolor	0,0,1,0.49803925
+		bordersize	1
+		bordercolor	0,0,0,1
+		noevents	1
+	}
+	windowDef RedTeam
+	{
+		rect	340,60,290,255
+		visible	1
+		backcolor	1,0,0,0.51372552
+		bordersize	1
+		bordercolor	0,0,0,1
+	}
+	windowDef BlueTeamBanner
+	{
+		rect	10,60,290,40
+		visible	1
+		forecolor	1,1,1,1
+		text	"Blue Team Scores"
+		textscale	0.60000002
+		textalignx	5
+	}
+	windowDef RedTeamBanner
+	{
+		rect	340,60,290,40
+		visible	1
+		forecolor	1,1,1,1
+		text	"Red Team Score"
+		textscale	0.60000002
+		textalignx	15
+	}
+	windowDef VS
+	{
+		rect	298,162,40,40
+		visible	1
+		forecolor	1,1,1,1
+		text	"VS"
+		textscale	0.60000002
+	}
+	windowDef BlueFlagCapBanner
+	{
+		rect	20,170,132,34
+		visible	1
+		forecolor	1,1,1,1
+		text	"Flag Caps"
+		textscale	0.5
+	}
+	windowDef BlueFlagCaps
+	{
+		rect	25,200,91,30
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::blue_team_total_capture_score"
+		textscale	0.5
+		textalignx	15
+	}
+	windowDef BlueWinsBanner
+	{
+		rect	10,100,132,34
+		visible	1
+		forecolor	1,1,1,1
+		text	"Wins"
+		textscale	0.5
+		textalignx	25
+	}
+	windowDef BlueWins
+	{
+		rect	25,131,91,30
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::blue_team_total_wins"
+		textscale	0.5
+		textalignx	15
+	}
+	windowDef BlueTotalFragScoreBanner
+	{
+		rect	10,230,290,40
+		visible	1
+		forecolor	1,1,1,1
+		text	"Total Team Score"
+		textscale	0.60000002
+	}
+	windowDef BlueTotalFragScore
+	{
+		rect	50,270,210,35
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::blue_team_total_frag_score"
+		textscale	0.60000002
+		textalignx	60
+	}
+	windowDef RedWinsBanner
+	{
+		rect	340,100,132,34
+		visible	1
+		forecolor	1,1,1,1
+		text	"Wins"
+		textscale	0.5
+		textalignx	25
+	}
+	windowDef RedWins
+	{
+		rect	360,130,91,30
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::red_team_total_wins"
+		textscale	0.5
+		textalignx	15
+	}
+	windowDef RedFlagCapBanner
+	{
+		rect	350,170,132,34
+		visible	1
+		forecolor	1,1,1,1
+		text	"Flag Caps"
+		textscale	0.5
+	}
+	windowDef RedFlagCaps
+	{
+		rect	360,200,91,30
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::red_team_total_capture_score"
+		textscale	0.5
+		textalignx	20
+	}
+	windowDef RedTotalFragScoreBanner
+	{
+		rect	345,230,290,40
+		visible	1
+		forecolor	1,1,1,1
+		text	"Total Team Score"
+		textscale	0.60000002
+	}
+	windowDef RedTotalFragScore
+	{
+		rect	380,270,210,35
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::red_team_total_frag_score"
+		textscale	0.69999999
+		textalignx	60
+	}
+	windowDef DisconnectButton
+	{
+		rect	6,425,230,50
+		visible	0
+		backcolor	0.25098041,0.50196081,0.50196081,1
+		bordersize	1
+		bordercolor	0,0,0,1
+		forecolor	1,1,1,1
+		text	"Disconnect"
+		textscale	0.80000001
+
+		onMouseEnter {
+			transition	"matcolor" "1 1 1 0.1" "1 1 1 0.3" "200" ; 
+		}
+
+		onMouseExit {
+			transition	"matcolor" "1 1 1 0.3" "1 1 1 0.1" "200" ; 
+		}
+
+		onAction {
+			"cmd" "disconnect" 
+		}
+
+	}
+	windowDef ReplayButton
+	{
+		rect	405,425,230,50
+		visible	0
+		backcolor	0.25098041,0.50196081,0.50196081,1
+		bordersize	1
+		bordercolor	0,0,0,1
+		forecolor	1,1,1,1
+		text	"Run Again"
+		textscale	0.80000001
+		textalignx	10
+		menugui	1
+	}
+	windowDef BuddyBotsBanner
+	{
+		rect	168,0,298,56
+		visible	1
+		forecolor	1,1,1,1
+		text	"Buddy Bots"
+		textscale	1
+	}
+	windowDef BlueReturnsBanner
+	{
+		rect	170,170,132,34
+		visible	1
+		forecolor	1,1,1,1
+		text	"Returns"
+		textscale	0.5
+	}
+	windowDef BlueKillBanner
+	{
+		rect	160,100,132,34
+		visible	1
+		forecolor	1,1,1,1
+		text	"Kills"
+		textscale	0.5
+		textalignx	25
+	}
+	windowDef BlueReturns
+	{
+		rect	180,200,91,30
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::blue_team_total_flag_returns"
+		textscale	0.5
+		textalignx	15
+	}
+	windowDef BlueKills
+	{
+		rect	177,131,91,30
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::blue_team_total_kills"
+		textscale	0.5
+		textalignx	15
+	}
+	windowDef RedReturns
+	{
+		rect	510,200,91,30
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::red_team_total_flag_returns"
+		textscale	0.5
+		textalignx	15
+	}
+	windowDef RedReturnsBanner
+	{
+		rect	500,170,132,34
+		visible	1
+		forecolor	1,1,1,1
+		text	"Returns"
+		textscale	0.5
+	}
+	windowDef RedKills
+	{
+		rect	510,130,91,30
+		visible	1
+		forecolor	1,1,1,1
+		text	"gui::red_team_total_kills"
+		textscale	0.5
+		textalignx	15
+	}
+	windowDef RedKillBanner
+	{
+		rect	490,100,132,34
+		visible	1
+		forecolor	1,1,1,1
+		text	"Kills"
+		textscale	0.5
+		textalignx	25
+	}
+	windowDef WinnBanner
+	{
+		rect	103,320,430,96
+		visible	1
+		backcolor	0,0,0,0.69411767
+		bordersize	1
+		bordercolor	0,0,0,1
+		forecolor	1,1,1,1
+		text	""
+		textscale	1
+		textalignx	15
+		textaligny	15
+
+		onTime 0 {
+			if("gui:red_team_total_frag_score" > "gui:blue_team_total_frag_score")
+			{
+				set	"WinnBanner::text"	"Red Team Wins!";
+				set "WinnBanner::backcolor" "1,0,0,1"
+			}
+			if("gui:red_team_total_frag_score" < "gui:blue_team_total_frag_score")
+			{
+				set	"WinnBanner::text"	"Blue Team Wins!";
+				set "WinnBanner::backcolor" "0,0,1,1"
+			}
+			
+			
+		}
+
+	}
+}

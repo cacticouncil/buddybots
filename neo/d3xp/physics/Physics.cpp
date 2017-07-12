@@ -30,10 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "Game_local.h"
 
 #include "physics/Physics.h"
+#include "../Confetti_Timer.h"
 
 ABSTRACT_DECLARATION( idClass, idPhysics )
 END_CLASS
-
 
 /*
 ================
@@ -75,6 +75,6 @@ idPhysics::SnapTimeToPhysicsFrame
 */
 int idPhysics::SnapTimeToPhysicsFrame( int t ) {
 	int s;
-	s = t + USERCMD_MSEC - 1;
-	return ( s - s % USERCMD_MSEC );
+	s = t + ( USERCMD_MSEC * tickRate) - 1;
+	return ( s - s % ( (int)( USERCMD_MSEC * tickRate) ) );
 }

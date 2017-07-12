@@ -34,7 +34,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/Str.h"
 
 #if !defined( ID_REDIRECT_NEWDELETE ) && !defined( MACOS_X )
-	#define USE_STRING_DATA_ALLOCATOR
+#ifdef BUDDY_BOTS
+	//#define USE_STRING_DATA_ALLOCATOR
+#else
+	  #define USE_STRING_DATA_ALLOCATOR
+#endif
 #endif
 
 #ifdef USE_STRING_DATA_ALLOCATOR
@@ -1023,6 +1027,32 @@ bool idStr::IsNumeric( const char *s ) {
 	return true;
 }
 
+bool idStr::IsFloat( const char* s ) {
+	int		i;
+	bool	dot;
+
+	if ( *s == '-' ) {
+		s++;
+	}
+
+	dot = false;
+	for ( i = 0; s[i]; i++ ) {
+		if ( !isdigit( s[i] ) ) {
+			if ( ( s[ i ] == '.' ) && !dot ) {
+				dot = true;
+				continue;
+			}
+			return false;
+		}
+	}
+
+	if(!dot) {
+		return false;
+	}
+
+	return true;
+}
+
 /*
 ============
 idStr::HasLower
@@ -1506,14 +1536,14 @@ or returns -1 on failure or if the buffer would be overflowed.
 int idStr::vsnPrintf( char *dest, int size, const char *fmt, va_list argptr ) {
 	int ret;
 
-#ifdef _WIN32
-#undef _vsnprintf
+#if defined(_WIN32) && defined(_MSC_VER) && _MSC_VER < 1900
+//#undef _vsnprintf
 	ret = _vsnprintf( dest, size-1, fmt, argptr );
-#define _vsnprintf	use_idStr_vsnPrintf
+//#define _vsnprintf	idStr::vsnPrintf
 #else
-#undef vsnprintf
+//#undef vsnprintf
 	ret = vsnprintf( dest, size, fmt, argptr );
-#define vsnprintf	use_idStr_vsnPrintf
+//#define vsnprintf	idStr::vsnPrintf
 #endif
 	dest[size-1] = '\0';
 	if ( ret < 0 || ret >= size ) {

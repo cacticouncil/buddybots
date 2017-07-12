@@ -2977,7 +2977,7 @@ idGameLocal::SpawnEntityType
 idEntity *idGameLocal::SpawnEntityType( const idTypeInfo &classdef, const idDict *args, bool bIsClientReadSnapshot ) {
 	idClass *obj;
 
-#if _DEBUG
+#ifdef _DEBUG
 	if ( isClient ) {
 		assert( bIsClientReadSnapshot );
 	}

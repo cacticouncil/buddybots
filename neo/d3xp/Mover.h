@@ -321,6 +321,8 @@ public:
 	virtual void			ReadFromSnapshot( const idBitMsgDelta &msg );
 
 	void					SetPortalState( bool open );
+	idVec3					GetPosition1();
+	idVec3					GetPosition2();
 
 protected:
 	idVec3					pos1;

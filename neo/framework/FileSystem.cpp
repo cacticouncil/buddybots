@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Unzip.h"
+
 #ifdef WIN32
 	#include <io.h>	// for _read
 #else
@@ -167,8 +169,6 @@ for instance to base a mod of D3 + D3XP assets, fs_game mymod, fs_game_base d3xp
 
 =============================================================================
 */
-
-
 
 // define to fix special-cases for GetPackStatus so that files that shipped in
 // the wrong place for Doom 3 don't break pure servers.
@@ -383,6 +383,9 @@ public:
 	virtual const idDict *	GetMapDecl( int i );
 	virtual void			FindMapScreenshot( const char *path, char *buf, int len );
 	virtual bool			FilenameCompare( const char *s1, const char *s2 ) const;
+
+	virtual idList<idFile_InZip*>* GetFilesInZip(const char* pakFile);
+	virtual void			FreeFilesInList(idList<idFile_InZip*>* deleteMe);
 
 	static void				Dir_f( const idCmdArgs &args );
 	static void				DirTree_f( const idCmdArgs &args );
@@ -3911,4 +3914,47 @@ void idFileSystemLocal::FindMapScreenshot( const char *path, char *buf, int len 
 			idStr::Copynz( buf, "guis/assets/splash/pdtempa", len );
 		}
 	}
+}
+
+idList<idFile_InZip*>* idFileSystemLocal::GetFilesInZip(const char* pakFile) {
+	idList<idFile_InZip*>*	outputFileList = NULL; 
+	pack_t*					loadedPakFile;
+
+	loadedPakFile = LoadZipFile(pakFile);
+	
+	if(!loadedPakFile) {
+		return outputFileList;
+	}
+	
+	outputFileList = new idList<idFile_InZip*>;
+
+	for(int iFile = 0; iFile < loadedPakFile->numfiles; ++iFile) {
+		idFile_InZip* file;
+
+		file = ReadFileFromZip(loadedPakFile,(&loadedPakFile->buildBuffer[iFile]),(&loadedPakFile->buildBuffer[iFile])->name);
+
+		outputFileList->Append(file);
+	}
+
+	delete[] loadedPakFile->buildBuffer;
+
+	unzClose(loadedPakFile->handle);
+
+	delete loadedPakFile;
+	loadedPakFile = nullptr;
+
+	return outputFileList;
+
+}
+
+void idFileSystemLocal::FreeFilesInList(idList<idFile_InZip*>* deleteMe) {
+
+	unsigned int numFiles = (*deleteMe).Num();
+
+	for(unsigned int iFile = 0; iFile < numFiles; ++iFile) {
+		CloseFile(((*deleteMe)[iFile]));
+	}
+
+	delete deleteMe;
+	deleteMe = NULL;
 }

@@ -1,0 +1,8 @@
+mapDef game/mp/Kyle3v3TestingV2 {
+	"name"		"Slim Fit V2"
+	"Deathmatch"		"0"
+	"Team DM"		"0"
+	"Last Man"		"0"
+	"Tourney"		"0"
+	"CTF"		"1"
+}

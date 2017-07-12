@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "gamesys/SysCvar.h"
 #include "script/Script_Thread.h"
 #include "Player.h"
+#include "Confetti_Timer.h"
 
 #include "Mover.h"
 
@@ -2840,7 +2841,7 @@ void idMover_Binary::Use_BinaryMover( idEntity *activator ) {
 	if ( moverState == MOVER_POS1 ) {
 		// FIXME: start moving USERCMD_MSEC later, because if this was player
 		// triggered, gameLocal.time hasn't been advanced yet
-		MatchActivateTeam( MOVER_1TO2, gameLocal.slow.time + USERCMD_MSEC );
+		MatchActivateTeam( MOVER_1TO2, gameLocal.slow.time + ( USERCMD_MSEC * tickRate) );
 
 		SetGuiStates( guiBinaryMoverStates[MOVER_1TO2] );
 		// open areaportal
@@ -3104,6 +3105,24 @@ idMover_Binary::SetPortalState
 void idMover_Binary::SetPortalState( bool open ) {
 	assert( areaPortal );
 	gameLocal.SetPortalState( areaPortal, open ? PS_BLOCK_NONE : PS_BLOCK_ALL );
+}
+
+/*
+================
+idMover_Binary::GetPosition1
+================
+*/
+idVec3 idMover_Binary::GetPosition1() {
+	return pos1;
+}
+
+/*
+================
+idMover_Binary::GetPosition2
+================
+*/
+idVec3 idMover_Binary::GetPosition2() {
+	return pos2;
 }
 
 /*

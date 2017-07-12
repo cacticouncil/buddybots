@@ -1005,7 +1005,13 @@ void idMultiplayerGame::NewState( gameState_t news, idPlayer *player ) {
 				idPlayer *p = static_cast<idPlayer *>( ent );
 				p->SetLeader( false ); // don't carry the flag from previous games
 				if ( gameLocal.gameType == GAME_TOURNEY && currentTourneyPlayer[ 0 ] != i && currentTourneyPlayer[ 1 ] != i ) {
-					p->ServerSpectate( true );
+					if (i == 0) {
+						static_cast< idPlayer *>(ent)->forcedReady = false;
+						static_cast<idPlayer *>(ent)->ServerSpectate(true);
+					}
+					else {
+						p->ServerSpectate( true );
+					}
 					p->tourneyRank++;
 				} else {
 					int fragLimit = gameLocal.serverInfo.GetInt( "si_fragLimit" );

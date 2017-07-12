@@ -196,6 +196,9 @@ public:
 	virtual bool				DownloadRequest( const char *IP, const char *guid, const char *paks, char urls[ MAX_STRING_CHARS ] ) = 0;
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] ) = 0;
+
+	virtual void				GetBotInput( int clientNum,usercmd_t& userCmd ) = 0;
+
 };
 
 extern idGame *					game;
@@ -352,6 +355,24 @@ typedef struct {
 	idGameEdit *				gameEdit;				// interface for in-game editing
 
 } gameExport_t;
+
+struct botImport_t {
+	int							version;				// API version
+	idSys *						sys;					// non-portable system services
+	idCommon *					common;					// common
+	idCmdSystem *				cmdSystem;				// console command system
+	idCVarSystem *				cvarSystem;				// console variable system
+	idFileSystem *				fileSystem;				// file system
+	idNetworkSystem *			networkSystem;			// network system
+	idRenderSystem *			renderSystem;			// render system
+	idSoundSystem *				soundSystem;			// sound system
+	idRenderModelManager *		renderModelManager;		// render model manager
+	idUserInterfaceManager *	uiManager;				// user interface manager
+	idDeclManager *				declManager;			// declaration manager
+	idAASFileManager *			AASFileManager;			// AAS file manager
+	idCollisionModelManager *	collisionModelManager;	// collision model manager
+	idGame*						game;
+};
 
 extern "C" {
 typedef gameExport_t * (*GetGameAPI_t)( gameImport_t *import );

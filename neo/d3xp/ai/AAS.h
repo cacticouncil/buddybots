@@ -39,11 +39,12 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-enum {
+enum pathType_t {
 	PATHTYPE_WALK,
 	PATHTYPE_WALKOFFLEDGE,
 	PATHTYPE_BARRIERJUMP,
-	PATHTYPE_JUMP
+	PATHTYPE_JUMP,
+	PATHTYPE_ELEVATOR
 };
 
 typedef struct aasPath_s {

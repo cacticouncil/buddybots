@@ -357,6 +357,7 @@ public:
 
 	idVec3			Cross( const idVec3 &a ) const;
 	idVec3 &		Cross( const idVec3 &a, const idVec3 &b );
+
 	float			Length( void ) const;
 	float			LengthSqr( void ) const;
 	float			LengthFast( void ) const;
@@ -393,6 +394,7 @@ public:
 
 extern idVec3 vec3_origin;
 #define vec3_zero vec3_origin
+
 
 ID_INLINE idVec3::idVec3( void ) {
 }

@@ -1,0 +1,8 @@
+mapDef game/mp/Kyle1v1Testing {
+	"name"		"Arena 207"
+	"Deathmatch"		"0"
+	"Team DM"		"0"
+	"Last Man"		"0"
+	"Tourney"		"0"
+	"CTF"		"1"
+}

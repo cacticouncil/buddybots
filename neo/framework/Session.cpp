@@ -454,6 +454,17 @@ void idSessionLocal::Shutdown() {
 		guiMainMenu_MapList = NULL;
 	}
 
+	if (guiMainMenu_BotList != NULL) {
+		guiMainMenu_BotList->Shutdown();
+		uiManager->FreeListGUI(guiMainMenu_BotList);
+		guiMainMenu_BotList = NULL;
+	}
+
+	if (guiMainMenu_QueuedBotList != NULL) {
+		guiMainMenu_QueuedBotList->Shutdown();
+		uiManager->FreeListGUI(guiMainMenu_QueuedBotList);
+		guiMainMenu_QueuedBotList = NULL;
+	}
 	Clear();
 }
 
@@ -2885,6 +2896,11 @@ void idSessionLocal::Init() {
 	guiMainMenu = uiManager->FindGui( "guis/mainmenu.gui", true, false, true );
 	guiMainMenu_MapList = uiManager->AllocListGUI();
 	guiMainMenu_MapList->Config( guiMainMenu, "mapList" );
+	guiMainMenu_BotList = uiManager->AllocListGUI();
+	guiMainMenu_BotList->Config(guiMainMenu, "botList");
+	guiFileRead = "loadedbots.txt";
+	guiMainMenu_QueuedBotList = uiManager->AllocListGUI();
+	guiMainMenu_QueuedBotList->Config(guiMainMenu, "queuedBotList");
 	idAsyncNetwork::client.serverList.GUIConfig( guiMainMenu, "serverList" );
 	guiRestartMenu = uiManager->FindGui( "guis/restart.gui", true, false, true );
 	guiGameOver = uiManager->FindGui( "guis/gameover.gui", true, false, true );
