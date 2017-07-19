@@ -252,7 +252,7 @@ void idMultiplayerGame::SpawnPlayer(int clientNum) {
 		idPlayer *p = static_cast<idPlayer *>(gameLocal.entities[clientNum]);
 		p->spawnedTime = gameLocal.time;
 
-		if (IsGametypeTeamBased()) {  /* CTF */
+		if (IsGametypeTeamBased()) {  // CTF
 			SwitchToTeam(clientNum, -1, p->team);
 		}
 		p->tourneyRank = 0;
@@ -473,7 +473,7 @@ void idMultiplayerGame::UpdatePlayerRanks() {
 		for (j = 0; j < numRankedPlayers; j++) {
 			bool insert = false;
 
-			if (IsGametypeTeamBased()) { /* CTF */
+			if (IsGametypeTeamBased()) { // CTF
 				if (player->team != players[j]->team) {
 					if (playerState[i].teamFragCount > playerState[players[j]->entityNumber].teamFragCount) {
 						// team scores
@@ -546,7 +546,7 @@ void idMultiplayerGame::UpdateScoreboard(idUserInterface *scoreBoard, idPlayer *
 			// ranked player
 			iline++;
 			scoreBoard->SetStateString(va("player%i", iline), rankedPlayers[i]->GetUserInfo()->GetString("ui_name"));
-			if (IsGametypeTeamBased()) { /* CTF */
+			if (IsGametypeTeamBased()) { // CTF
 				value = idMath::ClampInt(MP_PLAYER_MINFRAGS, MP_PLAYER_MAXFRAGS, playerState[rankedPlayers[i]->entityNumber].fragCount);
 				scoreBoard->SetStateInt(va("player%i_tdm_score", iline), value);
 				value = idMath::ClampInt(MP_PLAYER_MINFRAGS, MP_PLAYER_MAXFRAGS, playerState[rankedPlayers[i]->entityNumber].teamFragCount);
@@ -994,7 +994,7 @@ idMultiplayerGame::EnoughClientsToPlay
 bool idMultiplayerGame::EnoughClientsToPlay() {
 	int team[2];
 	int clients = NumActualClients(false, &team[0]);
-	if (IsGametypeTeamBased()) { /* CTF */
+	if (IsGametypeTeamBased()) { // CTF
 		return clients >= 2 && team[0] && team[1];
 	}
 	else {
@@ -1017,7 +1017,7 @@ bool idMultiplayerGame::AllPlayersReady() {
 		return false;
 	}
 
-	if (IsGametypeTeamBased()) { /* CTF */
+	if (IsGametypeTeamBased()) { // CTF
 		if (!team[0] || !team[1]) {
 			return false;
 		}
@@ -1058,7 +1058,7 @@ idPlayer *idMultiplayerGame::FragLimitHit() {
 	idPlayer *leader;
 
 #ifdef CTF
-	if (IsGametypeFlagBased()) /* CTF */
+	if (IsGametypeFlagBased()) // CTF
 		return NULL;
 #endif
 
@@ -1092,7 +1092,7 @@ idPlayer *idMultiplayerGame::FragLimitHit() {
 		// there is a leader, his score may even be negative, but no one else has frags left or is !lastManOver
 		return leader;
 	}
-	else if (IsGametypeTeamBased()) { /* CTF */
+	else if (IsGametypeTeamBased()) { // CTF
 		if (playerState[leader->entityNumber].teamFragCount >= fragLimit) {
 			return leader;
 		}
@@ -1210,7 +1210,7 @@ idPlayer *idMultiplayerGame::FragLeader(void) {
 			continue;
 		}
 
-		int fragc = (IsGametypeTeamBased()) ? playerState[i].teamFragCount : playerState[i].fragCount; /* CTF */
+		int fragc = (IsGametypeTeamBased()) ? playerState[i].teamFragCount : playerState[i].fragCount; // CTF
 		if (fragc > high) {
 			high = fragc;
 		}
@@ -1243,13 +1243,13 @@ idPlayer *idMultiplayerGame::FragLeader(void) {
 			leader = p;
 			count++;
 			p->SetLeader(true);
-			if (IsGametypeTeamBased()) { /* CTF */
+			if (IsGametypeTeamBased()) { // CTF
 				teamLead[p->team] = true;
 			}
 		}
 	}
 
-	if (!IsGametypeTeamBased()) { /* CTF */
+	if (!IsGametypeTeamBased()) { // CTF
 		// more than one player at the highest frags
 		if (count > 1) {
 			return NULL;
@@ -1281,7 +1281,7 @@ void idMultiplayerGame::UpdateWinsLosses(idPlayer *winner) {
 				continue;
 			}
 			idPlayer *player = static_cast<idPlayer *>(ent);
-			if (IsGametypeTeamBased()) { /* CTF */
+			if (IsGametypeTeamBased()) { // CTF
 				if (player == winner || (player != winner && player->team == winner->team)) {
 					playerState[i].wins++;
 					PlayGlobalSound(player->entityNumber, SND_YOUWIN);
@@ -1320,7 +1320,7 @@ void idMultiplayerGame::UpdateWinsLosses(idPlayer *winner) {
 		}
 	}
 #ifdef CTF
-	else if (IsGametypeFlagBased()) { /* CTF */
+	else if (IsGametypeFlagBased()) { // CTF
 		int winteam = WinningTeam();
 		AddToTotalTeamPoints(winteam);
 		if (winteam != -1)	// TODO : print a message telling it why the hell the game ended with no winning team?
@@ -1465,7 +1465,7 @@ void idMultiplayerGame::PlayerDeath(idPlayer *dead, idPlayer *killer, bool telef
 				playerState[dead->entityNumber].fragCount--;
 
 			}
-			else if (IsGametypeTeamBased()) { /* CTF */
+			else if (IsGametypeTeamBased()) { // CTF
 				if (killer == dead || killer->team == dead->team) {
 					// suicide or teamkill
 					TeamScore(killer->entityNumber, killer->team, -1);
@@ -1496,7 +1496,7 @@ void idMultiplayerGame::PlayerDeath(idPlayer *dead, idPlayer *killer, bool telef
 		if (telefrag) {
 			PrintMessageEvent(-1, MSG_TELEFRAGGED, dead->entityNumber, killer->entityNumber);
 		}
-		else if (IsGametypeTeamBased() && dead->team == killer->team) { /* CTF */
+		else if (IsGametypeTeamBased() && dead->team == killer->team) { // CTF
 			PrintMessageEvent(-1, MSG_KILLEDTEAM, dead->entityNumber, killer->entityNumber);
 		}
 		else {
@@ -2157,7 +2157,7 @@ void idMultiplayerGame::Run() {
 	}
 	case GAMEON: {
 #ifdef CTF
-		if (IsGametypeFlagBased()) { /* CTF */
+		if (IsGametypeFlagBased()) { // CTF
 			// totally different logic branch for CTF
 			if (PointLimitHit()) {
 				int team = WinningTeam();
@@ -2216,7 +2216,7 @@ void idMultiplayerGame::Run() {
 	}
 	case SUDDENDEATH: {
 #ifdef CTF
-		if (IsGametypeFlagBased()) { /* CTF */
+		if (IsGametypeFlagBased()) { // CTF
 			int team = WinningTeam();
 			if (team != -1) {
 				// TODO : implement pointLimitTimeout
@@ -2265,8 +2265,8 @@ void idMultiplayerGame::UpdateMainGui(void) {
 		strReady = common->GetLanguageDict()->GetString("#str_04247");
 	}
 	mainGui->SetStateString("ui_ready", strReady);
-	mainGui->SetStateInt("teamon", IsGametypeTeamBased() ? 1 : 0); /* CTF */
-	mainGui->SetStateInt("teamoff", (!IsGametypeTeamBased()) ? 1 : 0); /* CTF */
+	mainGui->SetStateInt("teamon", IsGametypeTeamBased() ? 1 : 0); // CTF
+	mainGui->SetStateInt("teamoff", (!IsGametypeTeamBased()) ? 1 : 0); // CTF
 	if (IsGametypeTeamBased()) {
 		idPlayer *p = gameLocal.GetClientByNum(gameLocal.localClientNum);
 		if (p) {
@@ -2854,7 +2854,7 @@ void idMultiplayerGame::UpdateHud(idPlayer *player, idUserInterface *hud) {
 	hud->SetStateInt("rank_self", 0);
 	if (gameState == GAMEON) {
 		for (i = 0; i < numRankedPlayers; i++) {
-			if (IsGametypeTeamBased()) { /* CTF */
+			if (IsGametypeTeamBased()) { // CTF
 				hud->SetStateInt(va("player%i_score", i + 1), playerState[rankedPlayers[i]->entityNumber].teamFragCount);
 			}
 			else {
@@ -3188,7 +3188,7 @@ void idMultiplayerGame::PrintMessageEvent(int to, msg_evt_t evt, int parm1, int 
 		if (gameLocal.gameType == GAME_LASTMAN) {
 			AddChatLine(common->GetLanguageDict()->GetString("#str_04283"), gameLocal.userInfo[parm1].GetString("ui_name"));
 		}
-		else if (IsGametypeTeamBased()) { /* CTF */
+		else if (IsGametypeTeamBased()) { // CTF
 			AddChatLine(common->GetLanguageDict()->GetString("#str_04282"), gameLocal.userInfo[parm1].GetString("ui_team"));
 		}
 		else {
@@ -3334,7 +3334,7 @@ void idMultiplayerGame::CheckRespawns(idPlayer *spectator) {
 				// sudden death may trigger while a player is dead, so there are still cases where we need to respawn
 				// don't do any respawns while we are in end game delay though
 				if (!fragLimitTimeout) {
-					if (IsGametypeTeamBased() || p->IsLeader()) {                     /* CTF */
+					if (IsGametypeTeamBased() || p->IsLeader()) {                     // CTF
 #ifdef _DEBUG
 						if (gameLocal.gameType == GAME_TOURNEY) {
 							assert(p->entityNumber == currentTourneyPlayer[0] || p->entityNumber == currentTourneyPlayer[1]);
@@ -4007,7 +4007,7 @@ void idMultiplayerGame::SwitchToTeam(int clientNum, int oldteam, int newteam) {
 	idEntity *ent;
 	int i;
 
-	assert(IsGametypeTeamBased()); /* CTF */
+	assert(IsGametypeTeamBased()); // CTF
 	assert(oldteam != newteam);
 	assert(!gameLocal.isClient);
 
@@ -4529,7 +4529,7 @@ void idMultiplayerGame::ClientReadWarmupTime(const idBitMsg &msg) {
 idMultiplayerGame::IsGametypeTeamBased
 ================
 */
-bool idMultiplayerGame::IsGametypeTeamBased(void) /* CTF */
+bool idMultiplayerGame::IsGametypeTeamBased(void) // CTF
 {
 	switch (gameLocal.gameType)
 	{
@@ -4588,7 +4588,7 @@ idMultiplayerGame::GetTeamFlag
 idItemTeam * idMultiplayerGame::GetTeamFlag(int team) {
 	assert(team == 0 || team == 1);
 
-	if (!IsGametypeFlagBased() || (team != 0 && team != 1)) /* CTF */
+	if (!IsGametypeFlagBased() || (team != 0 && team != 1)) // CTF
 		return NULL;
 
 	// TODO : just call on map start

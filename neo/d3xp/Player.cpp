@@ -63,27 +63,22 @@ const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range 
 //	return shared_ptr<idPlayer>(new idPlayer(), &noOpDelete);
 //}
 
-// Workaround for problem in VS14
-namespace boost
+namespace player
 {
-	template <>
-	idPlayer const volatile * get_pointer<class idPlayer const volatile >(
-		class idPlayer const volatile *wrapped)
-	{
-		return wrapped;
+	PYBIND11_PLUGIN(idPlayer) {
+		py::module m("idPlayer", "description");
+
+		py::module::import("idActor");
+		py::class_<idPlayer, idActor>(m, "idPlayer")
+			.def("GetEyePosition", &idPlayer::GetEyePosition)
+			.def("GetPosition", &idPlayer::GetPosition)
+			.def("GetHealth", &idPlayer::GetHealth)
+			.def("GetTeam", &idPlayer::GetTeam)
+			.def_readonly("carryingFlag", &idPlayer::carryingFlag)
+			;
+
+		return m.ptr();
 	}
-}
-
-BOOST_PYTHON_MODULE(idPlayer) {
-	import("idActor");
-	class_<idPlayer,bases<idActor>,shared_ptr<idPlayer>>("idPlayer")
-		.def("GetEyePosition", &idPlayer::GetEyePosition)
-		.def("GetPosition", &idPlayer::GetPosition)
-		.def("GetHealth", &idPlayer::GetHealth)
-		.def("GetTeam", &idPlayer::GetTeam)
-		.def_readonly("carryingFlag",&idPlayer::carryingFlag)
-		;
-
 }
 
 // distance between ladder rungs (actually is half that distance, but this sounds better)

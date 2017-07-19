@@ -33,7 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "tools/compilers/compiler_public.h"
 
 #ifdef WIN32
+#define NOMINMAX
 #include <windows.h>
+#undef NOMINMAX
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "sys/win32/win_local.h"

@@ -9,8 +9,6 @@ Description: Defines the basic interface that bot brains should follow.
 #define BOTBRAIN_H_
 
 #include "Entity.h"
-#include <boost/python/wrapper.hpp>
-using namespace boost::python;
 
 class afiBotPlayer;
 class idAAS;
@@ -87,33 +85,36 @@ public:
 	// navigation
 	idAAS *						aas;
 	int							travelFlags;
-	object						scriptBody;
+	py::object						scriptBody;
 	//This will be the same spawn dict as the body
 	//so the student can fill the one entityDef and
 	//have access to those pairs in the brain.
-	dict						botDict;
+	py::dict						botDict;
 
 	aiInput_t					bodyInput;
 
 private:
 };
 
-class afiBotBrainWrapper : public afiBotBrain,public wrapper<afiBotBrain> {
+class pyAfiBotBrain : public afiBotBrain {
 public:
+	aiInput_t Think(int deltaTimeMS) override { PYBIND11_OVERLOAD_PURE(aiInput_t, afiBotBrain, Think, deltaTimeMS); }
+	void Spawn() override { PYBIND11_OVERLOAD_PURE(void, afiBotBrain, Spawn); }
+	void Restart() override { PYBIND11_OVERLOAD_PURE(void, afiBotBrain, Restart); }
 
-	virtual aiInput_t Think(int deltaTimeMS);
+	void OnPain(idEntity* inflictor, idEntity* attacker, const idVec3& dir, int damage) override
+		{ PYBIND11_OVERLOAD_PURE(void, afiBotBrain, OnPain, inflictor, attacker, dir, damage); }
 
-	virtual void Spawn();
+	void OnKill(idEntity* inflictor, idEntity* attacker, const idVec3& dir, int damage) override
+		{ PYBIND11_OVERLOAD_PURE(void, afiBotBrain, OnKill, inflictor, attacker, dir, damage); }
 
-	virtual void Restart();
+	void OnDeath(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage) override
+		{ PYBIND11_OVERLOAD_PURE(void, afiBotBrain, OnKill, dead, killer, dir, damage); }
 
-	virtual void OnPain(idEntity* inflictor, idEntity* attacker,const idVec3& dir, int damage);
-	virtual void OnDisconnect(int clientNum);
-	virtual void OnKill(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage);
-	virtual void OnDeath(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage);
-	virtual void OnHit(idPlayer* target, const idVec3& dir, int damage);
-	virtual void OnRespawn();
+	void OnHit(idPlayer* target, const idVec3& dir, int damage) override
+		{ PYBIND11_OVERLOAD_PURE(void, afiBotBrain, OnHit, target, dir, damage); }
 
-
+	void OnDisconnect(int clientNum) override { PYBIND11_OVERLOAD_PURE(void, afiBotBrain, OnDisconnect, clientNum); }
+	void OnRespawn() override { PYBIND11_OVERLOAD_PURE(void, afiBotBrain, OnRespawn); }
 };
 #endif

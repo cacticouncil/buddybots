@@ -15,6 +15,24 @@ dispatch to bots.
 #include "framework/FileSystem.h"
 #include "framework/Game.h"
 #include "framework/async/NetworkSystem.h"
+#include "pybind11/eval.h"
+
+//extern python module init functions - maybe not needed in latest version?
+namespace botPlayer { extern PyObject* pybind11_init(); }
+namespace botBrain { extern PyObject* pybind11_init(); }
+namespace dictionary { extern PyObject* pybind11_init(); }
+namespace entity { extern PyObject* pybind11_init(); }
+namespace vec2 { extern PyObject* pybind11_init(); }
+namespace vec3 { extern PyObject* pybind11_init(); }
+namespace vec3 { extern PyObject* pybind11_init(); }
+namespace angles { extern PyObject* pybind11_init(); }
+namespace player { extern PyObject* pybind11_init(); }
+namespace bounds { extern PyObject* pybind11_init(); }
+namespace rotation { extern PyObject* pybind11_init(); }
+namespace aas { extern PyObject* pybind11_init(); }
+namespace actor { extern PyObject* pybind11_init(); }
+
+
 
 #define						THINK_SLICE 1.0
 
@@ -47,56 +65,31 @@ PyInterpreterState*			afiBotManager::interpreterState = nullptr;
 PyThreadState*				afiBotManager::mainThreadState = nullptr;
 threadMap_t					afiBotManager::workerThreadMap;
 
-//extern python module init functions
-//BOOST_PYTHON_MODULE Creates these
-//the names are different depending on python version
-// Python 3 >= PyObject* PyInit_moduleName();
-//Python 3 < void(*initfunc)(void) initModuleName();
-extern "C" void initafiBotPlayer();
-extern "C" void initafiBotBrain();
-extern "C" void initidDict();
-extern "C" void initidEntity();
-extern "C" void initidVec2();
-extern "C" void initidVec3();
-extern "C" void initidAngles();
-extern "C" void initidPlayer();
-//TODO BUDDY_BOTS: Add new modules to system table upon startup
-extern "C" void initidBounds();
-extern "C" void initidRotation();
-extern "C" void initidAAS();
-extern "C" void initidActor();
-
-// Workaround for problem in VS14
-namespace boost
+namespace botManager
 {
-	template <>
-	afiBotManager const volatile * get_pointer<class afiBotManager const volatile >(
-		class afiBotManager const volatile *wrapped)
-	{
-		return wrapped;
+	PYBIND11_PLUGIN(afiBotManager) {
+		py::module m("afiBotManager", "description");
+		py::module::import("idPlayer");
+
+		py::enum_<flagStatus_t>(m, "flagStatus_t")
+			.value("FLAGSTATUS_INBASE", FLAGSTATUS_INBASE)
+			.value("FLAGSTATUS_TAKEN", FLAGSTATUS_TAKEN)
+			.value("FLAGSTATUS_STRAY", FLAGSTATUS_STRAY)
+			;
+
+		py::class_<afiBotManager>(m, "afiBotManager")
+			.def("GetFlag", &afiBotManager::GetFlag, py::return_value_policy::reference_internal)
+			.def("GetFlagStatus", &afiBotManager::GetFlagStatus)
+			.def("GetFlagCarrier", &afiBotManager::GetFlagCarrier, py::return_value_policy::reference_internal)
+			.def("GetWinningTeam", &afiBotManager::GetWinningTeam)
+			.def("ConsolePrint", &afiBotManager::ConsolePrint)
+			.def_static("GetFlag", &afiBotManager::GetFlag)
+			.def_static("GetFlagStatus", &afiBotManager::GetFlagStatus)
+			.def_static("ConsolePrint", &afiBotManager::ConsolePrint)
+			;
+
+		return m.ptr();
 	}
-}
-
-
-BOOST_PYTHON_MODULE(afiBotManager) {
-	import("idPlayer");
-
-	enum_<flagStatus_t>("flagStatus_t")
-		.value("FLAGSTATUS_INBASE", FLAGSTATUS_INBASE)
-		.value("FLAGSTATUS_TAKEN", FLAGSTATUS_TAKEN)
-		.value("FLAGSTATUS_STRAY", FLAGSTATUS_STRAY)
-		;
-
-	class_<afiBotManager>("afiBotManager")
-		.def("GetFlag", &afiBotManager::GetFlag, return_internal_reference<>())
-		.def("GetFlagStatus", &afiBotManager::GetFlagStatus)
-		.def("GetFlagCarrier", &afiBotManager::GetFlagCarrier, return_internal_reference<>())
-		.def("GetWinningTeam", &afiBotManager::GetWinningTeam)
-		.def("ConsolePrint", &afiBotManager::ConsolePrint)
-		.staticmethod("GetFlag")
-		.staticmethod("GetFlagStatus")
-		.staticmethod("ConsolePrint")
-		;
 }
 
 void afiBotManager::PrintInfo(void) {
@@ -125,7 +118,7 @@ void afiBotManager::Cmd_ReloadAllBots_f(const idCmdArgs & args) {
 
 			botPlayer->thinkFlags &= (~TH_THINK);
 
-			dict oldDict = oldBrain->botDict;
+			py::dict oldDict = oldBrain->botDict;
 
 			botInfo_t* botProfile = FindBotProfileByIndex(botPlayer->clientNum);
 			botInfo_t* newBotProfile = nullptr;
@@ -336,11 +329,11 @@ void afiBotManager::RestoreMainThreadState() {
 }
 
 void afiBotManager::InitializePython() {
-	int result = PyImport_AppendInittab("idAngles", initidAngles);
+/*	int result = PyImport_AppendInittab("idAngles", angles::pybind11_init);
 	if (result == -1) {
 		gameLocal.Error("Failed to Init idAngles Module");
 	}
-	if (PyImport_AppendInittab("idVec2", initidVec2) == -1) {
+	if (PyImport_AppendInittab("idVec2", vec2::pybind11_init()) == -1) {
 		gameLocal.Error("Failed to Init idVec2 Module");
 	}
 	if (PyImport_AppendInittab("idVec3", initidVec3) == -1) {
@@ -384,7 +377,7 @@ void afiBotManager::InitializePython() {
 
 	if (PyImport_AppendInittab("idPlayer", initidPlayer) == -1) {
 		gameLocal.Error("Failed to Init idPlayer Module");
-	}
+	}*/
 
 	//Initialize Python
 	Py_Initialize();
@@ -394,11 +387,11 @@ void afiBotManager::InitializePython() {
 	mainThreadState = PyThreadState_Get();
 	interpreterState = mainThreadState->interp;
 	//Grab the main module and globalNamespace
-	gameLocal.main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+	gameLocal.main = py::object(py::reinterpret_borrow<py::object>(py::handle(PyImport_AddModule("__main__"))));
 
 	gameLocal.globalNamespace = gameLocal.main.attr("__dict__");
 
-	gameLocal.globalNamespace["sys"] = import("sys");
+	gameLocal.globalNamespace["sys"] = py::module::import("sys");
 }
 
 void afiBotManager::Initialize(void) {
@@ -735,7 +728,7 @@ bool afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
 	//Write the script files into their own folder for the bot, so we don't overwrite previously loaded dlls.
 	idStr sysPath = "";
 	idStr fullPath = "";
-	object botMainDef;
+	py::object botMainDef;
 	if (outputBotProfile->botType == BotType::SCRIPT) {
 		//load all the script files that might run this bot into the bot's folder
 		for (int iFile = 0; iFile < ((*filesInZip)).Num(); ++iFile) {
@@ -775,12 +768,12 @@ bool afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
 			try {
 				//This code appends the loaded bot directory to they python system path
 				//so we can separate work into other python script files.
-				object sys = gameLocal.globalNamespace["sys"];
+				py::object sys = gameLocal.globalNamespace["sys"];
 				sys.attr("path").attr("insert")(0, sysPath.c_str());
 				gameLocal.globalNamespace["sys"] = sys;
 
-				str  script(const_cast<const char*>(mainScriptBuffer));
-				botMainDef = exec(script, gameLocal.globalNamespace, gameLocal.globalNamespace);
+				py::str script(const_cast<const char*>(mainScriptBuffer));
+				botMainDef = eval(script, gameLocal.globalNamespace, gameLocal.globalNamespace);
 
 
 			}
@@ -1298,7 +1291,7 @@ void afiBotManager::Cmd_ReloadBot_f(const idCmdArgs& args) {
 		botPlayer->thinkFlags &= (~TH_THINK);
 
 		afiBotBrain* oldBrain = botPlayer->GetBrain();
-		dict oldDict = oldBrain->botDict;
+		py::dict oldDict = oldBrain->botDict;
 
 		botInfo_t* botProfile = FindBotProfileByIndex(botPlayer->clientNum);
 		botInfo_t* newBotProfile = nullptr;
@@ -1588,16 +1581,17 @@ void afiBotManager::SpawnBot(int clientNum) {
 		if (botProfile->botType == SCRIPT) {
 			brain = SpawnBrain(botName, clientNum);
 
-			object botPlayerClass = gameLocal.globalNamespace["afiBotPlayer"];
+			py::object botPlayerClass = gameLocal.globalNamespace["afiBotPlayer"];
 			brain->scriptBody = botPlayerClass();
-			playerBody = extract<afiBotPlayer*>(ptr(brain->scriptBody));
+			playerBody = (brain->scriptBody).cast<afiBotPlayer*>();
+//			playerBody = extract<afiBotPlayer*>(ptr(brain->scriptBody));
 
 			if (clientNum >= gameLocal.numClients) {
 				gameLocal.numClients = clientNum + 1;
 			}
 
 			//Create a boost python dictionary
-			brain->botDict = dict();
+			brain->botDict = py::dict();
 
 			//Copy from our dictonary to python dictonary
 			//Since idDictonaries contain just string representations
@@ -1670,6 +1664,7 @@ void afiBotManager::SpawnBot(int clientNum) {
 
 template<typename T>
 void afiBotManager::SetDictionaryValue(T key, afiBotBrain* brain, idStr valStr) {
+	py::object keyObject = py::cast(key);
 	int valInt = -INT_MAX;
 	float valFloat = std::numeric_limits<float>::quiet_NaN();
 	if (valStr.IsNumeric()) {
@@ -1679,15 +1674,18 @@ void afiBotManager::SetDictionaryValue(T key, afiBotBrain* brain, idStr valStr) 
 		valInt = atoi(valStr.c_str());
 	}
 	if (valInt != -INT_MAX) {
-		brain->botDict[key] = valInt;
+		brain->botDict[keyObject] = valInt;
+//		brain->botDict[key] = valInt;
 		return;
 	}
 	else if (!_isnan(valFloat)) {
-		brain->botDict[key] = valFloat;
+		brain->botDict[keyObject] = valFloat;
+//		brain->botDict[key] = valFloat;
 		return;
 	}
 
-	brain->botDict[key] = valStr.c_str();
+	brain->botDict[keyObject] = valStr.c_str();
+//	brain->botDict[key] = valStr.c_str();
 
 }
 
@@ -1701,7 +1699,8 @@ afiBotBrain* afiBotManager::SpawnBrain(idStr botName, int clientNum) {
 		if (0 == botName.Cmp(loadedBotProfile->botName.c_str())) {
 			try {
 				loadedBotProfile->scriptInstances[clientNum] = loadedBotProfile->botClassInstance();
-				returnBrain = extract<afiBotBrain*>(loadedBotProfile->scriptInstances[clientNum].ptr());
+				returnBrain = (loadedBotProfile->scriptInstances[clientNum]).cast<afiBotBrain*>();
+//				returnBrain = extract<afiBotBrain*>(loadedBotProfile->scriptInstances[clientNum].ptr());
 			}
 			catch (...) {
 				gameLocal.HandlePythonError();

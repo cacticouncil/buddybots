@@ -37,13 +37,19 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Actor.h"
 
-BOOST_PYTHON_MODULE(idActor) {
-	import("idEntity");
-	class_<idActor,bases<idEntity>>("idActor")
-		.def("CanSee", &idActor::CanSee)
-		.def("PointVisible", &idActor::PointVisible)
-		;
+namespace actor
+{
+	PYBIND11_PLUGIN(idActor) {
+		py::module m("idActor", "description");
 
+		py::module::import("idEntity");
+		py::class_<idActor, idEntity>(m, "idActor")
+			.def("CanSee", &idActor::CanSee)
+			.def("PointVisible", &idActor::PointVisible)
+			;
+
+		return m.ptr();
+	}
 }
 
 /***********************************************************************

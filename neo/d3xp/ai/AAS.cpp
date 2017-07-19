@@ -33,52 +33,63 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai/AAS_local.h"
 #include "../bot/BotAASBuild.h"
 
-BOOST_PYTHON_MODULE(idAAS) {
+/*PYBIND11_PLUGIN(idActor) {
+	py::module m("idActor", "description");
 
-	enum_<pathType_t>("pathType_t")
-		.value("PATHTYPE_WALK", PATHTYPE_WALK)
-		.value("PATHTYPE_WALKOFFLEDGE", PATHTYPE_WALKOFFLEDGE)
-		.value("PATHTYPE_BARRIERJUMP", PATHTYPE_BARRIERJUMP)
-		.value("PATHTYPE_JUMP", PATHTYPE_JUMP)
-		.value("PATHTYPE_ELEVATOR", PATHTYPE_ELEVATOR)
-		;
-
-	class_<aasGoal_t>("aasGoal_t")
-		.def_readwrite("areaNum", &aasGoal_t::areaNum)
-		.def_readwrite("origin", &aasGoal_t::origin)
-		;
-
-	class_<aasObstacle_t>("aasObstacle_t")
-		.def_readwrite("absBounds", &aasObstacle_t::absBounds)
-		.def_readwrite("expAbsBounds", &aasObstacle_t::expAbsBounds)
-		;
-
-	class_<aasPath_t>("aasPath_t")
-		.def_readwrite("type", &aasPath_t::type)
-		.def_readwrite("moveGoal", &aasPath_t::moveGoal)
-		.def_readwrite("moveAreaNum", &aasPath_t::moveAreaNum)
-		.def_readwrite("secondaryGoal", &aasPath_t::secondaryGoal)
-		;
+	py::module::import("idEntity");
+	py::class_<idActor, idEntity>(m, "idActor")*/
 
 
+namespace aas
+{
+	PYBIND11_PLUGIN(idAAS) {
+		py::module m("idAAS", "description");
 
-	class_<idAASLocal>("idAAS")
-		.def("PointAreaNum", &idAASLocal::PointAreaNum)
-		.def("PointReachableAreaNum", &idAASLocal::PointReachableAreaNum)
-		.def("AreaCenter", &idAASLocal::AreaCenter)
-		.def("AreaFlags", &idAASLocal::AreaFlags)
-		.def("AreaTravelFlags", &idAASLocal::AreaTravelFlags)
-		.def("AddObstacle",&idAASLocal::AddObstacle)
-		.def("RemoveObstacle",&idAASLocal::RemoveObstacle)
-		.def("RemoveAllObstacles",&idAASLocal::RemoveAllObstacles)
-		//Other possible additions:
-		//TravelTimeToGoalArea
-		//Trace
-		//BoundsReachableAreaNum
-		;
+		py::enum_<pathType_t>(m, "pathType_t")
+			.value("PATHTYPE_WALK", PATHTYPE_WALK)
+			.value("PATHTYPE_WALKOFFLEDGE", PATHTYPE_WALKOFFLEDGE)
+			.value("PATHTYPE_BARRIERJUMP", PATHTYPE_BARRIERJUMP)
+			.value("PATHTYPE_JUMP", PATHTYPE_JUMP)
+			.value("PATHTYPE_ELEVATOR", PATHTYPE_ELEVATOR)
+			;
+
+		py::class_<aasGoal_t>(m, "aasGoal_t")
+			.def_readwrite("areaNum", &aasGoal_t::areaNum)
+			.def_readwrite("origin", &aasGoal_t::origin)
+			;
+
+		py::class_<aasObstacle_t>(m, "aasObstacle_t")
+			.def_readwrite("absBounds", &aasObstacle_t::absBounds)
+			.def_readwrite("expAbsBounds", &aasObstacle_t::expAbsBounds)
+			;
+
+		py::class_<aasPath_t>(m, "aasPath_t")
+			.def_readwrite("type", &aasPath_t::type)
+			.def_readwrite("moveGoal", &aasPath_t::moveGoal)
+			.def_readwrite("moveAreaNum", &aasPath_t::moveAreaNum)
+			.def_readwrite("secondaryGoal", &aasPath_t::secondaryGoal)
+			;
 
 
 
+		py::class_<idAASLocal>(m, "idAAS")
+			.def("PointAreaNum", &idAASLocal::PointAreaNum)
+			.def("PointReachableAreaNum", &idAASLocal::PointReachableAreaNum)
+			.def("AreaCenter", &idAASLocal::AreaCenter)
+			.def("AreaFlags", &idAASLocal::AreaFlags)
+			.def("AreaTravelFlags", &idAASLocal::AreaTravelFlags)
+			.def("AddObstacle",&idAASLocal::AddObstacle)
+			.def("RemoveObstacle",&idAASLocal::RemoveObstacle)
+			.def("RemoveAllObstacles",&idAASLocal::RemoveAllObstacles)
+			//Other possible additions:
+			//TravelTimeToGoalArea
+			//Trace
+			//BoundsReachableAreaNum
+			;
+
+
+		return m.ptr();
+	}
 }
 
 /*

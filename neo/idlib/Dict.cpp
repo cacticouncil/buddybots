@@ -72,19 +72,25 @@ idAngles		idDict::GetAnglesWrap( const char *key) const {
 	return GetAngles(key);
 }
 
-BOOST_PYTHON_MODULE(idDict) {
-	import("idVec3");
-	import("idVec2");
-	import("idAngles");
-	
-	class_<idDict>("idDict")
-		.def("Set",&idDict::Set)
-		.def("SetFloat",&idDict::SetFloat)
-		.def("SetInt",&idDict::SetInt)
-		.def("SetBool",&idDict::SetBool)
-		.def("SetVector",&idDict::SetVector)
-		.def("SetAngles",&idDict::SetAngles)
-		;
+namespace dictionary
+{
+	PYBIND11_PLUGIN(idDict) {
+		py::module m("idDict", "description");
+		py::module::import("idVec3");
+		py::module::import("idVec2");
+		py::module::import("idAngles");
+
+		py::class_<idDict>(m, "idDict")
+			.def("Set", &idDict::Set)
+			.def("SetFloat", &idDict::SetFloat)
+			.def("SetInt", &idDict::SetInt)
+			.def("SetBool", &idDict::SetBool)
+			.def("SetVector", &idDict::SetVector)
+			.def("SetAngles", &idDict::SetAngles)
+			;
+
+		return m.ptr();
+	}
 }
 
 /*

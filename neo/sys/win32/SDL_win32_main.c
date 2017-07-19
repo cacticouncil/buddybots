@@ -8,7 +8,9 @@
 #include <stdlib.h>
 
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
+#undef NOMINMAX
 
 #ifdef _WIN32_WCE
 # define DIR_SEPERATOR TEXT("\\")

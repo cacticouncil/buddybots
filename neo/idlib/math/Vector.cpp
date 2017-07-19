@@ -33,7 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "idlib/math/Vector.h"
 
-idVec2 vec2_origin( 0.0f, 0.0f );
 idVec3 vec3_origin( 0.0f, 0.0f, 0.0f );
 idVec4 vec4_origin( 0.0f, 0.0f, 0.0f, 0.0f );
 idVec5 vec5_origin( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f );
@@ -43,107 +42,49 @@ idVec6 vec6_infinity( idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMa
 idVec3(idVec3::*cross1d)(const idVec3&) const = &idVec3::Cross;
 idVec3&		(idVec3::*cross2d)(const idVec3&, const idVec3&) = &idVec3::Cross;
 
-BOOST_PYTHON_MODULE(idVec2) {
+namespace vec3
+{
+	PYBIND11_PLUGIN(idVec3) {
+		py::module m("idVec3", "description");
 
-	class_<idVec2>("idVec2",init<const float, const float>())
-		.def_readwrite("x",&idVec2::x)
-		.def_readwrite("y",&idVec2::y)
-		.def("Set",&idVec2::Set)
-		.def("Zero",&idVec2::Zero)
-		.def("Length",&idVec2::Length)
-		.def("LengthFast",&idVec2::LengthFast)
-		.def("LengthSqr",&idVec2::LengthSqr)
-		.def("Normalize",&idVec2::Normalize)
-		.def("NormalizeFast",&idVec2::NormalizeFast)
-		.def("Truncate",&idVec2::Truncate,return_value_policy<reference_existing_object>())
-		.def("Clamp",&idVec2::Clamp)
-		.def("Snap",&idVec2::Snap)
-		.def("SnapInt",&idVec2::SnapInt)
-		.def(-self)
-		.def(self * self)
-		.def(self * float())
-		.def(self / float())
-		.def(self + self)
-		.def(self - self)
-		.def(self += self)
-		.def(self -= self)
-		.def(self /= self)
-		.def(self /= float())
-		.def(self *= float())
+		py::class_<idVec3>(m, "idVec3")
+			.def(py::init<const float, const float, const float>())
+			.def_readwrite("x", &idVec3::x)
+			.def_readwrite("y", &idVec3::y)
+			.def_readwrite("z", &idVec3::z)
+			.def("Set", &idVec3::Set)
+			.def("Zero", &idVec3::Zero)
+			.def("Length", &idVec3::Length)
+			.def("LengthFast", &idVec3::LengthFast)
+			.def("LengthSqr", &idVec3::LengthSqr)
+			.def("Normalize", &idVec3::Normalize)
+			.def("NormalizeFast", &idVec3::NormalizeFast)
+			.def("Truncate", &idVec3::Truncate, py::return_value_policy::reference)
+			.def("Clamp", &idVec3::Clamp)
+			.def("Cross", cross1d)
+			.def("Cross", cross2d, py::return_value_policy::reference)
+			.def("Snap", &idVec3::Snap)
+			.def("SnapInt", &idVec3::SnapInt)
+			.def("FixDegenerateNormal", &idVec3::FixDegenerateNormal)
+			.def("FixDenormals", &idVec3::FixDenormals)
+			.def(py::self == py::self)
+			.def(py::self != py::self)
+			.def(-py::self)
+			.def(py::self * py::self)
+			.def(py::self * float())
+			.def(py::self / float())
+			.def(py::self + py::self)
+			.def(py::self - py::self)
+			.def(py::self += py::self)
+			.def(py::self -= py::self)
+			.def(py::self /= py::self)
+			.def(py::self /= float())
+			.def(py::self *= float())
+			;
 
-	;
-
-}
-
-BOOST_PYTHON_MODULE(idVec3) {
-
-	class_<idVec3>("idVec3",init<const float, const float, const float>())
-		.def_readwrite("x",&idVec3::x)
-		.def_readwrite("y",&idVec3::y)
-		.def_readwrite("z",&idVec3::z)
-		.def("Set",&idVec3::Set)
-		.def("Zero",&idVec3::Zero)
-		.def("Length",&idVec3::Length)
-		.def("LengthFast",&idVec3::LengthFast)
-		.def("LengthSqr",&idVec3::LengthSqr)
-		.def("Normalize",&idVec3::Normalize)
-		.def("NormalizeFast",&idVec3::NormalizeFast)
-		.def("Truncate",&idVec3::Truncate,return_value_policy<reference_existing_object>())
-		.def("Clamp",&idVec3::Clamp)
-		.def("Cross",cross1d)
-		.def("Cross",cross2d,return_value_policy<reference_existing_object>())
-		.def("Snap",&idVec3::Snap)
-		.def("SnapInt",&idVec3::SnapInt)
-		.def("FixDegenerateNormal",&idVec3::FixDegenerateNormal)
-		.def("FixDenormals",&idVec3::FixDenormals)
-		.def( self == self)
-		.def( self != self)
-		.def(-self)
-		.def(self * self)
-		.def(self * float())
-		.def(self / float())
-		.def(self + self)
-		.def(self - self)
-		.def(self += self)
-		.def(self -= self)
-		.def(self /= self)
-		.def(self /= float())
-		.def(self *= float())
-	;
-}
-
-//===============================================================
-//
-//	idVec2
-//
-//===============================================================
-
-/*
-=============
-idVec2::ToString
-=============
-*/
-const char *idVec2::ToString( int precision ) const {
-	return idStr::FloatArrayToString( ToFloatPtr(), GetDimension(), precision );
-}
-
-/*
-=============
-Lerp
-
-Linearly inperpolates one vector to another.
-=============
-*/
-void idVec2::Lerp( const idVec2 &v1, const idVec2 &v2, const float l ) {
-	if ( l <= 0.0f ) {
-		(*this) = v1;
-	} else if ( l >= 1.0f ) {
-		(*this) = v2;
-	} else {
-		(*this) = v1 + l * ( v2 - v1 );
+		return m.ptr();
 	}
 }
-
 
 //===============================================================
 //

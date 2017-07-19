@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "idlib/containers/StrList.h"
 #include "idlib/containers/HashTable.h"
+#include "idlib/geometry/JointTransform.h"
 #include "idlib/Dict.h"
 #include "renderer/Model.h"
 

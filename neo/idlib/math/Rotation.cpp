@@ -32,27 +32,32 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "idlib/math/Rotation.h"
 
-BOOST_PYTHON_MODULE(idRotation) {
+namespace rotation
+{
+	PYBIND11_PLUGIN(idRotation) {
+		py::module m("idRotation", "description");
 
-	class_<idRotation>("idRotation")
-		.def("Set",&idRotation::Set)
-		.def("SetOrigin",&idRotation::SetOrigin)
-		.def("SetAngle",&idRotation::SetAngle)
-		.def("Scale",&idRotation::Scale)
-		.def("GetOrigin",&idRotation::GetOrigin,return_value_policy<reference_existing_object>())
-		.def("GetAngle",&idRotation::GetAngle)
-		.def("GetVec",&idRotation::GetVec,return_value_policy<reference_existing_object>())
+		py::class_<idRotation>(m, "idRotation")
+			.def("Set", &idRotation::Set)
+			.def("SetOrigin", &idRotation::SetOrigin)
+			.def("SetAngle", &idRotation::SetAngle)
+			.def("Scale", &idRotation::Scale)
+			.def("GetOrigin", &idRotation::GetOrigin, py::return_value_policy::reference)
+			.def("GetAngle", &idRotation::GetAngle)
+			.def("GetVec", &idRotation::GetVec, py::return_value_policy::reference)
 
-		.def("ToAngles", &idRotation::ToAngles)
-		.def("ToQuat",&idRotation::ToQuat)
-		.def("ToMat3",&idRotation::ToMat3,return_value_policy<reference_existing_object>())
-		.def("ToMat4",&idRotation::ToMat4)
-		.def("ToAngularVelocity",&idRotation::ToAngularVelocity)
+			.def("ToAngles", &idRotation::ToAngles)
+			.def("ToQuat", &idRotation::ToQuat)
+			.def("ToMat3", &idRotation::ToMat3, py::return_value_policy::reference)
+			.def("ToMat4", &idRotation::ToMat4)
+			.def("ToAngularVelocity", &idRotation::ToAngularVelocity)
 
-		.def("Normalize180",&idRotation::Normalize180)
-		.def("Normalize360",&idRotation::Normalize360)
+			.def("Normalize180", &idRotation::Normalize180)
+			.def("Normalize360", &idRotation::Normalize360)
+			;
 
-		;
+		return m.ptr();
+	}
 }
 
 /*

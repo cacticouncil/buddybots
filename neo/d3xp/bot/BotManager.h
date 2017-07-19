@@ -34,7 +34,7 @@ typedef std::unordered_map<PyThreadState*, botWorkerThread*> threadMap_t;
 //This custom call policy allows me to mitigate some of the losses in performance due to
 //the python GIL. When Some c++ functions are exectued from python scripts we can give up control
 //of the GIL for the duration of the function.
-namespace boost {
+/*namespace boost {
 	namespace python {
 		struct release_gil_policy {
 			template<class ArgumentPackage>
@@ -52,7 +52,6 @@ namespace boost {
 				return result;
 			}
 
-			typedef default_result_converter result_converter;
 			typedef PyObject* argument_package;
 
 			template<class Sig>
@@ -62,7 +61,7 @@ namespace boost {
 		private:
 		};
 	}
-}
+}*/
 
 //Bot Info is in effect a bot profile that get fills out upon game initialize
 //for all valid bots located in the botPaks folder.Spawning multiple instances of
@@ -74,8 +73,8 @@ typedef struct botInfo_s {
 	idStr				teamName;
 	idStr				authorName;
 	idStr				botSpawnClass;
-	object				scriptInstances[MAX_CLIENTS];
-	object				botClassInstance;
+	py::object				scriptInstances[MAX_CLIENTS];
+	py::object				botClassInstance;
 
 	int					clientNum[MAX_CLIENTS];
 	int					entityNum[MAX_CLIENTS];

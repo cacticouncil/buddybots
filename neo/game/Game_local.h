@@ -208,7 +208,7 @@ public:
 	// synchronize entity pointers over the network
 	int						GetSpawnId( void ) const { return spawnId; }
 	bool					SetSpawnId( int id );
-	bool					UpdateSpawnId( void );
+//	bool					UpdateSpawnId( void );
 
 	bool					IsValid( void ) const;
 	type *					GetEntity( void ) const;

@@ -411,8 +411,8 @@ public:
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
-	object					main;
-	object					globalNamespace;
+	py::object				main;
+	py::object				globalNamespace;
 
 	void					HandlePythonError();
 

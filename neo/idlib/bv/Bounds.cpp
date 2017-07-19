@@ -36,28 +36,34 @@ idBounds bounds_zero( vec3_zero, vec3_zero );
 float	(idBounds::*getRadius)() const = &idBounds::GetRadius;
 float	(idBounds::*getRadiusCenter)(const idVec3&) const = &idBounds::GetRadius;
 
-BOOST_PYTHON_MODULE(idBounds) {
+namespace bounds
+{
+	PYBIND11_PLUGIN(idBounds) {
+		py::module m("idBounds", "description");
 
-	class_<idBounds>("idBounds")
-		.def("Clear", &idBounds::Clear)
-		.def("Zero", &idBounds::Zero)
-		.def("GetCenter", &idBounds::GetCenter)
-		.def("GetRadius", getRadius)
-		.def("GetRadius", getRadiusCenter)
-		.def("GetVolume", &idBounds::GetVolume)
-		.def("FromPoints", &idBounds::FromPoints)
-		.def("FromPointTranslation", &idBounds::FromPointTranslation)
-		.def("FromBoundsTranslation", &idBounds::FromBoundsTranslation)
-		.def("FromPointRotation", &idBounds::FromPointRotation)
-		.def("FromBoundsRotation", &idBounds::FromBoundsRotation)
-		.def("Translate", &idBounds::Translate)
-		.def("TranslateSelf",&idBounds::TranslateSelf,return_value_policy<reference_existing_object>())
-		.def("Rotate",&idBounds::Rotate)
-		.def("RotateSelf", &idBounds::RotateSelf, return_value_policy<reference_existing_object>())
-		.def("IntersectsBounds",&idBounds::IntersectsBounds)
-		.def("LineIntersection",&idBounds::LineIntersection)
-		.def("RayIntersection",&idBounds::RayIntersection)
-		;
+		py::class_<idBounds>(m, "idBounds")
+			.def("Clear", &idBounds::Clear)
+			.def("Zero", &idBounds::Zero)
+			.def("GetCenter", &idBounds::GetCenter)
+			.def("GetRadius", getRadius)
+			.def("GetRadius", getRadiusCenter)
+			.def("GetVolume", &idBounds::GetVolume)
+			.def("FromPoints", &idBounds::FromPoints)
+			.def("FromPointTranslation", &idBounds::FromPointTranslation)
+			.def("FromBoundsTranslation", &idBounds::FromBoundsTranslation)
+			.def("FromPointRotation", &idBounds::FromPointRotation)
+			.def("FromBoundsRotation", &idBounds::FromBoundsRotation)
+			.def("Translate", &idBounds::Translate)
+			.def("TranslateSelf", &idBounds::TranslateSelf, py::return_value_policy::reference)
+			.def("Rotate", &idBounds::Rotate)
+			.def("RotateSelf", &idBounds::RotateSelf, py::return_value_policy::reference)
+			.def("IntersectsBounds", &idBounds::IntersectsBounds)
+			.def("LineIntersection", &idBounds::LineIntersection)
+			.def("RayIntersection", &idBounds::RayIntersection)
+			;
+
+		return m.ptr();
+	}
 }
 
 /*

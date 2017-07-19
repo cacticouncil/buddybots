@@ -34,60 +34,55 @@ std::shared_ptr<afiBotPlayer> CreateBotPlayer() {
 	return std::shared_ptr<afiBotPlayer>(new afiBotPlayer(), &noOpDelete);
 }
 
-// Workaround for problem in VS14
-namespace boost
+namespace botPlayer
 {
-	template <>
-	afiBotPlayer const volatile * get_pointer<class afiBotPlayer const volatile >(
-		class afiBotPlayer const volatile *wrapped)
-	{
-		return wrapped;
+	PYBIND11_PLUGIN(afiBotPlayer) {
+		py::module m("afiBotPlayer", "description");
+		//import("idVec3");
+		//import("idAngles");
+		//import("idEntity");
+		//import("afiBotBrain");
+		//import("afiBotManager");
+		py::module::import("idPlayer");
+
+		py::class_<afiBotPlayer, idPlayer>(m, "afiBotPlayer")
+			.def("__init__", &CreateBotPlayer)
+			.def("FindItem", &afiBotPlayer::FindItem, py::return_value_policy::reference)//, release_gil_policy())
+			.def("InView", &afiBotPlayer::InView)
+			.def("MoveTo", &afiBotPlayer::MoveTo)
+			.def("MoveToPosition", &afiBotPlayer::MoveToPosition)
+			.def("MoveToEntity", &afiBotPlayer::MoveToEntity)
+			.def("MoveToPlayer", &afiBotPlayer::MoveToPlayer)
+			.def("Attack", &afiBotPlayer::Attack)
+			.def("StopAttack", &afiBotPlayer::StopAttack)
+			.def("Jump", &afiBotPlayer::Jump)
+			.def("LookInDirection", &afiBotPlayer::LookInDirection)
+			.def("LookAtPosition", &afiBotPlayer::LookAtPosition)
+			.def("MoveToNearest", &afiBotPlayer::MoveToNearest, py::return_value_policy::reference)
+			.def("PathToGoal", &afiBotPlayer::PathToGoal)
+			.def("ReachedPos", &afiBotPlayer::ReachedPos)//, release_gil_policy()
+			.def("SwitchWeapon", &afiBotPlayer::SwitchWeapon)
+			.def("HasAmmo", &afiBotPlayer::HasAmmo)
+			.def("AmmoInClip", &afiBotPlayer::AmmoInClip)
+			.def("FindNearbyPlayers", &afiBotPlayer::FindNearbyPlayers)
+			.def("FindItemsInView", &afiBotPlayer::FindItemsInView)
+			.def("GetPosition", &afiBotPlayer::GetPosition)
+			.def("NextWeapon", &afiBotPlayer::NextWeapon)
+			.def("UpdateAIMoveFlag", &afiBotPlayer::UpdateAIMoveFlag)
+			.def("SaveLastTarget", &afiBotPlayer::SaveLastTarget)
+			.def("GetLastTarget", &afiBotPlayer::GetLastTarget, py::return_value_policy::reference)
+			.def_readonly("health", &afiBotPlayer::health)
+			.def_readonly("team", &afiBotPlayer::team)
+			.def_readonly("spectator", &afiBotPlayer::spectator)
+			;
+
+		return m.ptr();
 	}
 }
 
-BOOST_PYTHON_MODULE(afiBotPlayer) {
-	//import("idVec3");
-	//import("idAngles");
-	//import("idEntity");
-	//import("afiBotBrain");
-	//import("afiBotManager");
-	import("idPlayer");
+py::list afiBotPlayer::FindNearbyPlayers() {
 
-	class_<afiBotPlayer, bases<idPlayer>, shared_ptr<afiBotPlayer>>("afiBotPlayer", no_init)
-		.def("__init__",			make_constructor(&CreateBotPlayer))
-		.def("FindItem",			&afiBotPlayer::FindItem,			return_value_policy<reference_existing_object>(), release_gil_policy())
-		.def("InView",				&afiBotPlayer::InView)
-		.def("MoveTo",				&afiBotPlayer::MoveTo)
-		.def("MoveToPosition",		&afiBotPlayer::MoveToPosition)
-		.def("MoveToEntity",		&afiBotPlayer::MoveToEntity)
-		.def("MoveToPlayer",		&afiBotPlayer::MoveToPlayer)
-		.def("Attack",				&afiBotPlayer::Attack)
-		.def("StopAttack",			&afiBotPlayer::StopAttack)
-		.def("Jump",				&afiBotPlayer::Jump)
-		.def("LookInDirection",		&afiBotPlayer::LookInDirection)
-		.def("LookAtPosition",		&afiBotPlayer::LookAtPosition)
-		.def("MoveToNearest",		&afiBotPlayer::MoveToNearest,		return_value_policy<reference_existing_object>())
-		.def("PathToGoal",			&afiBotPlayer::PathToGoal)
-		.def("ReachedPos",			&afiBotPlayer::ReachedPos,			release_gil_policy())
-		.def("SwitchWeapon",		&afiBotPlayer::SwitchWeapon)
-		.def("HasAmmo",				&afiBotPlayer::HasAmmo)
-		.def("AmmoInClip",			&afiBotPlayer::AmmoInClip)
-		.def("FindNearbyPlayers",	&afiBotPlayer::FindNearbyPlayers)
-		.def("FindItemsInView",		&afiBotPlayer::FindItemsInView)
-		.def("GetPosition",			&afiBotPlayer::GetPosition)
-		.def("NextWeapon",			&afiBotPlayer::NextWeapon)
-		.def("UpdateAIMoveFlag",	&afiBotPlayer::UpdateAIMoveFlag)
-		.def("SaveLastTarget",		&afiBotPlayer::SaveLastTarget)
-		.def("GetLastTarget",		&afiBotPlayer::GetLastTarget,		return_value_policy<reference_existing_object>())
-		.def_readonly("health",		&afiBotPlayer::health)
-		.def_readonly("team",		&afiBotPlayer::team)
-		.def_readonly("spectator",	&afiBotPlayer::spectator)
-		;
-}
-
-boost::python::list afiBotPlayer::FindNearbyPlayers() {
-
-	boost::python::list nearbyPlayers = boost::python::list();
+	py::list nearbyPlayers = py::list();
 	unsigned int numClients = gameLocal.numClients;
 	for (unsigned int iClient = 0; iClient < numClients; ++iClient) {
 
@@ -102,9 +97,9 @@ boost::python::list afiBotPlayer::FindNearbyPlayers() {
 	return nearbyPlayers;
 }
 
-boost::python::list afiBotPlayer::FindItemsInView() {
+py::list afiBotPlayer::FindItemsInView() {
 
-	boost::python::list nearbyItems = boost::python::list();
+	py::list nearbyItems = py::list();
 
 	for (int iEntity = 0; iEntity < MAX_GENTITIES; ++iEntity) {
 

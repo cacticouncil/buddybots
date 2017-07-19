@@ -165,8 +165,8 @@ public:
 	virtual bool			StartMove ( const idVec3& goalOrigin, int goalArea, idEntity* goalEntity, float range );
 	virtual void			StopMove( moveStatus_t status );
 
-	boost::python::list		FindNearbyPlayers();
-	boost::python::list		FindItemsInView();
+	py::list		FindNearbyPlayers();
+	py::list		FindItemsInView();
 
 	idStr					botName;
 	idStr					teamName;

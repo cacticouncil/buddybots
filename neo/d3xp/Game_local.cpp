@@ -441,7 +441,7 @@ void idGameLocal::HandlePythonError() {
 
 		PyErr_Fetch(&pType,&pValue,&pTrace);
 
-		char* errorMessage = extract<char*>(pValue);
+		const char* errorMessage = std::string(py::handle(pValue).str()).c_str();
 		OutputDebugStringA(errorMessage);
 		Warning(errorMessage);
 	}

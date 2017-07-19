@@ -59,27 +59,23 @@ If you have questions concerning this license or the applicable additional terms
 float		(idEntity::*distanceEntity)(idEntity*) const = &idEntity::DistanceTo;
 float		(idEntity::*distancePosition)(const idVec3) const = &idEntity::DistanceTo;
 
-// Workaround for problem in VS14
-namespace boost
+namespace entity
 {
-	template <>
-	idEntity const volatile * get_pointer<class idEntity const volatile >(
-		class idEntity const volatile *wrapped)
-	{
-		return wrapped;
+	PYBIND11_PLUGIN(idEntity) {
+		py::module m("idEntity", "description");
+
+		py::module::import("idVec3");
+		py::module::import("idEntity");
+
+		py::class_<idEntity>(m, "idEntity")
+			.def("DistanceTo", distanceEntity)
+			.def("DistanceTo", distancePosition)
+			.def("GetPosition", &idEntity::GetPosition)
+			.def("isHidden", &idEntity::IsHidden)
+			;
+
+		return m.ptr();
 	}
-}
-
-BOOST_PYTHON_MODULE(idEntity) {
-	import("idVec3");
-	import("idEntity");
-
-	class_<idEntity, std::shared_ptr<idEntity>>("idEntity")
-		.def("DistanceTo",distanceEntity)
-		.def("DistanceTo",distancePosition)
-		.def("GetPosition",&idEntity::GetPosition)
-		.def("isHidden",&idEntity::IsHidden)
-	;
 }
 
 idVec3 idEntity::GetPosition( void ) {
