@@ -43,8 +43,6 @@ If you have questions concerning this license or the applicable additional terms
 // BuddyBots python bindings
 //#define BOOST_PYTHON_STATIC_LIB
 #include <Python.h>
-#include <boost/python.hpp>
-using namespace boost::python;
 
 // Win32
 #if defined(WIN32) || defined(_WIN32)

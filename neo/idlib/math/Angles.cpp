@@ -32,23 +32,33 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/math/Quat.h"
 #include "idlib/math/Rotation.h"
 #include "idlib/Str.h"
-
+#include <pybind11/pybind11.h>
 #include "idlib/math/Angles.h"
 
 idAngles ang_zero( 0.0f, 0.0f, 0.0f );
+namespace py = pybind11;
+PYBIND11_MODULE(idAngles,m) {
 
-//TODO BOOST_PYTHON_MODULE(idAngles)
-BOOST_PYTHON_MODULE(idAngles) {
-
-	class_<idAngles>("idAngles")
-		.def_readwrite("pitch",&idAngles::pitch)
-		.def_readwrite("yaw",&idAngles::yaw)
-		.def_readwrite("roll",&idAngles::roll)
-		.def("Normalize360",&idAngles::Normalize360,return_value_policy<reference_existing_object>())
-		.def("Normalize180",&idAngles::Normalize180,return_value_policy<reference_existing_object>())
-		;
+py::class_<idAngles>(m, "idAngles")
+.def_readwrite("pitch", &idAngles::pitch)
+.def_readwrite("yaw", &idAngles::yaw)
+.def_readwrite("roll", &idAngles::roll)
+.def("Normalize360", &idAngles::Normalize360/*, return_value_policy<reference_existing_object>()*/)
+.def("Normalize180", &idAngles::Normalize180/*, return_value_policy<reference_existing_object>()*/)
+;
 
 }
+/*BOOST_PYTHON_MODULE(idAngles) {
+
+	class_<idAngles>("idAngles")
+		.def_readwrite("pitch", &idAngles::pitch)
+		.def_readwrite("yaw", &idAngles::yaw)
+		.def_readwrite("roll", &idAngles::roll)
+		.def("Normalize360", &idAngles::Normalize360, return_value_policy<reference_existing_object>())
+		.def("Normalize180", &idAngles::Normalize180, return_value_policy<reference_existing_object>())
+		;
+
+}*/
 
 /*
 =================

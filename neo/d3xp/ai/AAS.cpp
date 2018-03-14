@@ -32,7 +32,66 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "ai/AAS_local.h"
 #include "../bot/BotAASBuild.h"
+#include <pybind11/pybind11.h>
 
+namespace py = pybind11;
+
+PYBIND11_MODULE(idAAS,m) {
+
+	/*pathType_t is not part of a struct
+	https://pybind11.readthedocs.io/en/stable/classes.html#enumerations-and-internal-types
+	py::class_<Pet> pet(m, "Pet");
+
+	pet.def(py::init<const std::string &, Pet::Kind>())
+		.def_readwrite("name", &Pet::name)
+		.def_readwrite("type", &Pet::type);
+
+	py::enum_<Pet::Kind>(pet, "Kind")
+		.value("Dog", Pet::Kind::Dog)
+		.value("Cat", Pet::Kind::Cat)
+		.export_values();
+	*/
+	py::enum_<pathType_t>(m,"pathType_t") 
+		.value("PATHTYPE_WALK", pathType_t::PATHTYPE_WALK)
+		.value("PATHTYPE_WALKOFFLEDGE", pathType_t::PATHTYPE_WALKOFFLEDGE)
+		.value("PATHTYPE_BARRIERJUMP", pathType_t::PATHTYPE_BARRIERJUMP)
+		.value("PATHTYPE_JUMP", pathType_t::PATHTYPE_JUMP)
+		.value("PATHTYPE_ELEVATOR", pathType_t::PATHTYPE_ELEVATOR)
+		.export_values()
+		;
+		py::class_<aasGoal_t>(m,"aasGoal_t")
+			.def_readwrite("areaNum", &aasGoal_t::areaNum)
+			.def_readwrite("origin", &aasGoal_t::origin)
+			;
+		py::class_<aasObstacle_t>(m,"aasObstacle_t")
+			.def_readwrite("absBounds", &aasObstacle_t::absBounds)
+			.def_readwrite("expAbsBounds", &aasObstacle_t::expAbsBounds)
+			;
+		py::class_<aasPath_t>(m,"aasPath_t")
+			.def_readwrite("type", &aasPath_t::type)
+			.def_readwrite("moveGoal", &aasPath_t::moveGoal)
+			.def_readwrite("moveAreaNum", &aasPath_t::moveAreaNum)
+			.def_readwrite("secondaryGoal", &aasPath_t::secondaryGoal)
+			;
+		py::class_<idAASLocal>(m,"idAAS")
+			.def("PointAreaNum", &idAASLocal::PointAreaNum)
+			.def("PointReachableAreaNum", &idAASLocal::PointReachableAreaNum)
+			.def("AreaCenter", &idAASLocal::AreaCenter)
+			.def("AreaFlags", &idAASLocal::AreaFlags)
+			.def("AreaTravelFlags", &idAASLocal::AreaTravelFlags)
+			.def("AddObstacle", &idAASLocal::AddObstacle)
+			.def("RemoveObstacle", &idAASLocal::RemoveObstacle)
+			.def("RemoveAllObstacles", &idAASLocal::RemoveAllObstacles)
+			//Other possible additions:
+			//TravelTimeToGoalArea
+			//Trace
+			//BoundsReachableAreaNum
+			;
+}
+
+
+
+/*
 BOOST_PYTHON_MODULE(idAAS) {
 
 	enum_<pathType_t>("pathType_t")
@@ -80,7 +139,7 @@ BOOST_PYTHON_MODULE(idAAS) {
 
 
 }
-
+*/
 /*
 ============
 idAAS::Alloc

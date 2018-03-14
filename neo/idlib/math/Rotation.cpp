@@ -29,31 +29,54 @@ If you have questions concerning this license or the applicable additional terms
 #include "sys/platform.h"
 #include "idlib/math/Angles.h"
 #include "idlib/math/Quat.h"
-
+#include <pybind11/pybind11.h>
 #include "idlib/math/Rotation.h"
 
-BOOST_PYTHON_MODULE(idRotation) {
-
-	class_<idRotation>("idRotation")
-		.def("Set",&idRotation::Set)
-		.def("SetOrigin",&idRotation::SetOrigin)
-		.def("SetAngle",&idRotation::SetAngle)
-		.def("Scale",&idRotation::Scale)
-		.def("GetOrigin",&idRotation::GetOrigin,return_value_policy<reference_existing_object>())
-		.def("GetAngle",&idRotation::GetAngle)
-		.def("GetVec",&idRotation::GetVec,return_value_policy<reference_existing_object>())
+namespace py = pybind11;
+PYBIND11_MODULE(idRotation, m) {
+	py::class_<idRotation>(m,"idRotation")
+		.def("Set", &idRotation::Set)
+		.def("SetOrigin", &idRotation::SetOrigin)
+		.def("SetAngle", &idRotation::SetAngle)
+		.def("Scale", &idRotation::Scale)
+		.def("GetOrigin", &idRotation::GetOrigin/*, return_value_policy<reference_existing_object>()*/)
+		.def("GetAngle", &idRotation::GetAngle)
+		.def("GetVec", &idRotation::GetVec/*, return_value_policy<reference_existing_object>()*/)
 
 		.def("ToAngles", &idRotation::ToAngles)
-		.def("ToQuat",&idRotation::ToQuat)
-		.def("ToMat3",&idRotation::ToMat3,return_value_policy<reference_existing_object>())
-		.def("ToMat4",&idRotation::ToMat4)
-		.def("ToAngularVelocity",&idRotation::ToAngularVelocity)
+		.def("ToQuat", &idRotation::ToQuat)
+		.def("ToMat3", &idRotation::ToMat3/*, return_value_policy<reference_existing_object>()*/)
+		.def("ToMat4", &idRotation::ToMat4)
+		.def("ToAngularVelocity", &idRotation::ToAngularVelocity)
 
-		.def("Normalize180",&idRotation::Normalize180)
-		.def("Normalize360",&idRotation::Normalize360)
+		.def("Normalize180", &idRotation::Normalize180)
+		.def("Normalize360", &idRotation::Normalize360)
 
 		;
 }
+/*
+BOOST_PYTHON_MODULE(idRotation) {
+
+	class_<idRotation>("idRotation")
+		.def("Set", &idRotation::Set)
+		.def("SetOrigin", &idRotation::SetOrigin)
+		.def("SetAngle", &idRotation::SetAngle)
+		.def("Scale", &idRotation::Scale)
+		.def("GetOrigin", &idRotation::GetOrigin, return_value_policy<reference_existing_object>())
+		.def("GetAngle", &idRotation::GetAngle)
+		.def("GetVec", &idRotation::GetVec, return_value_policy<reference_existing_object>())
+
+		.def("ToAngles", &idRotation::ToAngles)
+		.def("ToQuat", &idRotation::ToQuat)
+		.def("ToMat3", &idRotation::ToMat3, return_value_policy<reference_existing_object>())
+		.def("ToMat4", &idRotation::ToMat4)
+		.def("ToAngularVelocity", &idRotation::ToAngularVelocity)
+
+		.def("Normalize180", &idRotation::Normalize180)
+		.def("Normalize360", &idRotation::Normalize360)
+
+		;
+}*/
 
 /*
 ============

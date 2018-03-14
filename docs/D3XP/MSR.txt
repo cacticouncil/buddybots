@@ -1,0 +1,29 @@
+Minimum System Requirements:
+
+  - Full version of DOOM 3(TM)
+  - Microsoft(R) Windows(R) 2000/XP
+  - Pentium(R) 4 1.5 GHz or Athlon(tm) XP 1500+ processor
+  - 384MB RAM
+  - 8x Speed CD-ROM drive (1200KB/sec sustained transfer rate) and latest drivers
+  - 630MB of uncompressed free hard disk space (plus 400MB for Windows(R) swap file)
+  - 100% DirectX(R) 9.0c compatible 16-bit sound card and latest drivers
+  - 100% Windows(R) 2000/XP compatible mouse, keyboard and latest drivers
+  - DirectX(R) 9.0c (included)
+  - 3D hardware Accelerator Card Required - 100% DirectX(R) 9.0c compatible 64MB Hardware Accelerated video card and the latest drivers.
+      - ATI(R) Radeon(R) 8500
+      - ATI Radeon 9000 or above
+      - ATI Radeon X700
+      - ATI Radeon X800
+      - All Nvidia(R) GeForce(TM) 3/Ti series
+      - All Nvidia GeForce 4MX series
+      - All Nvidia GeForce 4/Ti series
+      - All Nvidia GeForce FX series
+      - All Nvidia GeForce 6 series
+
+Important Note: *Some 3D accelerator cards with the chipset listed here may not be compatible with the 3D accelerator features utilized by Doom 3.  Please refer to your hardware manufacturer for 100% DirectX 9.0c compatibility.
+
+Multiplayer Requirements:
+
+  - Internet (TCP/IP) and LAN (TCP/IP) play supported
+  - Internet play requires broadband connection and latest drivers
+  - LAN play requires network interface card and latest drivers

@@ -19,6 +19,7 @@ const int SPECTATE_RAISE = 25;
 #include "BotManager.h"
 #include "idlib/geometry/JointTransform.h"
 #include "Confetti_Timer.h"
+#include <pybind11/pybind11.h>
 
 idCVar	bot_debugBot("bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOCHEAT, "debug a specific bot -1 disable, -2 all bots, otherwise clientnum", -2, MAX_CLIENTS);
 
@@ -34,17 +35,79 @@ std::shared_ptr<afiBotPlayer> CreateBotPlayer() {
 	return std::shared_ptr<afiBotPlayer>(new afiBotPlayer(), &noOpDelete);
 }
 
-// Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	afiBotPlayer const volatile * get_pointer<class afiBotPlayer const volatile >(
-		class afiBotPlayer const volatile *wrapped)
-	{
-		return wrapped;
+namespace py = pybind11;
+PYBIND11_MODULE(afiBotPlayer, no_init) {
+	py::module::import("idPlayer");
+
+	py::class_ < afiBotPlayer, py::class_<idPlayer>, std::shared_ptr<afiBotPlayer>> (no_init, "afiBotPlayer")
+		.def(py::init<>())//&CreateBotPlayer TODO
+		.def("FindItem", &afiBotPlayer::FindItem, py::return_value_policy::reference)
+		.def("InView", &afiBotPlayer::InView)
+		.def("MoveTo", &afiBotPlayer::MoveTo)
+		.def("MoveToPosition", &afiBotPlayer::MoveToPosition)
+		.def("MoveToEntity", &afiBotPlayer::MoveToEntity)
+		.def("MoveToPlayer", &afiBotPlayer::MoveToPlayer)
+		.def("Attack", &afiBotPlayer::Attack)
+		.def("StopAttack", &afiBotPlayer::StopAttack)
+		.def("Jump", &afiBotPlayer::Jump)
+		.def("LookInDirection", &afiBotPlayer::LookInDirection)
+		.def("LookAtPosition", &afiBotPlayer::LookAtPosition)
+		.def("MoveToNearest", &afiBotPlayer::MoveToNearest, py::return_value_policy::reference)
+		.def("PathToGoal", &afiBotPlayer::PathToGoal)
+		.def("ReachedPos", &afiBotPlayer::ReachedPos, py::gil_scoped_release())
+		.def("SwitchWeapon", &afiBotPlayer::SwitchWeapon)
+		.def("HasAmmo", &afiBotPlayer::HasAmmo)
+		.def("AmmoInClip", &afiBotPlayer::AmmoInClip)
+		.def("FindNearbyPlayers", &afiBotPlayer::FindNearbyPlayers)
+		.def("FindItemsInView", &afiBotPlayer::FindItemsInView)
+		.def("GetPosition", &afiBotPlayer::GetPosition)
+		.def("NextWeapon", &afiBotPlayer::NextWeapon)
+		.def("UpdateAIMoveFlag", &afiBotPlayer::UpdateAIMoveFlag)
+		.def("SaveLastTarget", &afiBotPlayer::SaveLastTarget)
+		.def("GetLastTarget", &afiBotPlayer::GetLastTarget, py::return_value_policy::reference)
+		.def_readonly("health", &afiBotPlayer::health)
+		.def_readonly("team", &afiBotPlayer::team)
+		.def_readonly("spectator", &afiBotPlayer::spectator)
+		;
+}
+//Victoria I do not know how to deal with lists
+py::list afiBotPlayer::FindNearbyPlayers() {
+
+	py::list nearbyPlayers = py::list();
+	unsigned int numClients = gameLocal.numClients;
+	for (unsigned int iClient = 0; iClient < numClients; ++iClient) {
+
+		idPlayer* player = gameLocal.GetClientByNum(iClient);
+		if (player != nullptr) {
+			if (CanSee(player, true)) {
+				nearbyPlayers.append(shared_ptr<idPlayer>(player, &noOpDeletePlayer));
+			}
+		}
 	}
+
+	return nearbyPlayers;
 }
 
+py::list afiBotPlayer::FindItemsInView() {
+
+	py::list nearbyItems = py::list();
+
+	for (int iEntity = 0; iEntity < MAX_GENTITIES; ++iEntity) {
+
+		idEntity* entity = gameLocal.entities[iEntity];
+		if (entity) {
+			if (CanSee(entity, true)) {
+				if ((entity->IsType(idItem::Type)) || (entity->IsType(idItemPowerup::Type))) {
+					nearbyItems.append(shared_ptr<idEntity>(entity, &noOpDeleteEntity));
+				}
+			}
+		}
+	}
+
+	return nearbyItems;
+}
+
+/*
 BOOST_PYTHON_MODULE(afiBotPlayer) {
 	//import("idVec3");
 	//import("idAngles");
@@ -120,7 +183,7 @@ boost::python::list afiBotPlayer::FindItemsInView() {
 
 	return nearbyItems;
 }
-
+*/
 afiBotPlayer::afiBotPlayer() : idPlayer() {
 	memset(&botcmd, 0, sizeof(botcmd));
 	memset(&aiInput, 0, sizeof(aiInput));

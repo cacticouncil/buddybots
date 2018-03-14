@@ -88,8 +88,8 @@ if(DHEWM3LIBS)
 endif()
 
 # libs
-find_package(Boost 1.57 REQUIRED COMPONENTS python) 
-include_directories(${Boost_INCLUDE_DIRS}) 
+#find_package(Boost 1.57 REQUIRED COMPONENTS python) 
+#include_directories(${Boost_INCLUDE_DIRS}) 
 
 find_package(PythonLibs REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIR})
@@ -791,7 +791,7 @@ if(CORE)
 		${ZLIB_LIBRARY}
 		${SDLx_LIBRARY}
 		${sys_libs}
-		${Boost_LIBRARIES}
+#		${Boost_LIBRARIES}
 		${PYTHON_LIBRARY}
 	)
 
@@ -823,7 +823,7 @@ if(DEDICATED)
 		${ZLIB_LIBRARY}
 		${SDLx_LIBRARY}
 		${sys_libs}
-		${Boost_LIBRARIES}
+#		${Boost_LIBRARIES}
 		${PYTHON_LIBRARY}
 	)
 
@@ -843,7 +843,7 @@ if(BASE)
 	set_target_properties(base PROPERTIES COMPILE_FLAGS "-I${CMAKE_SOURCE_DIR}/game")
 	set_target_properties(base PROPERTIES LINK_FLAGS "${ldflags}")
 	set_target_properties(base PROPERTIES INSTALL_NAME_DIR "@executable_path")
-	target_link_libraries(base idlib ${Boost_LIBRARIES} ${PYTHON_LIBRARY})
+#	target_link_libraries(base idlib ${Boost_LIBRARIES} ${PYTHON_LIBRARY})
 
 	if(NOT APPLE AND NOT WIN32)
 		install(TARGETS base
@@ -861,7 +861,7 @@ if(D3XP)
 	set_target_properties(d3xp PROPERTIES COMPILE_FLAGS "-I${CMAKE_SOURCE_DIR}/d3xp")
 	set_target_properties(d3xp PROPERTIES LINK_FLAGS "${ldflags}")
 	set_target_properties(d3xp PROPERTIES INSTALL_NAME_DIR "@executable_path")
-	target_link_libraries(d3xp idlib ${Boost_LIBRARIES} ${PYTHON_LIBRARY})
+#	target_link_libraries(d3xp idlib ${Boost_LIBRARIES} ${PYTHON_LIBRARY})
 
 	if(NOT APPLE AND NOT WIN32)
 		install(TARGETS d3xp

@@ -34,18 +34,28 @@ If you have questions concerning this license or the applicable additional terms
 #include "Projectile.h"
 #include "WorldSpawn.h"
 #include "idlib/geometry/JointTransform.h"
-
 #include "Actor.h"
-
-BOOST_PYTHON_MODULE(idActor) {
-	import("idEntity");
-	class_<idActor,bases<idEntity>>("idActor")
-		.def("CanSee", &idActor::CanSee)
+#include <pybind11\pybind11.h>
+/*
+BOOST_PYTHON_MODULE(idActor) {//creates module for python
+	import("idEntity");// in python we will "import idEntity"
+	class_<idActor,bases<idEntity>>("idActor")//creat class called idActor
+		.def("CanSee", &idActor::CanSee) // method defs
 		.def("PointVisible", &idActor::PointVisible)
 		;
 
 }
+*/
 
+
+namespace py = pybind11;
+PYBIND11_MODULE(idActor, m) {
+	py::module::import("idEntity");
+	py::class_<idEntity>(m, "idActor")
+		.def("CanSee", &idActor::CanSee)
+		.def("PointVisable", &idActor::PointVisible)
+		;
+}
 /***********************************************************************
 
 	idAnimState

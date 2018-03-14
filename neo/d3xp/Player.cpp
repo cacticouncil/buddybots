@@ -41,7 +41,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Fx.h"
 #include "Misc.h"
 #include "idlib/geometry/JointTransform.h"
-
+#include <pybind11/pybind11.h>
 #include <memory>
 using namespace std;
 
@@ -64,7 +64,8 @@ const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range 
 //}
 
 // Workaround for problem in VS14
-namespace boost
+/*namespace 
+
 {
 	template <>
 	idPlayer const volatile * get_pointer<class idPlayer const volatile >(
@@ -72,8 +73,19 @@ namespace boost
 	{
 		return wrapped;
 	}
+}*/
+namespace py = pybind11;
+PYBIND11_MODULE(idPlayer, m) {
+	//import("idActor");
+	py::class_<idPlayer, py::class_<idActor>, shared_ptr<idPlayer>>(m,"idPlayer")
+		.def("GetEyePosition", &idPlayer::GetEyePosition)
+		.def("GetPosition", &idPlayer::GetPosition)
+		.def("GetHealth", &idPlayer::GetHealth)
+		.def("GetTeam", &idPlayer::GetTeam)
+		.def_readonly("carryingFlag", &idPlayer::carryingFlag)
+		;
 }
-
+/*
 BOOST_PYTHON_MODULE(idPlayer) {
 	import("idActor");
 	class_<idPlayer,bases<idActor>,shared_ptr<idPlayer>>("idPlayer")
@@ -84,7 +96,7 @@ BOOST_PYTHON_MODULE(idPlayer) {
 		.def_readonly("carryingFlag",&idPlayer::carryingFlag)
 		;
 
-}
+}*/
 
 // distance between ladder rungs (actually is half that distance, but this sounds better)
 const int LADDER_RUNG_DISTANCE = 32;

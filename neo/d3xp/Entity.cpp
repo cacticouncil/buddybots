@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Mover.h"
 #include "WorldSpawn.h"
 #include "SmokeParticles.h"
-
+#include <pybind11/pybind11.h>
 #include "Entity.h"
 
 #include <memory>
@@ -59,18 +59,23 @@ If you have questions concerning this license or the applicable additional terms
 float		(idEntity::*distanceEntity)(idEntity*) const = &idEntity::DistanceTo;
 float		(idEntity::*distancePosition)(const idVec3) const = &idEntity::DistanceTo;
 
-// Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	idEntity const volatile * get_pointer<class idEntity const volatile >(
-		class idEntity const volatile *wrapped)
-	{
-		return wrapped;
-	}
-}
 
-BOOST_PYTHON_MODULE(idEntity) {
+namespace py = pybind11;
+
+PYBIND11_MODULE(idEntity, m) {
+	py::module::import("idVec3");
+	py::module::import("idEntity");
+
+	py::class_<idEntity, std::shared_ptr<idEntity>>(m, "idEntity")
+		.def("DistanceTo", distanceEntity)
+		.def("DistanceTo", distancePosition)
+		.def("GetPosition", &idEntity::GetPosition)
+		.def("isHidden", &idEntity::IsHidden)
+		;
+}
+/*
+
+_PYTHON_MODULE(idEntity) {
 	import("idVec3");
 	import("idEntity");
 
@@ -80,7 +85,7 @@ BOOST_PYTHON_MODULE(idEntity) {
 		.def("GetPosition",&idEntity::GetPosition)
 		.def("isHidden",&idEntity::IsHidden)
 	;
-}
+}*/
 
 idVec3 idEntity::GetPosition( void ) {
 	idPhysics* physics = NULL;

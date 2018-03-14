@@ -10,20 +10,67 @@ Description: Defines the basic interface that bot brains should follow.
 #include "BotPlayer.h"
 #include "../Game_local.h"
 #include "../physics/Physics_Player.h"
-
 #include <memory>
+#include <pybind11/pybind11.h>
+
 using namespace std;
 
-// Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	afiBotBrainWrapper const volatile * get_pointer<class afiBotBrainWrapper const volatile >(
-		class afiBotBrainWrapper const volatile *wrapped)
-	{
-		return wrapped;
-	}
+namespace py = pybind11;
+PYBIND11_MODULE(afiBotBrain, m) {
+	py::module::import("idDict");
+	py::module::import("idVec3");
+	py::module::import("afiBotPlayer");
+
+	py::enum_<aiViewType_t>(m, "aiViewType_t")
+		.value("VIEW_DIR", aiViewType_t::VIEW_DIR)
+		.value("VIEW_POS", aiViewType_t::VIEW_POS)
+		.export_values()
+		;
+
+	py::enum_<aiMoveFlag_t>(m, "aiMoveFlag_t")
+		.value("NULLMOVE", aiMoveFlag_t::NULLMOVE)
+		.value("CROUCH", aiMoveFlag_t::CROUCH)
+		.value("JUMP", aiMoveFlag_t::JUMP)
+		.value("WALK", aiMoveFlag_t::WALK)
+		.value("RUN", aiMoveFlag_t::RUN)
+		.export_values()
+		;
+
+	py::class_<aiCommands_t>(m, "aiCommands_t")
+		.def_readwrite("attack", &aiCommands_t::attack)
+		.def_readwrite("zoom", &aiCommands_t::zoom)
+		;
+	py::class_<aiInput_t>(m, "aiInput_t")
+		.def_readwrite("viewDirection", &aiInput_t::viewDirection)
+		.def_readwrite("viewType", &aiInput_t::viewType)
+		.def_readwrite("moveDirection", &aiInput_t::moveDirection)
+		.def_readwrite("moveSpeed", &aiInput_t::moveSpeed)
+		.def_readwrite("moveFlag", &aiInput_t::moveFlag)
+		.def_readwrite("commands", &aiInput_t::commands)
+		;
+	py::class_<afiBotBrainWrapper, shared_ptr<afiBotBrainWrapper>>(m, "afiBotBrain")
+
+
+		.def(py::init<>())
+		.def("Think", &afiBotBrain::Think)//virtual
+		
+		.def(py::init<>())
+		.def("Spawn", &afiBotBrain::Spawn)//virtual
+		
+		.def(py::init<>())
+		.def("Restart", &afiBotBrain::Restart)//virtual
+		
+
+		.def_readwrite("body",&afiBotBrain::GetBody, py::return_value_policy::reference)
+		.def_readonly("physicsObject", &afiBotBrain::physicsObject)
+		;
+
+	//Victoria TODO implements the boost::noncopyable part
+
 }
+/*
+
+
 
 BOOST_PYTHON_MODULE(afiBotBrain) {
 	//import("idDict");
@@ -66,17 +113,17 @@ BOOST_PYTHON_MODULE(afiBotBrain) {
 		make_function(&afiBotBrain::GetBody,return_internal_reference<>()))
 		.def_readonly("physicsObject",&afiBotBrain::physicsObject)
 		;
-}
+}*/
 
-aiInput_t afiBotBrainWrapper::Think(int deltaTimeMS)  {
-	object scriptResult;
+	aiInput_t afiBotBrainWrapper::Think(int deltaTimeMS) {
+	py::object scriptResult;
 	aiInput_t scriptInput;
 	try {
-		scriptResult = this->get_override("Think")(deltaTimeMS);
+		scriptResult = this->override("Think")(deltaTimeMS);
 	} catch(...) {
 		gameLocal.HandlePythonError();
 	}
-	scriptInput = extract<aiInput_t>(scriptResult);
+	scriptInput = py::cast<aiInput_t>(scriptResult);//"py::cast" replaces "extract" when switching from boost to pybind
 	return scriptInput;
 }
 
@@ -111,7 +158,8 @@ void afiBotBrainWrapper::OnRespawn() {
 }
 
 void afiBotBrainWrapper::OnKill(idPlayer* dead, idPlayer* killer, const idVec3& dir, int damage) {
-	override functionOverride = this->get_override("OnKill");
+	{
+		override functionOverride = this->get_override("OnKill");
 	if (functionOverride) {
 		try {
 			functionOverride(dead,killer,dir,damage);

@@ -9,8 +9,7 @@ Description: Defines the basic interface that bot brains should follow.
 #define BOTBRAIN_H_
 
 #include "Entity.h"
-#include <boost/python/wrapper.hpp>
-using namespace boost::python;
+
 
 class afiBotPlayer;
 class idAAS;
@@ -87,18 +86,18 @@ public:
 	// navigation
 	idAAS *						aas;
 	int							travelFlags;
-	object						scriptBody;
+	py::object						scriptBody;
 	//This will be the same spawn dict as the body
 	//so the student can fill the one entityDef and
 	//have access to those pairs in the brain.
-	dict						botDict;
+	py::dict						botDict;
 
 	aiInput_t					bodyInput;
 
 private:
 };
 
-class afiBotBrainWrapper : public afiBotBrain,public wrapper<afiBotBrain> {
+class afiBotBrainWrapper : public afiBotBrain,public py::class_<afiBotBrain> {
 public:
 
 	virtual aiInput_t Think(int deltaTimeMS);

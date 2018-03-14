@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "sys/platform.h"
-
+#include <pybind11/pybind11.h>
 #include "idlib/bv/Bounds.h"
 
 idBounds bounds_zero( vec3_zero, vec3_zero );
@@ -36,6 +36,31 @@ idBounds bounds_zero( vec3_zero, vec3_zero );
 float	(idBounds::*getRadius)() const = &idBounds::GetRadius;
 float	(idBounds::*getRadiusCenter)(const idVec3&) const = &idBounds::GetRadius;
 
+namespace py = pybind11;
+PYBIND11_MODULE(idBounds, m) {
+
+	py::class_<idBounds>(m,"idBounds")
+		.def("Clear", &idBounds::Clear)
+		.def("Zero", &idBounds::Zero)
+		.def("GetCenter", &idBounds::GetCenter)
+		.def("GetRadius", getRadius)
+		.def("GetRadius", getRadiusCenter)
+		.def("GetVolume", &idBounds::GetVolume)
+		.def("FromPoints", &idBounds::FromPoints)
+		.def("FromPointTranslation", &idBounds::FromPointTranslation)
+		.def("FromBoundsTranslation", &idBounds::FromBoundsTranslation)
+		.def("FromPointRotation", &idBounds::FromPointRotation)
+		.def("FromBoundsRotation", &idBounds::FromBoundsRotation)
+		.def("Translate", &idBounds::Translate)
+		.def("TranslateSelf", &idBounds::TranslateSelf/*, return_value_policy<reference_existing_object>()*/)
+		.def("Rotate", &idBounds::Rotate)
+		.def("RotateSelf", &idBounds::RotateSelf/*, return_value_policy<reference_existing_object>()*/)
+		.def("IntersectsBounds", &idBounds::IntersectsBounds)
+		.def("LineIntersection", &idBounds::LineIntersection)
+		.def("RayIntersection", &idBounds::RayIntersection)
+		;
+}
+/*
 BOOST_PYTHON_MODULE(idBounds) {
 
 	class_<idBounds>("idBounds")
@@ -58,7 +83,7 @@ BOOST_PYTHON_MODULE(idBounds) {
 		.def("LineIntersection",&idBounds::LineIntersection)
 		.def("RayIntersection",&idBounds::RayIntersection)
 		;
-}
+}*/
 
 /*
 ============

@@ -15,6 +15,7 @@ dispatch to bots.
 #include "framework/FileSystem.h"
 #include "framework/Game.h"
 #include "framework/async/NetworkSystem.h"
+#include <pybind11/pybind11.h>
 
 #define						THINK_SLICE 1.0
 
@@ -48,7 +49,7 @@ PyThreadState*				afiBotManager::mainThreadState = nullptr;
 threadMap_t					afiBotManager::workerThreadMap;
 
 //extern python module init functions
-//BOOST_PYTHON_MODULE Creates these
+//_PYTHON_MODULE Creates these
 //the names are different depending on python version
 // Python 3 >= PyObject* PyInit_moduleName();
 //Python 3 < void(*initfunc)(void) initModuleName();
@@ -66,18 +67,31 @@ extern "C" void initidRotation();
 extern "C" void initidAAS();
 extern "C" void initidActor();
 
-// Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	afiBotManager const volatile * get_pointer<class afiBotManager const volatile >(
-		class afiBotManager const volatile *wrapped)
-	{
-		return wrapped;
-	}
+
+namespace py = pybind11;
+PYBIND11_MODULE(afiBotManager, m) {
+	py::module::import("idPlayer");
+
+	py::enum_<flagStatus_t>(m, "flagStatus_t")
+		.value("FLAGSTATUS_INBASE", flagStatus_t::FLAGSTATUS_INBASE)
+		.value("FLAGSTATUS_TAKEN", flagStatus_t::FLAGSTATUS_TAKEN)
+		.value("FLAGSTATUS_STRAY", flagStatus_t::FLAGSTATUS_STRAY)
+		.export_values();
+		;
+
+	py::class_<afiBotManager>(m, "afiBotManager")
+			.def("GetFlag", &afiBotManager::GetFlag, py::return_value_policy::reference)
+			.def("GetFlagStatus", &afiBotManager::GetFlagStatus)
+			.def("GetFlagCarrier", &afiBotManager::GetFlagCarrier, py::return_value_policy::reference)
+			.def("GetWinningTeam", &afiBotManager::GetWinningTeam)
+			.def("ConsolePrint", &afiBotManager::ConsolePrint)
+			.def_static("GetFlag", &afiBotManager::GetFlagStatus)
+			.def_static("GetFlagStatus",&afiBotManager::GetFlagStatus)
+			.def_static("ConsolePrint", &afiBotManager::ConsolePrint)
+			;
+
 }
-
-
+/*
 BOOST_PYTHON_MODULE(afiBotManager) {
 	import("idPlayer");
 
@@ -98,6 +112,7 @@ BOOST_PYTHON_MODULE(afiBotManager) {
 		.staticmethod("ConsolePrint")
 		;
 }
+*/
 
 void afiBotManager::PrintInfo(void) {
 	common->Printf("Buddy Bots Initialized\n");
@@ -394,11 +409,11 @@ void afiBotManager::InitializePython() {
 	mainThreadState = PyThreadState_Get();
 	interpreterState = mainThreadState->interp;
 	//Grab the main module and globalNamespace
-	gameLocal.main = object(handle<>(borrowed(PyImport_AddModule("__main__"))));
+	gameLocal.main = py::object(handle<>(borrowed(PyImport_AddModule("__main__"))));
 
 	gameLocal.globalNamespace = gameLocal.main.attr("__dict__");
 
-	gameLocal.globalNamespace["sys"] = import("sys");
+	gameLocal.globalNamespace["sys"] = py::module::import("sys");
 }
 
 void afiBotManager::Initialize(void) {
@@ -735,7 +750,7 @@ bool afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
 	//Write the script files into their own folder for the bot, so we don't overwrite previously loaded dlls.
 	idStr sysPath = "";
 	idStr fullPath = "";
-	object botMainDef;
+	py::object botMainDef;
 	if (outputBotProfile->botType == BotType::SCRIPT) {
 		//load all the script files that might run this bot into the bot's folder
 		for (int iFile = 0; iFile < ((*filesInZip)).Num(); ++iFile) {
@@ -775,7 +790,7 @@ bool afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
 			try {
 				//This code appends the loaded bot directory to they python system path
 				//so we can separate work into other python script files.
-				object sys = gameLocal.globalNamespace["sys"];
+				py::object sys = gameLocal.globalNamespace["sys"];
 				sys.attr("path").attr("insert")(0, sysPath.c_str());
 				gameLocal.globalNamespace["sys"] = sys;
 
@@ -1588,7 +1603,7 @@ void afiBotManager::SpawnBot(int clientNum) {
 		if (botProfile->botType == SCRIPT) {
 			brain = SpawnBrain(botName, clientNum);
 
-			object botPlayerClass = gameLocal.globalNamespace["afiBotPlayer"];
+			py::object botPlayerClass = gameLocal.globalNamespace["afiBotPlayer"];
 			brain->scriptBody = botPlayerClass();
 			playerBody = extract<afiBotPlayer*>(ptr(brain->scriptBody));
 

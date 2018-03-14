@@ -1666,7 +1666,7 @@ void idGameLocal::MapClear( bool clearClients ) {
 
 	for( i = ( clearClients ? 0 : MAX_CLIENTS ); i < MAX_GENTITIES; i++ ) {
 		//This was a little bit of a hack if I attempt to clean up the memory
-		//allocated with the boost python objects, the memory manager complains
+		//allocated with the python objects, the memory manager complains
 		//about invalid memory blocks.
 		//if(afiBotManager::IsClientBot(i) == false) {
 			delete entities[ i ];

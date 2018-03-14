@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/hashing/CRC32.h"
 #include "framework/Common.h"
 #include "framework/File.h"
-
+#include <pybind11/pybind11.h>
 #include "idlib/Dict.h"
 
 idStrPool		idDict::globalKeys;
@@ -72,6 +72,24 @@ idAngles		idDict::GetAnglesWrap( const char *key) const {
 	return GetAngles(key);
 }
 
+namespace py = pybind11;
+PYBIND11_MODULE(idDict, m){
+	/*
+	import("idVec3");
+	import("idVec2");
+	import("idAngles");
+	*/
+
+	py::class_<idDict>(m,"idDict")
+		.def("Set", &idDict::Set)
+		.def("SetFloat", &idDict::SetFloat)
+		.def("SetInt", &idDict::SetInt)
+		.def("SetBool", &idDict::SetBool)
+		.def("SetVector", &idDict::SetVector)
+		.def("SetAngles", &idDict::SetAngles)
+		;
+	}
+/*
 BOOST_PYTHON_MODULE(idDict) {
 	import("idVec3");
 	import("idVec2");
@@ -86,7 +104,7 @@ BOOST_PYTHON_MODULE(idDict) {
 		.def("SetAngles",&idDict::SetAngles)
 		;
 }
-
+*/
 /*
 ================
 idDict::operator=

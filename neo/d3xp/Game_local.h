@@ -44,6 +44,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "anim/Anim.h"
 #include "Pvs.h"
 #include "MultiplayerGame.h"
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
 
 #ifdef ID_DEBUG_UNINITIALIZED_MEMORY
 // This is real evil but allows the code to inspect arbitrary class variables.
@@ -411,8 +414,8 @@ public:
 
 	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 
-	object					main;
-	object					globalNamespace;
+	py::object					main;
+	py::object					globalNamespace;
 
 	void					HandlePythonError();
 
