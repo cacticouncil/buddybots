@@ -96,6 +96,18 @@ extern const int NUM_RENDER_PORTAL_BITS;
 
 ===============================================================================
 */
+typedef struct spawnTeamInfo_s {
+	idStr name;
+	int team;
+	bool used;
+
+	spawnTeamInfo_s() {
+		name = "";
+		team = -1;
+		used = false;
+	}
+} spawnTeamInfo_t;
+
 typedef struct entityState_s {
 	int						entityNumber;
 	idBitMsg				state;
@@ -161,6 +173,9 @@ typedef enum {
 typedef struct {
 	idEntity	*ent;
 	int			dist;
+#ifdef CTF
+	int			team;
+#endif
 } spawnSpot_t;
 
 //============================================================================
@@ -218,6 +233,29 @@ private:
 	int						spawnId;
 };
 
+#ifdef _D3XP
+struct timeState_t {
+	int					time;
+	int					previousTime;
+	int					msec;
+	int					framenum;
+	int					realClientTime;
+
+	void				Set( int t, int pt, int ms, int f, int rct )		{ time = t; previousTime = pt; msec = ms; framenum = f; realClientTime = rct; };
+	void				Get( int& t, int& pt, int& ms, int& f, int& rct )	{ t = time; pt = previousTime; ms = msec; f = framenum; rct = realClientTime; };
+	void				Save( idSaveGame *savefile ) const	{ savefile->WriteInt( time ); savefile->WriteInt( previousTime ); savefile->WriteInt( msec ); savefile->WriteInt( framenum ); savefile->WriteInt( realClientTime ); }
+	void				Restore( idRestoreGame *savefile )	{ savefile->ReadInt( time ); savefile->ReadInt( previousTime ); savefile->ReadInt( msec ); savefile->ReadInt( framenum ); savefile->ReadInt( realClientTime ); }
+	void				Increment()											{ framenum++; previousTime = time; time += msec; realClientTime = time; };
+};
+
+enum slowmoState_t {
+	SLOWMO_STATE_OFF,
+	SLOWMO_STATE_RAMPUP,
+	SLOWMO_STATE_ON,
+	SLOWMO_STATE_RAMPDOWN
+};
+#endif
+
 //============================================================================
 
 class idGameLocal : public idGame {
@@ -228,6 +266,7 @@ public:
 	usercmd_t				usercmds[MAX_CLIENTS];	// client input commands
 	idDict					persistentPlayerInfo[MAX_CLIENTS];
 	idEntity *				entities[MAX_GENTITIES];// index to entities
+	idList<spawnTeamInfo_t> playerEntities;			// info for player entities for team spawning
 	int						spawnIds[MAX_GENTITIES];// for use in idEntityPtr
 	int						firstFreeIndex;			// first free index in the entities array
 	int						num_entities;			// current number <= MAX_GENTITIES
@@ -272,7 +311,7 @@ public:
 	int						framenum;
 	int						previousTime;			// time in msec of last frame
 	int						time;					// in msec
-	static const int		msec = USERCMD_MSEC;	// time since last update in milliseconds
+	int						msec;					// time since last update in milliseconds
 
 	int						vacuumAreaNum;			// -1 if level doesn't have any outside areas
 
@@ -294,9 +333,41 @@ public:
 	idEntityPtr<idEntity>	lastGUIEnt;				// last entity with a GUI, used by Cmd_NextGUI_f
 	int						lastGUI;				// last GUI on the lastGUIEnt
 
+#ifdef _D3XP
+	idEntityPtr<idEntity>	portalSkyEnt;
+	bool					portalSkyActive;
+
+	void					SetPortalSkyEnt( idEntity *ent );
+	bool					IsPortalSkyAcive();
+
+	timeState_t				fast;
+	timeState_t				slow;
+
+	slowmoState_t			slowmoState;
+	float					slowmoMsec;
+
+	bool					quickSlowmoReset;
+
+	virtual void			SelectTimeGroup( int timeGroup );
+	virtual int				GetTimeGroupTime( int timeGroup );
+
+	virtual void			GetBestGameType( const char* map, const char* gametype, char buf[ MAX_STRING_CHARS ] );
+
+	void					ComputeSlowMsec();
+	void					RunTimeGroup2();
+
+	void					ResetSlowTimeVars();
+	void					QuickSlowmoReset();
+
+	bool					NeedRestart();
+#endif
+
+	void					Tokenize( idStrList &out, const char *in );
+
 	// ---------------------- Public idGame Interface -------------------
 
 							idGameLocal();
+							~idGameLocal();
 
 	virtual void			Init( void );
 	virtual void			Shutdown( void );
@@ -337,9 +408,23 @@ public:
 	virtual void			SwitchTeam( int clientNum, int team );
 
 	virtual bool			DownloadRequest( const char *IP, const char *guid, const char *paks, char urls[ MAX_STRING_CHARS ] );
-	virtual void			GetBotInput(int clientNum, usercmd_t& userCmd) {common->Printf("ERROR BOT INPUT REQUESTED!\n");}
-	// ---------------------- Public idGameLocal Interface -------------------
 
+	virtual void				GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
+
+	object					main;
+	object					globalNamespace;
+
+	void					HandlePythonError();
+
+	//Function necessary to hook into entity spawning.
+	void					SetSpawnArgs(const idDict& args);
+
+	//Function called by the server when it needs the usercmd for the current frame.
+	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd );
+
+//	virtual void			GetBotInput( int clientNum, usercmd_t &userCmd ) { Error( "Bot input requested\n" ); };
+
+	// ---------------------- Public idGameLocal Interface -------------------
 	void					Printf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
 	void					DPrintf( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
 	void					Warning( const char *fmt, ... ) const id_attribute((format(printf,2,3)));
@@ -386,12 +471,16 @@ public:
 
 	bool					InPlayerPVS( idEntity *ent ) const;
 	bool					InPlayerConnectedArea( idEntity *ent ) const;
+#ifdef _D3XP
+	pvsHandle_t				GetPlayerPVS()			{ return playerPVS; };
+#endif
 
 	void					SetCamera( idCamera *cam );
 	idCamera *				GetCamera( void ) const;
 	bool					SkipCinematic( void );
 	void					CalcFov( float base_fov, float &fov_x, float &fov_y ) const;
 
+	void					AppendPlayerEntities(const idStr name, const int team);
 	void					AddEntityToHash( const char *name, idEntity *ent );
 	bool					RemoveEntityFromHash( const char *name, idEntity *ent );
 	int						GetTargets( const idDict &args, idList< idEntityPtr<idEntity> > &list, const char *ref ) const;
@@ -446,7 +535,7 @@ public:
 	void					SetGibTime( int _time ) { nextGibTime = _time; };
 	int						GetGibTime() { return nextGibTime; };
 
-	bool					NeedRestart();
+
 
 private:
 	const static int		INITIAL_SPAWN_COUNT = 1;
@@ -461,7 +550,7 @@ private:
 	idLocationEntity **		locationEntities;		// for location names, etc
 
 	idCamera *				camera;
-	const idMaterial *		globalMaterial;			// for overriding everything
+	const idMaterial *		globalMaterial;		// for overriding everything
 
 	idList<idAAS *>			aasList;				// area system
 	idStrList				aasNames;
@@ -493,6 +582,12 @@ private:
 	idStaticList<spawnSpot_t, MAX_GENTITIES> spawnSpots;
 	idStaticList<idEntity *, MAX_GENTITIES> initialSpots;
 	int						currentInitialSpot;
+
+#ifdef CTF
+	idStaticList<spawnSpot_t, MAX_GENTITIES> teamSpawnSpots[2];
+	idStaticList<idEntity *, MAX_GENTITIES> teamInitialSpots[2];
+	int						teamCurrentInitialSpot[2];
+#endif
 
 	idDict					newInfo;
 
@@ -543,15 +638,7 @@ private:
 	void					DumpOggSounds( void );
 	void					GetShakeSounds( const idDict *dict );
 
-	virtual void			SelectTimeGroup( int timeGroup );
-	virtual int				GetTimeGroupTime( int timeGroup );
-	virtual void			GetBestGameType( const char* map, const char* gametype, char buf[ MAX_STRING_CHARS ] );
-
-	void					Tokenize( idStrList &out, const char *in );
-
 	void					UpdateLagometer( int aheadOfServer, int dupeUsercmds );
-
-	virtual void			GetMapLoadingGUI( char gui[ MAX_STRING_CHARS ] );
 };
 
 //============================================================================
@@ -626,7 +713,7 @@ ID_INLINE int idEntityPtr<type>::GetEntityNum( void ) const {
 	return ( spawnId & ( ( 1 << GENTITYNUM_BITS ) - 1 ) );
 }
 
-//============================================================================
+//  ===========================================================================
 
 //
 // these defines work for all startsounds from all entity types
@@ -654,5 +741,8 @@ typedef enum {
 extern const float	DEFAULT_GRAVITY;
 extern const idVec3	DEFAULT_GRAVITY_VEC3;
 extern const int	CINEMATIC_SKIP_DELAY;
+
+//#include "bot/BotManager.h"
+//#include "bot/BotPlayer.h"
 
 #endif	/* !__GAME_LOCAL_H__ */

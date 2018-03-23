@@ -41,6 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "WorldSpawn.h"
 #include "Fx.h"
 #include "Misc.h"
+#include "bot/BotManager.h"
+#include "../Confetti_Timer.h"
 
 #include "SysCmds.h"
 
@@ -155,6 +157,26 @@ void Cmd_ReloadScript_f( const idCmdArgs &args ) {
 
 	// recompile the scripts
 	gameLocal.program.Startup( SCRIPT_DEFAULT );
+
+#ifdef _D3XP
+	// loads a game specific main script file
+	idStr gamedir;
+	int i;
+	for ( i = 0; i < 2; i++ ) {
+		if ( i == 0 ) {
+			gamedir = cvarSystem->GetCVarString( "fs_game_base" );
+		} else if ( i == 1 ) {
+			gamedir = cvarSystem->GetCVarString( "fs_game" );
+		}
+		if ( gamedir.Length() > 0 ) {
+			idStr scriptFile = va( "script/%s_main.script", gamedir.c_str() );
+			if ( fileSystem->ReadFile(scriptFile.c_str(), NULL) > 0 ) {
+				gameLocal.program.CompileFile( scriptFile.c_str() );
+				gameLocal.program.FinishCompilation();
+			}
+		}
+	}
+#endif
 
 	// error out so that the user can rerun the scripts
 	gameLocal.Error( "Exiting map to reload scripts" );
@@ -326,7 +348,7 @@ void Cmd_Give_f( const idCmdArgs &args ) {
 	}
 
 	if ( give_all || idStr::Icmp( name, "weapons" ) == 0 ) {
-		player->inventory.weapons = BIT( MAX_WEAPONS ) - 1;
+		player->inventory.weapons = 0xffffffff >> ( 32 - MAX_WEAPONS );
 		player->CacheWeapons();
 
 		if ( !give_all ) {
@@ -360,6 +382,37 @@ void Cmd_Give_f( const idCmdArgs &args ) {
 		return;
 	}
 
+#ifdef _D3XP
+	if ( idStr::Icmp( name, "invulnerability" ) == 0 ) {
+		if ( args.Argc() > 2 ) {
+			player->GivePowerUp( INVULNERABILITY, atoi( args.Argv( 2 ) ) );
+		}
+		else {
+			player->GivePowerUp( INVULNERABILITY, 30000 );
+		}
+		return;
+	}
+
+	if ( idStr::Icmp( name, "helltime" ) == 0 ) {
+		if ( args.Argc() > 2 ) {
+			player->GivePowerUp( HELLTIME, atoi( args.Argv( 2 ) ) );
+		}
+		else {
+			player->GivePowerUp( HELLTIME, 30000 );
+		}
+		return;
+	}
+
+	if ( idStr::Icmp( name, "envirosuit" ) == 0 ) {
+		if ( args.Argc() > 2 ) {
+			player->GivePowerUp( ENVIROSUIT, atoi( args.Argv( 2 ) ) );
+		}
+		else {
+			player->GivePowerUp( ENVIROSUIT, 30000 );
+		}
+		return;
+	}
+#endif
 	if ( idStr::Icmp( name, "pda" ) == 0 ) {
 		player->GivePDA( args.Argv(2), NULL );
 		return;
@@ -581,6 +634,24 @@ static void Cmd_Say( bool team, const idCmdArgs &args ) {
 		if ( player ) {
 			name = player->GetUserInfo()->GetString( "ui_name", "player" );
 		}
+
+#ifdef CTF
+		// Append the player's location to team chat messages in CTF
+		if ( gameLocal.mpGame.IsGametypeFlagBased() && team && player ) {
+			idLocationEntity *locationEntity = gameLocal.LocationForPoint( player->GetEyePosition() );
+
+			if ( locationEntity ) {
+				idStr temp = "[";
+				temp += locationEntity->GetLocation();
+				temp += "] ";
+				temp += text;
+				text = temp;
+			}
+
+		}
+#endif
+
+
 	} else {
 		name = "server";
 	}
@@ -854,6 +925,7 @@ Removes the specified entity
 */
 void Cmd_Remove_f( const idCmdArgs &args ) {
 	if ( !gameLocal.GetLocalPlayer() || !gameLocal.CheatsOk( false ) ) {
+		gameLocal.Printf("GetLocalPlayer false, or Cheats are not okay");
 		return;
 	}
 	if ( args.Argc() != 2 ) {
@@ -878,7 +950,8 @@ Cmd_TestLight_f
 void Cmd_TestLight_f( const idCmdArgs &args ) {
 	int			i;
 	idStr		filename;
-	const char *key, *value, *name;
+	const char *key, *value;
+	const char *name = NULL;
 	idPlayer *	player;
 	idDict		dict;
 
@@ -935,7 +1008,8 @@ Cmd_TestPointLight_f
 ===================
 */
 void Cmd_TestPointLight_f( const idCmdArgs &args ) {
-	const char *key, *value, *name;
+	const char *key, *value;
+	const char *name = NULL;
 	int			i;
 	idPlayer	*player;
 	idDict		dict;
@@ -1592,7 +1666,7 @@ static void Cmd_SaveSelected_f( const idCmdArgs &args ) {
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	idDict dict;
 	idStr mapName;
-	const char *name;
+	const char *name = NULL;
 
 	player = gameLocal.GetLocalPlayer();
 	if ( !player || !gameLocal.CheatsOk() ) {
@@ -1675,7 +1749,7 @@ static void Cmd_SaveMoveables_f( const idCmdArgs &args ) {
 	idMapEntity *mapEnt;
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	idStr mapName;
-	const char *name;
+	const char *name = NULL;
 
 	if ( !gameLocal.CheatsOk() ) {
 		return;
@@ -1758,7 +1832,7 @@ static void Cmd_SaveRagdolls_f( const idCmdArgs &args ) {
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	idDict dict;
 	idStr mapName;
-	const char *name;
+	const char *name = NULL;
 
 	if ( !gameLocal.CheatsOk() ) {
 		return;
@@ -1875,7 +1949,7 @@ static void Cmd_SaveLights_f( const idCmdArgs &args ) {
 	idMapFile *mapFile = gameLocal.GetLevelMap();
 	idDict dict;
 	idStr mapName;
-	const char *name;
+	const char *name = NULL;
 
 	if ( !gameLocal.CheatsOk() ) {
 		return;
@@ -2028,7 +2102,13 @@ static void Cmd_RecordViewNotes_f( const idCmdArgs &args ) {
 
 	idStr str = args.Argv(1);
 	str.SetFileExtension( ".txt" );
+
+#ifdef _D3XP
+	idFile *file = fileSystem->OpenFileAppend( str, false, "fs_cdpath" );
+#else
 	idFile *file = fileSystem->OpenFileAppend( str );
+#endif
+
 	if ( file ) {
 		file->WriteFloatString( "\"view\"\t( %s )\t( %s )\r\n", origin.ToString(), axis.ToString() );
 		file->WriteFloatString( "\"comments\"\t\"%s: %s\"\r\n\r\n", args.Argv(2), args.Argv(3) );
@@ -2268,6 +2348,32 @@ void Cmd_NextGUI_f( const idCmdArgs &args ) {
 	player->Teleport( origin, angles, NULL );
 }
 
+#ifdef _D3XP
+void Cmd_SetActorState_f( const idCmdArgs &args ) {
+
+	if ( args.Argc() != 3 ) {
+		common->Printf( "usage: setActorState <entity name> <state>\n" );
+		return;
+	}
+
+	idEntity* ent;
+	ent = gameLocal.FindEntity( args.Argv( 1 ) );
+	if ( !ent ) {
+		gameLocal.Printf( "entity not found\n" );
+		return;
+	}
+
+
+	if(!ent->IsType(idActor::Type)) {
+		gameLocal.Printf( "entity not an actor\n" );
+		return;
+	}
+
+	idActor* actor = (idActor*)ent;
+	actor->PostEventMS(&AI_SetState, 0, args.Argv(2));
+}
+#endif
+
 static void ArgCompletion_DefFile( const idCmdArgs &args, void(*callback)( const char *s ) ) {
 	cmdSystem->ArgCompletion_FolderExtension( args, callback, "def/", true, ".def", NULL );
 }
@@ -2294,6 +2400,42 @@ void Cmd_TestId_f( const idCmdArgs &args ) {
 	}
 	gameLocal.mpGame.AddChatLine( common->GetLanguageDict()->GetString( id ), "<nothing>", "<nothing>", "<nothing>" );
 }
+
+/*
+===============
+Cmd_ChangeTickRate
+changes the tick rate to increase/decease speed
+===============
+*/
+void Cmd_ChangeTickRate_f(const idCmdArgs& args) {
+	if (gameLocal.isClient) { // !gameLocal.isServer isn't valid soon enough for some reason
+		gameLocal.Printf("Tick rate may only be changed on server\n");
+		return;
+	}
+
+	bool acceptableString;
+	idStr tickChange = args.Argv(1);
+	if (tickChange.Length() == 0) {
+		acceptableString = false;
+	} else if (!tickChange.IsNumeric()) {
+		acceptableString = false;
+	} else {
+		acceptableString = true;
+	}
+
+
+	if (!acceptableString) {
+		tickChange = to_string(tickRate).c_str();
+		gameLocal.Printf("Tickrate is ");
+		gameLocal.Printf(tickChange.c_str());
+		gameLocal.Printf("x\n");
+	} else {
+		tickRate = atoi(tickChange.c_str());
+		gameLocal.Printf("Tickrate is ");
+		gameLocal.Printf(tickChange.c_str());
+		gameLocal.Printf("x\n");
+	}
+};
 
 /*
 =================
@@ -2403,6 +2545,26 @@ void idGameLocal::InitConsoleCommands( void ) {
 	// localization help commands
 	cmdSystem->AddCommand( "nextGUI",				Cmd_NextGUI_f,				CMD_FL_GAME|CMD_FL_CHEAT,	"teleport the player to the next func_static with a gui" );
 	cmdSystem->AddCommand( "testid",				Cmd_TestId_f,				CMD_FL_GAME|CMD_FL_CHEAT,	"output the string for the specified id." );
+
+#ifdef _D3XP
+	cmdSystem->AddCommand( "setActorState",			Cmd_SetActorState_f,		CMD_FL_GAME|CMD_FL_CHEAT,	"Manually sets an actors script state", idGameLocal::ArgCompletion_EntityName );
+#endif
+	cmdSystem->AddCommand( "addBot",				afiBotManager::Cmd_AddBot_f,			CMD_FL_GAME,	"add a bot to the server",									idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
+	cmdSystem->AddCommand( "addTeam",				afiBotManager::Cmd_AddTeam_f,			CMD_FL_GAME,	"add team and all bots to the server",						idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF>);
+	cmdSystem->AddCommand( "removeBot",				afiBotManager::Cmd_RemoveBot_f,			CMD_FL_GAME,	"Remove a bot from the server" );
+	cmdSystem->AddCommand( "removeAllBots",			afiBotManager::Cmd_RemoveAllBots_f,		CMD_FL_GAME,	"Remove all bots from the server");
+	cmdSystem->AddCommand( "removeTeam",			afiBotManager::Cmd_RemoveTeam_f,		CMD_FL_GAME,	"Remove all bots in a team, and the team from the server");
+	cmdSystem->AddCommand( "removeAllTeams",		afiBotManager::Cmd_RemoveAllTeams_f,	CMD_FL_GAME,	"Remove all bots on teams, and all teams from the server");
+	cmdSystem->AddCommand( "reloadBot",				afiBotManager::Cmd_ReloadBot_f,			CMD_FL_GAME,	"Reload a bot script");
+	cmdSystem->AddCommand( "reloadAllBots",			afiBotManager::Cmd_ReloadAllBots_f,		CMD_FL_GAME,	"Reload all bot scripts" );
+	cmdSystem->AddCommand( "printallbots",			afiBotManager::Cmd_PrintAllBots_f,		CMD_FL_GAME,	"Prints the names, teams, and indicies of all bots");
+	cmdSystem->AddCommand("removebotindex",			afiBotManager::Cmd_RemoveBotIndex_f,	CMD_FL_GAME,	"Removes the bot at the given index");
+	cmdSystem->AddCommand( "addBot",				afiBotManager::Cmd_AddBot_f,			CMD_FL_GAME,	"add a bot to the server",									idCmdSystem::ArgCompletion_Decl<DECL_ENTITYDEF> );
+	cmdSystem->AddCommand( "removeBot",				afiBotManager::Cmd_RemoveBot_f,			CMD_FL_GAME,	"Remove a bot from the server" );
+	cmdSystem->AddCommand("removeAllBots",			afiBotManager::Cmd_RemoveAllBots_f,		CMD_FL_GAME,	"Remove all bots from the server");
+	cmdSystem->AddCommand( "reloadBot",				afiBotManager::Cmd_ReloadBot_f,			CMD_FL_GAME,	"Reload a bot script");
+	cmdSystem->AddCommand( "reloadAllBots",			afiBotManager::Cmd_ReloadAllBots_f,		CMD_FL_GAME,	"Reload all bot scripts" );
+	cmdSystem->AddCommand( "tickrate",				Cmd_ChangeTickRate_f,					CMD_FL_GAME,	"Manipulate the game tick rate" );
 }
 
 /*

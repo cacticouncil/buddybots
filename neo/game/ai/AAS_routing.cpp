@@ -34,7 +34,10 @@ If you have questions concerning this license or the applicable additional terms
 #define CACHETYPE_AREA				1
 #define CACHETYPE_PORTAL			2
 
-#define MAX_ROUTING_CACHE_MEMORY	(2*1024*1024)
+// TinMan: MAX_ROUTING_CACHE_MEMORY
+
+#define MAX_ROUTING_CACHE_MEMORY	(4*1024*1024) // TinMan: 4Mb
+//#define MAX_ROUTING_CACHE_MEMORY	(2*1024*1024)
 
 #define LEDGE_TRAVELTIME_PANALTY	250
 
@@ -166,7 +169,7 @@ void idAASLocal::CalculateAreaTravelTimes(void) {
 		}
 	}
 
-	assert( ( (ptrdiff_t) bytePtr - (ptrdiff_t) areaTravelTimes ) <= numAreaTravelTimes * sizeof( unsigned short ) );
+	assert(  ( ( ptrdiff_t ) bytePtr - ( ptrdiff_t ) areaTravelTimes ) <= numAreaTravelTimes * sizeof( unsigned short ) );
 }
 
 /*
@@ -326,9 +329,9 @@ void idAASLocal::RoutingStats( void ) const {
 	gameLocal.Printf( "%6d area cache (%d KB)\n", numAreaCache, totalAreaCacheMemory >> 10 );
 	gameLocal.Printf( "%6d portal cache (%d KB)\n", numPortalCache, totalPortalCacheMemory >> 10 );
 	gameLocal.Printf( "%6d total cache (%d KB)\n", numAreaCache + numPortalCache, totalCacheMemory >> 10 );
-	gameLocal.Printf( "%6d area travel times (%zu KB)\n", numAreaTravelTimes, ( numAreaTravelTimes * sizeof( unsigned short ) ) >> 10 );
-	gameLocal.Printf( "%6d area cache entries (%zu KB)\n", areaCacheIndexSize, ( areaCacheIndexSize * sizeof( idRoutingCache * ) ) >> 10 );
-	gameLocal.Printf( "%6d portal cache entries (%zu KB)\n", portalCacheIndexSize, ( portalCacheIndexSize * sizeof( idRoutingCache * ) ) >> 10 );
+	gameLocal.Printf( "%6d area travel times (%zd KB)\n", numAreaTravelTimes, ( numAreaTravelTimes * sizeof( unsigned short ) ) >> 10 );
+	gameLocal.Printf( "%6d area cache entries (%zd KB)\n", areaCacheIndexSize, ( areaCacheIndexSize * sizeof( idRoutingCache * ) ) >> 10 );
+	gameLocal.Printf( "%6d portal cache entries (%zd KB)\n", portalCacheIndexSize, ( portalCacheIndexSize * sizeof( idRoutingCache * ) ) >> 10 );
 }
 
 /*
@@ -689,7 +692,7 @@ idReachability *idAASLocal::GetAreaReachability( int areaNum, int reachabilityNu
 idAASLocal::ClusterAreaNum
 ============
 */
-ID_INLINE int idAASLocal::ClusterAreaNum( int clusterNum, int areaNum ) const {
+/*ID_INLINE */int idAASLocal::ClusterAreaNum( int clusterNum, int areaNum ) const {
 	int side, areaCluster;
 
 	areaCluster = file->GetArea( areaNum ).cluster;

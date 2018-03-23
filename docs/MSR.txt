@@ -1,0 +1,30 @@
+Minimum System Requirements:
+
+  · English version of Microsoft® Windows® 2000/XP
+  · Pentium® 4 1.5 GHz or Athlon(tm) XP 1500+ processor
+  · 384MB RAM
+  · 8x Speed CD-ROM drive (1200KB/sec sustained transfer rate) and latest drivers
+  · 2.2GB of uncompressed free hard disk space (plus 400MB for Windows® swap file)
+  · 100% DirectX® 9.0b compatible 16-bit sound card and latest drivers
+  · 100% Windows® 2000/XP compatible mouse, keyboard and latest drivers
+  · DirectX® 9.0b (included)
+  · 3D hardware Accelerator Card Required - 100% DirectX® 9.0b compatible 64MB Hardware Accelerated video card and the latest drivers.
+      o ATI® Radeon 8500
+      o ATI® Radeon 9000
+      o ATI® Radeon 9200
+      o ATI® Radeon 9500
+      o ATI® Radeon 9600
+      o ATI® Radeon 9700
+      o ATI® Radeon 9800
+      o All Nvidia® GeForce 3/Ti series
+      o All Nvidia® GeForce 4MX series
+      o All Nvidia® GeForce 4/Ti series
+      o All Nvidia® GeForce FX series
+      o Nvidia® GeForce 6800 series
+
+Multiplayer Requirements:
+
+  · Internet (TCP/IP) and LAN (TCP/IP) play supported
+  · Internet play requires broadband connection and latest drivers
+  · LAN play requires network interface card and latest drivers
+

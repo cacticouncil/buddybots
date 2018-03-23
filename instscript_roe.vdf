@@ -1,0 +1,14 @@
+"InstallScript"
+{
+	"File Template"
+	{
+		"settings_template"
+		{
+			"HasRunKey"			"HKEY_CURRENT_USER\\Software\\Valve\\Steam\\Apps\\9070"
+			"template_file"			"%INSTALLDIR%\\base\\STEAM_xpkey"
+			"output_file"			"%INSTALLDIR%\\base\\xpkey"
+
+			"CDKEY"				"HKEY_CURRENT_USER\\Software\\Valve\\TestApp9070\\SteamKey"
+		}
+	}
+}

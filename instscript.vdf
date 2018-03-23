@@ -1,0 +1,51 @@
+"InstallScript"
+{
+       "Registry"
+       {
+               "HKEY_LOCAL_MACHINE\\SOFTWARE\\id\\Doom 3"
+               {
+                       "string"
+                       	{
+                              	"EXEString"        	"%INSTALLDIR%\\doom3.exe"
+                              	"InstallDrive"            "%ROOTDRIVE%"
+                              	"InstallPath"            	"%INSTALLDIR%"
+                              	"SPexe"            	"%INSTALLDIR%\\doom3.exe"
+                              	"Version"            	"1.2"
+                              	"Version_Patch"        	"1.3"
+                       	}
+               }
+               "HKEY_LOCAL_MACHINE\\SOFTWARE\\id\\Doom 3"
+               {		
+                       "string"
+                       {
+                               "english"
+                               {
+                                       "Language"   "enu"
+                               }
+                               "german"
+                               {
+                                       "Language"   "deu"
+                               }
+                               "italian"
+                               {
+                                       "Language"   "ita"
+                               }
+                               "spanish"
+                               {
+                                       "Language"   "esp"
+                               }
+                       }
+               }
+       }
+	"File Template"
+	{
+		"doomkey_template"
+			{
+				"HasRunKey"			"HKEY_CURRENT_USER\\Software\\Valve\\Steam\\Apps\\9050"
+				"template_file"			"%INSTALLDIR%\\base\\STEAM_doomkey"
+				"output_file"			"%INSTALLDIR%\\base\\doomkey"
+
+				"CDKEY"				"HKEY_CURRENT_USER\\Software\\Valve\\TestApp9050\\SteamKey"
+			}
+	}
+}

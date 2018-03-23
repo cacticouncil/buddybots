@@ -34,6 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "gamesys/SysCmds.h"
 #include "Entity.h"
 #include "Player.h"
+#include "bot/BotManager.h"
 
 #include "Game_local.h"
 
@@ -323,7 +324,11 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 
 	// spawn the player
-	SpawnPlayer( clientNum );
+	if ( afiBotManager::IsClientBot( clientNum ) ) {
+		afiBotManager::SpawnBot( clientNum );
+	} else {
+		SpawnPlayer( clientNum );
+	}
 	if ( clientNum == localClientNum ) {
 		mpGame.EnterGame( clientNum );
 	}
@@ -334,6 +339,9 @@ void idGameLocal::ServerClientBegin( int clientNum ) {
 	outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 	outMsg.WriteByte( clientNum );
 	outMsg.WriteInt( spawnIds[ clientNum ] );
+	outMsg.WriteBits( afiBotManager::IsClientBot( clientNum ), 1 );
+	if ( afiBotManager::IsClientBot( clientNum ) )
+		outMsg.WriteShort( afiBotManager::GetBotDefNumber( clientNum ) );
 	networkSystem->ServerSendReliableMessage( -1, outMsg );
 }
 
@@ -357,18 +365,24 @@ void idGameLocal::ServerClientDisconnect( int clientNum ) {
 	FreeSnapshotsOlderThanSequence( clientNum, 0x7FFFFFFF );
 
 	// free entity states stored for this client
-	for ( i = 0; i < MAX_GENTITIES; i++ ) {
+	for ( i = 0; i < MAX_GENTITIES; ++i ) {
 		if ( clientEntityStates[ clientNum ][ i ] ) {
 			entityStateAllocator.Free( clientEntityStates[ clientNum ][ i ] );
 			clientEntityStates[ clientNum ][ i ] = NULL;
 		}
 	}
 
+	for (i = 0; i < gameLocal.playerEntities.Num(); ++i) {
+		gameLocal.playerEntities[i].used = false;
+	}
+
 	// clear the client PVS
 	memset( clientPVS[ clientNum ], 0, sizeof( clientPVS[ clientNum ] ) );
 
+	//if(!afiBotManager::IsClientBot(clientNum)) {
 	// delete the player entity
 	delete entities[ clientNum ];
+	//}
 
 	mpGame.DisconnectClient( clientNum );
 
@@ -397,6 +411,9 @@ void idGameLocal::ServerWriteInitialReliableMessages( int clientNum ) {
 		outMsg.WriteByte( GAME_RELIABLE_MESSAGE_SPAWN_PLAYER );
 		outMsg.WriteByte( i );
 		outMsg.WriteInt( spawnIds[ i ] );
+		outMsg.WriteBits( afiBotManager::IsClientBot( i ), 1 );
+		if ( afiBotManager::IsClientBot( i ) )
+			outMsg.WriteShort( afiBotManager::GetBotDefNumber( i ) );
 		networkSystem->ServerSendReliableMessage( clientNum, outMsg );
 	}
 
@@ -588,6 +605,20 @@ void idGameLocal::ServerWriteSnapshot( int clientNum, int sequence, idBitMsg &ms
 	// don't use PVSAreas for networking - PVSAreas depends on animations (and md5 bounds), which are not synchronized
 	numSourceAreas = gameRenderWorld->BoundsInAreas( spectated->GetPlayerPhysics()->GetAbsBounds(), sourceAreas, idEntity::MAX_PVS_AREAS );
 	pvsHandle = gameLocal.pvs.SetupCurrentPVS( sourceAreas, numSourceAreas, PVS_NORMAL );
+
+#ifdef _D3XP
+	// Add portalSky areas to PVS
+	if ( portalSkyEnt.GetEntity() ) {
+		pvsHandle_t	otherPVS, newPVS;
+		idEntity *skyEnt = portalSkyEnt.GetEntity();
+
+		otherPVS = gameLocal.pvs.SetupCurrentPVS( skyEnt->GetPVSAreas(), skyEnt->GetNumPVSAreas() );
+		newPVS = gameLocal.pvs.MergeCurrentPVS( pvsHandle, otherPVS );
+		pvs.FreeCurrentPVS( pvsHandle );
+		pvs.FreeCurrentPVS( otherPVS );
+		pvsHandle = newPVS;
+	}
+#endif
 
 #if ASYNC_WRITE_TAGS
 	idRandom tagRandom;
@@ -1120,6 +1151,20 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 	numSourceAreas = gameRenderWorld->BoundsInAreas( spectated->GetPlayerPhysics()->GetAbsBounds(), sourceAreas, idEntity::MAX_PVS_AREAS );
 	pvsHandle = gameLocal.pvs.SetupCurrentPVS( sourceAreas, numSourceAreas, PVS_NORMAL );
 
+#ifdef _D3XP
+	// Add portalSky areas to PVS
+	if ( portalSkyEnt.GetEntity() ) {
+		pvsHandle_t	otherPVS, newPVS;
+		idEntity *skyEnt = portalSkyEnt.GetEntity();
+
+		otherPVS = gameLocal.pvs.SetupCurrentPVS( skyEnt->GetPVSAreas(), skyEnt->GetNumPVSAreas() );
+		newPVS = gameLocal.pvs.MergeCurrentPVS( pvsHandle, otherPVS );
+		pvs.FreeCurrentPVS( pvsHandle );
+		pvs.FreeCurrentPVS( otherPVS );
+		pvsHandle = newPVS;
+	}
+#endif
+
 	// read the PVS from the snapshot
 #if ASYNC_WRITE_PVS
 	int serverPVS[idEntity::MAX_PVS_AREAS];
@@ -1158,7 +1203,7 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 		// if the entity is not in the snapshot PVS
 		if ( !( snapshot->pvs[ent->entityNumber >> 5] & ( 1 << ( ent->entityNumber & 31 ) ) ) ) {
 			if ( ent->PhysicsTeamInPVS( pvsHandle ) ) {
-				if ( ent->entityNumber >= MAX_CLIENTS && ent->entityNumber < mapSpawnCount ) {
+				if ( ent->entityNumber >= MAX_CLIENTS && ent->entityNumber < mapSpawnCount && !ent->spawnArgs.GetBool("net_dynamic", "0")) { //_D3XP
 					// server says it's not in PVS, client says it's in PVS
 					// if that happens on map entities, most likely something is wrong
 					// I can see that moving pieces along several PVS could be a legit situation though
@@ -1166,6 +1211,10 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 					common->DWarning( "client thinks map entity 0x%x (%s) is stale, sequence 0x%x", ent->entityNumber, ent->name.c_str(), sequence );
 				} else {
 					ent->FreeModelDef();
+#ifdef CTF
+					// possible fix for left over lights on CTF flag
+					ent->FreeLightDef();
+#endif
 					ent->UpdateVisuals();
 					ent->GetPhysics()->UnlinkClip();
 				}
@@ -1330,6 +1379,17 @@ void idGameLocal::ClientProcessReliableMessage( int clientNum, const idBitMsg &m
 		case GAME_RELIABLE_MESSAGE_SPAWN_PLAYER: {
 			int client = msg.ReadByte();
 			int spawnId = msg.ReadInt();
+			// sb - check to see if reliable message is to spawn bot or player
+			bool isBot = msg.ReadBits(1); // this has to be outside of the if below because it is always written it always needs to be read right?
+			if (!entities[client]) {
+				if (isBot) {
+					afiBotManager::SetBotDefNumber(client, (int)msg.ReadShort());
+					afiBotManager::SpawnBot(client);
+				}
+				else {
+					SpawnPlayer(client);
+				}
+			}
 			if ( !entities[ client ] ) {
 				SpawnPlayer( client );
 				entities[ client ]->FreeModelDef();
@@ -1407,6 +1467,14 @@ void idGameLocal::ClientProcessReliableMessage( int clientNum, const idBitMsg &m
 			break;
 		}
 		case GAME_RELIABLE_MESSAGE_RESTART: {
+#ifdef _D3XP
+			int newServerInfo = msg.ReadBits(1);
+			if(newServerInfo) {
+				idDict info;
+				msg.ReadDeltaDict( info, NULL );
+				gameLocal.SetServerInfo( info );
+			}
+#endif
 			MapRestart();
 			break;
 		}
@@ -1502,6 +1570,11 @@ gameReturn_t idGameLocal::ClientPrediction( int clientNum, const usercmd_t *clie
 		isNewFrame = false;
 	}
 
+#ifdef _D3XP
+	slow.Set( time, previousTime, msec, framenum, realClientTime );
+	fast.Set( time, previousTime, msec, framenum, realClientTime );
+#endif
+
 	// set the user commands for this frame
 	memcpy( usercmds, clientCmds, numClients * sizeof( usercmds[ 0 ] ) );
 
@@ -1524,6 +1597,44 @@ gameReturn_t idGameLocal::ClientPrediction( int clientNum, const usercmd_t *clie
 		strncpy( ret.sessionCommand, sessionCommand, sizeof( ret.sessionCommand ) );
 	}
 	return ret;
+}
+
+/*
+===============
+idGameLocal::GetBotInput
+TinMan: Engine calls this on fake clients, so push your usercmds
+TinMan: I think I would rather have had a SetBotInput or some way to push bot usercmd into the normal gamelocal.usercmds.
+===============
+*/
+void idGameLocal::GetBotInput( int clientNum, usercmd_t &userCmd ) {
+	// TinMan: Get Bot input
+	idEntity * client = entities[ clientNum ];
+	if ( !client ) {
+		//Error( va( "idGameLocal::GetBotInput - invalid client %i\n", clientNum ) );
+		return;
+	}
+
+	if ( !afiBotManager::IsClientBot( clientNum ) ) {
+		//Error( va( "idGameLocal::GetBotInput - not a fake client %i\n", clientNum ) );
+		return;
+	}
+
+
+	//BotPlayer * bot = static_cast< BotPlayer * >(client);
+	if ( !afiBotManager::GetUserCmd( clientNum ) ) {
+		//Error( va( "idGameLocal::GetBotInput - invald usercmd %i\n", clientNum ) );
+		return;
+	}
+
+
+	userCmd.angles[0] = afiBotManager::GetUserCmd( clientNum )->angles[0];
+	userCmd.angles[1] = afiBotManager::GetUserCmd( clientNum )->angles[1];
+	userCmd.angles[2] = afiBotManager::GetUserCmd( clientNum )->angles[2];
+	userCmd.forwardmove = afiBotManager::GetUserCmd( clientNum )->forwardmove;
+	userCmd.rightmove = afiBotManager::GetUserCmd( clientNum )->rightmove;
+	userCmd.upmove =	afiBotManager::GetUserCmd( clientNum )->upmove;
+	userCmd.buttons =	afiBotManager::GetUserCmd( clientNum )->buttons;
+	userCmd.impulse =	afiBotManager::GetUserCmd( clientNum )->impulse;
 }
 
 /*
