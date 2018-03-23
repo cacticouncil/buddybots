@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "physics/Physics_RigidBody.h"
+
 #include "sys/platform.h"
 #include "idlib/math/Quat.h"
 
@@ -33,8 +35,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Entity.h"
 #include "Player.h"
 #include "../Confetti_Timer.h"
-
-#include "physics/Physics_RigidBody.h"
 
 CLASS_DECLARATION( idPhysics_Base, idPhysics_RigidBody )
 END_CLASS

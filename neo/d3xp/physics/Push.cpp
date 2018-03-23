@@ -26,12 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "physics/Physics_Actor.h"
 #include "Entity.h"
 #include "Player.h"
 #include "Moveable.h"
-#include "Game_local.h"
 
 #include "physics/Push.h"
 

@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Light.h"
+
 #include "sys/platform.h"
 #include "renderer/ModelManager.h"
 
 #include "gamesys/SysCvar.h"
 #include "script/Script_Thread.h"
-
-#include "Light.h"
 
 /*
 ===============================================================================

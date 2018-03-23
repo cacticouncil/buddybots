@@ -26,12 +26,12 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "framework/Licensee.h"
 #include "MayaImport/maya_main.h"
 
 #include "gamesys/SysCvar.h"
-#include "Game_local.h"
 
 #include "anim/Anim.h"
 

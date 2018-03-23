@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __GAME_ENTITY_H__
 #define __GAME_ENTITY_H__
 
+#include "Game_local.h"
 #include "idlib/math/Curve.h"
 #include "framework/DeclParticle.h"
 
@@ -37,7 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "script/Script_Program.h"
 #include "gamesys/Class.h"
 #include "gamesys/Event.h"
-#include "Game_local.h"
 
 /*
 ===============================================================================

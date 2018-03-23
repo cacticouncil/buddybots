@@ -26,14 +26,14 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Moveable.h"
+
 #include "sys/platform.h"
 #include "renderer/ModelManager.h"
 
 #include "gamesys/SysCvar.h"
 #include "ai/AI.h"
 #include "Fx.h"
-
-#include "Moveable.h"
 
 /*
 ===============================================================================

@@ -26,15 +26,14 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "SecurityCamera.h"
+
 #include "sys/platform.h"
 #include "gamesys/SysCvar.h"
-#include "physics/Physics_RigidBody.h"
 #include "Entity.h"
 #include "Light.h"
 #include "Player.h"
 #include "Fx.h"
-
-#include "SecurityCamera.h"
 
 /***********************************************************************
 

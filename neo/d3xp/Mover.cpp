@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Mover.h"
+
 #include "sys/platform.h"
 #include "gamesys/SysCvar.h"
 #include "script/Script_Thread.h"
 #include "Player.h"
 #include "Confetti_Timer.h"
-
-#include "Mover.h"
 
 // _D3XP : rename all gameLocal.time to gameLocal.slow.time for merge!
 

@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "framework/FileSystem.h"
 #include "framework/async/NetworkSystem.h"
@@ -36,7 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Player.h"
 #include "bot/BotManager.h"
 
-#include "Game_local.h"
 
 /*
 ===============================================================================

@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Projectile.h"
+
 #include "sys/platform.h"
 #include "renderer/ModelManager.h"
 
@@ -36,8 +38,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Mover.h"
 #include "SmokeParticles.h"
 #include "Misc.h"
-
-#include "Projectile.h"
 
 /*
 ===============================================================================

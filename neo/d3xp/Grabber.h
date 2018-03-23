@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #ifdef _D3XP
 
-#include "physics/Force_Grab.h"
 #include "Entity.h"
+#include "physics/Force_Grab.h"
 
 /*
 ===============================================================================

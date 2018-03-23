@@ -26,11 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "gamesys/SysCvar.h"
 #include "ai/AI.h"
 #include "Player.h"
-#include "Game_local.h"
 
 #include "ai/AAS_local.h"
 

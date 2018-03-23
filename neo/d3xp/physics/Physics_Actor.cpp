@@ -26,10 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "physics/Physics_Actor.h"
+
 #include "sys/platform.h"
 #include "Entity.h"
-
-#include "physics/Physics_Actor.h"
 
 CLASS_DECLARATION( idPhysics_Base, idPhysics_Actor )
 END_CLASS

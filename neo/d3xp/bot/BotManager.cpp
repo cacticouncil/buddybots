@@ -8,6 +8,7 @@ dispatch to bots.
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
 #include "BotManager.h"
 #include "BotBrain.h"
 #include "BotPlayer.h"
@@ -125,7 +126,7 @@ void afiBotManager::Cmd_ReloadAllBots_f(const idCmdArgs & args) {
 
 			botPlayer->thinkFlags &= (~TH_THINK);
 
-			dict oldDict = oldBrain->botDict;
+			py::dict oldDict = oldBrain->botDict;
 
 			botInfo_t* botProfile = FindBotProfileByIndex(botPlayer->clientNum);
 			botInfo_t* newBotProfile = nullptr;
@@ -779,7 +780,7 @@ bool afiBotManager::LoadBot(idStr brainPakName, botInfo_t*& outputBotProfile) {
 				sys.attr("path").attr("insert")(0, sysPath.c_str());
 				gameLocal.globalNamespace["sys"] = sys;
 
-				str  script(const_cast<const char*>(mainScriptBuffer));
+				py::str  script(const_cast<const char*>(mainScriptBuffer));
 				botMainDef = exec(script, gameLocal.globalNamespace, gameLocal.globalNamespace);
 
 
@@ -1298,7 +1299,7 @@ void afiBotManager::Cmd_ReloadBot_f(const idCmdArgs& args) {
 		botPlayer->thinkFlags &= (~TH_THINK);
 
 		afiBotBrain* oldBrain = botPlayer->GetBrain();
-		dict oldDict = oldBrain->botDict;
+		py::dict oldDict = oldBrain->botDict;
 
 		botInfo_t* botProfile = FindBotProfileByIndex(botPlayer->clientNum);
 		botInfo_t* newBotProfile = nullptr;
@@ -1597,7 +1598,7 @@ void afiBotManager::SpawnBot(int clientNum) {
 			}
 
 			//Create a boost python dictionary
-			brain->botDict = dict();
+			brain->botDict = py::dict();
 
 			//Copy from our dictonary to python dictonary
 			//Since idDictonaries contain just string representations
