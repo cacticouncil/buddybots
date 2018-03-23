@@ -26,8 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "sys/platform.h"
 #include <pybind11/pybind11.h>
+#include "sys/platform.h"
 #include "idlib/bv/Bounds.h"
 
 idBounds bounds_zero( vec3_zero, vec3_zero );

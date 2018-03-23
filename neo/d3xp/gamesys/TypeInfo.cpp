@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #define private		public
 #define protected	public
 
+#include "Entity.h"
+
 #include "sys/platform.h"
 #include "idlib/containers/LinkList.h"
 #include "idlib/containers/StaticList.h"
@@ -40,8 +42,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/Lexer.h"
 #include "framework/Common.h"
 #include "framework/FileSystem.h"
-
-#include "Entity.h"
 
 #ifdef ID_DEBUG_MEMORY
 #include "GameTypeInfo.h"				// Make sure this is up to date!

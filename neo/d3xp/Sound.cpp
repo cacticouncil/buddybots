@@ -26,10 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Sound.h"
+
 #include "sys/platform.h"
 #include "Entity.h"
-
-#include "Sound.h"
 
 /*
 ===============================================================================

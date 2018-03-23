@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "idlib/containers/BinSearch.h"
 #include "idlib/geometry/JointTransform.h"
@@ -36,7 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "ai/AI.h"
 #include "Entity.h"
 #include "Fx.h"
-#include "Game_local.h"
 
 #include "anim/Anim.h"
 

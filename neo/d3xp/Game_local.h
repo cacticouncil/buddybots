@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __GAME_LOCAL_H__
 #define	__GAME_LOCAL_H__
 
+#include <pybind11/pybind11.h>
 #include "GameBase.h"
 
 #include "idlib/containers/StrList.h"
@@ -44,7 +45,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "anim/Anim.h"
 #include "Pvs.h"
 #include "MultiplayerGame.h"
-#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 

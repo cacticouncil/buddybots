@@ -8,6 +8,7 @@ the network.
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
 #include <memory>
 // how many units to raise spectator above default view height so it's in the head of someone
 const int SPECTATE_RAISE = 25;
@@ -19,7 +20,6 @@ const int SPECTATE_RAISE = 25;
 #include "BotManager.h"
 #include "idlib/geometry/JointTransform.h"
 #include "Confetti_Timer.h"
-#include <pybind11/pybind11.h>
 
 idCVar	bot_debugBot("bot_debugBot", "-1", CVAR_SYSTEM | CVAR_INTEGER | CVAR_NOCHEAT, "debug a specific bot -1 disable, -2 all bots, otherwise clientnum", -2, MAX_CLIENTS);
 

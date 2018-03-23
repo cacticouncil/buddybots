@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
+
 #include "sys/platform.h"
 #include "idlib/LangDict.h"
 #include "idlib/Timer.h"
@@ -49,7 +51,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "bot/BotManager.h"
 #include "Confetti_Timer.h"
 
-#include "Game_local.h"
 
 const int NUM_RENDER_PORTAL_BITS	= idMath::BitsForInteger( PS_BLOCK_ALL );
 

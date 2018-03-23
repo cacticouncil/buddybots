@@ -6,12 +6,12 @@ Description: Defines the basic interface that bot brains should follow.
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
+#include <memory>
 #include "BotBrain.h"
 #include "BotPlayer.h"
 #include "../Game_local.h"
 #include "../physics/Physics_Player.h"
-#include <memory>
-#include <pybind11/pybind11.h>
 
 using namespace std;
 

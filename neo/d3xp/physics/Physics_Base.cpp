@@ -26,11 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "physics/Physics_Base.h"
+
 #include "sys/platform.h"
 #include "physics/Force.h"
 #include "Entity.h"
-
-#include "physics/Physics_Base.h"
 
 CLASS_DECLARATION( idPhysics, idPhysics_Base )
 END_CLASS

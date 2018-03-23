@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Weapon.h"
+
 #include "sys/platform.h"
 #include "framework/DeclEntityDef.h"
 #include "framework/DeclSkin.h"
@@ -37,8 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "SmokeParticles.h"
 #include "WorldSpawn.h"
 #include "Misc.h"
-
-#include "Weapon.h"
 
 /***********************************************************************
 

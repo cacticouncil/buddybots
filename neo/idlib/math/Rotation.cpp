@@ -26,10 +26,10 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
 #include "sys/platform.h"
 #include "idlib/math/Angles.h"
 #include "idlib/math/Quat.h"
-#include <pybind11/pybind11.h>
 #include "idlib/math/Rotation.h"
 
 namespace py = pybind11;

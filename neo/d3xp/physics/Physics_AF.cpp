@@ -26,6 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "physics/Physics_AF.h"
+#include "Confetti_Timer.h"
+
 #include "sys/platform.h"
 #include "idlib/math/Quat.h"
 #include "idlib/Timer.h"
@@ -34,9 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Entity.h"
 #include "Player.h"
 #include "WorldSpawn.h"
-
-#include "physics/Physics_AF.h"
-#include "Confetti_Timer.h"
 
 CLASS_DECLARATION( idPhysics_Base, idPhysics_AF )
 END_CLASS

@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "WorldSpawn.h"
+
 #include "sys/platform.h"
 #include "framework/FileSystem.h"
 
 #include "gamesys/SysCvar.h"
 #include "script/Script_Thread.h"
-
-#include "WorldSpawn.h"
 
 /*
 ================

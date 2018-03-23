@@ -26,6 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
+#include "MultiplayerGame.h"
+
 #include "sys/platform.h"
 #include "idlib/BitMsg.h"
 #include "idlib/Str.h"
@@ -37,11 +40,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "gamesys/SysCvar.h"
 #include "Player.h"
-#include "Game_local.h"
 #include "bot/BotPlayer.h"
 #include "bot/BotManager.h"
-
-#include "MultiplayerGame.h"
 
 // could be a problem if players manage to go down sudden deaths till this .. oh well
 #define LASTMAN_NOLIVES -20

@@ -29,9 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __ANIM_TESTMODEL_H__
 #define __ANIM_TESTMODEL_H__
 
-#include "physics/Physics_Parametric.h"
 #include "Entity.h"
 #include "Actor.h"
+#include "physics/Physics_Parametric.h"
 
 /*
 ==============================================================================================

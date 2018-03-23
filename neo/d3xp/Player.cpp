@@ -26,6 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
+#include <memory>
+
 #include "sys/platform.h"
 #include "idlib/LangDict.h"
 #include "framework/async/NetworkSystem.h"
@@ -41,8 +44,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Fx.h"
 #include "Misc.h"
 #include "idlib/geometry/JointTransform.h"
-#include <pybind11/pybind11.h>
-#include <memory>
 using namespace std;
 
 const int ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 999 );	// 9 bits to cover the range [0, 999]

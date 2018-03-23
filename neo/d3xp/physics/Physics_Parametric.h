@@ -29,10 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PHYSICS_PARAMETRIC_H__
 #define __PHYSICS_PARAMETRIC_H__
 
+#include "physics/Physics_Base.h"
+
 #include "idlib/math/Curve.h"
 #include "idlib/math/Interpolate.h"
-
-#include "physics/Physics_Base.h"
 
 /*
 ===================================================================================

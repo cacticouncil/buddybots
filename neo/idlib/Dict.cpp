@@ -26,11 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
 #include "sys/platform.h"
 #include "idlib/hashing/CRC32.h"
 #include "framework/Common.h"
 #include "framework/File.h"
-#include <pybind11/pybind11.h>
 #include "idlib/Dict.h"
 
 idStrPool		idDict::globalKeys;

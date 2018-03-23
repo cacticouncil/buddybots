@@ -10,10 +10,10 @@ the network.
 #ifndef BOTPLAYER_H_
 #define BOTPLAYER_H_
 
+#include <pybind11/pybind11.h>
 #include "../Game_local.h"
 #include "ai/AI.h"
 #include "Player.h"
-#include <pybind11/pybind11.h>
 namespace py = pybind11;
 
 extern idCVar bot_debugBot;

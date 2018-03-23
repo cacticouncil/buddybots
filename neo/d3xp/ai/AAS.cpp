@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
 #include "sys/platform.h"
 #include "framework/Common.h"
 #include "tools/compilers/aas/AASFileManager.h"
 
 #include "ai/AAS_local.h"
 #include "../bot/BotAASBuild.h"
-#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 

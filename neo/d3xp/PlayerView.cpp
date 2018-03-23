@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Player.h"
 #include "sys/platform.h"
 #include "renderer/RenderWorld.h"
 
 #include "gamesys/SysCvar.h"
 #include "gamesys/SaveGame.h"
 #include "GameBase.h"
-#include "Player.h"
 #include "Confetti_Timer.h"
 
 #include "PlayerView.h"

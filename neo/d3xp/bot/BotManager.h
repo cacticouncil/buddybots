@@ -10,13 +10,13 @@ dispatch to bots.
 #ifndef BOTMANAGER_H_
 #define BOTMANAGER_H_
 
-#include "../Game_local.h"
-#include "../MultiplayerGame.h"
+#include <pybind11/pybind11.h>
 #include <unordered_map>
 #include <atomic>
 #include <condition_variable>
+#include "../Game_local.h"
+#include "../MultiplayerGame.h"
 #include "idlib/Timer.h"
-#include <pybind11/pybind11.h>
 
 using namespace std;
 namespace py = pybind11;

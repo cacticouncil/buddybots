@@ -26,11 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "physics/Physics_Player.h"
+
 #include "sys/platform.h"
 #include "gamesys/SysCvar.h"
 #include "Entity.h"
-
-#include "physics/Physics_Player.h"
 
 CLASS_DECLARATION( idPhysics_Actor, idPhysics_Player )
 END_CLASS

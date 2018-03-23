@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <pybind11\pybind11.h>
 #include "sys/platform.h"
 #include "gamesys/SysCvar.h"
 #include "script/Script_Thread.h"
@@ -35,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "WorldSpawn.h"
 #include "idlib/geometry/JointTransform.h"
 #include "Actor.h"
-#include <pybind11\pybind11.h>
 /*
 BOOST_PYTHON_MODULE(idActor) {//creates module for python
 	import("idEntity");// in python we will "import idEntity"

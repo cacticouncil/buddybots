@@ -26,11 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
 #include "sys/platform.h"
 #include "idlib/math/Angles.h"
 #include "idlib/math/Matrix.h"
 #include "idlib/Str.h"
-#include <pybind11/pybind11.h>
 #include "idlib/math/Vector.h"
 
 idVec2 vec2_origin( 0.0f, 0.0f );

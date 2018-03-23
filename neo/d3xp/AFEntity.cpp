@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "AFEntity.h"
 #include "sys/platform.h"
 #include "idlib/geometry/JointTransform.h"
 #include "renderer/ModelManager.h"
@@ -36,7 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Fx.h"
 #include "SmokeParticles.h"
 
-#include "AFEntity.h"
 
 /*
 ===============================================================================

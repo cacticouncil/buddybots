@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
 #include <float.h>
 
 #include "sys/platform.h"
 #include "idlib/math/Quat.h"
 #include "idlib/math/Rotation.h"
 #include "idlib/Str.h"
-#include <pybind11/pybind11.h>
 #include "idlib/math/Angles.h"
 
 idAngles ang_zero( 0.0f, 0.0f, 0.0f );

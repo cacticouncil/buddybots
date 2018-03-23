@@ -26,11 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "idlib/geometry/JointTransform.h"
 #include "idlib/math/Quat.h"
 
-#include "Game_local.h"
 
 #include "anim/Anim.h"
 

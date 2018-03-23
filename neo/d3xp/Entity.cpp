@@ -26,6 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
+#include <memory>
+
 #include "sys/platform.h"
 #include "idlib/geometry/JointTransform.h"
 #include "idlib/LangDict.h"
@@ -43,10 +46,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "Mover.h"
 #include "WorldSpawn.h"
 #include "SmokeParticles.h"
-#include <pybind11/pybind11.h>
 #include "Entity.h"
 
-#include <memory>
 
 /*
 ===============================================================================

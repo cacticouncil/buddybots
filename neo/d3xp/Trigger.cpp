@@ -26,11 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Trigger.h"
+
 #include "sys/platform.h"
 #include "script/Script_Thread.h"
 #include "Player.h"
-
-#include "Trigger.h"
 
 /*
 ===============================================================================

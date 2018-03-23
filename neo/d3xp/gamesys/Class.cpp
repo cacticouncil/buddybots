@@ -26,9 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "script/Script_Thread.h"
 #include "sys/platform.h"
 #include "gamesys/SysCvar.h"
-#include "script/Script_Thread.h"
 
 #include "Class.h"
 

@@ -26,14 +26,15 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Entity.h"
+#include "physics/Physics_Static.h"
+
 #include "sys/platform.h"
 #include "idlib/math/Quat.h"
 
 #include "gamesys/SysCvar.h"
 #include "physics/Force.h"
-#include "Entity.h"
 
-#include "physics/Physics_Static.h"
 
 CLASS_DECLARATION( idPhysics, idPhysics_Static )
 END_CLASS
