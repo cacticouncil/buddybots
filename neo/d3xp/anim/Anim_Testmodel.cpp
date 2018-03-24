@@ -26,13 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "anim/Anim_Testmodel.h"
+
 #include "sys/platform.h"
 #include "renderer/ModelManager.h"
 
 #include "gamesys/SysCvar.h"
 #include "Player.h"
-
-#include "anim/Anim_Testmodel.h"
 
 /*
 =============================================================================

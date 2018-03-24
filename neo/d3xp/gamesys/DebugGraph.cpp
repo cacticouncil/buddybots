@@ -26,9 +26,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "Player.h"
-#include "Game_local.h"
 
 #include "DebugGraph.h"
 

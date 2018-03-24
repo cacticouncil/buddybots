@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __GAME_LIGHT_H__
 #define __GAME_LIGHT_H__
 
-#include "gamesys/Event.h"
 #include "Entity.h"
+#include "gamesys/Event.h"
 
 /*
 ===============================================================================

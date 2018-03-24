@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __GAME_SECURITYCAMERA_H__
 
 #include "Entity.h"
+#include "physics/Physics_RigidBody.h"
 
 /*
 ===================================================================================

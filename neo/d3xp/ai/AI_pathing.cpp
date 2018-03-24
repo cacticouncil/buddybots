@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "ai/AI.h"
+
 #include "sys/platform.h"
 #include "idlib/containers/Queue.h"
 #include "idlib/geometry/Winding2D.h"
@@ -34,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Moveable.h"
 #include "WorldSpawn.h"
 
-#include "ai/AI.h"
 
 /*
 ===============================================================================

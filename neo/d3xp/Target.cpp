@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Target.h"
+
 #include "sys/platform.h"
 #include "idlib/LangDict.h"
 #include "renderer/ModelManager.h"
@@ -38,8 +40,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Misc.h"
 #include "WorldSpawn.h"
 #include "Sound.h"
-
-#include "Target.h"
 
 /*
 ===============================================================================

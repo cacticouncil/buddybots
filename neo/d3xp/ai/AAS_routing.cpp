@@ -26,8 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include "sys/platform.h"
 #include "Game_local.h"
+#include "sys/platform.h"
 
 #include "ai/AAS_local.h"
 

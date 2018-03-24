@@ -26,12 +26,13 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "ai/AI.h"
+
 #include "sys/platform.h"
 #include "Moveable.h"
 #include "Misc.h"
 
 #include "gamesys/SysCvar.h"
-#include "ai/AI.h"
 
 /***********************************************************************
 

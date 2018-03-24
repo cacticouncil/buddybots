@@ -8,6 +8,7 @@ the network.
 ===========================================================================
 */
 
+#include <pybind11/pybind11.h>
 #include <memory>
 // how many units to raise spectator above default view height so it's in the head of someone
 const int SPECTATE_RAISE = 25;

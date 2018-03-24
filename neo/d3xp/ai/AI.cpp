@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "ai/AI.h"
+
 #include "sys/platform.h"
 #include "idlib/math/Quat.h"
 #include "framework/DeclEntityDef.h"
@@ -35,8 +37,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Fx.h"
 #include "SmokeParticles.h"
 #include "Misc.h"
-
-#include "ai/AI.h"
 
 static const char *moveCommandString[ NUM_MOVE_COMMANDS ] = {
 	"MOVE_NONE",

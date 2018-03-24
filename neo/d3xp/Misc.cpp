@@ -31,6 +31,8 @@ Various utility objects and functions.
 
 */
 
+#include "Misc.h"
+
 #include "sys/platform.h"
 #include "renderer/ModelManager.h"
 
@@ -42,8 +44,6 @@ Various utility objects and functions.
 #include "WorldSpawn.h"
 #include "Moveable.h"
 #include "SmokeParticles.h"
-
-#include "Misc.h"
 
 /*
 ===============================================================================

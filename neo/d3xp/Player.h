@@ -29,9 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __GAME_PLAYER_H__
 #define __GAME_PLAYER_H__
 
+#include "physics/Physics_Player.h"
+
 #include "idlib/math/Interpolate.h"
 
-#include "physics/Physics_Player.h"
 #include "Item.h"
 #include "Actor.h"
 #include "Weapon.h"

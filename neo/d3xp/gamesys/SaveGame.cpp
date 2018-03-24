@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "framework/BuildVersion.h"
 #include "framework/DeclSkin.h"
@@ -33,7 +34,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "physics/Clip.h"
 #include "Entity.h"
-#include "Game_local.h"
 
 #include "SaveGame.h"
 

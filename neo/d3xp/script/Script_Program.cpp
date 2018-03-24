@@ -26,6 +26,7 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "Game_local.h"
 #include "sys/platform.h"
 #include "idlib/hashing/MD4.h"
 #include "framework/FileSystem.h"
@@ -35,7 +36,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "script/Script_Compiler.h"
 #include "script/Script_Thread.h"
 #include "Entity.h"
-#include "Game_local.h"
 
 #include "script/Script_Program.h"
 

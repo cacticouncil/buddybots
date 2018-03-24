@@ -26,11 +26,11 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include "../Confetti_Timer.h"
 #include "sys/platform.h"
 #include "framework/UsercmdGen.h"
 
 #include "physics/Physics.h"
-#include "../Confetti_Timer.h"
 
 #include "physics/Force_Drag.h"
 
