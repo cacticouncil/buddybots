@@ -46,4 +46,4 @@ d3xp/pak*.pk4
 d3xp/config.spec
 d3xp/description.txt
 d3xp/install.log
-docs/*
+docs/
