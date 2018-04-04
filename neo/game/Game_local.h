@@ -222,11 +222,10 @@ private:
 
 class idGameLocal : public idGame {
 public:
-	idDict					serverInfo;				// all the tunable parameters, like numclients, etc
+	map						serverInfo;				// all the tunable parameters, like numclients, etc
 	int						numClients;				// pulled from serverInfo and verified
-	idDict					userInfo[MAX_CLIENTS];	// client specific settings
-	usercmd_t				usercmds[MAX_CLIENTS];	// client input commands
-	idDict					persistentPlayerInfo[MAX_CLIENTS];
+	map						userInfo[MAX_CLIENTS];	// client specific settings
+	usercmd_t				usercmds[MAX_CLIENTS];	// client input commandserInfo[MAX_CLIENTS];
 	idEntity *				entities[MAX_GENTITIES];// index to entities
 	int						spawnIds[MAX_GENTITIES];// for use in idEntityPtr
 	int						firstFreeIndex;			// first free index in the entities array
@@ -238,7 +237,7 @@ public:
 	int						numEntitiesToDeactivate;// number of entities that became inactive in current frame
 	bool					sortPushers;			// true if active lists needs to be reordered to place pushers at the front
 	bool					sortTeamMasters;		// true if active lists needs to be reordered to place physics team masters before their slaves
-	idDict					persistentLevelInfo;	// contains args that are kept around between levels
+	map						persistentLevelInfo;	// contains args that are kept around between levels
 
 	// can be used to automatically effect every material in the world that references globalParms
 	float					globalShaderParms[ MAX_GLOBAL_SHADER_PARMS ];
@@ -469,7 +468,8 @@ private:
 	idEntityPtr<idActor>	lastAIAlertEntity;
 	int						lastAIAlertTime;
 
-	idDict					spawnArgs;				// spawn args used during entity spawning  FIXME: shouldn't be necessary anymore
+
+	std::map<std::string, std::string>					spawnArgs;				// spawn args used during entity spawning  FIXME: shouldn't be necessary anymore
 
 	pvsHandle_t				playerPVS;				// merged pvs of all players
 	pvsHandle_t				playerConnectedAreas;	// all areas connected to any player area

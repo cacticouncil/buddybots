@@ -50,6 +50,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "Confetti_Timer.h"
 
 #include "Game_local.h"
+#include <map>
+
 
 const int NUM_RENDER_PORTAL_BITS	= idMath::BitsForInteger( PS_BLOCK_ALL );
 
@@ -720,7 +722,7 @@ void idGameLocal::SaveGame( idFile *f ) {
 idGameLocal::GetPersistentPlayerInfo
 ============
 */
-const idDict &idGameLocal::GetPersistentPlayerInfo( int clientNum ) {
+const map &idGameLocal::GetPersistentPlayerInfo( int clientNum ) {
 	idEntity	*ent;
 
 	persistentPlayerInfo[ clientNum ].Clear();
@@ -877,7 +879,7 @@ void idGameLocal::SetLocalClient( int clientNum ) {
 idGameLocal::SetUserInfo
 ============
 */
-const idDict* idGameLocal::SetUserInfo( int clientNum, const idDict &userInfo, bool isClient, bool canModify ) {
+const map* idGameLocal::SetUserInfo( int clientNum, const map &userInfo, bool isClient, bool canModify ) {
 	int i;
 	bool modifiedInfo = false;
 
@@ -934,7 +936,7 @@ const idDict* idGameLocal::SetUserInfo( int clientNum, const idDict &userInfo, b
 idGameLocal::GetUserInfo
 ============
 */
-const idDict* idGameLocal::GetUserInfo( int clientNum ) {
+const map* idGameLocal::GetUserInfo( int clientNum ) {
 	if ( entities[ clientNum ] && entities[ clientNum ]->IsType( idPlayer::Type ) ) {
 		return &userInfo[ clientNum ];
 	}
@@ -1177,7 +1179,7 @@ idGameLocal::MapRestart
 void idGameLocal::MapRestart( ) {
 	idBitMsg	outMsg;
 	byte		msgBuf[MAX_GAME_MESSAGE_SIZE];
-	idDict		newInfo;
+	map		newInfo;
 	int			i;
 	const idKeyValue *keyval, *keyval2;
 
@@ -1262,7 +1264,7 @@ idGameLocal::NextMap
 bool idGameLocal::NextMap( void ) {
 	const function_t	*func;
 	idThread			*thread;
-	idDict				newInfo;
+	map					newInfo;
 	const idKeyValue	*keyval, *keyval2;
 	int					i;
 
@@ -1413,7 +1415,7 @@ bool idGameLocal::InitFromSaveGame( const char *mapName, idRenderWorld *renderWo
 	int i;
 	int num;
 	idEntity *ent;
-	idDict si;
+	map		si;
 
 	if ( mapFileName.Length() ) {
 		MapShutdown();
@@ -1905,7 +1907,7 @@ merging the entitydef.  It could be done post-merge, but that would
 avoid the fast pre-cache check associated with each entityDef
 ===================
 */
-void idGameLocal::CacheDictionaryMedia( const idDict *dict ) {
+void idGameLocal::CacheDictionaryMedia( const map *dict ) {
 	const idKeyValue *kv;
 
 	if ( dict == NULL ) {
@@ -2091,7 +2093,7 @@ idGameLocal::SpawnPlayer
 */
 void idGameLocal::SpawnPlayer( int clientNum ) {
 	idEntity	*ent;
-	idDict		args;
+	map		args;
 
 	// they can connect
 	Printf( "SpawnPlayer: %i\n", clientNum );
@@ -3330,7 +3332,7 @@ void idGameLocal::UnregisterEntity( idEntity *ent ) {
 idGameLocal::SpawnEntityType
 ================
 */
-idEntity *idGameLocal::SpawnEntityType( const idTypeInfo &classdef, const idDict *args, bool bIsClientReadSnapshot ) {
+idEntity *idGameLocal::SpawnEntityType( const idTypeInfo &classdef, const map *args, bool bIsClientReadSnapshot ) {
 	idClass *obj;
 
 #ifdef _DEBUG
@@ -3369,7 +3371,7 @@ Finds the spawn function for the entity and calls it,
 returning false if not found
 ===================
 */
-bool idGameLocal::SpawnEntityDef( const idDict &args, idEntity **ent, bool setDefaults ) {
+bool idGameLocal::SpawnEntityDef( const map &args, idEntity **ent, bool setDefaults ) {
 	const char	*classname;
 	const char	*spawn;
 	idTypeInfo	*cls;
@@ -3478,7 +3480,7 @@ const idDeclEntityDef *idGameLocal::FindEntityDef( const char *name, bool makeDe
 idGameLocal::FindEntityDefDict
 ================
 */
-const idDict *idGameLocal::FindEntityDefDict( const char *name, bool makeDefault ) const {
+const map *idGameLocal::FindEntityDefDict( const char *name, bool makeDefault ) const {
 	const idDeclEntityDef *decl = FindEntityDef( name, makeDefault );
 	return decl ? &decl->dict : NULL;
 }
@@ -3488,21 +3490,26 @@ const idDict *idGameLocal::FindEntityDefDict( const char *name, bool makeDefault
 idGameLocal::InhibitEntitySpawn
 ================
 */
-bool idGameLocal::InhibitEntitySpawn( idDict &spawnArgs ) {
+bool idGameLocal::InhibitEntitySpawn( map &spawnArgs ) {
 
 	bool result = false;
 
 	if ( isMultiplayer ) {
-		spawnArgs.GetBool( "not_multiplayer", "0", result );
+		result = spawnArgs.GetString("not_multiplayer", "0");
+		//spawnArgs.GetBool( "not_multiplayer", "0", result );
 	} else if ( g_skill.GetInteger() == 0 ) {
-		spawnArgs.GetBool( "not_easy", "0", result );
+		result = spawnArgs.GetString("not_easy", "0");
+		//spawnArgs.GetBool( "not_easy", "0", result );
 	} else if ( g_skill.GetInteger() == 1 ) {
-		spawnArgs.GetBool( "not_medium", "0", result );
+		result = spawnArgs.GetString("not_medium", "0");
+		//spawnArgs.GetBool( "not_medium", "0", result );
 	} else {
-		spawnArgs.GetBool( "not_hard", "0", result );
+		result = spawnArgs.GetString("not_hard", "0");
+		//spawnArgs.GetBool( "not_hard", "0", result );
 #ifdef _D3XP
 		if ( !result && g_skill.GetInteger() == 3 ) {
-			spawnArgs.GetBool( "not_nightmare", "0", result );
+			result = spawnArgs.GetString("not_nightmare", "0");
+			//spawnArgs.GetBool( "not_nightmare", "0", result );
 		}
 #endif
 	}

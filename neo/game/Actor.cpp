@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "Light.h"
 #include "Projectile.h"
 #include "WorldSpawn.h"
-
+#include <map>
 #include "Actor.h"
 
 
@@ -535,16 +535,15 @@ void idActor::Spawn( void ) {
 
 	// spawn any attachments we might have
 	const idKeyValue *kv = spawnArgs.MatchPrefix( "def_attach", NULL );
-	while ( kv ) {
-		idDict args;
-
-		args.Set( "classname", kv->GetValue().c_str() );
+	while (kv) {
+		std::map<std::string, std::string> args;
+		args["classname"] = kv->GetValue().c_str();
 
 		// make items non-touchable so the player can't take them out of the character's hands
-		args.Set( "no_touch", "1" );
+		args["no_touch"] = "1";
+		args["dropToFloor"] = "0";
 
 		// don't let them drop to the floor
-		args.Set( "dropToFloor", "0" );
 
 		gameLocal.SpawnEntityDef( args, &ent );
 		if ( !ent ) {
@@ -686,10 +685,10 @@ void idActor::SetupHead( void ) {
 		}
 
 		// copy any sounds in case we have frame commands on the head
-		idDict	args;
+		std::map<std::string, std::string> args;
 		sndKV = spawnArgs.MatchPrefix( "snd_", NULL );
 		while( sndKV ) {
-			args.Set( sndKV->GetKey(), sndKV->GetValue() );
+			args[sndKV->GetKey] = sndKV->GetValue();
 			sndKV = spawnArgs.MatchPrefix( "snd_", sndKV );
 		}
 

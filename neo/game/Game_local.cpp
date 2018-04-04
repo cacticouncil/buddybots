@@ -49,6 +49,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Game_local.h"
 
+#include <map>
+
+
 const int NUM_RENDER_PORTAL_BITS	= idMath::BitsForInteger( PS_BLOCK_ALL );
 
 const float	DEFAULT_GRAVITY			= 1066.0f;
@@ -3013,7 +3016,7 @@ Finds the spawn function for the entity and calls it,
 returning false if not found
 ===================
 */
-bool idGameLocal::SpawnEntityDef( const idDict &args, idEntity **ent, bool setDefaults ) {
+bool idGameLocal::SpawnEntityDef(std::map<std::string, std::string> &args, idEntity **ent, bool setDefaults ) {
 	const char	*classname;
 	const char	*spawn;
 	idTypeInfo	*cls;
