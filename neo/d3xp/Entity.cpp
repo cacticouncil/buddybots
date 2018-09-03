@@ -60,15 +60,15 @@ float		(idEntity::*distanceEntity)(idEntity*) const = &idEntity::DistanceTo;
 float		(idEntity::*distancePosition)(const idVec3) const = &idEntity::DistanceTo;
 
 // Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	idEntity const volatile * get_pointer<class idEntity const volatile >(
-		class idEntity const volatile *wrapped)
-	{
-		return wrapped;
-	}
-}
+//namespace boost
+//{
+//	template <>
+//	idEntity const volatile * get_pointer<class idEntity const volatile >(
+//		class idEntity const volatile *wrapped)
+//	{
+//		return wrapped;
+//	}
+//}
 
 BOOST_PYTHON_MODULE(idEntity) {
 	import("idVec3");

@@ -35,15 +35,15 @@ std::shared_ptr<afiBotPlayer> CreateBotPlayer() {
 }
 
 // Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	afiBotPlayer const volatile * get_pointer<class afiBotPlayer const volatile >(
-		class afiBotPlayer const volatile *wrapped)
-	{
-		return wrapped;
-	}
-}
+//namespace boost
+//{
+//	template <>
+//	afiBotPlayer const volatile * get_pointer<class afiBotPlayer const volatile >(
+//		class afiBotPlayer const volatile *wrapped)
+//	{
+//		return wrapped;
+//	}
+//}
 
 BOOST_PYTHON_MODULE(afiBotPlayer) {
 	//import("idVec3");

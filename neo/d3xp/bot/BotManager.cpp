@@ -67,15 +67,15 @@ extern "C" void initidAAS();
 extern "C" void initidActor();
 
 // Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	afiBotManager const volatile * get_pointer<class afiBotManager const volatile >(
-		class afiBotManager const volatile *wrapped)
-	{
-		return wrapped;
-	}
-}
+//namespace boost
+//{
+//	template <>
+//	afiBotManager const volatile * get_pointer<class afiBotManager const volatile >(
+//		class afiBotManager const volatile *wrapped)
+//	{
+//		return wrapped;
+//	}
+//}
 
 
 BOOST_PYTHON_MODULE(afiBotManager) {

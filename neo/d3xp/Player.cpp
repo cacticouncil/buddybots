@@ -64,15 +64,15 @@ const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range 
 //}
 
 // Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	idPlayer const volatile * get_pointer<class idPlayer const volatile >(
-		class idPlayer const volatile *wrapped)
-	{
-		return wrapped;
-	}
-}
+//namespace boost
+//{
+//	template <>
+//	idPlayer const volatile * get_pointer<class idPlayer const volatile >(
+//		class idPlayer const volatile *wrapped)
+//	{
+//		return wrapped;
+//	}
+//}
 
 BOOST_PYTHON_MODULE(idPlayer) {
 	import("idActor");

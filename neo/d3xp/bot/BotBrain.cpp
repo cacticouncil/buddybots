@@ -15,15 +15,15 @@ Description: Defines the basic interface that bot brains should follow.
 using namespace std;
 
 // Workaround for problem in VS14
-namespace boost
-{
-	template <>
-	afiBotBrainWrapper const volatile * get_pointer<class afiBotBrainWrapper const volatile >(
-		class afiBotBrainWrapper const volatile *wrapped)
-	{
-		return wrapped;
-	}
-}
+//namespace boost
+//{
+//	template <>
+//	afiBotBrainWrapper const volatile * get_pointer<class afiBotBrainWrapper const volatile >(
+//		class afiBotBrainWrapper const volatile *wrapped)
+//	{
+//		return wrapped;
+//	}
+//}
 
 BOOST_PYTHON_MODULE(afiBotBrain) {
 	//import("idDict");
