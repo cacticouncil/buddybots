@@ -25,10 +25,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-
 #include "framework/UsercmdGen.h"
 
-#include "sys/platform.h"
 #include "idlib/math/Vector.h"
 #include "idlib/Lib.h"
 #include "framework/CVarSystem.h"

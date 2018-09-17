@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __USERCMDGEN_H__
 #define __USERCMDGEN_H__
 
+#include "sys/platform.h"
+
 /*
 ===============================================================================
 
