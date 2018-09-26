@@ -1984,7 +1984,7 @@ void idPlayer::Spawn( void ) {
 			//Skip the ,
 			src.ReadToken(&token);
 		}
-		weaponToggles.Set(newToggle.name, newToggle);
+		weaponToggles.insert(newToggle.name, newToggle);
 
 		kv = spawnArgs.MatchPrefix( "weapontoggle", kv );
 	}
@@ -2256,9 +2256,9 @@ void idPlayer::Save( idSaveGame *savefile ) const {
 	}
 
 #ifdef _D3XP
-	savefile->WriteInt(weaponToggles.Num());
-	for(i = 0; i < weaponToggles.Num(); i++) {
-		WeaponToggle_t* weaponToggle = weaponToggles.GetIndex(i);
+	savefile->WriteInt(weaponToggles.size());
+	for(auto i = weaponToggles.begin(); i != weaponToggles.end(); ++i) {
+		WeaponToggle_t* weaponToggle = i->second;
 		savefile->WriteString(weaponToggle->name);
 		savefile->WriteInt(weaponToggle->toggleList.Num());
 		for(int j = 0; j < weaponToggle->toggleList.Num(); j++) {
@@ -2557,7 +2557,7 @@ void idPlayer::Restore( idRestoreGame *savefile ) {
 			savefile->ReadInt(temp);
 			newToggle.toggleList.Append(temp);
 		}
-		weaponToggles.Set(newToggle.name, newToggle);
+		weaponToggles.insert(newToggle.name, newToggle);
 	}
 	savefile->ReadObject(reinterpret_cast<idClass *&>(mountedObject));
 	enviroSuitLight.Restore( savefile );
@@ -4591,7 +4591,7 @@ void idPlayer::SelectWeapon( int num, bool force ) {
 #ifdef _D3XP
 	//Is the weapon a toggle weapon
 	WeaponToggle_t* weaponToggle;
-	if(weaponToggles.Get(va("weapontoggle%d", num), &weaponToggle)) {
+	if(&weaponToggle = weaponToggles.at(va("weapontoggle%d", num))) {
 
 		int weaponToggleIndex = 0;
 
