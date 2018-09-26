@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __GAME_PLAYER_H__
 #define __GAME_PLAYER_H__
 
+#include <unordered_map>
+
 #include "idlib/math/Interpolate.h"
 
 #include "physics/Physics_Player.h"
@@ -730,7 +732,7 @@ private:
 	idAngles				smoothedAngles;
 
 #ifdef _D3XP
-	idHashTable<WeaponToggle_t>	weaponToggles;
+	std::unordered_map<idStr, WeaponToggle_t>	weaponToggles;
 
 	int						hudPowerup;
 	int						lastHudPowerup;

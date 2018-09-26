@@ -314,8 +314,8 @@ private:
 #ifdef _D3XP
 	jointHandle_t			smokeJointView;
 
-	idHashTable<WeaponParticle_t>	weaponParticles;
-	idHashTable<WeaponLight_t>		weaponLights;
+	std::unordered_map<idStr, WeaponParticle_t>	weaponParticles;
+	std::unordered_map<idStr, WeaponLight_t>		weaponLights;
 #endif
 
 	// sound
