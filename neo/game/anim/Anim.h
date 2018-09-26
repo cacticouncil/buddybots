@@ -28,7 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __ANIM_H__
 #define __ANIM_H__
 
-#include <string>
 #include <unordered_map>
 
 #include "idlib/containers/StrList.h"
