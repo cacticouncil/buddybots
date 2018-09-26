@@ -28,7 +28,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __LISTWINDOW_H
 #define __LISTWINDOW_H
 
-#include <string>
 #include <unordered_map>
 
 #include "idlib/containers/StrList.h"
@@ -87,7 +86,7 @@ private:
 	idStr				tabTypeStr;
 	idStr				tabIconSizeStr;
 	idStr				tabIconVOffsetStr;
-	std::unordered_map<std::string, const idMaterial*> iconMaterials;
+	std::unordered_map<idStr, const idMaterial*> iconMaterials;
 	bool				multipleSel;
 
 	idStrList			listItems;
