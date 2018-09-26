@@ -1780,7 +1780,7 @@ void LoadMapLocalizeData(ListHash& listHash) {
 					list.Append(token);
 				}
 
-				listHash.insert(classname, list);
+				listHash[classname] = list;
 			}
 		}
 		fileSystem->FreeFile( (void*)buffer );
@@ -1889,8 +1889,7 @@ int LocalizeMap(const char* mapName, idLangDict &langDict, ListHash& listHash, i
 				//Hack: for info_location
 				bool hasLocation = false;
 
-				idStrList* list;
-				&list = listHash.at(classname);
+				idStrList* list = &listHash.at(classname);
 				if(list) {
 
 					for(int k = 0; k < list->Num(); k++) {
@@ -1912,7 +1911,7 @@ int LocalizeMap(const char* mapName, idLangDict &langDict, ListHash& listHash, i
 					}
 				}
 
-				&list = listHash.at("all");
+				list = &listHash.at("all");
 				if(list) {
 					for(int k = 0; k < list->Num(); k++) {
 						idStr val = ent->epairs.GetString((*list)[k], "");
@@ -2159,8 +2158,7 @@ void Com_LocalizeMapsTest_f( const idCmdArgs &args ) {
 					//Hack: for info_location
 					bool hasLocation = false;
 
-					idStrList* list;
-					&list = listHash.at(classname);
+					idStrList* list = &listHash.at(classname);
 					if(list) {
 
 						for(int k = 0; k < list->Num(); k++) {
@@ -2181,7 +2179,7 @@ void Com_LocalizeMapsTest_f( const idCmdArgs &args ) {
 						}
 					}
 
-					&list = listHash.at("all");
+					list = &listHash.at("all");
 					if(list) {
 						for(int k = 0; k < list->Num(); k++) {
 							idStr val = ent->epairs.GetString((*list)[k], "");
