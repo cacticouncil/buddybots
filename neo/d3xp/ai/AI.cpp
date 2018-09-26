@@ -547,9 +547,9 @@ void idAI::Save( idSaveGame *savefile ) const {
 	savefile->WriteBool( GetPhysics() == static_cast<const idPhysics *>(&physicsObj) );
 
 #ifdef _D3XP
-	savefile->WriteInt(funcEmitters.Num());
-	for(int i = 0; i < funcEmitters.Num(); i++) {
-		funcEmitter_t* emitter = funcEmitters.GetIndex(i);
+	savefile->WriteInt(funcEmitters.size());
+	for (auto i = funcEmitters.begin(); i != funcEmitters.end(); ++i) {
+		funcEmitter_t* emitter = i->second;
 		savefile->WriteString(emitter->name);
 		savefile->WriteJoint(emitter->joint);
 		savefile->WriteObject(emitter->particle);
@@ -728,14 +728,14 @@ void idAI::Restore( idRestoreGame *savefile ) {
 #ifdef _D3XP
 
 	//Clean up the emitters
-	for(int i = 0; i < funcEmitters.Num(); i++) {
-		funcEmitter_t* emitter = funcEmitters.GetIndex(i);
-		if(emitter->particle) {
+	for (auto i = funcEmitters.begin(); i != funcEmitters.end(); ++i) {
+		funcEmitter_t* emitter = i->second;
+		if (emitter->particle) {
 			//Destroy the emitters
-			emitter->particle->PostEventMS(&EV_Remove, 0 );
+			emitter->particle->PostEventMS(&EV_Remove, 0);
 		}
 	}
-	funcEmitters.Clear();
+	funcEmitters.clear();
 
 	int emitterCount;
 	savefile->ReadInt( emitterCount );
@@ -751,7 +751,7 @@ void idAI::Restore( idRestoreGame *savefile ) {
 		savefile->ReadJoint( newEmitter.joint );
 		savefile->ReadObject(reinterpret_cast<idClass *&>(newEmitter.particle));
 
-		funcEmitters.Set(newEmitter.name, newEmitter);
+		funcEmitters.insert(newEmitter.name, newEmitter);
 	}
 
 	harvestEnt.Restore(savefile);
@@ -4912,7 +4912,7 @@ idEntity* idAI::StartEmitter( const char* name, const char* joint, const char* p
 	strcpy(newEmitter.name, name);
 	newEmitter.particle = (idFuncEmitter*)ent;
 	newEmitter.joint = jointNum;
-	funcEmitters.Set(newEmitter.name, newEmitter);
+	funcEmitters.insert(newEmitter.name, newEmitter);
 
 	//Bind it to the joint and make it active
 	newEmitter.particle->BindToJoint(this, jointNum, true);
@@ -4924,7 +4924,7 @@ idEntity* idAI::StartEmitter( const char* name, const char* joint, const char* p
 
 idEntity* idAI::GetEmitter( const char* name ) {
 	funcEmitter_t* emitter;
-	funcEmitters.Get(name, &emitter);
+	&emitter = funcEmitters.at(name);
 	if(emitter) {
 		return emitter->particle;
 	}
@@ -4933,11 +4933,11 @@ idEntity* idAI::GetEmitter( const char* name ) {
 
 void idAI::StopEmitter( const char* name ) {
 	funcEmitter_t* emitter;
-	funcEmitters.Get(name, &emitter);
+	&emitter = funcEmitters.at(name);
 	if(emitter) {
 		emitter->particle->Unbind();
 		emitter->particle->PostEventMS( &EV_Remove, 0 );
-		funcEmitters.Remove(name);
+		funcEmitters.erase(name);
 	}
 }
 
