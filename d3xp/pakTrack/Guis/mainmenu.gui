@@ -6570,7 +6570,7 @@ windowDef LoadGameParentBot {
 		//Title
 		windowDef LGTitleTextBot {
 			rect		20, 5, 320, 20
-			text		"BOT LISTS"
+			text		"LOAD BOT"
 			textscale	0.32
 			textaligny	-3
 			forecolor	1, 1, 1, 1
@@ -6608,13 +6608,13 @@ windowDef LoadGameParentBot {
 					//set "cmd" "updateSaveGameInfo" ;
 					resetTime "LGCBtn1" "0" ;
 					resetTime "LGCBtn2" "0" ;
-					//set "cmd" "addbot";
+					set "cmd" "exec" "addbot";
 					
 				}
 
 				onEnter {
 					set "cmd" "play guisounds_menuclickup" ;
-					set "cmd" "addBot" ;//loadgame
+					set "cmd" "exec" "addBot" ;//loadgame
 				}
 			}
 		}
@@ -6642,7 +6642,7 @@ windowDef LoadGameParentBot {
 		//Title Text
 		windowDef LGCText3Bot {
 			rect		322, 38, 195, 10
-			text		" """
+			text		" "//"Load Bot"
 			font		"fonts/bank"
 			textscale	0.25
 			textaligny	-9
@@ -8431,7 +8431,7 @@ windowDef MultiplayerNavParent {
 	//new game button Text
 	windowDef NewGameBtnText {
 		rect		53, 415, 160, 21
-		text		"Bot List"
+		text		"ADD BOTS"
 		textscale	0.26
 		textalign	1
 		textaligny	-1
@@ -8690,7 +8690,7 @@ windowDef MultiplayerNavParent {
 	//load game button Text
 	windowDef LoadBtnText {
 		rect		240, 415, 170, 21
-		text		"Buddy Bots"//"#str_02187"
+		text		"ADD TEAM"//"#str_02187"
 		textscale	0.26
 		textalign	1
 		textaligny	-1
@@ -8761,38 +8761,38 @@ windowDef MultiplayerNavParent {
 			}
 		}
 		
-		//On Action {
-		//	set "exitanim" "0" ;
-		//	if ("desktop::selected" == 3) {
-		//		set	"cmd"	"play guisounds_menuclickdown" ;
-		//		resetTime "AnimLGToMain" "0" ;
-		//		set "desktop::selected" "0" ;
-		//		transition "forecolor" "1 1 1 0.1" "1 1 1 1" "200" ;
-		//		set "ToolTip1::text" "#str_02213" ;
-		//		set "ToolTip2::text" "#str_02213" ;
-		//	} else {
-		//		transition "forecolor" "1 1 1 1" "1 1 1 0.1" "200" ;
-		//		set	"cmd"	"play guisounds_menuclickup" ;
-		//		//set "cmd" "exec" "removebot WolverineBot";
-		//		if ("desktop::selected" == 1) {
-		//			resetTime "AnimOptionsToMain" "0" ;
-		//		}
-		//		if ("desktop::selected" == 2) {
-		//			resetTime "AnimNGToMain" "0" ;
-		//		}
-		//		if ("desktop::selected" == 4) {
-		//			resetTime "AnimMPToMain" "0" ;
-		//		}
-		//		if ("desktop::selected" == 6) {
-		//			resetTime "AnimSGToMain" "0" ;
-		//		}
-		//		if ("desktop::selected" == 7) {
-		//			resetTime "AnimModsDown" "0" ;
-		//		}
-		//		resetTime "AnimMainToLG" "0" ;
-		//		set "desktop::selected" "3" ;
-		//	}
-		//
+		onAction {
+			set "exitanim" "0" ;
+			if ("desktop::selected" == 3) {
+				set	"cmd"	"play guisounds_menuclickdown" ;
+				resetTime "AnimLGToMain" "0" ;
+				set "desktop::selected" "0" ;
+				transition "forecolor" "1 1 1 0.1" "1 1 1 1" "200" ;
+				set "ToolTip1::text" "#str_02213" ;
+				set "ToolTip2::text" "#str_02213" ;
+			} else {
+				transition "forecolor" "1 1 1 1" "1 1 1 0.1" "200" ;
+				set	"cmd"	"play guisounds_menuclickup" ;
+				//set "cmd" "exec" "removebot WolverineBot";
+				if ("desktop::selected" == 1) {
+					resetTime "AnimOptionsToMain" "0" ;
+				}
+				if ("desktop::selected" == 2) {
+					resetTime "AnimNGToMain" "0" ;
+				}
+				if ("desktop::selected" == 4) {
+					resetTime "AnimMPToMain" "0" ;
+				}
+				if ("desktop::selected" == 6) {
+					resetTime "AnimSGToMain" "0" ;
+				}
+				if ("desktop::selected" == 7) {
+					resetTime "AnimModsDown" "0" ;
+				}
+				resetTime "AnimMainToLG" "0" ;
+				set "desktop::selected" "3" ;
+			}
+		}
 	}
 
 	//multiplayer button Text
@@ -13695,7 +13695,7 @@ windowDef MultiplayerLANParent {
 			bordercolor	0.4, 0.6, 0.6, 0.5
 			textscale 	0.25
 			font		"fonts/bank"
-			listName	"mapList" 
+			listName	"botlist"//"mapList" 
 
 			onAction {
 				set "cmd" "play guisounds_menuclickup ; click_mapList" ;

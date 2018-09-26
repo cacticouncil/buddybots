@@ -27,7 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "sys/platform.h"
-#include "idlib/containers/HashTable.h"
 #include "framework/Session_local.h"
 #include "ui/DeviceContext.h"
 #include "ui/Window.h"

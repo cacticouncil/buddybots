@@ -324,7 +324,7 @@ public:
 
 	idStrList			loadGameList;
 	idStrList			modsList;
-	idStrList			guiBotNames;
+
 	idUserInterface *	GetActiveMenu();
 
 	void				DispatchCommand( idUserInterface *gui, const char *menuCommand, bool doIngame = true );

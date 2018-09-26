@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __ANIM_H__
 
 #include "idlib/containers/StrList.h"
-#include "idlib/containers/HashTable.h"
+#include <unordered_map>
 #include "idlib/Dict.h"
 #include "renderer/Model.h"
 
@@ -626,7 +626,7 @@ public:
 	void						FlushUnusedAnims( void );
 
 private:
-	idHashTable<idMD5Anim *>	animations;
+	std::unordered_map<idStr, idMD5Anim *>	animations;
 	idStrList					jointnames;
 	idHashIndex					jointnamesHash;
 };

@@ -772,7 +772,7 @@ void idSessionLocal::HandleMainMenuCommands(const char *menuCommand) {
 				}
 			}
 
-			
+			idStrList guiBotNames;
 
 			guiBotNames.Resize(botCount);
 			
@@ -806,27 +806,7 @@ void idSessionLocal::HandleMainMenuCommands(const char *menuCommand) {
 			SetBotMenuGuiVars();
 			continue;
 		}
-		if (!idStr::Icmp(cmd, "addbot")) {
-			int choice = guiActive->State().GetInt("botList_sel_0");
-			if (choice >= 0 && choice < guiBotNames.Num()) {
-				idStr botName = guiBotNames[choice];
-				idStr command = "addbot " + botName;
-				cvarSystem->SetCVarString("botList_item_0", botName);
-				cmdSystem->BufferCommandText(CMD_EXEC_APPEND, command);
 
-			}
-		}
-
-		if (!idStr::Icmp(cmd, "removebot")) {
-			int choice = guiActive->State().GetInt("botList_sel_0");
-			if (choice >= 0 && choice < guiBotNames.Num()) {
-				idStr botName = guiBotNames[choice];
-				idStr command = "removebot " + botName;
-				cvarSystem->SetCVarString("botList_item_0", botName);
-				cmdSystem->BufferCommandText(CMD_EXEC_APPEND, command);
-
-			}
-		}
 		if (!idStr::Icmp(cmd, "QUEUEDBotScan")) {
 			// file read here
 

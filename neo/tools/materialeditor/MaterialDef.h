@@ -52,7 +52,7 @@ public:
 	idStr				displayName;
 	idStr				displayInfo;
 	bool				quotes;
-	idHashTable<DWORD>	viewData;
+	std::unordered_map<std::string, DWORD>	viewData;
 
 public:
 
