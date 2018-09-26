@@ -420,7 +420,8 @@ void idWeapon::Save( idSaveGame *savefile ) const {
 
 	savefile->WriteInt(weaponParticles.size());
 	for(auto i = weaponParticles.begin(); i != weaponParticles.end(); ++i) {
-		WeaponParticle_t* part = i->second;
+		WeaponParticle_t getIndex = i->second;
+		WeaponParticle_t* part = &getIndex;
 		savefile->WriteString( part->name );
 		savefile->WriteString( part->particlename );
 		savefile->WriteBool( part->active );
@@ -433,7 +434,8 @@ void idWeapon::Save( idSaveGame *savefile ) const {
 	}
 	savefile->WriteInt(weaponLights.size());
 	for(auto i = weaponLights.begin(); i != weaponLights.end(); ++i) {
-		WeaponLight_t* light = i->second;
+		WeaponLight_t getIndex = i->second;
+		WeaponLight_t* light = &getIndex;
 		savefile->WriteString( light->name );
 		savefile->WriteBool( light->active );
 		savefile->WriteInt( light->startTime );
@@ -646,7 +648,7 @@ void idWeapon::Restore( idRestoreGame *savefile ) {
 			savefile->ReadObject(reinterpret_cast<idClass *&>(newParticle.emitter));
 		}
 
-		weaponParticles.insert(newParticle.name, newParticle);
+		weaponParticles[newParticle.name] = newParticle;
 	}
 
 	int lightCount;
@@ -667,7 +669,7 @@ void idWeapon::Restore( idRestoreGame *savefile ) {
 		if ( newLight.lightHandle >= 0 ) {
 			newLight.lightHandle = gameRenderWorld->AddLightDef( &newLight.light );
 		}
-		weaponLights.insert(newLight.name, newLight);
+		weaponLights[newLight.name] = newLight;
 	}
 #endif
 }
@@ -834,7 +836,8 @@ void idWeapon::Clear( void ) {
 
 	//Clean up the weapon particles
 	for(auto i = weaponParticles.begin(); i != weaponParticles.end(); ++i) {
-		WeaponParticle_t* part = i->second;
+		WeaponParticle_t getIndex = i->second;
+		WeaponParticle_t* part = &getIndex;
 		if(!part->smoke) {
 			//Destroy the emitters
 			part->emitter->PostEventMS(&EV_Remove, 0 );
@@ -844,7 +847,8 @@ void idWeapon::Clear( void ) {
 
 	//Clean up the weapon lights
 	for(auto i = weaponLights.begin(); i != weaponLights.end(); ++i) {
-		WeaponLight_t* light = i->second;
+		WeaponLight_t getIndex = i->second;
+		WeaponLight_t* light = &getIndex;
 		if ( light->lightHandle != -1 ) {
 			gameRenderWorld->FreeLightDef( light->lightHandle );
 		}
@@ -1242,7 +1246,7 @@ void idWeapon::GetWeaponDef( const char *objectname, int ammoinclip ) {
 				newParticle.emitter->BecomeActive(TH_THINK);
 			}
 
-			weaponParticles.insert(name.c_str(), newParticle);
+			weaponParticles[name.c_str()] = newParticle;
 
 			pkv = weaponDef->dict.MatchPrefix( "weapon_particle", pkv );
 		}
@@ -1272,7 +1276,7 @@ void idWeapon::GetWeaponDef( const char *objectname, int ammoinclip ) {
 
 			newLight.light.allowLightInViewID = owner->entityNumber+1;
 
-			weaponLights.insert(name.c_str(), newLight);
+			weaponLights[name.c_str()] = newLight;
 
 			lkv = weaponDef->dict.MatchPrefix( "weapon_light", lkv );
 		}
@@ -2260,8 +2264,9 @@ void idWeapon::PresentWeapon( bool showViewModel ) {
 #ifdef _D3XP
 	if ( showViewModel && !hide ) {
 
-		for( autp i = weaponParticles.begin(); i != weaponParticles.end(); ++i ) {
-			WeaponParticle_t* part = i->second;
+		for( auto i = weaponParticles.begin(); i != weaponParticles.end(); ++i ) {
+			WeaponParticle_t getIndex = i->second;
+			WeaponParticle_t* part =&getIndex;
 
 			if(part->active) {
 				if(part->smoke) {
@@ -2289,7 +2294,8 @@ void idWeapon::PresentWeapon( bool showViewModel ) {
 		}
 
 		for(auto i = weaponLights.begin(); i != weaponLights.end(); ++i) {
-			WeaponLight_t* light = i->second;
+			WeaponLight_t getIndex = i->second;
+			WeaponLight_t* light = &getIndex;
 
 			if(light->active) {
 
@@ -3677,8 +3683,7 @@ void idWeapon::Event_StopWeaponSmoke() {
 }
 
 void idWeapon::Event_StartWeaponParticle( const char* name) {
-	WeaponParticle_t* part;
-	&part = weaponParticles.at(name);
+	WeaponParticle_t* part = &weaponParticles.at(name);
 	if(part) {
 		part->active = true;
 		part->startTime = gameLocal.time;
@@ -3692,8 +3697,7 @@ void idWeapon::Event_StartWeaponParticle( const char* name) {
 }
 
 void idWeapon::Event_StopWeaponParticle( const char* name) {
-	WeaponParticle_t* part;
-	&part = weaponParticles.at(name);
+	WeaponParticle_t* part = &weaponParticles.at(name);
 	if(part) {
 		part->active = false;
 		part->startTime = 0;
@@ -3707,8 +3711,7 @@ void idWeapon::Event_StopWeaponParticle( const char* name) {
 }
 
 void idWeapon::Event_StartWeaponLight( const char* name) {
-	WeaponLight_t* light;
-	&light = weaponLights.at(name);
+	WeaponLight_t* light = &weaponLights.at(name);
 	if(light) {
 		light->active = true;
 		light->startTime = gameLocal.time;
@@ -3716,8 +3719,7 @@ void idWeapon::Event_StartWeaponLight( const char* name) {
 }
 
 void idWeapon::Event_StopWeaponLight( const char* name) {
-	WeaponLight_t* light;
-	&light = weaponLights.at(name);
+	WeaponLight_t* light = &weaponLights.at(name);
 	if(light) {
 		light->active = false;
 		light->startTime = 0;
