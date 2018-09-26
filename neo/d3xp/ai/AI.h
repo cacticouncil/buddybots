@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __AI_H__
 #define __AI_H__
 
+#include <unordered_map>
+
 #include "physics/Physics_Monster.h"
 #include "Entity.h"
 #include "Actor.h"
@@ -422,7 +424,7 @@ protected:
 #ifdef _D3XP
 	bool					spawnClearMoveables;
 
-	idHashTable<funcEmitter_t> funcEmitters;
+	std::unordered_map<idStr, funcEmitter_t> funcEmitters;
 
 	idEntityPtr<idHarvestable>	harvestEnt;
 #endif
