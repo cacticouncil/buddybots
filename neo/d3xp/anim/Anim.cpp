@@ -991,8 +991,8 @@ void idAnimManager::ReloadAnims( void ) {
 	int			i;
 	idMD5Anim	**animptr;
 
-	for( i = 0; i < animations.Num(); i++ ) {
-		animptr = animations.GetIndex( i );
+	for (auto i = animations.begin(); i != animations.end(); ++i ) {
+		animptr = animations->second;
 		if ( animptr && *animptr ) {
 			( *animptr )->Reload();
 		}
@@ -1044,12 +1044,12 @@ void idAnimManager::ListAnims( void ) const {
 
 	num = 0;
 	size = 0;
-	for( i = 0; i < animations.Num(); i++ ) {
-		animptr = animations.GetIndex( i );
-		if ( animptr && *animptr ) {
+	for (auto i = animations.begin(); i != animations.end(); ++i) {
+		animptr = animations->second;
+		if (animptr && *animptr) {
 			anim = *animptr;
 			s = anim->Size();
-			gameLocal.Printf( "%8zd bytes : %2d refs : %s\n", s, anim->NumRefs(), anim->Name() );
+			gameLocal.Printf("%8zd bytes : %2d refs : %s\n", s, anim->NumRefs(), anim->Name());
 			size += s;
 			num++;
 		}
@@ -1074,17 +1074,17 @@ void idAnimManager::FlushUnusedAnims( void ) {
 	idMD5Anim				**animptr;
 	idList<idMD5Anim *>		removeAnims;
 
-	for( i = 0; i < animations.Num(); i++ ) {
-		animptr = animations.GetIndex( i );
-		if ( animptr && *animptr ) {
-			if ( ( *animptr )->NumRefs() <= 0 ) {
-				removeAnims.Append( *animptr );
+	for (auto i = animations.begin(); i != animations.end(); ++i) {
+		animptr = animations->second;
+		if (animptr && *animptr) {
+			if ((*animptr)->NumRefs() <= 0) {
+				removeAnims.Append(*animptr);
 			}
 		}
 	}
 
 	for( i = 0; i < removeAnims.Num(); i++ ) {
-		animations.Remove( removeAnims[ i ]->Name() );
+		animations.erase( removeAnims[ i ]->Name() );
 		delete removeAnims[ i ];
 	}
 }
