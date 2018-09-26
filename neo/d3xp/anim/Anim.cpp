@@ -959,8 +959,9 @@ idMD5Anim *idAnimManager::GetAnim( const char *name ) {
 
 	// see if it has been asked for before
 	animptrptr = NULL;
+	idMD5Anim *index = animations.at(name);
 	if ( animations.at( name ) ) {
-		&animptrptr = animations.at(name);
+		animptrptr = &index;
 		anim = *animptrptr;
 	} else {
 		idStr extension;
@@ -977,7 +978,7 @@ idMD5Anim *idAnimManager::GetAnim( const char *name ) {
 			delete anim;
 			anim = NULL;
 		}
-		animations.insert( filename, anim );
+		animations[filename] =  anim;
 	}
 
 	return anim;
@@ -993,7 +994,8 @@ void idAnimManager::ReloadAnims( void ) {
 	idMD5Anim	**animptr;
 
 	for (auto i = animations.begin(); i != animations.end(); ++i ) {
-		animptr = animations->second;
+		idMD5Anim* getIndex = i->second;
+		animptr = &getIndex;
 		if ( animptr && *animptr ) {
 			( *animptr )->Reload();
 		}
@@ -1046,7 +1048,8 @@ void idAnimManager::ListAnims( void ) const {
 	num = 0;
 	size = 0;
 	for (auto i = animations.begin(); i != animations.end(); ++i) {
-		animptr = animations->second;
+		idMD5Anim* getIndex = i->second;
+		animptr = &getIndex;
 		if (animptr && *animptr) {
 			anim = *animptr;
 			s = anim->Size();
@@ -1076,7 +1079,8 @@ void idAnimManager::FlushUnusedAnims( void ) {
 	idList<idMD5Anim *>		removeAnims;
 
 	for (auto i = animations.begin(); i != animations.end(); ++i) {
-		animptr = animations->second;
+		idMD5Anim* getIndex = i->second;
+		animptr = &getIndex;
 		if (animptr && *animptr) {
 			if ((*animptr)->NumRefs() <= 0) {
 				removeAnims.Append(*animptr);
