@@ -943,7 +943,7 @@ idAnimManager::Shutdown
 ====================
 */
 void idAnimManager::Shutdown( void ) {
-	animations.DeleteContents();
+	animations.clear();
 	jointnames.Clear();
 	jointnamesHash.Free();
 }
@@ -959,7 +959,8 @@ idMD5Anim *idAnimManager::GetAnim( const char *name ) {
 
 	// see if it has been asked for before
 	animptrptr = NULL;
-	if ( animations.Get( name, &animptrptr ) ) {
+	if ( animations.at( name ) ) {
+		&animptrptr = animations.at(name);
 		anim = *animptrptr;
 	} else {
 		idStr extension;
@@ -976,7 +977,7 @@ idMD5Anim *idAnimManager::GetAnim( const char *name ) {
 			delete anim;
 			anim = NULL;
 		}
-		animations.Set( filename, anim );
+		animations.insert( filename, anim );
 	}
 
 	return anim;

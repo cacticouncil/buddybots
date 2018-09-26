@@ -622,7 +622,7 @@ public:
 	void						FlushUnusedAnims( void );
 
 private:
-	std::unordered_map<std::string, idMD5Anim *>	animations;
+	std::unordered_map<idStr, idMD5Anim *>	animations;
 	idStrList					jointnames;
 	idHashIndex					jointnamesHash;
 };
