@@ -184,15 +184,14 @@ bool MA_ParseTransform(idParser& parser) {
 
 	if(header.parent[0] != 0) {
 		//Find the parent
-		maTransform_t**	parent;
-		maGlobal.model->transforms.Get(header.parent, &parent);
+		maTransform_t**	parent = &maGlobal.model->transforms.at(header.parent);
 		if(parent) {
 			transform->parent = *parent;
 		}
 	}
 
 	//Add this transform to the list
-	maGlobal.model->transforms.Set(header.name, transform);
+	maGlobal.model->transforms[header.name] = transform;
 	return true;
 }
 
@@ -585,8 +584,7 @@ void MA_ParseMesh(idParser& parser) {
 	//Find my parent
 	if(header.parent[0] != 0) {
 		//Find the parent
-		maTransform_t**	parent;
-		maGlobal.model->transforms.Get(header.parent, &parent);
+		maTransform_t**	parent = &maGlobal.model->transforms.at(header.parent);
 		if(parent) {
 			maGlobal.currentObject->mesh.transform = *parent;
 		}
@@ -738,7 +736,7 @@ void MA_ParseFileNode(idParser& parser) {
 				strcpy(fileNode->name, header.name);
 				strcpy(fileNode->path, token.c_str());
 
-				maGlobal.model->fileNodes.Set(fileNode->name, fileNode);
+				maGlobal.model->fileNodes[fileNode->name] = fileNode;
 			} else {
 				parser.SkipRestOfLine();
 			}
@@ -758,7 +756,7 @@ void MA_ParseMaterialNode(idParser& parser) {
 
 	strcpy(matNode->name, header.name);
 
-	maGlobal.model->materialNodes.Set(matNode->name, matNode);
+	maGlobal.model->materialNodes[matNode->name] = matNode;
 }
 
 void MA_ParseCreateNode(idParser& parser) {
@@ -781,8 +779,7 @@ void MA_ParseCreateNode(idParser& parser) {
 int MA_AddMaterial(const char* materialName) {
 
 
-	maMaterialNode_t**	destNode;
-	maGlobal.model->materialNodes.Get(materialName, &destNode);
+	maMaterialNode_t**	destNode = &maGlobal.model->materialNodes.at(materialName);
 	if(destNode) {
 		maMaterialNode_t* matNode = *destNode;
 
@@ -840,22 +837,18 @@ bool MA_ParseConnectAttr(idParser& parser) {
 	if(srcType.Find("oc") != -1) {
 
 		//Is this attribute a material node attribute
-		maMaterialNode_t**	matNode;
-		maGlobal.model->materialNodes.Get(srcName, &matNode);
+		maMaterialNode_t**	matNode = &maGlobal.model->materialNodes.at(srcName);
 		if(matNode) {
-			maMaterialNode_t**	destNode;
-			maGlobal.model->materialNodes.Get(destName, &destNode);
+			maMaterialNode_t**	destNode = &maGlobal.model->materialNodes.at(destName);
 			if(destNode) {
 				(*destNode)->child = *matNode;
 			}
 		}
 
 		//Is this attribute a file node
-		maFileNode_t** fileNode;
-		maGlobal.model->fileNodes.Get(srcName, &fileNode);
+		maFileNode_t** fileNode = &maGlobal.model->fileNodes.at(srcName);
 		if(fileNode) {
-			maMaterialNode_t**	destNode;
-			maGlobal.model->materialNodes.Get(destName, &destNode);
+			maMaterialNode_t**	destNode = &maGlobal.model->materialNodes.at(destName);
 			if(destNode) {
 				(*destNode)->file = *fileNode;
 			}
@@ -1088,25 +1081,28 @@ void MA_Free( maModel_t *ma ) {
 	ma->materials.Clear();
 
 	maTransform_t** trans;
-	for ( i = 0; i < ma->transforms.Num(); i++ ) {
-		trans = ma->transforms.GetIndex(i);
-		Mem_Free( *trans );
+	for (auto i = ma->transforms.begin(); i != ma->transforms.end(); ++i) {
+		maTransform_t* getIndex = i->second;
+		trans = &getIndex;
+		Mem_Free(*trans);
 	}
-	ma->transforms.Clear();
+	ma->transforms.clear();
 
 
 	maFileNode_t** fileNode;
-	for ( i = 0; i < ma->fileNodes.Num(); i++ ) {
-		fileNode = ma->fileNodes.GetIndex(i);
-		Mem_Free( *fileNode );
+	for (auto i = ma->fileNodes.begin(); i != ma->fileNodes.end(); ++i) {
+		maFileNode_t* getIndex = i->second;
+		fileNode = &getIndex;
+		Mem_Free(*fileNode);
 	}
-	ma->fileNodes.Clear();
+	ma->fileNodes.clear();
 
 	maMaterialNode_t** matNode;
-	for ( i = 0; i < ma->materialNodes.Num(); i++ ) {
-		matNode = ma->materialNodes.GetIndex(i);
-		Mem_Free( *matNode );
+	for (auto i = ma->materialNodes.begin(); i != ma->materialNodes.end(); ++i) {
+		maMaterialNode_t* getIndex = i->second;
+		matNode = &getIndex;
+		Mem_Free(*matNode);
 	}
-	ma->materialNodes.Clear();
+	ma->materialNodes.clear();
 	delete ma;
 }
