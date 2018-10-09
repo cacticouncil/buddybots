@@ -287,7 +287,7 @@ bool idListWindow::ParseInternalVar(const char *_name, idParser *src) {
 		if ( mat && !mat->TestMaterialFlag( MF_DEFAULTED ) ) {
 			mat->SetSort(SS_GUI );
 		}
-		iconMaterials.Set(_name, mat);
+		iconMaterials[_name] = mat;
 		return true;
 	}
 
@@ -521,7 +521,7 @@ void idListWindow::Draw(int time, float x, float y) {
 					// leaving the icon name empty doesn't draw anything
 					if ( work[0] != '\0' ) {
 
-						if ( iconMaterials.Get(work, &hashMat) == false ) {
+						if ( iconMaterials.at(work) == false ) {
 							iconMat = declManager->FindMaterial("_default");
 						} else {
 							iconMat = *hashMat;
