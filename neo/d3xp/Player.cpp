@@ -4591,8 +4591,16 @@ void idPlayer::SelectWeapon( int num, bool force ) {
 
 #ifdef _D3XP
 	//Is the weapon a toggle weapon
-	WeaponToggle_t* weaponToggle = &weaponToggles.at(va("weapontoggle%d", num));
-	if(WeaponToggle_t* weaponToggle = &weaponToggles.at(va("weapontoggle%d", num))) {
+	WeaponToggle_t* weaponToggle;
+	bool isWeaponToggle;
+	try {
+		weaponToggle = &weaponToggles.at(va("weapontoggle%d", num));
+		isWeaponToggle = true;
+	}
+	catch (const std::out_of_range& oor) {
+		isWeaponToggle = false;
+	}
+	if(isWeaponToggle) {
 
 		int weaponToggleIndex = 0;
 

@@ -4925,16 +4925,32 @@ idEntity* idAI::StartEmitter( const char* name, const char* joint, const char* p
 }
 
 idEntity* idAI::GetEmitter( const char* name ) {
-	funcEmitter_t* emitter = &funcEmitters.at(name);
-	if(emitter) {
+	funcEmitter_t* emitter;
+	bool isEmitter;
+	try {
+		emitter = &funcEmitters.at(name);
+		isEmitter = true;
+	}
+	catch (const std::out_of_range& oor) {
+		isEmitter = false;
+	}
+	if(isEmitter) {
 		return emitter->particle;
 	}
 	return NULL;
 }
 
 void idAI::StopEmitter( const char* name ) {
-	funcEmitter_t* emitter = &funcEmitters.at(name);
-	if(emitter) {
+	funcEmitter_t* emitter;
+	bool isEmitter;
+	try {
+		emitter = &funcEmitters.at(name);
+		isEmitter = true;
+	}
+	catch (const std::out_of_range& oor) {
+		isEmitter = false;
+	}
+	if(isEmitter) {
 		emitter->particle->Unbind();
 		emitter->particle->PostEventMS( &EV_Remove, 0 );
 		funcEmitters.erase(name);

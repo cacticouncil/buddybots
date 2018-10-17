@@ -184,14 +184,22 @@ bool MA_ParseTransform(idParser& parser) {
 
 	if(header.parent[0] != 0) {
 		//Find the parent
-		maTransform_t**	parent = &maGlobal.model->transforms.at(header.parent);
+		maTransform_t**	parent;
+		bool isParent;
+		try {
+			parent = &maGlobal.model->transforms.at(header.parent);
+			isParent = true;
+		}
+		catch (const std::out_of_range& oor) {
+			isParent = false;
+		}
 		if(parent) {
 			transform->parent = *parent;
 		}
 	}
 
 	//Add this transform to the list
-	maGlobal.model->transforms[header.name] = transform;
+	maGlobal.model->transforms[(std::string)header.name] = transform;
 	return true;
 }
 
@@ -584,8 +592,15 @@ void MA_ParseMesh(idParser& parser) {
 	//Find my parent
 	if(header.parent[0] != 0) {
 		//Find the parent
-		maTransform_t**	parent = &maGlobal.model->transforms.at(header.parent);
-		if(parent) {
+		maTransform_t**	parent;
+		bool isParent;
+		try {
+			parent = &maGlobal.model->transforms.at(header.parent);
+			isParent = true;
+		}catch (const std::out_of_range& oor) {
+			isParent = false;
+		}
+		if(isParent) {
 			maGlobal.currentObject->mesh.transform = *parent;
 		}
 	}
@@ -779,7 +794,14 @@ void MA_ParseCreateNode(idParser& parser) {
 int MA_AddMaterial(const char* materialName) {
 
 
-	maMaterialNode_t**	destNode = &maGlobal.model->materialNodes.at(materialName);
+	maMaterialNode_t**	destNode;
+	bool isDestNode;
+	try {
+		destNode = &maGlobal.model->materialNodes.at(materialName);
+		isDestNode = true;
+	}catch (const std::out_of_range& oor) {
+		isDestNode = false;
+	}
 	if(destNode) {
 		maMaterialNode_t* matNode = *destNode;
 
@@ -837,19 +859,51 @@ bool MA_ParseConnectAttr(idParser& parser) {
 	if(srcType.Find("oc") != -1) {
 
 		//Is this attribute a material node attribute
-		maMaterialNode_t**	matNode = &maGlobal.model->materialNodes.at(srcName);
-		if(matNode) {
-			maMaterialNode_t**	destNode = &maGlobal.model->materialNodes.at(destName);
-			if(destNode) {
+		maMaterialNode_t**	matNode;
+		bool isMatNode;
+		bool isDestNode;
+
+		try {
+			matNode = &maGlobal.model->materialNodes.at((std::string)srcName);
+			isMatNode = true;
+		}
+		catch (const std::out_of_range& oor) {
+			isMatNode = false;
+		}
+		if(isMatNode) {
+			maMaterialNode_t**	destNode;
+			try {
+				destNode = &maGlobal.model->materialNodes.at((std::string)destName);
+				isDestNode = true;
+			}
+			catch (const std::out_of_range& oor) {
+				isDestNode = false;
+			}
+			if(isDestNode) {
 				(*destNode)->child = *matNode;
 			}
 		}
 
 		//Is this attribute a file node
-		maFileNode_t** fileNode = &maGlobal.model->fileNodes.at(srcName);
-		if(fileNode) {
-			maMaterialNode_t**	destNode = &maGlobal.model->materialNodes.at(destName);
-			if(destNode) {
+		maFileNode_t** fileNode;
+		bool isFileNode;
+		try {
+			fileNode = &maGlobal.model->fileNodes.at((std::string)srcName);
+			isFileNode = true;
+		}
+		catch (const std::out_of_range& oor) {
+			isFileNode = false;
+		}
+		if(isFileNode) {
+			maMaterialNode_t**	destNode;
+			try {
+				destNode = &maGlobal.model->materialNodes.at((std::string)destName);
+				isDestNode = true;
+			}
+			catch (const std::out_of_range& oor) {
+				isDestNode = false;
+			}
+			if (isDestNode) {
 				(*destNode)->file = *fileNode;
 			}
 		}

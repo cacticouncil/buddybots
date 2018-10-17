@@ -959,8 +959,16 @@ idMD5Anim *idAnimManager::GetAnim( const char *name ) {
 
 	// see if it has been asked for before
 	animptrptr = NULL;
-	idMD5Anim *index = animations.at(name);
-	if ( animations.at( name ) ) {
+	idMD5Anim *index;
+	bool isIndex;
+	try {
+		index = animations.at(name);
+		isIndex = true;
+	}
+	catch (const std::out_of_range& oor) {
+		isIndex = false;
+	}
+	if ( isIndex ) {
 		animptrptr = &index;
 		anim = *animptrptr;
 	} else {

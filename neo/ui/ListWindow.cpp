@@ -521,7 +521,14 @@ void idListWindow::Draw(int time, float x, float y) {
 					// leaving the icon name empty doesn't draw anything
 					if ( work[0] != '\0' ) {
 
-						if ( iconMaterials.at(work) == false ) {
+						bool isIconMaterials;
+						try {
+							iconMaterials.at((std::string)work);
+							isIconMaterials = true;
+						}catch (const std::out_of_range& oor) {
+							isIconMaterials = false;
+						}
+						if ( isIconMaterials == false ) {
 							iconMat = declManager->FindMaterial("_default");
 						} else {
 							iconMat = *hashMat;

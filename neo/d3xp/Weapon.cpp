@@ -3683,8 +3683,16 @@ void idWeapon::Event_StopWeaponSmoke() {
 }
 
 void idWeapon::Event_StartWeaponParticle( const char* name) {
-	WeaponParticle_t* part = &weaponParticles.at(name);
-	if(part) {
+	WeaponParticle_t* part;
+	bool isPart;
+	try {
+		part = &weaponParticles.at(name);
+		isPart = true;
+	}
+	catch (const std::out_of_range& oor) {
+		isPart = false;
+	}
+	if(isPart) {
 		part->active = true;
 		part->startTime = gameLocal.time;
 
@@ -3697,8 +3705,16 @@ void idWeapon::Event_StartWeaponParticle( const char* name) {
 }
 
 void idWeapon::Event_StopWeaponParticle( const char* name) {
-	WeaponParticle_t* part = &weaponParticles.at(name);
-	if(part) {
+	WeaponParticle_t* part;
+	bool isPart;
+	try {
+		part = &weaponParticles.at(name);
+		isPart = true;
+	}
+	catch (const std::out_of_range& oor) {
+		isPart = false;
+	}
+	if(isPart) {
 		part->active = false;
 		part->startTime = 0;
 
@@ -3711,16 +3727,32 @@ void idWeapon::Event_StopWeaponParticle( const char* name) {
 }
 
 void idWeapon::Event_StartWeaponLight( const char* name) {
-	WeaponLight_t* light = &weaponLights.at(name);
-	if(light) {
+	WeaponLight_t* light;
+	bool isLight;
+	try {
+		light = &weaponLights.at(name);
+		isLight = true;
+	}
+	catch (const std::out_of_range& oor) {
+		isLight = false;
+	}
+	if(isLight) {
 		light->active = true;
 		light->startTime = gameLocal.time;
 	}
 }
 
 void idWeapon::Event_StopWeaponLight( const char* name) {
-	WeaponLight_t* light = &weaponLights.at(name);
-	if(light) {
+	WeaponLight_t* light;
+	bool isLight;
+	try {
+		light = &weaponLights.at(name);
+		isLight = true;
+	}
+	catch (const std::out_of_range& oor) {
+		isLight = false;
+	}
+	if(isLight) {
 		light->active = false;
 		light->startTime = 0;
 		if(light->lightHandle != -1) {

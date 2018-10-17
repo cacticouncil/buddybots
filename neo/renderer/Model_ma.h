@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __MODEL_MA_H__
 
 #include <unordered_map>
+#include <string>
 
 #include "idlib/containers/List.h"
 #include "idlib/math/Vector.h"
@@ -136,11 +137,11 @@ typedef struct maModel_s {
 	ID_TIME_T						timeStamp;
 	idList<maMaterial_t *>		materials;
 	idList<maObject_t *>		objects;
-	std::unordered_map<idStr, maTransform_t*> transforms;
+	std::unordered_map<std::string, maTransform_t*> transforms;
 
 	//Material Resolution
-	std::unordered_map<idStr, maFileNode_t*>		fileNodes;
-	std::unordered_map<idStr, maMaterialNode_t*>	materialNodes;
+	std::unordered_map<std::string, maFileNode_t*>		fileNodes;
+	std::unordered_map<std::string, maMaterialNode_t*>	materialNodes;
 
 } maModel_t;
 
