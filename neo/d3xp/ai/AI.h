@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __AI_H__
 
 #include <unordered_map>
+#include <string>
 
 #include "physics/Physics_Monster.h"
 #include "Entity.h"
@@ -424,7 +425,7 @@ protected:
 #ifdef _D3XP
 	bool					spawnClearMoveables;
 
-	std::unordered_map<idStr, funcEmitter_t> funcEmitters;
+	std::unordered_map<std::string, funcEmitter_t> funcEmitters;
 
 	idEntityPtr<idHarvestable>	harvestEnt;
 #endif

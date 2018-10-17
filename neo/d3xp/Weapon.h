@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __GAME_WEAPON_H__
 #define __GAME_WEAPON_H__
 
+#include <unordered_map>
+#include <string>
+
 #include "script/Script_Thread.h"
 #include "Entity.h"
 #include "Light.h"
@@ -314,8 +317,8 @@ private:
 #ifdef _D3XP
 	jointHandle_t			smokeJointView;
 
-	std::unordered_map<idStr, WeaponParticle_t>	weaponParticles;
-	std::unordered_map<idStr, WeaponLight_t>		weaponLights;
+	std::unordered_map<std::string, WeaponParticle_t>	weaponParticles;
+	std::unordered_map<std::string, WeaponLight_t>		weaponLights;
 #endif
 
 	// sound

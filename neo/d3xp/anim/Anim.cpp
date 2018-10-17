@@ -978,7 +978,7 @@ idMD5Anim *idAnimManager::GetAnim( const char *name ) {
 			delete anim;
 			anim = NULL;
 		}
-		animations[filename] =  anim;
+		animations[(std::string)filename] =  anim;
 	}
 
 	return anim;

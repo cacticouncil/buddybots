@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __GAME_PLAYER_H__
 
 #include <unordered_map>
+#include <string>
 
 #include "idlib/math/Interpolate.h"
 
@@ -732,7 +733,7 @@ private:
 	idAngles				smoothedAngles;
 
 #ifdef _D3XP
-	std::unordered_map<idStr, WeaponToggle_t>	weaponToggles;
+	std::unordered_map<std::string, WeaponToggle_t>	weaponToggles;
 
 	int						hudPowerup;
 	int						lastHudPowerup;
