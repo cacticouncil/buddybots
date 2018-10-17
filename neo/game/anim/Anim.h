@@ -29,6 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __ANIM_H__
 
 #include <unordered_map>
+#include <string>
 
 #include "idlib/containers/StrList.h"
 #include "idlib/Dict.h"
@@ -621,7 +622,7 @@ public:
 	void						FlushUnusedAnims( void );
 
 private:
-	std::unordered_map<idStr, idMD5Anim *>	animations;
+	std::unordered_map<std::string, idMD5Anim *>	animations;
 	idStrList					jointnames;
 	idHashIndex					jointnamesHash;
 };

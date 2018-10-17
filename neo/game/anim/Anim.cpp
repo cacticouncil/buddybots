@@ -978,7 +978,7 @@ idMD5Anim *idAnimManager::GetAnim( const char *name ) {
 			delete anim;
 			anim = NULL;
 		}
-		animations[filename] =  anim;
+		animations[(std::string)filename] =  anim;
 	}
 
 	return anim;
@@ -993,8 +993,8 @@ void idAnimManager::ReloadAnims( void ) {
 	int			i;
 	idMD5Anim	**animptr;
 
-	for (auto i = animations.begin(); i != animations.end(); ++i ) {
-		idMD5Anim* getIndex = i->second;
+	for (auto j = animations.begin(); j != animations.end(); ++j ) {
+		idMD5Anim* getIndex = j->second;
 		animptr = &getIndex;
 		if ( animptr && *animptr ) {
 			( *animptr )->Reload();
@@ -1047,8 +1047,8 @@ void idAnimManager::ListAnims( void ) const {
 
 	num = 0;
 	size = 0;
-	for (auto i = animations.begin(); i != animations.end(); ++i) {
-		idMD5Anim* getIndex = i->second;
+	for (auto j = animations.begin(); j != animations.end(); ++j) {
+		idMD5Anim* getIndex = j->second;
 		animptr = &getIndex;
 		if (animptr && *animptr) {
 			anim = *animptr;
@@ -1078,8 +1078,8 @@ void idAnimManager::FlushUnusedAnims( void ) {
 	idMD5Anim				**animptr;
 	idList<idMD5Anim *>		removeAnims;
 
-	for (auto i = animations.begin(); i != animations.end(); ++i) {
-		idMD5Anim* getIndex = i->second;
+	for (auto j = animations.begin(); j != animations.end(); ++j) {
+		idMD5Anim* getIndex = j->second;
 		animptr = &getIndex;
 		if (animptr && *animptr) {
 			if ((*animptr)->NumRefs() <= 0) {
