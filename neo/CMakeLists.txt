@@ -516,7 +516,6 @@ set(src_idlib
 	idlib/LangDict.cpp
 	idlib/Lexer.cpp
 	idlib/Lib.cpp
-	idlib/containers/HashIndex.cpp
 	idlib/Dict.cpp
 	idlib/Str.cpp
 	idlib/Parser.cpp
