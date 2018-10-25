@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <unordered_map>
+
 #include "sys/platform.h"
 
 #include "framework/Compressor.h"
@@ -2252,7 +2254,7 @@ protected:
 		int k;
 		int w;
 	}				dictionary[LZW_DICT_SIZE];
-	idHashIndex		index;
+	std::unordered_map<int,int>		index;
 
 	int				nextCode;
 	int				codeBits;
@@ -2281,7 +2283,7 @@ void idCompressor_LZW::Init( idFile *f, bool compress, int wordLength ) {
 		dictionary[i].k = i;
 		dictionary[i].w = -1;
 	}
-	index.Clear();
+	index.clear();
 
 	nextCode = LZW_FIRST_CODE;
 	codeBits = LZW_START_BITS;
@@ -2334,14 +2336,12 @@ idCompressor_LZW::Lookup
 ================
 */
 int idCompressor_LZW::Lookup( int w, int k ) {
-	int j;
-
 	if ( w == -1 ) {
 		return k;
 	} else {
-		for ( j = index.First( w ^ k ); j >= 0 ; j = index.Next( j ) ) {
-			if ( dictionary[ j ].k == k && dictionary[ j ].w == w ) {
-				return j;
+		for ( auto j = index.begin(); j != index.end() ; ++j ) {
+			if ( dictionary[ j->second ].k == k && dictionary[ j->second ].w == w ) {
+				return j->second;
 			}
 		}
 	}
@@ -2357,7 +2357,7 @@ idCompressor_LZW::AddToDict
 int idCompressor_LZW::AddToDict( int w, int k ) {
 	dictionary[ nextCode ].k = k;
 	dictionary[ nextCode ].w = w;
-	index.Add( w ^ k, nextCode );
+	index.insert({ w ^ k, nextCode });
 	return nextCode++;
 }
 
@@ -2375,7 +2375,7 @@ bool idCompressor_LZW::BumpBits() {
 		if ( codeBits > LZW_DICT_BITS ) {
 			nextCode = LZW_FIRST_CODE;
 			codeBits = LZW_START_BITS;
-			index.Clear();
+			index.clear();
 			return true;
 		}
 	}
