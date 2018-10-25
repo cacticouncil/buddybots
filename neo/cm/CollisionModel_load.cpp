@@ -45,6 +45,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+#include <unordered_map>
+
 #include "sys/platform.h"
 #include "idlib/Timer.h"
 #include "renderer/Model.h"
@@ -60,8 +62,8 @@ cm_windingList_t *				cm_windingList;
 cm_windingList_t *				cm_outList;
 cm_windingList_t *				cm_tmpList;
 
-idHashIndex *					cm_vertexHash;
-idHashIndex *					cm_edgeHash;
+std::unordered_map<int,int> *					cm_vertexHash;
+std::unordered_map<int,int> *					cm_edgeHash;
 
 idBounds						cm_modelBounds;
 int								cm_vertexShift;
@@ -2182,10 +2184,12 @@ idCollisionModelManagerLocal::SetupHash
 */
 void idCollisionModelManagerLocal::SetupHash( void ) {
 	if ( !cm_vertexHash ) {
-		cm_vertexHash = new idHashIndex( VERTEX_HASH_SIZE, 1024 );
+		cm_vertexHash = new std::unordered_map<int, int>;
+		cm_vertexHash->reserve(VERTEX_HASH_SIZE);
 	}
 	if ( !cm_edgeHash ) {
-		cm_edgeHash = new idHashIndex( EDGE_HASH_SIZE, 1024 );
+		cm_edgeHash = new std::unordered_map<int, int>;
+		cm_edgeHash->reserve(EDGE_HASH_SIZE);
 	}
 	// init variables used during loading and optimization
 	if ( !cm_windingList ) {
@@ -2226,8 +2230,8 @@ void idCollisionModelManagerLocal::ClearHash( idBounds &bounds ) {
 	int i;
 	float f, max;
 
-	cm_vertexHash->Clear();
-	cm_edgeHash->Clear();
+	cm_vertexHash->clear();
+	cm_edgeHash->clear();
 
 	cm_modelBounds = bounds;
 	max = bounds[1].x - bounds[0].x;
@@ -2288,7 +2292,8 @@ int idCollisionModelManagerLocal::GetVertex( cm_model_t *model, const idVec3 &v,
 
 	hashKey = HashVec( vert );
 
-	for (vn = cm_vertexHash->First( hashKey ); vn >= 0; vn = cm_vertexHash->Next( vn ) ) {
+	for (auto j = cm_vertexHash->begin(); j != cm_vertexHash->end(); ++j ) {
+		vn = j->second;
 		p = &model->vertices[vn].p;
 		// first compare z-axis because hash is based on x-y plane
 		if (idMath::Fabs(vert[2] - (*p)[2]) < VERTEX_EPSILON &&
@@ -2310,13 +2315,13 @@ int idCollisionModelManagerLocal::GetVertex( cm_model_t *model, const idVec3 &v,
 		memcpy( model->vertices, oldVertices, model->numVertices * sizeof(cm_vertex_t) );
 		Mem_Free( oldVertices );
 
-		cm_vertexHash->ResizeIndex( model->maxVertices );
+		//cm_vertexHash->ResizeIndex( model->maxVertices );
 	}
 	model->vertices[model->numVertices].p = vert;
 	model->vertices[model->numVertices].checkcount = 0;
 	*vertexNum = model->numVertices;
 	// add vertice to hash
-	cm_vertexHash->Add( hashKey, model->numVertices );
+	cm_vertexHash->insert({ hashKey, model->numVertices });
 	//
 	model->numVertices++;
 	return false;
@@ -2348,11 +2353,13 @@ int idCollisionModelManagerLocal::GetEdge( cm_model_t *model, const idVec3 &v1, 
 		*edgeNum = 0;
 		return true;
 	}
-	hashKey = cm_edgeHash->GenerateKey( v1num, v2num );
+	hashKey = (v1num + v2num) & (EDGE_HASH_SIZE - 1);
 	// if both vertices where already stored
 	if (found) {
-		for (e = cm_edgeHash->First( hashKey ); e >= 0; e = cm_edgeHash->Next( e ) )
+		auto j = cm_edgeHash->begin();
+		for (j = cm_edgeHash->begin(); j != cm_edgeHash->end(); ++j )
 		{
+			e = j->second;
 			// NOTE: only allow at most two users that use the edge in opposite direction
 			if ( model->edges[e].numUsers != 1 ) {
 				continue;
@@ -2376,8 +2383,8 @@ int idCollisionModelManagerLocal::GetEdge( cm_model_t *model, const idVec3 &v1, 
 			*/
 		}
 		// if edge found in hash
-		if ( e >= 0 ) {
-			model->edges[e].numUsers++;
+		if ( j != cm_edgeHash->end() ) {
+			model->edges[j->second].numUsers++;
 			return true;
 		}
 	}
@@ -2391,7 +2398,7 @@ int idCollisionModelManagerLocal::GetEdge( cm_model_t *model, const idVec3 &v1, 
 		memcpy( model->edges, oldEdges, model->numEdges * sizeof(cm_edge_t) );
 		Mem_Free( oldEdges );
 
-		cm_edgeHash->ResizeIndex( model->maxEdges );
+		//cm_edgeHash->ResizeIndex( model->maxEdges );
 	}
 	// setup edge
 	model->edges[model->numEdges].vertexNum[0] = v1num;
@@ -2403,7 +2410,7 @@ int idCollisionModelManagerLocal::GetEdge( cm_model_t *model, const idVec3 &v1, 
 	//
 	*edgeNum = model->numEdges;
 	// add edge to hash
-	cm_edgeHash->Add( hashKey, model->numEdges );
+	cm_edgeHash->insert({ hashKey, model->numEdges });
 
 	model->numEdges++;
 
@@ -3032,8 +3039,8 @@ cm_model_t *idCollisionModelManagerLocal::LoadRenderModel( const char *fileName 
 	// setup hash to speed up finding shared vertices and edges
 	SetupHash();
 
-	cm_vertexHash->ResizeIndex( model->maxVertices );
-	cm_edgeHash->ResizeIndex( model->maxEdges );
+	//cm_vertexHash->ResizeIndex( model->maxVertices );
+	//cm_edgeHash->ResizeIndex( model->maxEdges );
 
 	ClearHash( bounds );
 
@@ -3114,8 +3121,8 @@ cm_model_t *idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 	model->vertices = (cm_vertex_t *) Mem_ClearedAlloc( model->maxVertices * sizeof(cm_vertex_t) );
 	model->edges = (cm_edge_t *) Mem_ClearedAlloc( model->maxEdges * sizeof(cm_edge_t) );
 
-	cm_vertexHash->ResizeIndex( model->maxVertices );
-	cm_edgeHash->ResizeIndex( model->maxEdges );
+	//cm_vertexHash->ResizeIndex( model->maxVertices );
+	//cm_edgeHash->ResizeIndex( model->maxEdges );
 
 	model->name = name;
 	model->isConvex = false;
