@@ -146,6 +146,189 @@ bool afiBotPlayer::MoveToEntity( idEntity* entity )
 }
 /*
 ===================
+BotPlayer::Wander
+===================
+*/
+bool afiBotPlayer::Wander()
+{
+	StopMove(MOVE_STATUS_DONE);
+
+	move.moveDest = physicsObj.GetOrigin() + viewAxis[0] * physicsObj.GetGravityAxis() * 256.0f;
+	if (!NewWanderDir(move.moveDest)) {
+		StopMove(MOVE_STATUS_DEST_UNREACHABLE);
+		move.flags.goalUnreachable = false;
+		return false;
+	}
+
+	move.moveCommand = MOVE_WANDER;
+	move.moveStatus = MOVE_STATUS_MOVING;
+	move.startTime = gameLocal.time;
+	move.speed = pm_walkspeed.GetFloat();
+	move.flags.done = false;
+	move.flags.moving = true;
+
+	return true;
+}
+/*
+================
+BotPlayer::NewWanderDir
+================
+*/
+bool afiBotPlayer::NewWanderDir(const idVec3 &dest) {
+	float	deltax, deltay;
+	float	d[3];
+	float	tdir, olddir, turnaround;
+
+	move.nextWanderTime = gameLocal.time + (gameLocal.random.RandomFloat() * 500 + 500);
+
+	olddir = idMath::AngleNormalize360((int)(move.current_yaw / 45) * 45);
+	turnaround = idMath::AngleNormalize360(olddir - 180);
+
+	idVec3 org = physicsObj.GetOrigin();
+	deltax = dest.x - org.x;
+	deltay = dest.y - org.y;
+	if (deltax > 10) {
+		d[1] = 0;
+	}
+	else if (deltax < -10) {
+		d[1] = 180;
+	}
+	else {
+		d[1] = DI_NODIR;
+	}
+
+	if (deltay < -10) {
+		d[2] = 270;
+	}
+	else if (deltay > 10) {
+		d[2] = 90;
+	}
+	else {
+		d[2] = DI_NODIR;
+	}
+
+	// try direct route
+	if (d[1] != DI_NODIR && d[2] != DI_NODIR) {
+		if (d[1] == 0) {
+			tdir = d[2] == 90 ? 45 : 315;
+		}
+		else {
+			tdir = d[2] == 90 ? 135 : 215;
+		}
+
+		if (tdir != turnaround && StepDirection(tdir)) {
+			return true;
+		}
+	}
+
+	// try other directions
+	if ((gameLocal.random.RandomInt() & 1) || idMath::Fabs(deltay) > idMath::Fabs(deltax)) {
+		tdir = d[1];
+		d[1] = d[2];
+		d[2] = tdir;
+	}
+
+	if (d[1] != DI_NODIR && d[1] != turnaround && StepDirection(d[1])) {
+		return true;
+	}
+
+	if (d[2] != DI_NODIR && d[2] != turnaround && StepDirection(d[2])) {
+		return true;
+	}
+
+	// there is no direct path to the player, so pick another direction
+	if (olddir != DI_NODIR && StepDirection(olddir)) {
+		return true;
+	}
+
+	// randomly determine direction of search
+	if (gameLocal.random.RandomInt() & 1) {
+		for (tdir = 0; tdir <= 315; tdir += 45) {
+			if (tdir != turnaround && StepDirection(tdir)) {
+				return true;
+			}
+		}
+	}
+	else {
+		for (tdir = 315; tdir >= 0; tdir -= 45) {
+			if (tdir != turnaround && StepDirection(tdir)) {
+				return true;
+			}
+		}
+	}
+
+	if (turnaround != DI_NODIR && StepDirection(turnaround)) {
+		return true;
+	}
+
+	// can't move
+	StopMove(MOVE_STATUS_DEST_UNREACHABLE);
+	return false;
+}
+/*
+================
+BotPlayer::StepDirection
+================
+*/
+bool afiBotPlayer::StepDirection(float dir) {
+	predictedPath_t path;
+	idVec3 org;
+
+	move.wanderYaw = dir;
+	move.moveDir = idAngles(0, move.wanderYaw, 0).ToForward();
+
+	org = physicsObj.GetOrigin();
+
+	idAI::PredictPath(this, aas, org, move.moveDir * 48.0f, 1000, 1000, (move.moveType == MOVETYPE_FLY) ? SE_BLOCKED : (SE_ENTER_OBSTACLE | SE_BLOCKED | SE_ENTER_LEDGE_AREA), path);
+
+	if (path.blockingEntity && ((move.moveCommand == MOVE_TO_ENEMY) || (move.moveCommand == MOVE_TO_ENTITY)) && (path.blockingEntity == move.goalEntity.GetEntity())) {
+		// don't report being blocked if we ran into our goal entity
+		return true;
+	}
+
+	if ((move.moveType == MOVETYPE_FLY) && (path.endEvent == SE_BLOCKED)) {
+		float z;
+
+		move.moveDir = path.endVelocity * 1.0f / 48.0f;
+
+		// trace down to the floor and see if we can go forward
+		idAI::PredictPath(this, aas, org, idVec3(0.0f, 0.0f, -1024.0f), 1000, 1000, SE_BLOCKED, path);
+
+		idVec3 floorPos = path.endPos;
+		idAI::PredictPath(this, aas, floorPos, move.moveDir * 48.0f, 1000, 1000, SE_BLOCKED, path);
+		if (!path.endEvent) {
+			move.moveDir.z = -1.0f;
+			return true;
+		}
+
+		// trace up to see if we can go over something and go forward
+		idAI::PredictPath(this, aas, org, idVec3(0.0f, 0.0f, 256.0f), 1000, 1000, SE_BLOCKED, path);
+
+		idVec3 ceilingPos = path.endPos;
+
+		for (z = org.z; z <= ceilingPos.z + 64.0f; z += 64.0f) {
+			idVec3 start;
+			if (z <= ceilingPos.z) {
+				start.x = org.x;
+				start.y = org.y;
+				start.z = z;
+			}
+			else {
+				start = ceilingPos;
+			}
+			idAI::PredictPath(this, aas, start, move.moveDir * 48.0f, 1000, 1000, SE_BLOCKED, path);
+			if (!path.endEvent) {
+				move.moveDir.z = 1.0f;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	return (path.endEvent == 0);
+}
+/*
+===================
 BotPlayer::MoveToNearest
 ===================
 */
