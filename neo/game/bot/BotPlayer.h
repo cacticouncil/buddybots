@@ -11,7 +11,7 @@ the network.
 #define BOTPLAYER_H_
 
 #include "../Game_local.h"
-#include "ai/AI.h"
+#include "../ai/AI.h"
 #include "Player.h"
 
 extern idCVar bot_debugBot;
@@ -144,6 +144,7 @@ public:
 	virtual bool			MoveToEntity( idEntity* entity );
 	virtual bool			MoveToPlayer( idPlayer *player );
 	virtual idEntity*		MoveToNearest( const char* item );
+	virtual bool			Wander(void);
 	virtual idEntity*		FindItem(const char* item);
 	virtual bool			PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
 	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;

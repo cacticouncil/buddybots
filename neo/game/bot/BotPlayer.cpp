@@ -60,6 +60,7 @@ BOOST_PYTHON_MODULE(afiBotPlayer) {
 		.def("MoveTo",				&afiBotPlayer::MoveTo)
 		.def("MoveToPosition",		&afiBotPlayer::MoveToPosition)
 		.def("MoveToEntity",		&afiBotPlayer::MoveToEntity)
+		.def("Wander",				&afiBotPlayer::Wander)
 		.def("MoveToPlayer",		&afiBotPlayer::MoveToPlayer)
 		.def("Attack",				&afiBotPlayer::Attack)
 		.def("StopAttack",			&afiBotPlayer::StopAttack)
