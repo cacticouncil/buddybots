@@ -145,8 +145,6 @@ public:
 	virtual bool			MoveToPlayer( idPlayer *player );
 	virtual idEntity*		MoveToNearest( const char* item );
 	virtual bool			Wander(void);
-	virtual bool			NewWanderDir(const idVec3 &dest);
-	virtual bool			StepDirection(float dir);
 	virtual idEntity*		FindItem(const char* item);
 	virtual bool			PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
 	virtual int				PointReachableAreaNum( const idVec3 &pos ) const;
