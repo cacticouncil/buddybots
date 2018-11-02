@@ -155,18 +155,27 @@ bool afiBotPlayer::Wander()
 		idVec3 eyeOrg = GetEyePosition();
 		idVec3 org = GetPhysics()->GetOrigin();
 
+		float olddir = idMath::AngleNormalize360((int)(move.current_yaw / 45) * 45);
+		float turnaround = idMath::AngleNormalize360(olddir - 180);
+
+
+
 		// Try walking forward
-		//LookInDirection(eyeOrg + idVec3(0, 0, -500.0f));
+		// LookInDirection(eyeOrg + idVec3(0, 0, -500.0f));
 		if (MoveToPosition(org + idVec3(0, 0, -100.0f), 5.0f)) return true;
 		
 		LookInDirection(eyeOrg + idVec3(500.0f, 0, 0));
 		if (MoveToPosition(org + idVec3(100.0f, 0, 0), 5.0f)) return true;
 
-		LookInDirection(eyeOrg + idVec3(-500.0f, 0, 0));
+		LookInDirection(eyeOrg + idVec3(-1000.0f, 0, 0));
 		if (MoveToPosition(org + idVec3(-100.0f, 0, 0), 5.0f)) return true;
 
-		LookInDirection(eyeOrg + idVec3(0, 0, 500.0f));
+		LookInDirection(eyeOrg + idVec3(500.0f, 0, 500.0f));
 		if (MoveToPosition(org + idVec3(0, 0, 100.0f), 5.0f)) return true;
+
+
+
+		move.moveDir = idAngles(0, move.wanderYaw, 0).ToForward();
 	}
 
 	return false;
