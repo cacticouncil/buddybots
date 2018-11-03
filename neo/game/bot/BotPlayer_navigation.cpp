@@ -154,28 +154,101 @@ bool afiBotPlayer::Wander()
 	if (!move.flags.moving) {
 		idVec3 eyeOrg = GetEyePosition();
 		idVec3 org = GetPhysics()->GetOrigin();
+		LookInDirection(eyeOrg + idVec3(500.0f, 0, 0));
+
+		idVec3 dest = GetPhysics()->GetOrigin() + viewAxis[0] * 256.0f;
+		idVec3 moveDir;
+
 
 		float olddir = idMath::AngleNormalize360((int)(move.current_yaw / 45) * 45);
 		float turnaround = idMath::AngleNormalize360(olddir - 180);
 
+		float deltax = dest.x - org.x;
+		float deltay = dest.y - org.y;
+		float	d[3];
+		float	tdir;
+		if (deltax > 10) {
+			d[1] = 0;
+		}
+		else if (deltax < -10) {
+			d[1] = 180;
+		}
+		else {
+			d[1] = DI_NODIR;
+		}
 
+		if (deltay < -10) {
+			d[2] = 270;
+		}
+		else if (deltay > 10) {
+			d[2] = 90;
+		}
+		else {
+			d[2] = DI_NODIR;
+		}
 
-		// Try walking forward
-		// LookInDirection(eyeOrg + idVec3(0, 0, -500.0f));
-		if (MoveToPosition(org + idVec3(0, 0, -100.0f), 5.0f)) return true;
-		
-		LookInDirection(eyeOrg + idVec3(500.0f, 0, 0));
-		if (MoveToPosition(org + idVec3(100.0f, 0, 0), 5.0f)) return true;
+		// try direct route
+		if (d[1] != DI_NODIR && d[2] != DI_NODIR) {
+			if (d[1] == 0) {
+				tdir = d[2] == 90 ? 45 : 315;
+			}
+			else {
+				tdir = d[2] == 90 ? 135 : 215;
+			}
+			moveDir = idAngles(0, tdir, 0).ToForward();
+			if (tdir != turnaround && MoveToPosition(org + moveDir, 5.0f)) {
+				return true;
+			}
+		}
 
-		LookInDirection(eyeOrg + idVec3(-1000.0f, 0, 0));
-		if (MoveToPosition(org + idVec3(-100.0f, 0, 0), 5.0f)) return true;
+		// try other directions
+		if ((gameLocal.random.RandomInt() & 1) || idMath::Fabs(deltay) > idMath::Fabs(deltax)) {
+			tdir = d[1];
+			d[1] = d[2];
+			d[2] = tdir;
+		}
 
-		LookInDirection(eyeOrg + idVec3(500.0f, 0, 500.0f));
-		if (MoveToPosition(org + idVec3(0, 0, 100.0f), 5.0f)) return true;
+		moveDir = idAngles(0, d[1], 0).ToForward();
+		if (d[1] != DI_NODIR && d[1] != turnaround && MoveToPosition(org + moveDir, 5.0f)) {
+			return true;
+		}
 
+		moveDir = idAngles(0, d[1], 0).ToForward();
+		if (d[2] != DI_NODIR && d[2] != turnaround && MoveToPosition(org + moveDir, 5.0f)) {
+			return true;
+		}
 
+		moveDir = idAngles(0, olddir, 0).ToForward();
+		// there is no direct path to the player, so pick another direction
+		if (olddir != DI_NODIR && MoveToPosition(org + moveDir, 5.0f)) {
+			return true;
+		}
 
-		move.moveDir = idAngles(0, move.wanderYaw, 0).ToForward();
+		// randomly determine direction of search
+		if (gameLocal.random.RandomInt() & 1) {
+			for (tdir = 0; tdir <= 315; tdir += 45) {
+				if (tdir != turnaround && MoveToPosition(org + moveDir, 5.0f)) {
+					return true;
+				}
+			}
+		}
+		else {
+			for (tdir = 315; tdir >= 0; tdir -= 45) {
+				moveDir = idAngles(0, tdir, 0).ToForward();
+				if (tdir != turnaround && MoveToPosition(org + moveDir, 5.0f)) {
+					return true;
+				}
+			}
+		}
+
+		moveDir = idAngles(0, turnaround, 0).ToForward();
+		if (turnaround != DI_NODIR && MoveToPosition(org + moveDir, 5.0f)) {
+			return true;
+		}
+
+		// can't move
+		StopMove(MOVE_STATUS_DEST_UNREACHABLE);
+		return false;
 	}
 
 	return false;
