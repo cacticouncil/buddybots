@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <unordered_map>
+
 #include "sys/platform.h"
 #include "renderer/VertexCache.h"
 
@@ -121,7 +123,7 @@ const int SILEDGE_HASH_SIZE		= 1024;
 
 static int			numSilEdges;
 static silEdge_t *	silEdges;
-static idHashIndex	silEdgeHash( SILEDGE_HASH_SIZE, MAX_SIL_EDGES );
+static std::unordered_map<int,int>	silEdgeHash( SILEDGE_HASH_SIZE, MAX_SIL_EDGES );
 static int			numPlanes;
 
 static idBlockAlloc<srfTriangles_t, 1<<8>				srfTrianglesAllocator;
@@ -187,7 +189,7 @@ R_ShutdownTriSurfData
 */
 void R_ShutdownTriSurfData( void ) {
 	R_StaticFree( silEdges );
-	silEdgeHash.Free();
+	silEdgeHash.clear();
 	srfTrianglesAllocator.Shutdown();
 	triVertexAllocator.Shutdown();
 	triIndexAllocator.Shutdown();
@@ -725,7 +727,8 @@ static int *R_CreateSilRemap( const srfTriangles_t *tri ) {
 		return remap;
 	}
 
-	idHashIndex		hash( 1024, tri->numVerts );
+	std::unordered_map<int,int>	hash;
+	hash.reserve(1024);
 
 	c_removed = 0;
 	c_unique = 0;
@@ -733,8 +736,10 @@ static int *R_CreateSilRemap( const srfTriangles_t *tri ) {
 		v1 = &tri->verts[i];
 
 		// see if there is an earlier vert that it can map to
-		hashKey = hash.GenerateKey( v1->xyz );
-		for ( j = hash.First( hashKey ); j >= 0; j = hash.Next( j ) ) {
+		hashKey = (((int)v1->xyz[0]) + ((int)v1->xyz[1]) + ((int)v1->xyz[2])) & (1024 - 1);
+		auto k = hash.begin();
+		for ( k = hash.begin(); k != hash.end(); ++k ) {
+			j = k->second;
 			v2 = &tri->verts[j];
 			if ( v2->xyz[0] == v1->xyz[0]
 				&& v2->xyz[1] == v1->xyz[1]
@@ -744,10 +749,10 @@ static int *R_CreateSilRemap( const srfTriangles_t *tri ) {
 				break;
 			}
 		}
-		if ( j < 0 ) {
+		if (k != hash.end()) {
 			c_unique++;
 			remap[i] = i;
-			hash.Add( hashKey, i );
+			hash.insert( hashKey, i );
 		}
 	}
 
@@ -931,9 +936,10 @@ static void R_DefineEdge( int v1, int v2, int planeNum ) {
 	if ( v1 == v2 ) {
 		return;
 	}
-	hashKey = silEdgeHash.GenerateKey( v1, v2 );
+	hashKey = (v1 + v2) & (1024 - 1);
 	// search for a matching other side
-	for ( i = silEdgeHash.First( hashKey ); i >= 0 && i < MAX_SIL_EDGES; i = silEdgeHash.Next( i ) ) {
+	for ( auto j = silEdgeHash.begin(); j != silEdgeHash.end() && j->second < MAX_SIL_EDGES; ++j ) {
+		i = j->second;
 		if ( silEdges[i].v1 == v1 && silEdges[i].v2 == v2 ) {
 			c_duplicatedEdges++;
 			// allow it to still create a new edge
@@ -958,7 +964,7 @@ static void R_DefineEdge( int v1, int v2, int planeNum ) {
 		return;
 	}
 
-	silEdgeHash.Add( hashKey, numSilEdges );
+	silEdgeHash.insert({ hashKey, numSilEdges });
 
 	silEdges[numSilEdges].p1 = planeNum;
 	silEdges[numSilEdges].p2 = numPlanes;
@@ -1010,7 +1016,7 @@ void R_IdentifySilEdges( srfTriangles_t *tri, bool omitCoplanarEdges ) {
 	numTris = tri->numIndexes / 3;
 
 	numSilEdges = 0;
-	silEdgeHash.Clear();
+	silEdgeHash.clear();
 	numPlanes = numTris;
 
 	c_duplicatedEdges = 0;
