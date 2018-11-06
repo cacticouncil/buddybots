@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <unordered_map>
+
 #include "sys/platform.h"
 #include "framework/async/AsyncNetwork.h"
 #include "framework/Common.h"
@@ -468,7 +470,7 @@ public:
 private:
 	bool					initialized;
 	idList<idInternalCVar*>	cvars;
-	idHashIndex				cvarHash;
+	std::unordered_map<int,int>				cvarHash;
 	int						modifiedFlags;
 							// use a static dictionary to MoveCVarsToDict can be used from game
 	static idDict			moveCVarsToDict;
@@ -525,10 +527,10 @@ idCVarSystemLocal::FindInternal
 ============
 */
 idInternalCVar *idCVarSystemLocal::FindInternal( const char *name ) const {
-	int hash = cvarHash.GenerateKey( name, false );
-	for ( int i = cvarHash.First( hash ); i != -1; i = cvarHash.Next( i ) ) {
-		if ( cvars[i]->nameString.Icmp( name ) == 0 ) {
-			return cvars[i];
+	int hash = (int)std::hash<std::string>{}(name);
+	for ( auto j = cvarHash.begin(); j != cvarHash.end(); ++j ) {
+		if ( cvars[j->second]->nameString.Icmp( name ) == 0 ) {
+			return cvars[j->second];
 		}
 	}
 	return NULL;
@@ -551,8 +553,8 @@ void idCVarSystemLocal::SetInternal( const char *name, const char *value, int fl
 		internal->UpdateCheat();
 	} else {
 		internal = new idInternalCVar( name, value, flags );
-		hash = cvarHash.GenerateKey( internal->nameString.c_str(), false );
-		cvarHash.Add( hash, cvars.Append( internal ) );
+		hash = (int)std::hash<std::string>{}(internal->nameString.c_str());
+		cvarHash.insert({ hash, cvars.Append(internal) });
 	}
 }
 
@@ -595,7 +597,7 @@ idCVarSystemLocal::Shutdown
 */
 void idCVarSystemLocal::Shutdown( void ) {
 	cvars.DeleteContents( true );
-	cvarHash.Free();
+	cvarHash.clear();
 	moveCVarsToDict.Clear();
 	initialized = false;
 }
@@ -626,8 +628,8 @@ void idCVarSystemLocal::Register( idCVar *cvar ) {
 		internal->Update( cvar );
 	} else {
 		internal = new idInternalCVar( cvar );
-		hash = cvarHash.GenerateKey( internal->nameString.c_str(), false );
-		cvarHash.Add( hash, cvars.Append( internal ) );
+		hash = (int)std::hash<std::string>{}(internal->nameString.c_str());
+		cvarHash.insert({ hash, cvars.Append(internal) });
 	}
 
 	cvar->SetInternalVar( internal );
@@ -1248,10 +1250,10 @@ void idCVarSystemLocal::Restart_f( const idCmdArgs &args ) {
 
 		// throw out any variables the user created
 		if ( !( cvar->flags & CVAR_STATIC ) ) {
-			hash = localCVarSystem.cvarHash.GenerateKey( cvar->nameString, false );
+			hash = (int)std::hash<std::string>{}(cvar->nameString.c_str);
 			delete cvar;
 			localCVarSystem.cvars.RemoveIndex( i );
-			localCVarSystem.cvarHash.RemoveIndex( hash, i );
+			localCVarSystem.cvarHash.erase( hash );
 			i--;
 			continue;
 		}
