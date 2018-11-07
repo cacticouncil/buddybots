@@ -210,10 +210,15 @@ const idEventDef *idEventDef::FindEvent( const char *name ) {
 
 ***********************************************************************/
 
-static idLinkList<idEvent> FreeEvents;
-static idLinkList<idEvent> EventQueue;
+static std::list<idEvent> FreeEvents;
+static std::list<idEvent>::iterator FreeEventsIter = FreeEvents.begin();
+static std::list<idEvent> EventQueue;
+static std::list<idEvent>::iterator EventQueueIter = EventQueue.begin();
 #ifdef _D3XP
-static idLinkList<idEvent> FastEventQueue;
+static std::list<idEvent> FastEventQueue;
+static std::list<idEvent>::iterator FastEventQueueIter = FastEventQueue.begin();
+
+static std::list<idEvent>::iterator temp;
 #endif
 static idEvent EventPool[ MAX_EVENTS ];
 
@@ -244,12 +249,19 @@ idEvent *idEvent::Alloc( const idEventDef *evdef, int numargs, va_list args ) {
 	int			i;
 	const char	*materialName;
 
-	if ( FreeEvents.IsListEmpty() ) {
+	if ( FreeEvents.empty() ) {
 		gameLocal.Error( "idEvent::Alloc : No more free events" );
 	}
 
-	ev = FreeEvents.Next();
-	ev->eventNode.Remove();
+	if (FreeEventsIter != FreeEvents.end()) {
+		FreeEventsIter++;
+		*ev = *FreeEventsIter;
+		FreeEventsIter--;
+	}
+	else
+		ev = NULL;
+
+	ev->eventNodeIter = ev->eventNode.erase(ev->eventNodeIter);
 
 	ev->eventdef = evdef;
 
@@ -370,8 +382,9 @@ void idEvent::Free( void ) {
 	object		= NULL;
 	typeinfo	= NULL;
 
-	eventNode.SetOwner( this );
-	eventNode.AddToEnd( FreeEvents );
+	*eventNodeIter = *this;
+	temp = eventNode.end();
+	eventNode.splice(temp, FreeEvents);
 }
 
 /*
@@ -393,19 +406,41 @@ void idEvent::Schedule( idClass *obj, const idTypeInfo *type, int time ) {
 	// wraps after 24 days...like I care. ;)
 	this->time = gameLocal.time + time;
 
-	eventNode.Remove();
+	eventNodeIter = eventNode.erase(eventNodeIter);
 
 #ifdef _D3XP
 	if ( obj->IsType( idEntity::Type ) && ( ( (idEntity*)(obj) )->timeGroup == TIME_GROUP2 ) ) {
-		event = FastEventQueue.Next();
+
+		if (FastEventQueueIter != FastEventQueue.end()) {
+			FastEventQueueIter++;
+			*event = *FastEventQueueIter;
+			FastEventQueueIter--;
+		}
+		else
+			event = NULL;
+
 		while( ( event != NULL ) && ( this->time >= event->time ) ) {
-			event = event->eventNode.Next();
+			if (event->eventNodeIter != event->eventNode.end()) {
+				event->eventNodeIter++;
+				*event = *event->eventNodeIter;
+				event->eventNodeIter--;
+			}
+			else
+				event = NULL;
 		}
 
 		if ( event ) {
-			eventNode.InsertBefore( event->eventNode );
+			if (eventNodeIter != eventNode.begin()) {
+				eventNode.insert(--eventNodeIter, event->eventNode.begin(), event->eventNode.end());
+				eventNodeIter++;
+			}
+			else {
+				temp = eventNode.end();
+				eventNode.splice(temp, event->eventNode);
+			}
 		} else {
-			eventNode.AddToEnd( FastEventQueue );
+			temp = eventNode.end();
+			eventNode.splice(temp, FastEventQueue);
 		}
 
 		return;
@@ -414,15 +449,36 @@ void idEvent::Schedule( idClass *obj, const idTypeInfo *type, int time ) {
 	}
 #endif
 
-	event = EventQueue.Next();
+	if (EventQueueIter != EventQueue.end()) {
+		EventQueueIter++;
+		*event = *EventQueueIter;
+		EventQueueIter--;
+	}
+	else
+		event = NULL;
+
 	while( ( event != NULL ) && ( this->time >= event->time ) ) {
-		event = event->eventNode.Next();
+		if (event->eventNodeIter != event->eventNode.end()) {
+			event->eventNodeIter++;
+			*event = *event->eventNodeIter;
+			event->eventNodeIter--;
+		}
+		else
+			event = NULL;
 	}
 
 	if ( event ) {
-		eventNode.InsertBefore( event->eventNode );
+		if (eventNodeIter != eventNode.begin()) {
+			eventNode.insert(--eventNodeIter, event->eventNode.begin(), event->eventNode.end());
+			eventNodeIter++;
+		}
+		else {
+			temp = eventNode.end();
+			eventNode.splice(temp, event->eventNode);
+		}
 	} else {
-		eventNode.AddToEnd( EventQueue );
+		temp = eventNode.end();
+		eventNode.splice(temp, EventQueue);
 	}
 }
 
@@ -439,8 +495,23 @@ void idEvent::CancelEvents( const idClass *obj, const idEventDef *evdef ) {
 		return;
 	}
 
-	for( event = EventQueue.Next(); event != NULL; event = next ) {
-		next = event->eventNode.Next();
+	if (EventQueueIter != EventQueue.end()) {
+		EventQueueIter++;
+		*event = *EventQueueIter;
+		EventQueueIter--;
+	}
+	else
+		event = NULL;
+
+	for( ; event != NULL; event = next ) {
+		if (event->eventNodeIter != event->eventNode.end()) {
+			event->eventNodeIter++;
+			*next = *event->eventNodeIter;
+			event->eventNodeIter--;
+		}
+		else
+			next = NULL;
+
 		if ( event->object == obj ) {
 			if ( !evdef || ( evdef == event->eventdef ) ) {
 				event->Free();
@@ -449,8 +520,23 @@ void idEvent::CancelEvents( const idClass *obj, const idEventDef *evdef ) {
 	}
 
 #ifdef _D3XP
-	for( event = FastEventQueue.Next(); event != NULL; event = next ) {
-		next = event->eventNode.Next();
+	if (FastEventQueueIter != FastEventQueue.end()) {
+		FastEventQueueIter++;
+		*event = *FastEventQueueIter;
+		FastEventQueueIter--;
+	}
+	else
+		event = NULL;
+
+	for( ; event != NULL; event = next ) {
+		if (event->eventNodeIter != event->eventNode.end()) {
+			event->eventNodeIter++;
+			*next = *event->eventNodeIter;
+			event->eventNodeIter--;
+		}
+		else
+			next = NULL;
+
 		if ( event->object == obj ) {
 			if ( !evdef || ( evdef == event->eventdef ) ) {
 				event->Free();
@@ -471,8 +557,8 @@ void idEvent::ClearEventList( void ) {
 	//
 	// initialize lists
 	//
-	FreeEvents.Clear();
-	EventQueue.Clear();
+	FreeEvents.clear();
+	EventQueue.clear();
 
 	//
 	// add the events to the free list
@@ -501,8 +587,14 @@ void idEvent::ServiceEvents( void ) {
 	const char  *materialName;
 
 	num = 0;
-	while( !EventQueue.IsListEmpty() ) {
-		event = EventQueue.Next();
+	while( !EventQueue.empty() ) {
+		if (EventQueueIter != EventQueue.end()) {
+			EventQueueIter++;
+			*event = *EventQueueIter;
+			EventQueueIter--;
+		}
+		else
+			event = NULL;
 		assert( event );
 
 		if ( event->time > gameLocal.time ) {
@@ -557,7 +649,7 @@ void idEvent::ServiceEvents( void ) {
 
 		// the event is removed from its list so that if then object
 		// is deleted, the event won't be freed twice
-		event->eventNode.Remove();
+		event->eventNodeIter = event->eventNode.erase(event->eventNodeIter);
 		assert( event->object );
 		event->object->ProcessEventArgPtr( ev, args );
 
@@ -593,8 +685,14 @@ void idEvent::ServiceFastEvents() {
 	const char  *materialName;
 
 	num = 0;
-	while( !FastEventQueue.IsListEmpty() ) {
-		event = FastEventQueue.Next();
+	while( !FastEventQueue.empty() ) {
+		if (FastEventQueueIter != FastEventQueue.end()) {
+			FastEventQueueIter++;
+			*event = *FastEventQueueIter;
+			FastEventQueueIter--;
+		}
+		else
+			event = NULL;
 		assert( event );
 
 		if ( event->time > gameLocal.fast.time ) {
@@ -649,7 +747,7 @@ void idEvent::ServiceFastEvents() {
 
 		// the event is removed from its list so that if then object
 		// is deleted, the event won't be freed twice
-		event->eventNode.Remove();
+		event->eventNodeIter = event->eventNode.erase(event->eventNodeIter);
 		assert( event->object );
 		event->object->ProcessEventArgPtr( ev, args );
 
@@ -735,9 +833,16 @@ void idEvent::Save( idSaveGame *savefile ) {
 	const char	*format;
 	idStr s;
 
-	savefile->WriteInt( EventQueue.Num() );
+	savefile->WriteInt( EventQueue.size() );
 
-	event = EventQueue.Next();
+	if (EventQueueIter != EventQueue.end()) {
+		EventQueueIter++;
+		*event = *EventQueueIter;
+		EventQueueIter--;
+	}
+	else
+		event = NULL;
+
 	while( event != NULL ) {
 		savefile->WriteInt( event->time );
 		savefile->WriteString( event->eventdef->GetName() );
@@ -791,14 +896,26 @@ void idEvent::Save( idSaveGame *savefile ) {
 			}
 		}
 		assert( size == event->eventdef->GetArgSize() );
-		event = event->eventNode.Next();
+		if (event->eventNodeIter != event->eventNode.end()) {
+			event->eventNodeIter++;
+			*event = *event->eventNodeIter;
+			event->eventNodeIter--;
+		}
+		else
+			event = NULL;
 	}
 
 #ifdef _D3XP
 	// Save the Fast EventQueue
-	savefile->WriteInt( FastEventQueue.Num() );
+	savefile->WriteInt( FastEventQueue.size() );
 
-	event = FastEventQueue.Next();
+	if (FastEventQueueIter != FastEventQueue.end()) {
+		FastEventQueueIter++;
+		*event = *FastEventQueueIter;
+		FastEventQueueIter--;
+	}
+	else
+		event = NULL;
 	while( event != NULL ) {
 		savefile->WriteInt( event->time );
 		savefile->WriteString( event->eventdef->GetName() );
@@ -807,7 +924,13 @@ void idEvent::Save( idSaveGame *savefile ) {
 		savefile->WriteInt( event->eventdef->GetArgSize() );
 		savefile->Write( event->data, event->eventdef->GetArgSize() );
 
-		event = event->eventNode.Next();
+		if (event->eventNodeIter != event->eventNode.end()) {
+			event->eventNodeIter++;
+			*event = *event->eventNodeIter;
+			event->eventNodeIter--;
+		}
+		else
+			event = NULL;
 	}
 #endif
 }
@@ -829,13 +952,22 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 	savefile->ReadInt( num );
 
 	for ( i = 0; i < num; i++ ) {
-		if ( FreeEvents.IsListEmpty() ) {
+		if ( FreeEvents.empty() ) {
 			gameLocal.Error( "idEvent::Restore : No more free events" );
 		}
 
-		event = FreeEvents.Next();
-		event->eventNode.Remove();
-		event->eventNode.AddToEnd( EventQueue );
+		if (FreeEventsIter != FreeEvents.end()) {
+			FreeEventsIter++;
+			*event = *FreeEventsIter;
+			FreeEventsIter--;
+		}
+		else
+			event = NULL;
+
+		event->eventNodeIter = event->eventNode.erase(event->eventNodeIter);
+
+		temp = event->eventNode.end();
+		event->eventNode.splice(temp, EventQueue);
 
 		savefile->ReadInt( event->time );
 
@@ -918,13 +1050,22 @@ void idEvent::Restore( idRestoreGame *savefile ) {
 	savefile->ReadInt( num );
 
 	for ( i = 0; i < num; i++ ) {
-		if ( FreeEvents.IsListEmpty() ) {
+		if ( FreeEvents.empty() ) {
 			gameLocal.Error( "idEvent::Restore : No more free events" );
 		}
 
-		event = FreeEvents.Next();
-		event->eventNode.Remove();
-		event->eventNode.AddToEnd( FastEventQueue );
+		if (FreeEventsIter != FreeEvents.end()) {
+			FreeEventsIter++;
+			*event = *FreeEventsIter;
+			FreeEventsIter--;
+		}
+		else
+			event = NULL;
+
+		event->eventNodeIter = event->eventNode.erase(event->eventNodeIter);
+
+		temp = event->eventNode.end();
+		event->eventNode.splice(temp, FastEventQueue);
 
 		savefile->ReadInt( event->time );
 

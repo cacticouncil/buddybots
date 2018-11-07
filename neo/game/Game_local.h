@@ -44,6 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "anim/Anim.h"
 #include "Pvs.h"
 #include "MultiplayerGame.h"
+#include <list>
 
 #ifdef ID_DEBUG_UNINITIALIZED_MEMORY
 // This is real evil but allows the code to inspect arbitrary class variables.
@@ -272,8 +273,10 @@ public:
 	int						num_entities;			// current number <= MAX_GENTITIES
 	idHashIndex				entityHash;				// hash table to quickly find entities by name
 	idWorldspawn *			world;					// world entity
-	idLinkList<idEntity>	spawnedEntities;		// all spawned entities
-	idLinkList<idEntity>	activeEntities;			// all thinking entities (idEntity::thinkFlags != 0)
+	std::list<idEntity>	spawnedEntities;		// all spawned entities
+	std::list<idEntity>::iterator spawnedEntitiesIter = spawnedEntities.begin();
+	std::list<idEntity>	activeEntities;			// all thinking entities (idEntity::thinkFlags != 0)
+	std::list<idEntity>::iterator activeEntitiesIter = activeEntities.begin();
 	int						numEntitiesToDeactivate;// number of entities that became inactive in current frame
 	bool					sortPushers;			// true if active lists needs to be reordered to place pushers at the front
 	bool					sortTeamMasters;		// true if active lists needs to be reordered to place physics team masters before their slaves
@@ -322,7 +325,8 @@ public:
 													// discriminates between the RunFrame path and the ClientPrediction path
 													// NOTE: on a listen server, isClient is false
 	int						localClientNum;			// number of the local client. MP: -1 on a dedicated
-	idLinkList<idEntity>	snapshotEntities;		// entities from the last snapshot
+	std::list<idEntity>	snapshotEntities;		// entities from the last snapshot
+	std::list<idEntity>::iterator snapshotEntitiesIter = snapshotEntities.begin();
 	int						realClientTime;			// real client time
 	bool					isNewFrame;				// true if this is a new game frame, not a rerun due to prediction
 	float					clientSmoothing;		// smoothing of other clients in the view

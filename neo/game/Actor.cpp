@@ -481,8 +481,8 @@ idActor::idActor( void ) {
 
 	attachments.SetGranularity( 1 );
 
-	enemyNode.SetOwner( this );
-	enemyList.SetOwner( this );
+	*enemyNodeIter = *this;
+	*enemyListIter = *this;
 
 #ifdef _D3XP
 	damageCap = -1;
@@ -810,14 +810,29 @@ archive object for savegame file
 void idActor::Save( idSaveGame *savefile ) const {
 	idActor *ent;
 	int i;
+	std::list<idActor>::iterator temp = enemyListIter;
 
 	savefile->WriteInt( team );
 	savefile->WriteInt( rank );
 	savefile->WriteMat3( viewAxis );
 
-	savefile->WriteInt( enemyList.Num() );
-	for ( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() ) {
+	savefile->WriteInt( enemyList.size() );
+	if (enemyListIter != enemyList.end()) {
+		temp++;
+		*ent = *temp;
+	}
+	else
+		ent = NULL;
+
+	for ( ; ent != NULL;  ) {
 		savefile->WriteObject( ent );
+		if (ent->enemyNodeIter != ent->enemyNode.end()) {
+			ent->enemyNodeIter++;
+			*ent = *ent->enemyNodeIter;
+			ent->enemyNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 
 	savefile->WriteFloat( fovDot );
@@ -928,6 +943,7 @@ unarchives object from save game file
 void idActor::Restore( idRestoreGame *savefile ) {
 	int i, num;
 	idActor *ent;
+	std::list<idActor>::iterator temp;
 
 	savefile->ReadInt( team );
 	savefile->ReadInt( rank );
@@ -938,7 +954,8 @@ void idActor::Restore( idRestoreGame *savefile ) {
 		savefile->ReadObject( reinterpret_cast<idClass *&>( ent ) );
 		assert( ent );
 		if ( ent ) {
-			ent->enemyNode.AddToEnd( enemyList );
+			temp = ent->enemyNode.end();
+			ent->enemyNode.splice(temp, enemyList);
 		}
 	}
 
@@ -1843,11 +1860,25 @@ idActor::HasEnemies
 */
 bool idActor::HasEnemies( void ) const {
 	idActor *ent;
-
-	for( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() ) {
+	std::list<idActor>::iterator temp = enemyListIter;
+	if (enemyListIter != enemyList.end()) {
+		temp++;
+		*ent = *temp;
+	}
+	else
+		ent = NULL;
+	for( ; ent != NULL; ) {
 		if ( !ent->fl.hidden ) {
 			return true;
 		}
+
+		if (ent->enemyNodeIter != ent->enemyNode.end()) {
+			ent->enemyNodeIter++;
+			*ent = *ent->enemyNodeIter;
+			ent->enemyNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 
 	return false;
@@ -1867,7 +1898,15 @@ idActor *idActor::ClosestEnemyToPoint( const idVec3 &pos ) {
 
 	bestDistSquared = idMath::INFINITY;
 	bestEnt = NULL;
-	for( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() ) {
+
+	if (enemyListIter != enemyList.end()) {
+		enemyListIter++;
+		*ent = *enemyListIter;
+		enemyListIter--;
+	}
+	else
+		ent = NULL;
+	for( ; ent != NULL; ) {
 		if ( ent->fl.hidden ) {
 			continue;
 		}
@@ -1877,6 +1916,14 @@ idActor *idActor::ClosestEnemyToPoint( const idVec3 &pos ) {
 			bestEnt = ent;
 			bestDistSquared = distSquared;
 		}
+
+		if (ent->enemyNodeIter != ent->enemyNode.end()) {
+			ent->enemyNodeIter++;
+			*ent = *ent->enemyNodeIter;
+			ent->enemyNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 
 	return bestEnt;
@@ -1893,11 +1940,27 @@ idActor *idActor::EnemyWithMostHealth() {
 
 	int most = -9999;
 	bestEnt = NULL;
-	for( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() ) {
+	if (enemyListIter != enemyList.end()) {
+		enemyListIter++;
+		*ent = *enemyListIter;
+		enemyListIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( !ent->fl.hidden && ( ent->health > most ) ) {
 			bestEnt = ent;
 			most = ent->health;
 		}
+
+		if (ent->enemyNodeIter != ent->enemyNode.end()) {
+			ent->enemyNodeIter++;
+			*ent = *ent->enemyNodeIter;
+			ent->enemyNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 	return bestEnt;
 }
@@ -3263,23 +3326,39 @@ void idActor::Event_NextEnemy( idEntity *ent ) {
 	idActor *actor;
 
 	if ( !ent || ( ent == this ) ) {
-		actor = enemyList.Next();
+		
+		if (enemyListIter != enemyList.end()) {
+			enemyListIter++;
+			*actor = *enemyListIter;
+			enemyListIter--;
+		}
+		else
+			actor = NULL;
+
 	} else {
 		if ( !ent->IsType( idActor::Type ) ) {
 			gameLocal.Error( "'%s' cannot be an enemy", ent->name.c_str() );
 		}
 
 		actor = static_cast<idActor *>( ent );
-		if ( actor->enemyNode.ListHead() != &enemyList ) {
+		if ( actor->enemyNode.begin() != enemyListIter ) {
 			gameLocal.Error( "'%s' is not in '%s' enemy list", actor->name.c_str(), name.c_str() );
 		}
 	}
 
-	for( ; actor != NULL; actor = actor->enemyNode.Next() ) {
+	for( ; actor != NULL; ) {
 		if ( !actor->fl.hidden ) {
 			idThread::ReturnEntity( actor );
 			return;
 		}
+
+		if (actor->enemyNodeIter != actor->enemyNode.end()) {
+			actor->enemyNodeIter++;
+			*actor = *actor->enemyNodeIter;
+			actor->enemyNodeIter--;
+		}
+		else
+			actor = NULL;
 	}
 
 	idThread::ReturnEntity( NULL );

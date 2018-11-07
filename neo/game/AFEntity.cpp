@@ -2867,8 +2867,16 @@ void idGameEdit::AF_UpdateEntities( const char *fileName ) {
 	name = fileName;
 	name.StripFileExtension();
 
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
 	// reload any idAFEntity_Generic which uses the given articulated figure file
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	for( ; ent != NULL; ) {
 		if ( ent->IsType( idAFEntity_Base::Type ) ) {
 			af = static_cast<idAFEntity_Base *>(ent);
 			if ( name.Icmp( af->GetAFName() ) == 0 ) {
@@ -2876,6 +2884,14 @@ void idGameEdit::AF_UpdateEntities( const char *fileName ) {
 				af->GetAFPhysics()->PutToRest();
 			}
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 }
 
@@ -2900,14 +2916,30 @@ void idGameEdit::AF_UndoChanges( void ) {
 		decl->Invalidate();
 		declManager->FindType( DECL_AF, decl->GetName() );
 
+		if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+			gameLocal.spawnedEntitiesIter++;
+			*ent = *gameLocal.spawnedEntitiesIter;
+			gameLocal.spawnedEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
 		// reload all AF entities using the file
-		for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+		for( ; ent != NULL; ) {
 			if ( ent->IsType( idAFEntity_Base::Type ) ) {
 				af = static_cast<idAFEntity_Base *>(ent);
 				if ( idStr::Icmp( decl->GetName(), af->GetAFName() ) == 0 ) {
 					af->LoadAF();
 				}
 			}
+
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 		}
 	}
 }

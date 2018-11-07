@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "AFEntity.h"
 #include "IK.h"
 #include "PlayerView.h"
+#include <list>
 
 /*
 ===============================================================================
@@ -120,8 +121,10 @@ public:
 	int						rank;				// monsters don't fight back if the attacker's rank is higher
 	idMat3					viewAxis;			// view axis of the actor
 
-	idLinkList<idActor>		enemyNode;			// node linked into an entity's enemy list for quick lookups of who is attacking him
-	idLinkList<idActor>		enemyList;			// list of characters that have targeted the player as their enemy
+	std::list<idActor>		enemyNode;			// node linked into an entity's enemy list for quick lookups of who is attacking him
+	std::list<idActor>::iterator enemyNodeIter = enemyNode.begin();
+	std::list<idActor>		enemyList;			// list of characters that have targeted the player as their enemy
+	std::list<idActor>::iterator enemyListIter = enemyList.begin();
 
 public:
 							idActor( void );

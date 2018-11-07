@@ -1092,9 +1092,10 @@ void idAI::DormantBegin( void ) {
 		}
 	}
 
-	if ( enemyNode.InList() ) {
+	std::list<idActor>::iterator temp = std::find(enemyNode.begin(), enemyNode.end(), *enemyNodeIter);
+	if ( temp != enemyNode.end() ) {
 		// remove ourselves from the enemy's enemylist
-		enemyNode.Remove();
+		enemyNodeIter = enemyNode.erase(enemyNodeIter);
 	}
 	idActor::DormantBegin();
 }
@@ -1107,9 +1108,11 @@ called when entity wakes from being dormant
 ================
 */
 void idAI::DormantEnd( void ) {
-	if ( enemy.GetEntity() && !enemyNode.InList() ) {
+	std::list<idActor>::iterator temp = std::find(enemyNode.begin(), enemyNode.end(), *enemyNodeIter);
+	if ( enemy.GetEntity() && temp == enemyNode.end()) {
 		// let our enemy know we're back on the trail
-		enemyNode.AddToEnd( enemy.GetEntity()->enemyList );
+		temp = enemyNode.end();
+		enemyNode.splice(temp, enemy.GetEntity()->enemyList);
 	}
 
 	if ( particles.Num() ) {
@@ -3731,7 +3734,7 @@ void idAI::ClearEnemy( void ) {
 		StopMove( MOVE_STATUS_DEST_NOT_FOUND );
 	}
 
-	enemyNode.Remove();
+	enemyNodeIter = enemyNode.erase(enemyNodeIter);
 	enemy				= NULL;
 	AI_ENEMY_IN_FOV		= false;
 	AI_ENEMY_VISIBLE	= false;
@@ -3940,6 +3943,7 @@ idAI::SetEnemy
 */
 void idAI::SetEnemy( idActor *newEnemy ) {
 	int enemyAreaNum;
+	std::list<idActor>::iterator temp;
 
 	if ( AI_DEAD ) {
 		ClearEnemy();
@@ -3951,7 +3955,8 @@ void idAI::SetEnemy( idActor *newEnemy ) {
 		ClearEnemy();
 	} else if ( enemy.GetEntity() != newEnemy ) {
 		enemy = newEnemy;
-		enemyNode.AddToEnd( newEnemy->enemyList );
+		temp = enemyNode.end();
+		enemyNode.splice(temp, newEnemy->enemyList);
 		if ( newEnemy->health <= 0 ) {
 			EnemyDead();
 			return;
@@ -5250,7 +5255,15 @@ void idCombatNode::DrawDebugInfo( void ) {
 	idVec4			color;
 	idBounds		bounds( idVec3( -16, -16, 0 ), idVec3( 16, 16, 0 ) );
 
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL; ) {
 		if ( !ent->IsType( idCombatNode::Type ) ) {
 			continue;
 		}
@@ -5289,6 +5302,14 @@ void idCombatNode::DrawDebugInfo( void ) {
 			gameRenderWorld->DebugLine( color, pos2, pos4, gameLocal.msec );
 			gameRenderWorld->DebugBounds( color, bounds, org, gameLocal.msec );
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 }
 

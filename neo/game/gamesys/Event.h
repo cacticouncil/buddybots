@@ -31,6 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "idlib/containers/LinkList.h"
 #include "cm/CollisionModel.h"
+#include <list>
+
 
 // Event are used for scheduling tasks and for linking script commands.
 
@@ -97,7 +99,8 @@ private:
 	idClass						*object;
 	const idTypeInfo			*typeinfo;
 
-	idLinkList<idEvent>			eventNode;
+	std::list <idEvent>			eventNode;
+	std::list<idEvent>::iterator eventNodeIter = eventNode.begin();
 
 	static idDynamicBlockAlloc<byte, 16 * 1024, 256> eventDataAllocator;
 

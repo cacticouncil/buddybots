@@ -390,7 +390,16 @@ void idAI::Event_FindEnemyAI( int useFOV ) {
 
 	bestDist = idMath::INFINITY;
 	bestEnemy = NULL;
-	for ( ent = gameLocal.activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+
+	if (gameLocal.activeEntitiesIter != gameLocal.activeEntities.end()) {
+		gameLocal.activeEntitiesIter++;
+		*ent = *gameLocal.activeEntitiesIter;
+		gameLocal.activeEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for ( ; ent != NULL;  ) {
 		if ( ent->fl.hidden || ent->fl.isDormant || !ent->IsType( idActor::Type ) ) {
 			continue;
 		}
@@ -410,6 +419,14 @@ void idAI::Event_FindEnemyAI( int useFOV ) {
 			bestDist = dist;
 			bestEnemy = actor;
 		}
+
+		if (ent->activeNodeIter != ent->activeNode.end()) {
+			ent->activeNodeIter++;
+			*ent = *ent->activeNodeIter;
+			ent->activeNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 
 	gameLocal.pvs.FreeCurrentPVS( pvs );
@@ -490,7 +507,16 @@ void idAI::Event_ClosestReachableEnemyOfEntity( idEntity *team_mate ) {
 
 	bestDistSquared = idMath::INFINITY;
 	bestEnt = NULL;
-	for( ent = actor->enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() ) {
+
+	if (actor->enemyListIter != actor->enemyList.end()) {
+		actor->enemyListIter++;
+		*ent = *actor->enemyListIter;
+		actor->enemyListIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( ent->fl.hidden ) {
 			continue;
 		}
@@ -504,6 +530,14 @@ void idAI::Event_ClosestReachableEnemyOfEntity( idEntity *team_mate ) {
 				bestDistSquared = distSquared;
 			}
 		}
+
+		if (ent->enemyNodeIter != ent->enemyNode.end()) {
+			ent->enemyNodeIter++;
+			*ent = *ent->enemyNodeIter;
+			ent->enemyNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 
 	idThread::ReturnEntity( bestEnt );

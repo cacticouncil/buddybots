@@ -455,10 +455,12 @@ idEntity::idEntity() {
 	entityNumber	= ENTITYNUM_NONE;
 	entityDefNumber = -1;
 
-	spawnNode.SetOwner( this );
-	activeNode.SetOwner( this );
+	*spawnNodeIter = *this;
+	*activeNodeIter = *this;
 
-	snapshotNode.SetOwner( this );
+
+	*snapshotNodeIter = *this;
+
 	snapshotSequence = -1;
 	snapshotBits = 0;
 
@@ -675,7 +677,8 @@ idEntity::~idEntity( void ) {
 	if ( thinkFlags ) {
 		BecomeInactive( thinkFlags );
 	}
-	activeNode.Remove();
+	
+	activeNodeIter = activeNode.erase(activeNodeIter);
 
 	Signal( SIG_REMOVED );
 
@@ -1035,7 +1038,12 @@ idEntity::IsActive
 ================
 */
 bool idEntity::IsActive( void ) const {
-	return activeNode.InList();
+	std::list<idEntity> templist = activeNode;
+	std::list<idEntity>::iterator temp = std::find(templist.begin(), templist.end(), *activeNodeIter);
+	if (temp != templist.end())
+		return true;
+	else
+		return false;
 }
 
 /*
@@ -1044,6 +1052,7 @@ idEntity::BecomeActive
 ================
 */
 void idEntity::BecomeActive( int flags ) {
+	std::list<idEntity>::iterator temp;
 	if ( ( flags & TH_PHYSICS ) ) {
 		// enable the team master if this entity is part of a physics team
 		if ( teamMaster && teamMaster != this ) {
@@ -1060,7 +1069,8 @@ void idEntity::BecomeActive( int flags ) {
 	thinkFlags |= flags;
 	if ( thinkFlags ) {
 		if ( !IsActive() ) {
-			activeNode.AddToEnd( gameLocal.activeEntities );
+			temp = activeNode.end();
+			activeNode.splice(temp, gameLocal.activeEntities);
 		} else if ( !oldFlags ) {
 			// we became inactive this frame, so we have to decrease the count of entities to deactivate
 			gameLocal.numEntitiesToDeactivate--;

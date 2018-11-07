@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "gamesys/Class.h"
 #include "gamesys/Event.h"
 #include "Game_local.h"
+#include <list>
 
 /*
 ===============================================================================
@@ -121,10 +122,13 @@ public:
 	int						entityNumber;			// index into the entity list
 	int						entityDefNumber;		// index into the entity def list
 
-	idLinkList<idEntity>	spawnNode;				// for being linked into spawnedEntities list
-	idLinkList<idEntity>	activeNode;				// for being linked into activeEntities list
+	std::list<idEntity>	spawnNode;				// for being linked into spawnedEntities list
+	std::list<idEntity>::iterator spawnNodeIter = spawnNode.begin();
+	std::list<idEntity>	activeNode;				// for being linked into activeEntities list
+	std::list<idEntity>::iterator activeNodeIter = activeNode.begin();
 
-	idLinkList<idEntity>	snapshotNode;			// for being linked into snapshotEntities list
+	std::list<idEntity>	snapshotNode;			// for being linked into snapshotEntities list
+	std::list<idEntity>::iterator snapshotNodeIter = snapshotNode.begin();
 	int						snapshotSequence;		// last snapshot this entity was in
 	int						snapshotBits;			// number of bits this entity occupied in the last snapshot
 

@@ -352,7 +352,16 @@ bool afiBotPlayer::PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origi
 
 	if ( goal.z > GetEyePosition().z )  {
 		idEntity *ent;
-		for (ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next()) {
+
+		if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+			gameLocal.spawnedEntitiesIter++;
+			*ent = *gameLocal.spawnedEntitiesIter;
+			gameLocal.spawnedEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for (; ent != NULL; ) {
 			// that is an elevator
 			if (ent->IsType(idPlat::Type)) {
 				idPlat *platform = static_cast<idPlat *>(ent);
@@ -366,6 +375,14 @@ bool afiBotPlayer::PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origi
 					break;
 				}
 			}
+
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 		}
 	}
 
