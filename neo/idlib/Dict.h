@@ -176,7 +176,7 @@ public:
 
 private:
 	idList<idKeyValue>	args;
-	idHashIndex			argHash;
+	std::unordered_map<int,int>			argHash;
 
 	static idStrPool	globalKeys;
 	static idStrPool	globalValues;
@@ -185,8 +185,8 @@ private:
 
 ID_INLINE idDict::idDict( void ) {
 	args.SetGranularity( 16 );
-	argHash.SetGranularity( 16 );
-	argHash.Clear( 128, 16 );
+	//argHash.SetGranularity( 16 );
+	//argHash.Clear( 128, 16 );
 }
 
 ID_INLINE idDict::idDict( const idDict &other ) {
@@ -199,12 +199,12 @@ ID_INLINE idDict::~idDict( void ) {
 
 ID_INLINE void idDict::SetGranularity( int granularity ) {
 	args.SetGranularity( granularity );
-	argHash.SetGranularity( granularity );
+	//argHash.SetGranularity( granularity );
 }
 
 ID_INLINE void idDict::SetHashSize( int hashSize ) {
 	if ( args.Num() == 0 ) {
-		argHash.Clear( hashSize, 16 );
+		//argHash.Clear( hashSize, 16 );
 	}
 }
 
