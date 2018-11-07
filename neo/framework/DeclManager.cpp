@@ -1451,7 +1451,7 @@ bool idDeclManagerLocal::RenameDecl( declType_t type, const char* oldName, const
 	int typeIndex = (int)type;
 	int i, hash;
 	hash = (int)std::hash<std::string>{}(canonicalOldName);
-	for (auto j = hashTables[typeIndex].begin(); j != hashTables[typeIndex].end; ++j ) {
+	for (auto j = hashTables[typeIndex].begin(); j != hashTables[typeIndex].end(); ++j ) {
 		i = j->second;
 		if ( linearLists[typeIndex][i]->name.Icmp( canonicalOldName ) == 0 ) {
 			decl = linearLists[typeIndex][i];

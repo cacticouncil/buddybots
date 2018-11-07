@@ -425,7 +425,7 @@ public:
 
 	idList<idImage*>	images;
 	idStrList			ddsList;
-	idHashIndex			ddsHash;
+	std::unordered_map<int,int>			ddsHash;
 
 	bool				insideLevelLoad;			// don't actually load images now
 

@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PLANESET_H__
 #define __PLANESET_H__
 
+#include <unordered_map>
+
 #include "idlib/containers/List.h"
 #include "idlib/math/Plane.h"
 

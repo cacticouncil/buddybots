@@ -151,7 +151,7 @@ void idDict::Copy( const idDict &other ) {
 		} else {
 			kv.key = globalKeys.CopyString( other.args[i].key );
 			kv.value = globalValues.CopyString( other.args[i].value );
-			argHash.insert({ (int)std::hash<std::string>{}(kv.GetKey().c_str), args.Append(kv) });
+			argHash.insert({ (int)std::hash<std::string>{}(kv.GetKey().c_str()), args.Append(kv) });
 		}
 	}
 }
@@ -243,7 +243,7 @@ void idDict::SetDefaults( const idDict *dict ) {
 		if ( !kv ) {
 			newkv.key = globalKeys.CopyString( def->key );
 			newkv.value = globalValues.CopyString( def->value );
-			argHash.insert({ (int)std::hash<std::string>{}(newkv.GetKey().c_str), args.Append(newkv) });
+			argHash.insert({ (int)std::hash<std::string>{}(newkv.GetKey().c_str()), args.Append(newkv) });
 		}
 	}
 }
@@ -345,7 +345,7 @@ void idDict::Set( const char *key, const char *value ) {
 	} else {
 		kv.key = globalKeys.AllocString( key );
 		kv.value = globalValues.AllocString( value );
-		argHash.insert({ (int)std::hash<std::string>{}(kv.GetKey().c_str), args.Append(kv) });
+		argHash.insert({ (int)std::hash<std::string>{}(kv.GetKey().c_str()), args.Append(kv) });
 	}
 }
 

@@ -123,7 +123,7 @@ const int SILEDGE_HASH_SIZE		= 1024;
 
 static int			numSilEdges;
 static silEdge_t *	silEdges;
-static std::unordered_map<int,int>	silEdgeHash( SILEDGE_HASH_SIZE, MAX_SIL_EDGES );
+static std::unordered_map<int, int>	silEdgeHash;
 static int			numPlanes;
 
 static idBlockAlloc<srfTriangles_t, 1<<8>				srfTrianglesAllocator;
@@ -158,6 +158,7 @@ R_InitTriSurfData
 */
 void R_InitTriSurfData( void ) {
 	silEdges = (silEdge_t *)R_StaticAlloc( MAX_SIL_EDGES * sizeof( silEdges[0] ) );
+	silEdgeHash.reserve(SILEDGE_HASH_SIZE);
 
 	// initialize allocators for triangle surfaces
 	triVertexAllocator.Init();
@@ -752,7 +753,7 @@ static int *R_CreateSilRemap( const srfTriangles_t *tri ) {
 		if (k != hash.end()) {
 			c_unique++;
 			remap[i] = i;
-			hash.insert( hashKey, i );
+			hash.insert({ hashKey, i });
 		}
 	}
 

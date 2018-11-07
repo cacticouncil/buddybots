@@ -237,8 +237,8 @@ void idRegisterList::AddReg( const char *name, int type, idVec4 data, idWindow *
 		for ( int i = 0; i < numRegs; i++ ) {
 			reg->regs[i] = win->ExpressionConstant(data[i]);
 		}
-		int hash = regHash.GenerateKey( name, false );
-		regHash.Add( hash, regs.Append( reg ) );
+		int hash = (int)std::hash<std::string>{}(name);
+		regHash.insert({ hash, regs.Append(reg) });
 	}
 }
 
@@ -271,8 +271,8 @@ void idRegisterList::AddReg( const char *name, int type, idParser *src, idWindow
 				}
 			}
 		}
-		int hash = regHash.GenerateKey( name, false );
-		regHash.Add( hash, regs.Append( reg ) );
+		int hash = (int)std::hash<std::string>{}(name);
+		regHash.insert({ hash, regs.Append(reg) });
 	} else {
 		int numRegs = idRegister::REGCOUNT[type];
 		reg->var = var;
@@ -322,8 +322,9 @@ idRegisterList::FindReg
 ====================
 */
 idRegister *idRegisterList::FindReg( const char *name ) {
-	int hash = regHash.GenerateKey( name, false );
-	for ( int i = regHash.First( hash ); i != -1; i = regHash.Next( i ) ) {
+	int hash = (int)std::hash<std::string>{}(name);
+	for ( auto j = regHash.begin(); j != regHash.end(); ++j ) {
+		int i = j->second;
 		if ( regs[i]->name.Icmp( name ) == 0 ) {
 			return regs[i];
 		}
@@ -338,7 +339,7 @@ idRegisterList::Reset
 */
 void idRegisterList::Reset() {
 	regs.DeleteContents( true );
-	regHash.Clear();
+	regHash.clear();
 }
 
 /*

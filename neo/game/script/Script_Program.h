@@ -29,6 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SCRIPT_PROGRAM_H__
 #define __SCRIPT_PROGRAM_H__
 
+#include <unordered_map>
+
 #include "idlib/containers/StrList.h"
 #include "idlib/containers/StaticList.h"
 #include "idlib/math/Vector.h"

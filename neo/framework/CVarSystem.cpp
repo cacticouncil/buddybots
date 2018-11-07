@@ -1250,7 +1250,7 @@ void idCVarSystemLocal::Restart_f( const idCmdArgs &args ) {
 
 		// throw out any variables the user created
 		if ( !( cvar->flags & CVAR_STATIC ) ) {
-			hash = (int)std::hash<std::string>{}(cvar->nameString.c_str);
+			hash = (int)std::hash<std::string>{}(cvar->nameString.c_str());
 			delete cvar;
 			localCVarSystem.cvars.RemoveIndex( i );
 			localCVarSystem.cvarHash.erase( hash );

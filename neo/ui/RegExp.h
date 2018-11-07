@@ -96,13 +96,13 @@ public:
 
 private:
 	idList<idRegister*>	regs;
-	idHashIndex			regHash;
+	std::unordered_map<int,int>			regHash;
 };
 
 ID_INLINE idRegisterList::idRegisterList() {
 	regs.SetGranularity( 4 );
-	regHash.SetGranularity( 4 );
-	regHash.Clear( 32, 4 );
+	//regHash.SetGranularity( 4 );
+	regHash.clear();
 }
 
 ID_INLINE idRegisterList::~idRegisterList() {
