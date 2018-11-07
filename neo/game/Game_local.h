@@ -270,7 +270,7 @@ public:
 	int						spawnIds[MAX_GENTITIES];// for use in idEntityPtr
 	int						firstFreeIndex;			// first free index in the entities array
 	int						num_entities;			// current number <= MAX_GENTITIES
-	idHashIndex				entityHash;				// hash table to quickly find entities by name
+	std::unordered_map<int,int>				entityHash;				// hash table to quickly find entities by name
 	idWorldspawn *			world;					// world entity
 	idLinkList<idEntity>	spawnedEntities;		// all spawned entities
 	idLinkList<idEntity>	activeEntities;			// all thinking entities (idEntity::thinkFlags != 0)

@@ -628,7 +628,7 @@ public:
 private:
 	idHashTable<idMD5Anim *>	animations;
 	idStrList					jointnames;
-	idHashIndex					jointnamesHash;
+	std::unordered_map<int,int>					jointnamesHash;
 };
 
 #endif /* !__ANIM_H__ */

@@ -30,7 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #define __LANGDICT_H__
 
 #include "idlib/containers/List.h"
-#include "idlib/containers/HashIndex.h"
 #include "idlib/Str.h"
 
 /*
@@ -69,7 +68,7 @@ public:
 
 private:
 	idList<idLangKeyValue>	args;
-	idHashIndex				hash;
+	std::unordered_map<int,int>				hash;
 
 	bool					ExcludeString( const char *str ) const;
 	int						GetNextId( void ) const;

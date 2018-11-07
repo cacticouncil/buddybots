@@ -945,7 +945,7 @@ idAnimManager::Shutdown
 void idAnimManager::Shutdown( void ) {
 	animations.DeleteContents();
 	jointnames.Clear();
-	jointnamesHash.Free();
+	jointnamesHash.clear();
 }
 
 /*
@@ -1007,15 +1007,17 @@ idAnimManager::JointIndex
 int	idAnimManager::JointIndex( const char *name ) {
 	int i, hash;
 
-	hash = jointnamesHash.GenerateKey( name );
-	for ( i = jointnamesHash.First( hash ); i != -1; i = jointnamesHash.Next( i ) ) {
+
+	hash = (int)std::hash<std::string>{}(name);
+	for (auto j = jointnamesHash.begin(); j != jointnamesHash.end(); ++j) {
+		i = j->second;
 		if ( jointnames[i].Cmp( name ) == 0 ) {
 			return i;
 		}
 	}
 
 	i = jointnames.Append( name );
-	jointnamesHash.Add( hash, i );
+	jointnamesHash.insert({ hash, i });
 	return i;
 }
 
@@ -1055,7 +1057,7 @@ void idAnimManager::ListAnims( void ) const {
 		}
 	}
 
-	namesize = jointnames.Size() + jointnamesHash.Size();
+	namesize = jointnames.Size() + jointnamesHash.size();
 	for( i = 0; i < jointnames.Num(); i++ ) {
 		namesize += jointnames[ i ].Size();
 	}
