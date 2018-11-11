@@ -371,13 +371,37 @@ void idPathCorner::DrawDebugInfo( void ) {
 	idEntity *ent;
 	idBounds bnds( idVec3( -4.0, -4.0f, -8.0f ), idVec3( 4.0, 4.0f, 64.0f ) );
 
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( !ent->IsType( idPathCorner::Type ) ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
 		idVec3 org = ent->GetPhysics()->GetOrigin();
 		gameRenderWorld->DebugBounds( colorRed, bnds, org, 0 );
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 }
 

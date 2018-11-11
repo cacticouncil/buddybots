@@ -597,18 +597,40 @@ void idEditEntities::DisplayEntities( void ) {
 
 	idStr textKey;
 
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 
 		idVec4 color;
 
 		textKey = "";
 		if ( !EntityIsSelectable( ent, &color, &textKey ) ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
 		bool drawArrows = false;
 		if ( ent->GetType() == &idAFEntity_Base::Type ) {
 			if ( !static_cast<idAFEntity_Base *>(ent)->IsActiveAF() ) {
+				if (ent->spawnNodeIter != ent->spawnNode.end()) {
+					ent->spawnNodeIter++;
+					*ent = *ent->spawnNodeIter;
+					ent->spawnNodeIter--;
+				}
+				else
+					ent = NULL;
 				continue;
 			}
 		} else if ( ent->GetType() == &idSound::Type ) {
@@ -626,6 +648,13 @@ void idEditEntities::DisplayEntities( void ) {
 		}
 
 		if ( !viewBounds.ContainsPoint( ent->GetPhysics()->GetOrigin() ) ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -658,6 +687,15 @@ void idEditEntities::DisplayEntities( void ) {
 				gameRenderWorld->DrawText( text, ent->GetPhysics()->GetOrigin() + idVec3(0, 0, 12), 0.25, colorWhite, axis, 1 );
 			}
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 }
 
@@ -683,13 +721,30 @@ int idGameEdit::GetSelectedEntities( idEntity *list[], int max ) {
 	int num = 0;
 	idEntity *ent;
 
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( ent->fl.selected ) {
 			list[num++] = ent;
 			if ( num >= max ) {
 				break;
 			}
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 	return num;
 }
@@ -701,10 +756,28 @@ idGameEdit::TriggerSelected
 */
 void idGameEdit::TriggerSelected() {
 	idEntity *ent;
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( ent->fl.selected ) {
 			ent->ProcessEvent( &EV_Activate, gameLocal.GetLocalPlayer() );
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 }
 
@@ -716,8 +789,25 @@ idGameEdit::ClearEntitySelection
 void idGameEdit::ClearEntitySelection() {
 	idEntity *ent;
 
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for(; ent != NULL;  ) {
 		ent->fl.selected = false;
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 	gameLocal.editEntities->ClearSelectedEntities();
 }

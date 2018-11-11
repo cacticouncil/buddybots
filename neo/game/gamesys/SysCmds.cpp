@@ -116,10 +116,28 @@ void Cmd_ActiveEntityList_f( const idCmdArgs &args ) {
 
 	gameLocal.Printf( "%-4s  %-20s %-20s %s\n", " Num", "EntityDef", "Class", "Name" );
 	gameLocal.Printf( "--------------------------------------------------------------------\n" );
-	for( check = gameLocal.activeEntities.Next(); check != NULL; check = check->activeNode.Next() ) {
+
+	if (gameLocal.activeEntitiesIter != gameLocal.activeEntities.end()) {
+		gameLocal.activeEntitiesIter++;
+		*check = *gameLocal.activeEntitiesIter;
+		gameLocal.activeEntitiesIter--;
+	}
+	else
+		check = NULL;
+
+	for( ; check != NULL;  ) {
 		char	dormant = check->fl.isDormant ? '-' : ' ';
 		gameLocal.Printf( "%4i:%c%-20s %-20s %s\n", check->entityNumber, dormant, check->GetEntityDefName(), check->GetClassname(), check->name.c_str() );
 		count++;
+
+		if (check->activeNodeIter != check->activeNode.end()) {
+			check->activeNodeIter++;
+			*check = *check->activeNodeIter;
+			check->activeNodeIter--;
+		}
+		else
+			check = NULL;
+
 	}
 
 	gameLocal.Printf( "...%d active entities\n", count );
@@ -208,8 +226,26 @@ void Cmd_Script_f( const idCmdArgs &args ) {
 		func = gameLocal.program.FindFunction( funcname );
 		if ( func ) {
 			// set all the entity names in case the user named one in the script that wasn't referenced in the default script
-			for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+			if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+				gameLocal.spawnedEntitiesIter++;
+				*ent = *gameLocal.spawnedEntitiesIter;
+				gameLocal.spawnedEntitiesIter--;
+			}
+			else
+				ent = NULL;
+
+			for( ; ent != NULL;  ) {
 				gameLocal.program.SetEntity( ent->name, ent );
+
+				if (ent->spawnNodeIter != ent->spawnNode.end()) {
+					ent->spawnNodeIter++;
+					*ent = *ent->spawnNodeIter;
+					ent->spawnNodeIter--;
+				}
+				else
+					ent = NULL;
+
 			}
 
 			thread = new idThread( func );
@@ -240,7 +276,15 @@ void KillEntities( const idCmdArgs &args, const idTypeInfo &superClass ) {
 		ignore.Append( name );
 	}
 
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( ent->IsType( superClass ) ) {
 			for( i = 0; i < ignore.Num(); i++ ) {
 				if ( ignore[ i ] == ent->name ) {
@@ -252,6 +296,15 @@ void KillEntities( const idCmdArgs &args, const idTypeInfo &superClass ) {
 				ent->PostEventMS( &EV_Remove, 0 );
 			}
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 }
 
@@ -1070,8 +1123,24 @@ void Cmd_PopLight_f( const idCmdArgs &args ) {
 
 	lastLight = NULL;
 	last = -1;
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( !ent->IsType( idLight::Type ) ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -1079,6 +1148,15 @@ void Cmd_PopLight_f( const idCmdArgs &args ) {
 			last = gameLocal.spawnIds[ ent->entityNumber ];
 			lastLight = static_cast<idLight*>( ent );
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
 	if ( lastLight ) {
@@ -1111,8 +1189,25 @@ void Cmd_ClearLights_f( const idCmdArgs &args ) {
 	bool removeFromMap = ( args.Argc() > 1 );
 
 	gameLocal.Printf( "Clearing all lights.\n" );
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = next ) {
-		next = ent->spawnNode.Next();
+
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL; ent = next ) {
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*next = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			next = NULL;
+
 		if ( !ent->IsType( idLight::Type ) ) {
 			continue;
 		}
@@ -1515,13 +1610,31 @@ static void Cmd_ListAnims_f( const idCmdArgs &args ) {
 
 		size = 0;
 		num = 0;
-		for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+		if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+			gameLocal.spawnedEntitiesIter++;
+			*ent = *gameLocal.spawnedEntitiesIter;
+			gameLocal.spawnedEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for( ; ent != NULL;  ) {
 			animator = ent->GetAnimator();
 			if ( animator ) {
 				alloced = animator->Allocated();
 				size += alloced;
 				num++;
 			}
+
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
+
 		}
 
 		gameLocal.Printf( "%zd memory used in %d entity animators\n", size, num );
@@ -2282,12 +2395,24 @@ void Cmd_NextGUI_f( const idCmdArgs &args ) {
 	if ( newEnt == true ) {
 		// go ahead and skip to the next entity with a gui...
 		if ( ent == NULL ) {
-			ent = gameLocal.spawnedEntities.Next();
+			if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+				gameLocal.spawnedEntitiesIter++;
+				*ent = *gameLocal.spawnedEntitiesIter;
+				gameLocal.spawnedEntitiesIter--;
+			}
+			else
+				ent = NULL;
 		} else {
-			ent = ent->spawnNode.Next();
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 		}
 
-		for ( ; ent != NULL; ent = ent->spawnNode.Next() ) {
+		for ( ; ent != NULL;  ) {
 			if ( ent->spawnArgs.GetString( "gui", NULL ) != NULL ) {
 				break;
 			}
@@ -2302,6 +2427,15 @@ void Cmd_NextGUI_f( const idCmdArgs &args ) {
 
 			// try the next entity
 			gameLocal.lastGUIEnt = ent;
+
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
+
 		}
 
 		gameLocal.lastGUIEnt = ent;

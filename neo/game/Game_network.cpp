@@ -627,10 +627,26 @@ void idGameLocal::ServerWriteSnapshot( int clientNum, int sequence, idBitMsg &ms
 #endif
 
 	// create the snapshot
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (spawnedEntitiesIter != spawnedEntities.end()) {
+		spawnedEntitiesIter++;
+		*ent = *spawnedEntitiesIter;
+		spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 
 		// if the entity is not in the player PVS
 		if ( !ent->PhysicsTeamInPVS( pvsHandle ) && ent->entityNumber != clientNum ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -639,6 +655,13 @@ void idGameLocal::ServerWriteSnapshot( int clientNum, int sequence, idBitMsg &ms
 
 		// if that entity is not marked for network synchronization
 		if ( !ent->fl.networkSync ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -677,6 +700,15 @@ void idGameLocal::ServerWriteSnapshot( int clientNum, int sequence, idBitMsg &ms
 			msg.WriteInt( tagRandom.RandomInt() );
 #endif
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
 	msg.WriteBits( ENTITYNUM_NONE, GENTITYNUM_BITS );
@@ -908,6 +940,8 @@ void idGameLocal::ClientShowSnapshot( int clientNum ) const {
 	idBounds viewBounds;
 	entityState_t *base;
 
+	std::list<idEntity>::iterator temp = snapshotEntitiesIter;
+
 	if ( !net_clientShowSnapshot.GetInteger() ) {
 		return;
 	}
@@ -920,15 +954,37 @@ void idGameLocal::ClientShowSnapshot( int clientNum ) const {
 	viewAxis = player->viewAngles.ToMat3();
 	viewBounds = player->GetPhysics()->GetAbsBounds().Expand( net_clientShowSnapshotRadius.GetFloat() );
 
-	for( ent = snapshotEntities.Next(); ent != NULL; ent = ent->snapshotNode.Next() ) {
+	if (temp != snapshotEntities.end()) {
+		temp++;
+		*ent = *temp;
+		temp--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 
 		if ( net_clientShowSnapshot.GetInteger() == 1 && ent->snapshotBits == 0 ) {
+			if (ent->snapshotNodeIter != ent->snapshotNode.end()) {
+				ent->snapshotNodeIter++;
+				*ent = *ent->snapshotNodeIter;
+				ent->snapshotNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
 		const idBounds &entBounds = ent->GetPhysics()->GetAbsBounds();
 
 		if ( !entBounds.IntersectsBounds( viewBounds ) ) {
+			if (ent->snapshotNodeIter != ent->snapshotNode.end()) {
+				ent->snapshotNodeIter++;
+				*ent = *ent->snapshotNodeIter;
+				ent->snapshotNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -940,6 +996,13 @@ void idGameLocal::ClientShowSnapshot( int clientNum ) const {
 		}
 
 		if ( net_clientShowSnapshot.GetInteger() == 2 && baseBits == 0 ) {
+			if (ent->snapshotNodeIter != ent->snapshotNode.end()) {
+				ent->snapshotNodeIter++;
+				*ent = *ent->snapshotNodeIter;
+				ent->snapshotNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -947,6 +1010,14 @@ void idGameLocal::ClientShowSnapshot( int clientNum ) const {
 		gameRenderWorld->DrawText( va( "%d: %s (%d,%d bytes of %d,%d)\n", ent->entityNumber,
 						ent->name.c_str(), ent->snapshotBits >> 3, ent->snapshotBits & 7, baseBits >> 3, baseBits & 7 ),
 							entBounds.GetCenter(), 0.1f, colorWhite, viewAxis, 1 );
+
+		if (ent->snapshotNodeIter != ent->snapshotNode.end()) {
+			ent->snapshotNodeIter++;
+			*ent = *ent->snapshotNodeIter;
+			ent->snapshotNodeIter--;
+		}
+		else
+			ent = NULL;
 	}
 }
 
@@ -1006,6 +1077,8 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 	int				numSourceAreas, sourceAreas[ idEntity::MAX_PVS_AREAS ];
 	idWeapon		*weap;
 
+	std::list<idEntity>::iterator temp;
+
 	if ( net_clientLagOMeter.GetBool() && renderSystem ) {
 		UpdateLagometer( aheadOfServer, dupeUsercmds );
 		if ( !renderSystem->UploadImage( LAGO_IMAGE, (byte *)lagometer, LAGO_IMG_WIDTH, LAGO_IMG_HEIGHT ) ) {
@@ -1031,7 +1104,7 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 	isNewFrame = true;
 
 	// clear the snapshot entity list
-	snapshotEntities.Clear();
+	snapshotEntities.clear();
 
 	// allocate new snapshot
 	snapshot = snapshotAllocator.Alloc();
@@ -1111,7 +1184,8 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 		}
 
 		// add the entity to the snapshot list
-		ent->snapshotNode.AddToEnd( snapshotEntities );
+		temp = ent->snapshotNode.end();
+		ent->snapshotNode.splice(temp, snapshotEntities);
 		ent->snapshotSequence = sequence;
 
 		// read the class specific data from the snapshot
@@ -1193,10 +1267,27 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 	}
 
 	// add entities in the PVS that haven't changed since the last applied snapshot
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (spawnedEntitiesIter != spawnedEntities.end()) {
+		spawnedEntitiesIter++;
+		*ent = *spawnedEntitiesIter;
+		spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+
+	for( ; ent != NULL;  ) {
 
 		// if the entity is already in the snapshot
 		if ( ent->snapshotSequence == sequence ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -1219,17 +1310,32 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 					ent->GetPhysics()->UnlinkClip();
 				}
 			}
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
 		// add the entity to the snapshot list
-		ent->snapshotNode.AddToEnd( snapshotEntities );
+		temp = ent->snapshotNode.end();
+		ent->snapshotNode.splice(temp, snapshotEntities);
 		ent->snapshotSequence = sequence;
 		ent->snapshotBits = 0;
 
 		base = clientEntityStates[clientNum][ent->entityNumber];
 		if ( !base ) {
 			// entity has probably fl.networkSync set to false
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -1247,11 +1353,28 @@ void idGameLocal::ClientReadSnapshot( int clientNum, int sequence, const int gam
 		if ( !typeInfo || ent->GetType()->typeNum != typeNum || ent->entityDefNumber != entityDefNumber ) {
 			// should never happen - it does though. with != entityDefNumber only?
 			common->DWarning( "entity '%s' is not the right type %p 0x%d 0x%x 0x%x 0x%x", ent->GetName(), typeInfo, ent->GetType()->typeNum, typeNum, ent->entityDefNumber, entityDefNumber );
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
 		// read the class specific data from the base state
 		ent->ReadFromSnapshot( deltaMsg );
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
+
 	}
 
 	// free the PVS
@@ -1579,9 +1702,27 @@ gameReturn_t idGameLocal::ClientPrediction( int clientNum, const usercmd_t *clie
 	memcpy( usercmds, clientCmds, numClients * sizeof( usercmds[ 0 ] ) );
 
 	// run prediction on all entities from the last snapshot
-	for( ent = snapshotEntities.Next(); ent != NULL; ent = ent->snapshotNode.Next() ) {
+
+	if (snapshotEntitiesIter != snapshotEntities.end()) {
+		snapshotEntitiesIter++;
+		*ent = *snapshotEntitiesIter;
+		snapshotEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		ent->thinkFlags |= TH_PHYSICS;
 		ent->ClientPredictionThink();
+
+		if (ent->snapshotNodeIter != ent->snapshotNode.end()) {
+			ent->snapshotNodeIter++;
+			*ent = *ent->snapshotNodeIter;
+			ent->snapshotNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
 	// service any pending events

@@ -852,7 +852,7 @@ int idTypeInfoTools::WriteVariable_r( const void *varPtr, const char *varName, c
 	} else if ( token == "idLinkList" ) {
 
 		// FIXME: implement
-		typeSize = sizeof( idLinkList<idEntity> );
+		typeSize = sizeof( std::list<idEntity> );
 		Write( varName, varType, scope, prefix, "", va( "<unknown type '%s'>", varType ), NULL, 0 );
 
 	} else if ( token == "idStr" ) {

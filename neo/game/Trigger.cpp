@@ -67,7 +67,16 @@ void idTrigger::DrawDebugInfo( void ) {
 
 	viewTextBounds.ExpandSelf( 128.0f );
 	viewBounds.ExpandSelf( 512.0f );
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+		gameLocal.spawnedEntitiesIter++;
+		*ent = *gameLocal.spawnedEntitiesIter;
+		gameLocal.spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( ent->GetPhysics()->GetContents() & ( CONTENTS_TRIGGER | CONTENTS_FLASHLIGHT_TRIGGER ) ) {
 			show = viewBounds.IntersectsBounds( ent->GetPhysics()->GetAbsBounds() );
 			if ( !show ) {
@@ -81,6 +90,13 @@ void idTrigger::DrawDebugInfo( void ) {
 			}
 
 			if ( !show ) {
+				if (ent->spawnNodeIter != ent->spawnNode.end()) {
+					ent->spawnNodeIter++;
+					*ent = *ent->spawnNodeIter;
+					ent->spawnNodeIter--;
+				}
+				else
+					ent = NULL;
 				continue;
 			}
 
@@ -110,6 +126,15 @@ void idTrigger::DrawDebugInfo( void ) {
 				}
 			}
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 }
 

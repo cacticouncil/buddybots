@@ -479,6 +479,13 @@ void BotAASBuild::AddTransporterReachabilities( void ) {
 									(file->GetPortal( -startCluster ).clusters[0] != file->GetPortal( -targetCluster ).clusters[1]) &&
 									(file->GetPortal( -startCluster ).clusters[1] != file->GetPortal( -targetCluster ).clusters[1]) ) {
 										// need a portal and both are already portals, won't work?
+									if (ent->spawnNodeIter != ent->spawnNode.end()) {
+										ent->spawnNodeIter++;
+										*ent = *ent->spawnNodeIter;
+										ent->spawnNodeIter--;
+									}
+									else
+										ent = NULL;
 										continue;
 								}
 							}

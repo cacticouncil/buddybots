@@ -2327,10 +2327,28 @@ void idMover_Binary::Spawn( void ) {
 		ent = this;
 	} else {
 		// find the first entity spawned on this team (which could be us)
-		for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+		if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+			gameLocal.spawnedEntitiesIter++;
+			*ent = *gameLocal.spawnedEntitiesIter;
+			gameLocal.spawnedEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for( ; ent != NULL;  ) {
 			if ( ent->IsType( idMover_Binary::Type ) && !idStr::Icmp( static_cast<idMover_Binary *>(ent)->team.c_str(), temp ) ) {
 				break;
 			}
+
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
+
 		}
 		if ( !ent ) {
 			ent = this;

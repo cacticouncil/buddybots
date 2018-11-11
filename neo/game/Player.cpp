@@ -7570,10 +7570,28 @@ void idPlayer::Think( void ) {
 	if ( g_showEnemies.GetBool() ) {
 		idActor *ent;
 		int num = 0;
-		for( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() ) {
+
+		if (enemyListIter != enemyList.end()) {
+			enemyListIter++;
+			*ent = *enemyListIter;
+			enemyListIter--;
+		}
+		else
+			ent = NULL;
+
+		for( ; ent != NULL;  ) {
 			gameLocal.Printf( "enemy (%d)'%s'\n", ent->entityNumber, ent->name.c_str() );
 			gameRenderWorld->DebugBounds( colorRed, ent->GetPhysics()->GetBounds().Expand( 2 ), ent->GetPhysics()->GetOrigin() );
 			num++;
+
+			if (ent->enemyNodeIter != ent->enemyNode.end()) {
+				ent->enemyNodeIter++;
+				*ent = *ent->enemyNodeIter;
+				ent->enemyNodeIter--;
+			}
+			else
+				ent = NULL;
+
 		}
 		gameLocal.Printf( "%d: enemies\n", num );
 	}
@@ -8892,13 +8910,34 @@ idPlayer::SetInfluenceLevel
 =============
 */
 void idPlayer::SetInfluenceLevel( int level ) {
+
+	idEntity *ent;
+
 	if ( level != influenceActive ) {
 		if ( level ) {
-			for ( idEntity *ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+			if (gameLocal.spawnedEntitiesIter != gameLocal.spawnedEntities.end()) {
+				gameLocal.spawnedEntitiesIter++;
+				*ent = *gameLocal.spawnedEntitiesIter;
+				gameLocal.spawnedEntitiesIter--;
+			}
+			else
+				ent = NULL;
+
+			for ( ; ent != NULL;  ) {
 				if ( ent->IsType( idProjectile::Type ) ) {
 					// remove all projectiles
 					ent->PostEventMS( &EV_Remove, 0 );
 				}
+
+				if (ent->spawnNodeIter != ent->spawnNode.end()) {
+					ent->spawnNodeIter++;
+					*ent = *ent->spawnNodeIter;
+					ent->spawnNodeIter--;
+				}
+				else
+					ent = NULL;
+
 			}
 			if ( weaponEnabled && weapon.GetEntity() ) {
 				weapon.GetEntity()->EnterCinematic();

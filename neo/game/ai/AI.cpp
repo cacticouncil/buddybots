@@ -5265,6 +5265,13 @@ void idCombatNode::DrawDebugInfo( void ) {
 
 	for( ; ent != NULL; ) {
 		if ( !ent->IsType( idCombatNode::Type ) ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 

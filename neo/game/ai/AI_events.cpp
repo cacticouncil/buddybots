@@ -401,15 +401,36 @@ void idAI::Event_FindEnemyAI( int useFOV ) {
 
 	for ( ; ent != NULL;  ) {
 		if ( ent->fl.hidden || ent->fl.isDormant || !ent->IsType( idActor::Type ) ) {
+			if (ent->activeNodeIter != ent->activeNode.end()) {
+				ent->activeNodeIter++;
+				*ent = *ent->activeNodeIter;
+				ent->activeNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
 		actor = static_cast<idActor *>( ent );
 		if ( ( actor->health <= 0 ) || !( ReactionTo( actor ) & ATTACK_ON_SIGHT ) ) {
+			if (ent->activeNodeIter != ent->activeNode.end()) {
+				ent->activeNodeIter++;
+				*ent = *ent->activeNodeIter;
+				ent->activeNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
 		if ( !gameLocal.pvs.InCurrentPVS( pvs, actor->GetPVSAreas(), actor->GetNumPVSAreas() ) ) {
+			if (ent->activeNodeIter != ent->activeNode.end()) {
+				ent->activeNodeIter++;
+				*ent = *ent->activeNodeIter;
+				ent->activeNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -518,6 +539,13 @@ void idAI::Event_ClosestReachableEnemyOfEntity( idEntity *team_mate ) {
 
 	for( ; ent != NULL;  ) {
 		if ( ent->fl.hidden ) {
+			if (ent->enemyNodeIter != ent->enemyNode.end()) {
+				ent->enemyNodeIter++;
+				*ent = *ent->enemyNodeIter;
+				ent->enemyNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 		delta = ent->GetPhysics()->GetOrigin() - origin;

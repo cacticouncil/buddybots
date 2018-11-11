@@ -1908,6 +1908,13 @@ idActor *idActor::ClosestEnemyToPoint( const idVec3 &pos ) {
 		ent = NULL;
 	for( ; ent != NULL; ) {
 		if ( ent->fl.hidden ) {
+			if (ent->enemyNodeIter != ent->enemyNode.end()) {
+				ent->enemyNodeIter++;
+				*ent = *ent->enemyNodeIter;
+				ent->enemyNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 		delta = ent->GetPhysics()->GetOrigin() - pos;

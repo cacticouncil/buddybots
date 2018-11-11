@@ -231,8 +231,8 @@ void idGameLocal::Clear( void ) {
 	memset( spawnIds, -1, sizeof( spawnIds ) );
 	firstFreeIndex = 0;
 	num_entities = 0;
-	spawnedEntities.Clear();
-	activeEntities.Clear();
+	spawnedEntities.clear();
+	activeEntities.clear();
 	numEntitiesToDeactivate = 0;
 	sortPushers = false;
 	sortTeamMasters = false;
@@ -593,14 +593,50 @@ void idGameLocal::SaveGame( idFile *f ) {
 
 	savegame.WriteObject( world );
 
-	savegame.WriteInt( spawnedEntities.Num() );
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+	savegame.WriteInt( spawnedEntities.size() );
+
+	if (spawnedEntitiesIter != spawnedEntities.end()) {
+		spawnedEntitiesIter++;
+		*ent = *spawnedEntitiesIter;
+		spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for(; ent != NULL;  ) {
 		savegame.WriteObject( ent );
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
-	savegame.WriteInt( activeEntities.Num() );
-	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+	savegame.WriteInt( activeEntities.size() );
+
+	if (activeEntitiesIter != activeEntities.end()) {
+		activeEntitiesIter++;
+		*ent = *activeEntitiesIter;
+		activeEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		savegame.WriteObject( ent );
+
+		if (ent->activeNodeIter != ent->activeNode.end()) {
+			ent->activeNodeIter++;
+			*ent = *ent->activeNodeIter;
+			ent->activeNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
 	savegame.WriteInt( numEntitiesToDeactivate );
@@ -1012,8 +1048,8 @@ void idGameLocal::LoadMap( const char *mapName, int randseed ) {
 	memset( spawnIds, -1, sizeof( spawnIds ) );
 	spawnCount = INITIAL_SPAWN_COUNT;
 
-	spawnedEntities.Clear();
-	activeEntities.Clear();
+	spawnedEntities.clear();
+	activeEntities.clear();
 	numEntitiesToDeactivate = 0;
 	sortTeamMasters = false;
 	sortPushers = false;
@@ -1415,6 +1451,8 @@ bool idGameLocal::InitFromSaveGame( const char *mapName, idRenderWorld *renderWo
 	idEntity *ent;
 	idDict si;
 
+	std::list<idEntity>::iterator temp;
+
 	if ( mapFileName.Length() ) {
 		MapShutdown();
 	}
@@ -1498,7 +1536,8 @@ bool idGameLocal::InitFromSaveGame( const char *mapName, idRenderWorld *renderWo
 		savegame.ReadObject( reinterpret_cast<idClass *&>( ent ) );
 		assert( ent );
 		if ( ent ) {
-			ent->spawnNode.AddToEnd( spawnedEntities );
+			temp = ent->spawnNode.end();
+			ent->spawnNode.splice(temp, spawnedEntities);
 		}
 	}
 
@@ -1507,7 +1546,8 @@ bool idGameLocal::InitFromSaveGame( const char *mapName, idRenderWorld *renderWo
 		savegame.ReadObject( reinterpret_cast<idClass *&>( ent ) );
 		assert( ent );
 		if ( ent ) {
-			ent->activeNode.AddToEnd( activeEntities );
+			temp = ent->activeNode.end();
+			ent->activeNode.splice(temp, activeEntities);
 		}
 	}
 
@@ -2357,13 +2397,31 @@ void idGameLocal::UpdateGravity( void ) {
 		gravity.Set( 0, 0, -g_gravity.GetFloat() );
 
 		// update all physics objects
-		for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+		if (spawnedEntitiesIter != spawnedEntities.end()) {
+			spawnedEntitiesIter++;
+			*ent = *spawnedEntitiesIter;
+			spawnedEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for( ; ent != NULL;  ) {
 			if ( ent->IsType( idAFEntity_Generic::Type ) ) {
 				idPhysics *phys = ent->GetPhysics();
 				if ( phys ) {
 					phys->SetGravity( gravity );
 				}
 			}
+
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
+
 		}
 		g_gravity.ClearModified();
 	}
@@ -2388,15 +2446,35 @@ idGameLocal::SortActiveEntityList
 */
 void idGameLocal::SortActiveEntityList( void ) {
 	idEntity *ent, *next_ent, *master, *part;
+	std::list<idEntity>::iterator temp;
 
 	// if the active entity list needs to be reordered to place physics team masters at the front
 	if ( sortTeamMasters ) {
-		for ( ent = activeEntities.Next(); ent != NULL; ent = next_ent ) {
-			next_ent = ent->activeNode.Next();
+
+		if (activeEntitiesIter != activeEntities.end()) {
+			activeEntitiesIter++;
+			*ent = *activeEntitiesIter;
+			activeEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for ( ; ent != NULL; ent = next_ent ) {
+			
+			if (ent->activeNodeIter != ent->activeNode.end()) {
+				ent->activeNodeIter++;
+				*next_ent = *ent->activeNodeIter;
+				ent->activeNodeIter--;
+			}
+			else
+				next_ent = NULL;
+
 			master = ent->GetTeamMaster();
 			if ( master && master == ent ) {
-				ent->activeNode.Remove();
-				ent->activeNode.AddToFront( activeEntities );
+				ent->activeNodeIter = ent->activeNode.erase(ent->activeNodeIter);
+				
+				temp = ent->activeNode.begin();
+				ent->activeNode.splice(temp, activeEntities);
 			}
 		}
 	}
@@ -2404,8 +2482,24 @@ void idGameLocal::SortActiveEntityList( void ) {
 	// if the active entity list needs to be reordered to place pushers at the front
 	if ( sortPushers ) {
 
-		for ( ent = activeEntities.Next(); ent != NULL; ent = next_ent ) {
-			next_ent = ent->activeNode.Next();
+		if (activeEntitiesIter != activeEntities.end()) {
+			activeEntitiesIter++;
+			*ent = *activeEntitiesIter;
+			activeEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for ( ; ent != NULL; ent = next_ent ) {
+
+			if (ent->activeNodeIter != ent->activeNode.end()) {
+				ent->activeNodeIter++;
+				*next_ent = *ent->activeNodeIter;
+				ent->activeNodeIter--;
+			}
+			else
+				next_ent = NULL;
+
 			master = ent->GetTeamMaster();
 			if ( !master || master == ent ) {
 				// check if there is an actor on the team
@@ -2416,14 +2510,31 @@ void idGameLocal::SortActiveEntityList( void ) {
 				}
 				// if there is an actor on the team
 				if ( part ) {
-					ent->activeNode.Remove();
-					ent->activeNode.AddToFront( activeEntities );
+					ent->activeNodeIter = ent->activeNode.erase(ent->activeNodeIter);
+					temp = ent->activeNode.begin();
+					ent->activeNode.splice(temp, activeEntities);
 				}
 			}
 		}
 
-		for ( ent = activeEntities.Next(); ent != NULL; ent = next_ent ) {
-			next_ent = ent->activeNode.Next();
+		if (activeEntitiesIter != activeEntities.end()) {
+			activeEntitiesIter++;
+			*ent = *activeEntitiesIter;
+			activeEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for ( ; ent != NULL; ent = next_ent ) {
+
+			if (ent->activeNodeIter != ent->activeNode.end()) {
+				ent->activeNodeIter++;
+				*next_ent = *ent->activeNodeIter;
+				ent->activeNodeIter--;
+			}
+			else
+				next_ent = NULL;
+
 			master = ent->GetTeamMaster();
 			if ( !master || master == ent ) {
 				// check if there is an entity on the team using parametric physics
@@ -2434,8 +2545,10 @@ void idGameLocal::SortActiveEntityList( void ) {
 				}
 				// if there is an entity on the team using parametric physics
 				if ( part ) {
-					ent->activeNode.Remove();
-					ent->activeNode.AddToFront( activeEntities );
+					ent->activeNodeIter = ent->activeNode.erase(ent->activeNodeIter);
+					
+					temp = ent->activeNode.begin();
+					ent->activeNode.splice(temp, activeEntities);
 				}
 			}
 		}
@@ -2458,13 +2571,37 @@ void idGameLocal::RunTimeGroup2() {
 	fast.Increment();
 	fast.Get( time, previousTime, msec, framenum, realClientTime );
 
-	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+	if (activeEntitiesIter != activeEntities.end()) {
+		activeEntitiesIter++;
+		*ent = *activeEntitiesIter;
+		activeEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL; ) {
 		if ( ent->timeGroup != TIME_GROUP2 ) {
+			if (ent->activeNodeIter != ent->activeNode.end()) {
+				ent->activeNodeIter++;
+				*ent = *ent->activeNodeIter;
+				ent->activeNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
 		ent->Think();
 		num++;
+
+		if (ent->activeNodeIter != ent->activeNode.end()) {
+			ent->activeNodeIter++;
+			*ent = *ent->activeNodeIter;
+			ent->activeNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
 	slow.Get( time, previousTime, msec, framenum, realClientTime );
@@ -2577,9 +2714,25 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		// let entities think
 		if ( g_timeentities.GetFloat() ) {
 			num = 0;
-			for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+
+			if (activeEntitiesIter != activeEntities.end()) {
+				activeEntitiesIter++;
+				*ent = *activeEntitiesIter;
+				activeEntitiesIter--;
+			}
+			else
+				ent = NULL;
+
+			for( ; ent != NULL;  ) {
 				if ( g_cinematic.GetBool() && inCinematic && !ent->cinematic ) {
 					ent->GetPhysics()->UpdateTime( time );
+					if (ent->activeNodeIter != ent->activeNode.end()) {
+						ent->activeNodeIter++;
+						*ent = *ent->activeNodeIter;
+						ent->activeNodeIter--;
+					}
+					else
+						ent = NULL;
 					continue;
 				}
 				timer_singlethink.Clear();
@@ -2591,28 +2744,88 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 					Printf( "%d: entity '%s': %f ms\n", time, ent->name.c_str(), ms );
 				}
 				num++;
+
+				if (ent->activeNodeIter != ent->activeNode.end()) {
+					ent->activeNodeIter++;
+					*ent = *ent->activeNodeIter;
+					ent->activeNodeIter--;
+				}
+				else
+					ent = NULL;
+
 			}
 		} else {
 			if ( inCinematic ) {
 				num = 0;
-				for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+
+				if (activeEntitiesIter != activeEntities.end()) {
+					activeEntitiesIter++;
+					*ent = *activeEntitiesIter;
+					activeEntitiesIter--;
+				}
+				else
+					ent = NULL;
+
+				for( ; ent != NULL;  ) {
 					if ( g_cinematic.GetBool() && !ent->cinematic ) {
 						ent->GetPhysics()->UpdateTime( time );
+						if (ent->activeNodeIter != ent->activeNode.end()) {
+							ent->activeNodeIter++;
+							*ent = *ent->activeNodeIter;
+							ent->activeNodeIter--;
+						}
+						else
+							ent = NULL;
+
 						continue;
 					}
 					ent->Think();
 					num++;
+
+					if (ent->activeNodeIter != ent->activeNode.end()) {
+						ent->activeNodeIter++;
+						*ent = *ent->activeNodeIter;
+						ent->activeNodeIter--;
+					}
+					else
+						ent = NULL;
+
 				}
 			} else {
 				num = 0;
-				for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+
+				if (activeEntitiesIter != activeEntities.end()) {
+					activeEntitiesIter++;
+					*ent = *activeEntitiesIter;
+					activeEntitiesIter--;
+				}
+				else
+					ent = NULL;
+
+				for( ; ent != NULL;  ) {
 #ifdef _D3XP
 					if ( ent->timeGroup != TIME_GROUP1 ) {
+						if (ent->activeNodeIter != ent->activeNode.end()) {
+							ent->activeNodeIter++;
+							*ent = *ent->activeNodeIter;
+							ent->activeNodeIter--;
+						}
+						else
+							ent = NULL;
 						continue;
 					}
 #endif
 					ent->Think();
 					num++;
+
+					if (ent->activeNodeIter != ent->activeNode.end()) {
+						ent->activeNodeIter++;
+						*ent = *ent->activeNodeIter;
+						ent->activeNodeIter--;
+					}
+					else
+						ent = NULL;
+
 				}
 			}
 		}
@@ -2625,10 +2838,27 @@ gameReturn_t idGameLocal::RunFrame( const usercmd_t *clientCmds ) {
 		if ( numEntitiesToDeactivate ) {
 			idEntity *next_ent;
 			int c = 0;
-			for( ent = activeEntities.Next(); ent != NULL; ent = next_ent ) {
-				next_ent = ent->activeNode.Next();
+
+			if (activeEntitiesIter != activeEntities.end()) {
+				activeEntitiesIter++;
+				*ent = *activeEntitiesIter;
+				activeEntitiesIter--;
+			}
+			else
+				ent = NULL;
+
+			for( ; ent != NULL; ent = next_ent ) {
+
+				if (ent->activeNodeIter != ent->activeNode.end()) {
+					ent->activeNodeIter++;
+					*next_ent = *ent->activeNodeIter;
+					ent->activeNodeIter--;
+				}
+				else
+					next_ent = NULL;
+
 				if ( !ent->thinkFlags ) {
-					ent->activeNode.Remove();
+					ent->activeNodeIter = ent->activeNode.erase(ent->activeNodeIter);
 					c++;
 				}
 			}
@@ -2957,7 +3187,16 @@ void idGameLocal::ShowTargets( void ) {
 
 	viewTextBounds.ExpandSelf( 128.0f );
 	viewBounds.ExpandSelf( 512.0f );
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (spawnedEntitiesIter != spawnedEntities.end()) {
+		spawnedEntitiesIter++;
+		*ent = *spawnedEntitiesIter;
+		spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		totalBounds = ent->GetPhysics()->GetAbsBounds();
 		for( i = 0; i < ent->targets.Num(); i++ ) {
 			target = ent->targets[ i ].GetEntity();
@@ -2967,6 +3206,13 @@ void idGameLocal::ShowTargets( void ) {
 		}
 
 		if ( !viewBounds.IntersectsBounds( totalBounds ) ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -2976,6 +3222,13 @@ void idGameLocal::ShowTargets( void ) {
 		totalBounds.RayIntersection( viewPos, dir, dist );
 		float frac = ( 512.0f - dist ) / 512.0f;
 		if ( frac < 0.0f ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 
@@ -2994,6 +3247,15 @@ void idGameLocal::ShowTargets( void ) {
 				gameRenderWorld->DebugBounds( colorGreen * frac, box, target->GetPhysics()->GetOrigin() );
 			}
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 }
 
@@ -3021,14 +3283,37 @@ void idGameLocal::RunDebugInfo( void ) {
 
 		viewTextBounds.ExpandSelf( 128.0f );
 		viewBounds.ExpandSelf( 512.0f );
-		for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+		if (spawnedEntitiesIter != spawnedEntities.end()) {
+			spawnedEntitiesIter++;
+			*ent = *spawnedEntitiesIter;
+			spawnedEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for( ; ent != NULL;  ) {
 			// don't draw the worldspawn
 			if ( ent == world ) {
+				if (ent->spawnNodeIter != ent->spawnNode.end()) {
+					ent->spawnNodeIter++;
+					*ent = *ent->spawnNodeIter;
+					ent->spawnNodeIter--;
+				}
+				else
+					ent = NULL;
 				continue;
 			}
 
 			// skip if the entity is very far away
 			if ( !viewBounds.IntersectsBounds( ent->GetPhysics()->GetAbsBounds() ) ) {
+				if (ent->spawnNodeIter != ent->spawnNode.end()) {
+					ent->spawnNodeIter++;
+					*ent = *ent->spawnNodeIter;
+					ent->spawnNodeIter--;
+				}
+				else
+					ent = NULL;
 				continue;
 			}
 
@@ -3051,12 +3336,30 @@ void idGameLocal::RunDebugInfo( void ) {
 				gameRenderWorld->DrawText( ent->name.c_str(), entBounds.GetCenter(), 0.1f, colorWhite, axis, 1 );
 				gameRenderWorld->DrawText( va( "#%d", ent->entityNumber ), entBounds.GetCenter() + up, 0.1f, colorWhite, axis, 1 );
 			}
+
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
+
 		}
 	}
 
 	// debug tool to draw bounding boxes around active entities
 	if ( g_showActiveEntities.GetBool() ) {
-		for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() ) {
+
+		if (activeEntitiesIter != activeEntities.end()) {
+			activeEntitiesIter++;
+			*ent = *activeEntitiesIter;
+			activeEntitiesIter--;
+		}
+		else
+			ent = NULL;
+
+		for( ; ent != NULL;  ) {
 			idBounds	b = ent->GetPhysics()->GetBounds();
 			if ( b.GetVolume() <= 0 ) {
 				b[0][0] = b[0][1] = b[0][2] = -8;
@@ -3067,6 +3370,15 @@ void idGameLocal::RunDebugInfo( void ) {
 			} else {
 				gameRenderWorld->DebugBounds( colorGreen, b, ent->GetPhysics()->GetOrigin() );
 			}
+
+			if (ent->activeNodeIter != ent->activeNode.end()) {
+				ent->activeNodeIter++;
+				*ent = *ent->activeNodeIter;
+				ent->activeNodeIter--;
+			}
+			else
+				ent = NULL;
+
 		}
 	}
 
@@ -3276,6 +3588,7 @@ idGameLocal::RegisterEntity
 */
 void idGameLocal::RegisterEntity( idEntity *ent ) {
 	int spawn_entnum;
+	std::list<idEntity>::iterator temp;
 
 	if ( spawnCount >= ( 1 << ( 32 - GENTITYNUM_BITS ) ) ) {
 		Error( "idGameLocal::RegisterEntity: spawn count overflow" );
@@ -3294,7 +3607,8 @@ void idGameLocal::RegisterEntity( idEntity *ent ) {
 	entities[ spawn_entnum ] = ent;
 	spawnIds[ spawn_entnum ] = spawnCount++;
 	ent->entityNumber = spawn_entnum;
-	ent->spawnNode.AddToEnd( spawnedEntities );
+	temp = ent->spawnNode.end();
+	ent->spawnNode.splice(temp, spawnedEntities);
 	ent->spawnArgs.TransferKeyValues( spawnArgs );
 
 	if ( spawn_entnum >= num_entities ) {
@@ -3315,7 +3629,7 @@ void idGameLocal::UnregisterEntity( idEntity *ent ) {
 	}
 
 	if ( ( ent->entityNumber != ENTITYNUM_NONE ) && ( entities[ ent->entityNumber ] == ent ) ) {
-		ent->spawnNode.Remove();
+		ent->spawnNodeIter = ent->spawnNode.erase(ent->spawnNodeIter);
 		entities[ ent->entityNumber ] = NULL;
 		spawnIds[ ent->entityNumber ] = -1;
 		if ( ent->entityNumber >= MAX_CLIENTS && ent->entityNumber < firstFreeIndex ) {
@@ -3762,18 +4076,41 @@ NULL will be returned if the end of the list is reached.
 */
 idEntity *idGameLocal::FindEntityUsingDef( idEntity *from, const char *match ) const {
 	idEntity	*ent;
+	std::list<idEntity>::iterator temp = spawnedEntitiesIter;
 
 	if ( !from ) {
-		ent = spawnedEntities.Next();
+		if (temp != spawnedEntities.end()) {
+			temp++;
+			*ent = *temp;
+			temp--;
+		}
+		else
+			ent = NULL;
 	} else {
-		ent = from->spawnNode.Next();
+		temp = from->spawnNodeIter;
+		if (temp != from->spawnNode.end()) {
+			temp++;
+			*ent = *temp;
+			temp--;
+		}
+		else
+			ent = NULL;
 	}
 
-	for ( ; ent != NULL; ent = ent->spawnNode.Next() ) {
+	for ( ; ent != NULL;  ) {
 		assert( ent );
 		if ( idStr::Icmp( ent->GetEntityDefName(), match ) == 0 ) {
 			return ent;
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
 	return NULL;
@@ -3794,9 +4131,20 @@ idEntity *idGameLocal::FindTraceEntity( idVec3 start, idVec3 end, const idTypeIn
 	float bestScale;
 	idBounds b;
 
+	std::list<idEntity>::iterator temp = spawnedEntitiesIter;
+
 	bestEnt = NULL;
 	bestScale = 1.0f;
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (temp != spawnedEntities.end()) {
+		temp++;
+		*ent = *temp;
+		temp--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( ent->IsType( c ) && ent != skip ) {
 			b = ent->GetPhysics()->GetAbsBounds().Expand( 16 );
 			if ( b.RayIntersection( start, end-start, scale ) ) {
@@ -3806,6 +4154,15 @@ idEntity *idGameLocal::FindTraceEntity( idVec3 start, idVec3 end, const idTypeIn
 				}
 			}
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
 	return bestEnt;
@@ -3821,11 +4178,31 @@ int idGameLocal::EntitiesWithinRadius( const idVec3 org, float radius, idEntity 
 	idBounds bo( org );
 	int entCount = 0;
 
+	std::list<idEntity>::iterator temp = spawnedEntitiesIter;
+
 	bo.ExpandSelf( radius );
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (temp != spawnedEntities.end()) {
+		temp++;
+		*ent = *temp;
+		temp--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( ent->GetPhysics()->GetAbsBounds().IntersectsBounds( bo ) ) {
 			entityList[entCount++] = ent;
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 
 	return entCount;
@@ -4301,9 +4678,25 @@ void idGameLocal::SetCamera( idCamera *cam ) {
 
 		if ( !cam->spawnArgs.GetBool( "ignore_enemies" ) ) {
 			// kill any active monsters that are enemies of the player
-			for ( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+			if (spawnedEntitiesIter != spawnedEntities.end()) {
+				spawnedEntitiesIter++;
+				*ent = *spawnedEntitiesIter;
+				spawnedEntitiesIter--;
+			}
+			else
+				ent = NULL;
+
+			for ( ; ent != NULL;  ) {
 				if ( ent->cinematic || ent->fl.isDormant ) {
 					// only kill entities that aren't needed for cinematics and aren't dormant
+					if (ent->spawnNodeIter != ent->spawnNode.end()) {
+						ent->spawnNodeIter++;
+						*ent = *ent->spawnNodeIter;
+						ent->spawnNodeIter--;
+					}
+					else
+						ent = NULL;
 					continue;
 				}
 
@@ -4311,6 +4704,13 @@ void idGameLocal::SetCamera( idCamera *cam ) {
 					ai = static_cast<idAI *>( ent );
 					if ( !ai->GetEnemy() || !ai->IsActive() ) {
 						// no enemy, or inactive, so probably safe to ignore
+						if (ent->spawnNodeIter != ent->spawnNode.end()) {
+							ent->spawnNodeIter++;
+							*ent = *ent->spawnNodeIter;
+							ent->spawnNodeIter--;
+						}
+						else
+							ent = NULL;
 						continue;
 					}
 				} else if ( ent->IsType( idProjectile::Type ) ) {
@@ -4319,12 +4719,28 @@ void idGameLocal::SetCamera( idCamera *cam ) {
 					// remove anything marked to be removed during cinematics
 				} else {
 					// ignore everything else
+					if (ent->spawnNodeIter != ent->spawnNode.end()) {
+						ent->spawnNodeIter++;
+						*ent = *ent->spawnNodeIter;
+						ent->spawnNodeIter--;
+					}
+					else
+						ent = NULL;
 					continue;
 				}
 
 				// remove it
 				DPrintf( "removing '%s' for cinematic\n", ent->GetName() );
 				ent->PostEventMS( &EV_Remove, 0 );
+
+				if (ent->spawnNodeIter != ent->spawnNode.end()) {
+					ent->spawnNodeIter++;
+					*ent = *ent->spawnNodeIter;
+					ent->spawnNodeIter--;
+				}
+				else
+					ent = NULL;
+
 			}
 		}
 
@@ -4401,14 +4817,37 @@ void idGameLocal::SpreadLocations() {
 	memset( locationEntities, 0, numAreas * sizeof( *locationEntities ) );
 
 	// for each location entity, make pointers from every area it touches
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() ) {
+
+	if (spawnedEntitiesIter != spawnedEntities.end()) {
+		spawnedEntitiesIter++;
+		*ent = *spawnedEntitiesIter;
+		spawnedEntitiesIter--;
+	}
+	else
+		ent = NULL;
+
+	for( ; ent != NULL;  ) {
 		if ( !ent->IsType( idLocationEntity::Type ) ) {
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 		idVec3	point = ent->spawnArgs.GetVector( "origin" );
 		int areaNum = gameRenderWorld->PointInArea( point );
 		if ( areaNum < 0 ) {
 			Printf( "SpreadLocations: location '%s' is not in a valid area\n", ent->spawnArgs.GetString( "name" ) );
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 		if ( areaNum >= numAreas ) {
@@ -4417,6 +4856,13 @@ void idGameLocal::SpreadLocations() {
 		if ( locationEntities[areaNum] ) {
 			Warning( "location entity '%s' overlaps '%s'", ent->spawnArgs.GetString( "name" ),
 				locationEntities[areaNum]->spawnArgs.GetString( "name" ) );
+			if (ent->spawnNodeIter != ent->spawnNode.end()) {
+				ent->spawnNodeIter++;
+				*ent = *ent->spawnNodeIter;
+				ent->spawnNodeIter--;
+			}
+			else
+				ent = NULL;
 			continue;
 		}
 		locationEntities[areaNum] = static_cast<idLocationEntity *>(ent);
@@ -4430,6 +4876,15 @@ void idGameLocal::SpreadLocations() {
 				locationEntities[i] = static_cast<idLocationEntity *>(ent);
 			}
 		}
+
+		if (ent->spawnNodeIter != ent->spawnNode.end()) {
+			ent->spawnNodeIter++;
+			*ent = *ent->spawnNodeIter;
+			ent->spawnNodeIter--;
+		}
+		else
+			ent = NULL;
+
 	}
 }
 
