@@ -2860,6 +2860,7 @@ idGameLocal::HandleGuiCommands
 */
 const char* idGameLocal::HandleGuiCommands( const char *menuCommand ) {
 	if ( !isMultiplayer ) {
+		gameLocal.Printf("GUI commands invoked while not multiplayer.\n");
 		return NULL;
 	}
 	return mpGame.HandleGuiCommands( menuCommand );

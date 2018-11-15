@@ -620,7 +620,12 @@ void idSessionLocal::HandleMainMenuCommands(const char *menuCommand) {
 
 			continue;
 		}
-
+		//CP: edits begin here...
+		if (!idStr::Icmp(cmd, "bbaction")) {
+			common->Warning("CP: Action in session_menu.\n");
+			continue;
+		}
+		// CP: Edits end here. God rest your soul.
 		if (!idStr::Icmp(cmd, "quit")) {
 			ExitMenu();
 			common->Quit();

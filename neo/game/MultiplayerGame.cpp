@@ -206,8 +206,8 @@ void idMultiplayerGame::Reset() {
 #ifdef CTF
 	// CTF uses its own scoreboard
 	if (IsGametypeFlagBased())
-		scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
-		//scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
+		//scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
+		scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
 	else
 		scoreBoard = uiManager->FindGui("guis/scoreboard.gui", true, false, true);
 #endif
@@ -2466,6 +2466,28 @@ const char* idMultiplayerGame::HandleGuiCommands(const char *_menuCommand) {
 		if (!idStr::Icmp(cmd, ";")) {
 			continue;
 		}
+		//CP: edits begin here...
+		else if (!idStr::Icmp(cmd, "bbaction")) {
+			gameLocal.Printf("CP: Action in MultiplayerGame.\n");
+			idStr bbCommand = "";
+			idStr bbObj = currentGui->State().GetString("bbcmd");
+			gameLocal.Printf("Current GUI: %s\n", currentGui->Name());
+			char buffer[2048];
+			//should redirect focus here too
+			if (args.Argc() - icmd >= 1) {
+				bbCommand = args.Argv(icmd++);
+				//common->BeginRedirect(buffer, 2047, NULL);
+				gameLocal.Printf("Attempting bbaction \"%s %s\".\n", bbCommand, bbObj);
+				cmdSystem->BufferCommandText(CMD_EXEC_NOW, va("%s %s\n",bbCommand.c_str(), bbObj));
+				//common->EndRedirect();
+				currentGui->SetStateString("bbcmd", buffer);
+			}
+			if (!idStr::Icmp(bbCommand, "")) {
+				gameLocal.Printf("invalid bbaction \"%s %s\".\n", bbCommand, bbObj);
+			}
+			continue;
+		}
+		// CP: Edits end here. God rest your soul.
 		else if (!idStr::Icmp(cmd, "video")) {
 			idStr vcmd;
 			if (args.Argc() - icmd >= 1) {
@@ -4716,8 +4738,8 @@ idMultiplayerGame::ReloadScoreboard
 void idMultiplayerGame::ReloadScoreboard() {
 	// CTF uses its own scoreboard
 	if (IsGametypeFlagBased())
-		scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
-		//scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
+		//scoreBoard = uiManager->FindGui("guis/BBScoreboard.gui", true, false, true);
+		scoreBoard = uiManager->FindGui("guis/ctfscoreboard.gui", true, false, true);
 	else
 		scoreBoard = uiManager->FindGui("guis/scoreboard.gui", true, false, true);
 
