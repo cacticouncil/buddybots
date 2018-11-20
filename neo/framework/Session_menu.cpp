@@ -548,7 +548,7 @@ void idSessionLocal::HandleIntroMenuCommands(const char *menuCommand) {
 
 	for (i = 0; i < args.Argc(); ) {
 		const char *cmd = args.Argv(i++);
-
+		
 		if (!idStr::Icmp(cmd, "startGame")) {
 			menuSoundWorld->ClearAllSoundEmitters();
 			ExitMenu();
@@ -575,7 +575,17 @@ void idSessionLocal::UpdateMPLevelShot(void) {
 	fileSystem->FindMapScreenshot(cvarSystem->GetCVarString("si_map"), screenshot, MAX_STRING_CHARS);
 	guiMainMenu->SetStateString("current_levelshot", screenshot);
 }
+/*
+==============
+idSessionLocal::nop
 
+CP: Does nothing. Debug item. 
+Can be safely deleted.
+==============
+*/
+static void nop(const char* data) {
+	return;
+};
 /*
 ==============
 idSessionLocal::HandleMainMenuCommands
@@ -601,7 +611,6 @@ void idSessionLocal::HandleMainMenuCommands(const char *menuCommand) {
 		if (game) {
 			game->HandleMainMenuCommands(cmd, guiActive);
 		}
-
 		if (!idStr::Icmp(cmd, "startGame")) {
 			cvarSystem->SetCVarInteger("g_skill", guiMainMenu->State().GetInt("skill"));
 			if (icmd < args.Argc()) {
@@ -621,11 +630,28 @@ void idSessionLocal::HandleMainMenuCommands(const char *menuCommand) {
 			continue;
 		}
 		//CP: edits begin here...
-		if (!idStr::Icmp(cmd, "bbaction")) {
-			common->Warning("CP: Action in session_menu.\n");
+		//This command is a wrapper for the buddybots console commands so that the GUI can invoke them.
+		else if (!idStr::Icmp(cmd, "bbaction")) {
+			idStr bbCommand;
+			char buf[BUFSIZ];
+			//should redirect focus here too
+			if (args.Argc() - icmd >= 1) {
+				bbCommand = args.Argv(icmd++);
+				int init = guiActive->GetStateFloat("bbInputInit");
+				bbCommand += " ";
+				bbCommand += guiActive->State().GetString("bbcmd");
+				strncpy(buf, "* Attempting action:\n" + bbCommand + "\n* Check result by pressing [~].", BUFSIZ);
+				//common->BeginRedirect(buf, BUFSIZ, nop);
+				cmdSystem->BufferCommandText(CMD_EXEC_APPEND, bbCommand+'\n');
+				//common->EndRedirect();
+				guiActive->SetStateString("bbresult", buf);
+			}
+			else {
+				common->Warning("Error in cmd \"bbaction\": expected 2 arguments.\n");
+			}
 			continue;
 		}
-		// CP: Edits end here. God rest your soul.
+
 		if (!idStr::Icmp(cmd, "quit")) {
 			ExitMenu();
 			common->Quit();

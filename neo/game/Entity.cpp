@@ -3491,12 +3491,7 @@ bool idEntity::HandleGuiCommands( idEntity *entityGui, const char *cmds ) {
 			if ( token == ";" ) {
 				continue;
 			}
-			//CP: edits begin here...
-		if (token.Icmp("bbaction") == 0) {
-			gameLocal.Printf("CP: Action in entity.\n");
-			continue;
-		}
-		// CP: Edits end here. God rest your soul.
+
 			if ( token.Icmp( "activate" ) == 0 ) {
 				bool targets = true;
 				if ( src.ReadToken( &token2 ) ) {
