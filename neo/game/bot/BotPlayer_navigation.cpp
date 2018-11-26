@@ -146,6 +146,37 @@ bool afiBotPlayer::MoveToEntity( idEntity* entity )
 }
 /*
 ===================
+BotPlayer::Wander
+===================
+*/
+bool afiBotPlayer::Wander()
+{
+	idVec3 eyeOrg = GetEyePosition();
+
+	if (!move.flags.moving || gameLocal.time > move.nextWanderTime) {
+
+		move.nextWanderTime = gameLocal.time + (gameLocal.random.RandomFloat() * 1000 + 5000);
+
+		idVec3 eyeOrg = GetEyePosition();
+		idVec3 org = GetPhysics()->GetOrigin();
+
+		float randomX = gameLocal.random.CRandomFloat() * 1000.0f;
+		float randomY = gameLocal.random.CRandomFloat() * 1000.0f;
+
+		idVec3 goal = org + idVec3(randomX, randomY, 0);
+		idVec3 eyeGoal = eyeOrg + idVec3(randomX, randomY, 0);
+
+		if (MoveToPosition(goal, 5.0f))
+		{
+			LookAtPosition(eyeGoal);
+			return true;
+		}
+	}
+
+	return false;
+}
+/*
+===================
 BotPlayer::MoveToNearest
 ===================
 */
