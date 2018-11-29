@@ -29,6 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __AI_H__
 #define __AI_H__
 
+#include <unordered_map>
+#include <string>
+
 #include "physics/Physics_Monster.h"
 #include "Entity.h"
 #include "Actor.h"
@@ -44,13 +47,13 @@ class idFuncEmitter;
 ===============================================================================
 */
 
-const float	SQUARE_ROOT_OF_2			= 1.414213562f;
-const float	AI_TURN_PREDICTION			= 0.2f;
-const float	AI_TURN_SCALE				= 60.0f;
-const float	AI_SEEK_PREDICTION			= 0.3f;
-const float	AI_FLY_DAMPENING			= 0.15f;
-const float	AI_HEARING_RANGE			= 2048.0f;
-const int	DEFAULT_FLY_OFFSET			= 68;
+const float	SQUARE_ROOT_OF_2 = 1.414213562f;
+const float	AI_TURN_PREDICTION = 0.2f;
+const float	AI_TURN_SCALE = 60.0f;
+const float	AI_SEEK_PREDICTION = 0.3f;
+const float	AI_FLY_DAMPENING = 0.15f;
+const float	AI_HEARING_RANGE = 2048.0f;
+const int	DEFAULT_FLY_OFFSET = 68;
 
 #define ATTACK_IGNORE			0
 #define ATTACK_ON_DAMAGE		1
@@ -126,11 +129,11 @@ typedef struct obstaclePath_s {
 
 // path prediction
 typedef enum {
-	SE_BLOCKED			= BIT(0),
-	SE_ENTER_LEDGE_AREA	= BIT(1),
-	SE_ENTER_OBSTACLE	= BIT(2),
-	SE_FALL				= BIT(3),
-	SE_LAND				= BIT(4)
+	SE_BLOCKED = BIT(0),
+	SE_ENTER_LEDGE_AREA = BIT(1),
+	SE_ENTER_OBSTACLE = BIT(2),
+	SE_FALL = BIT(3),
+	SE_LAND = BIT(4)
 } stopEvent_t;
 
 typedef struct predictedPath_s {
@@ -190,10 +193,10 @@ typedef struct funcEmitter_s {
 
 class idMoveState {
 public:
-							idMoveState();
+	idMoveState();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save(idSaveGame *savefile) const;
+	void					Restore(idRestoreGame *savefile);
 
 	moveType_t				moveType;
 	moveCommand_t			moveCommand;
@@ -218,21 +221,21 @@ public:
 
 class idAASFindCover : public idAASCallback {
 public:
-						idAASFindCover( const idVec3 &hideFromPos );
-						~idAASFindCover();
+	idAASFindCover(const idVec3 &hideFromPos);
+	~idAASFindCover();
 
-	virtual bool		TestArea( const idAAS *aas, int areaNum );
+	virtual bool		TestArea(const idAAS *aas, int areaNum);
 
 private:
 	pvsHandle_t			hidePVS;
-	int					PVSAreas[ idEntity::MAX_PVS_AREAS ];
+	int					PVSAreas[idEntity::MAX_PVS_AREAS];
 };
 
 class idAASFindAreaOutOfRange : public idAASCallback {
 public:
-						idAASFindAreaOutOfRange( const idVec3 &targetPos, float maxDist );
+	idAASFindAreaOutOfRange(const idVec3 &targetPos, float maxDist);
 
-	virtual bool		TestArea( const idAAS *aas, int areaNum );
+	virtual bool		TestArea(const idAAS *aas, int areaNum);
 
 private:
 	idVec3				targetPos;
@@ -243,10 +246,10 @@ class idAI;
 
 class idAASFindAttackPosition : public idAASCallback {
 public:
-						idAASFindAttackPosition( const idAI *self, const idMat3 &gravityAxis, idEntity *target, const idVec3 &targetPos, const idVec3 &fireOffset );
-						~idAASFindAttackPosition();
+	idAASFindAttackPosition(const idAI *self, const idMat3 &gravityAxis, idEntity *target, const idVec3 &targetPos, const idVec3 &fireOffset);
+	~idAASFindAttackPosition();
 
-	virtual bool		TestArea( const idAAS *aas, int areaNum );
+	virtual bool		TestArea(const idAAS *aas, int areaNum);
 
 private:
 	const idAI			*self;
@@ -256,45 +259,45 @@ private:
 	idVec3				fireOffset;
 	idMat3				gravityAxis;
 	pvsHandle_t			targetPVS;
-	int					PVSAreas[ idEntity::MAX_PVS_AREAS ];
+	int					PVSAreas[idEntity::MAX_PVS_AREAS];
 };
 
 class idAI : public idActor {
 public:
-	CLASS_PROTOTYPE( idAI );
+	CLASS_PROTOTYPE(idAI);
 
-							idAI();
-							~idAI();
+	idAI();
+	~idAI();
 
-	void					Save( idSaveGame *savefile ) const;
-	void					Restore( idRestoreGame *savefile );
+	void					Save(idSaveGame *savefile) const;
+	void					Restore(idRestoreGame *savefile);
 
-	void					Spawn( void );
-	void					HeardSound( idEntity *ent, const char *action );
-	idActor					*GetEnemy( void ) const;
-	void					TalkTo( idActor *actor );
-	talkState_t				GetTalkState( void ) const;
+	void					Spawn(void);
+	void					HeardSound(idEntity *ent, const char *action);
+	idActor					*GetEnemy(void) const;
+	void					TalkTo(idActor *actor);
+	talkState_t				GetTalkState(void) const;
 
-	bool					GetAimDir( const idVec3 &firePos, idEntity *aimAtEnt, const idEntity *ignore, idVec3 &aimDir ) const;
+	bool					GetAimDir(const idVec3 &firePos, idEntity *aimAtEnt, const idEntity *ignore, idVec3 &aimDir) const;
 
-	void					TouchedByFlashlight( idActor *flashlight_owner );
+	void					TouchedByFlashlight(idActor *flashlight_owner);
 
-							// Outputs a list of all monsters to the console.
-	static void				List_f( const idCmdArgs &args );
+	// Outputs a list of all monsters to the console.
+	static void				List_f(const idCmdArgs &args);
 
-							// Finds a path around dynamic obstacles.
-	static bool				FindPathAroundObstacles( const idPhysics *physics, const idAAS *aas, const idEntity *ignore, const idVec3 &startPos, const idVec3 &seekPos, obstaclePath_t &path );
-							// Frees any nodes used for the dynamic obstacle avoidance.
-	static void				FreeObstacleAvoidanceNodes( void );
-							// Predicts movement, returns true if a stop event was triggered.
-	static bool				PredictPath( const idEntity *ent, const idAAS *aas, const idVec3 &start, const idVec3 &velocity, int totalTime, int frameTime, int stopEvent, predictedPath_t &path );
-							// Return true if the trajectory of the clip model is collision free.
-	static bool				TestTrajectory( const idVec3 &start, const idVec3 &end, float zVel, float gravity, float time, float max_height, const idClipModel *clip, int clipmask, const idEntity *ignore, const idEntity *targetEntity, int drawtime );
-							// Finds the best collision free trajectory for a clip model.
-	static bool				PredictTrajectory( const idVec3 &firePos, const idVec3 &target, float projectileSpeed, const idVec3 &projGravity, const idClipModel *clip, int clipmask, float max_height, const idEntity *ignore, const idEntity *targetEntity, int drawtime, idVec3 &aimDir );
+	// Finds a path around dynamic obstacles.
+	static bool				FindPathAroundObstacles(const idPhysics *physics, const idAAS *aas, const idEntity *ignore, const idVec3 &startPos, const idVec3 &seekPos, obstaclePath_t &path);
+	// Frees any nodes used for the dynamic obstacle avoidance.
+	static void				FreeObstacleAvoidanceNodes(void);
+	// Predicts movement, returns true if a stop event was triggered.
+	static bool				PredictPath(const idEntity *ent, const idAAS *aas, const idVec3 &start, const idVec3 &velocity, int totalTime, int frameTime, int stopEvent, predictedPath_t &path);
+	// Return true if the trajectory of the clip model is collision free.
+	static bool				TestTrajectory(const idVec3 &start, const idVec3 &end, float zVel, float gravity, float time, float max_height, const idClipModel *clip, int clipmask, const idEntity *ignore, const idEntity *targetEntity, int drawtime);
+	// Finds the best collision free trajectory for a clip model.
+	static bool				PredictTrajectory(const idVec3 &firePos, const idVec3 &target, float projectileSpeed, const idVec3 &projGravity, const idClipModel *clip, int clipmask, float max_height, const idEntity *ignore, const idEntity *targetEntity, int drawtime, idVec3 &aimDir);
 
 #ifdef _D3XP
-	virtual void			Gib( const idVec3 &dir, const char *damageDefName );
+	virtual void			Gib(const idVec3 &dir, const char *damageDefName);
 #endif
 
 protected:
@@ -422,7 +425,7 @@ protected:
 #ifdef _D3XP
 	bool					spawnClearMoveables;
 
-	idHashTable<funcEmitter_t> funcEmitters;
+	std::unordered_map<std::string, funcEmitter_t> funcEmitters;
 
 	idEntityPtr<idHarvestable>	harvestEnt;
 #endif
@@ -451,281 +454,281 @@ protected:
 	//
 	// ai/ai.cpp
 	//
-	void					SetAAS( void );
-	virtual	void			DormantBegin( void );	// called when entity becomes dormant
-	virtual	void			DormantEnd( void );		// called when entity wakes from being dormant
-	void					Think( void );
-	void					Activate( idEntity *activator );
-	int						ReactionTo( const idEntity *ent );
-	bool					CheckForEnemy( void );
-	void					EnemyDead( void );
-	virtual bool			CanPlayChatterSounds( void ) const;
-	void					SetChatSound( void );
-	void					PlayChatter( void );
-	virtual void			Hide( void );
-	virtual void			Show( void );
-	idVec3					FirstVisiblePointOnPath( const idVec3 origin, const idVec3 &target, int travelFlags ) const;
-	void					CalculateAttackOffsets( void );
-	void					PlayCinematic( void );
+	void					SetAAS(void);
+	virtual	void			DormantBegin(void);	// called when entity becomes dormant
+	virtual	void			DormantEnd(void);		// called when entity wakes from being dormant
+	void					Think(void);
+	void					Activate(idEntity *activator);
+	int						ReactionTo(const idEntity *ent);
+	bool					CheckForEnemy(void);
+	void					EnemyDead(void);
+	virtual bool			CanPlayChatterSounds(void) const;
+	void					SetChatSound(void);
+	void					PlayChatter(void);
+	virtual void			Hide(void);
+	virtual void			Show(void);
+	idVec3					FirstVisiblePointOnPath(const idVec3 origin, const idVec3 &target, int travelFlags) const;
+	void					CalculateAttackOffsets(void);
+	void					PlayCinematic(void);
 
 	// movement
-	virtual void			ApplyImpulse( idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse );
-	void					GetMoveDelta( const idMat3 &oldaxis, const idMat3 &axis, idVec3 &delta );
-	void					CheckObstacleAvoidance( const idVec3 &goalPos, idVec3 &newPos );
-	void					DeadMove( void );
-	void					AnimMove( void );
-	void					SlideMove( void );
-	void					AdjustFlyingAngles( void );
-	void					AddFlyBob( idVec3 &vel );
-	void					AdjustFlyHeight( idVec3 &vel, const idVec3 &goalPos );
-	void					FlySeekGoal( idVec3 &vel, idVec3 &goalPos );
-	void					AdjustFlySpeed( idVec3 &vel );
-	void					FlyTurn( void );
-	void					FlyMove( void );
-	void					StaticMove( void );
+	virtual void			ApplyImpulse(idEntity *ent, int id, const idVec3 &point, const idVec3 &impulse);
+	void					GetMoveDelta(const idMat3 &oldaxis, const idMat3 &axis, idVec3 &delta);
+	void					CheckObstacleAvoidance(const idVec3 &goalPos, idVec3 &newPos);
+	void					DeadMove(void);
+	void					AnimMove(void);
+	void					SlideMove(void);
+	void					AdjustFlyingAngles(void);
+	void					AddFlyBob(idVec3 &vel);
+	void					AdjustFlyHeight(idVec3 &vel, const idVec3 &goalPos);
+	void					FlySeekGoal(idVec3 &vel, idVec3 &goalPos);
+	void					AdjustFlySpeed(idVec3 &vel);
+	void					FlyTurn(void);
+	void					FlyMove(void);
+	void					StaticMove(void);
 
 	// damage
-	virtual bool			Pain( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
-	virtual void			Killed( idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location );
+	virtual bool			Pain(idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location);
+	virtual void			Killed(idEntity *inflictor, idEntity *attacker, int damage, const idVec3 &dir, int location);
 
 	// navigation
-	void					KickObstacles( const idVec3 &dir, float force, idEntity *alwaysKick );
-	bool					ReachedPos( const idVec3 &pos, const moveCommand_t moveCommand ) const;
-	float					TravelDistance( const idVec3 &start, const idVec3 &end ) const;
-	int						PointReachableAreaNum( const idVec3 &pos, const float boundsScale = 2.0f ) const;
-	bool					PathToGoal( aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin ) const;
-	void					DrawRoute( void ) const;
-	bool					GetMovePos( idVec3 &seekPos );
-	bool					MoveDone( void ) const;
-	bool					EntityCanSeePos( idActor *actor, const idVec3 &actorOrigin, const idVec3 &pos );
-	void					BlockedFailSafe( void );
+	void					KickObstacles(const idVec3 &dir, float force, idEntity *alwaysKick);
+	bool					ReachedPos(const idVec3 &pos, const moveCommand_t moveCommand) const;
+	float					TravelDistance(const idVec3 &start, const idVec3 &end) const;
+	int						PointReachableAreaNum(const idVec3 &pos, const float boundsScale = 2.0f) const;
+	bool					PathToGoal(aasPath_t &path, int areaNum, const idVec3 &origin, int goalAreaNum, const idVec3 &goalOrigin) const;
+	void					DrawRoute(void) const;
+	bool					GetMovePos(idVec3 &seekPos);
+	bool					MoveDone(void) const;
+	bool					EntityCanSeePos(idActor *actor, const idVec3 &actorOrigin, const idVec3 &pos);
+	void					BlockedFailSafe(void);
 
 	// movement control
-	void					StopMove( moveStatus_t status );
-	bool					FaceEnemy( void );
-	bool					FaceEntity( idEntity *ent );
-	bool					DirectMoveToPosition( const idVec3 &pos );
-	bool					MoveToEnemyHeight( void );
-	bool					MoveOutOfRange( idEntity *entity, float range );
-	bool					MoveToAttackPosition( idEntity *ent, int attack_anim );
-	bool					MoveToEnemy( void );
-	bool					MoveToEntity( idEntity *ent );
-	bool					MoveToPosition( const idVec3 &pos );
-	bool					MoveToCover( idEntity *entity, const idVec3 &pos );
-	bool					SlideToPosition( const idVec3 &pos, float time );
-	bool					WanderAround( void );
-	bool					StepDirection( float dir );
-	bool					NewWanderDir( const idVec3 &dest );
+	void					StopMove(moveStatus_t status);
+	bool					FaceEnemy(void);
+	bool					FaceEntity(idEntity *ent);
+	bool					DirectMoveToPosition(const idVec3 &pos);
+	bool					MoveToEnemyHeight(void);
+	bool					MoveOutOfRange(idEntity *entity, float range);
+	bool					MoveToAttackPosition(idEntity *ent, int attack_anim);
+	bool					MoveToEnemy(void);
+	bool					MoveToEntity(idEntity *ent);
+	bool					MoveToPosition(const idVec3 &pos);
+	bool					MoveToCover(idEntity *entity, const idVec3 &pos);
+	bool					SlideToPosition(const idVec3 &pos, float time);
+	bool					WanderAround(void);
+	bool					StepDirection(float dir);
+	bool					NewWanderDir(const idVec3 &dest);
 
 	// effects
-	const idDeclParticle	*SpawnParticlesOnJoint( particleEmitter_t &pe, const char *particleName, const char *jointName );
-	void					SpawnParticles( const char *keyName );
-	bool					ParticlesActive( void );
+	const idDeclParticle	*SpawnParticlesOnJoint(particleEmitter_t &pe, const char *particleName, const char *jointName);
+	void					SpawnParticles(const char *keyName);
+	bool					ParticlesActive(void);
 
 	// turning
-	bool					FacingIdeal( void );
-	void					Turn( void );
-	bool					TurnToward( float yaw );
-	bool					TurnToward( const idVec3 &pos );
+	bool					FacingIdeal(void);
+	void					Turn(void);
+	bool					TurnToward(float yaw);
+	bool					TurnToward(const idVec3 &pos);
 
 	// enemy management
-	void					ClearEnemy( void );
-	bool					EnemyPositionValid( void ) const;
-	void					SetEnemyPosition( void );
-	void					UpdateEnemyPosition( void );
-	void					SetEnemy( idActor *newEnemy );
+	void					ClearEnemy(void);
+	bool					EnemyPositionValid(void) const;
+	void					SetEnemyPosition(void);
+	void					UpdateEnemyPosition(void);
+	void					SetEnemy(idActor *newEnemy);
 
 	// attacks
-	void					CreateProjectileClipModel( void ) const;
-	idProjectile			*CreateProjectile( const idVec3 &pos, const idVec3 &dir );
-	void					RemoveProjectile( void );
-	idProjectile			*LaunchProjectile( const char *jointname, idEntity *target, bool clampToAttackCone );
-	virtual void			DamageFeedback( idEntity *victim, idEntity *inflictor, int &damage );
-	void					DirectDamage( const char *meleeDefName, idEntity *ent );
-	bool					TestMelee( void ) const;
-	bool					AttackMelee( const char *meleeDefName );
-	void					BeginAttack( const char *name );
-	void					EndAttack( void );
-	void					PushWithAF( void );
+	void					CreateProjectileClipModel(void) const;
+	idProjectile			*CreateProjectile(const idVec3 &pos, const idVec3 &dir);
+	void					RemoveProjectile(void);
+	idProjectile			*LaunchProjectile(const char *jointname, idEntity *target, bool clampToAttackCone);
+	virtual void			DamageFeedback(idEntity *victim, idEntity *inflictor, int &damage);
+	void					DirectDamage(const char *meleeDefName, idEntity *ent);
+	bool					TestMelee(void) const;
+	bool					AttackMelee(const char *meleeDefName);
+	void					BeginAttack(const char *name);
+	void					EndAttack(void);
+	void					PushWithAF(void);
 
 	// special effects
-	void					GetMuzzle( const char *jointname, idVec3 &muzzle, idMat3 &axis );
-	void					InitMuzzleFlash( void );
-	void					TriggerWeaponEffects( const idVec3 &muzzle );
-	void					UpdateMuzzleFlash( void );
-	virtual bool			UpdateAnimationControllers( void );
-	void					UpdateParticles( void );
-	void					TriggerParticles( const char *jointName );
+	void					GetMuzzle(const char *jointname, idVec3 &muzzle, idMat3 &axis);
+	void					InitMuzzleFlash(void);
+	void					TriggerWeaponEffects(const idVec3 &muzzle);
+	void					UpdateMuzzleFlash(void);
+	virtual bool			UpdateAnimationControllers(void);
+	void					UpdateParticles(void);
+	void					TriggerParticles(const char *jointName);
 
 #ifdef _D3XP
-	void					TriggerFX( const char* joint, const char* fx );
-	idEntity*				StartEmitter( const char* name, const char* joint, const char* particle );
-	idEntity*				GetEmitter( const char* name );
-	void					StopEmitter( const char* name );
+	void					TriggerFX(const char* joint, const char* fx);
+	idEntity*				StartEmitter(const char* name, const char* joint, const char* particle);
+	idEntity*				GetEmitter(const char* name);
+	void					StopEmitter(const char* name);
 #endif
 
 	// AI script state management
-	void					LinkScriptVariables( void );
-	void					UpdateAIScript( void );
+	void					LinkScriptVariables(void);
+	void					UpdateAIScript(void);
 
 	//
 	// ai/ai_events.cpp
 	//
-	void					Event_Activate( idEntity *activator );
-	void					Event_Touch( idEntity *other, trace_t *trace );
-	void					Event_FindEnemy( int useFOV );
-	void					Event_FindEnemyAI( int useFOV );
-	void					Event_FindEnemyInCombatNodes( void );
-	void					Event_ClosestReachableEnemyOfEntity( idEntity *team_mate );
-	void					Event_HeardSound( int ignore_team );
-	void					Event_SetEnemy( idEntity *ent );
-	void					Event_ClearEnemy( void );
-	void					Event_MuzzleFlash( const char *jointname );
-	void					Event_CreateMissile( const char *jointname );
-	void					Event_AttackMissile( const char *jointname );
-	void					Event_FireMissileAtTarget( const char *jointname, const char *targetname );
-	void					Event_LaunchMissile( const idVec3 &muzzle, const idAngles &ang );
+	void					Event_Activate(idEntity *activator);
+	void					Event_Touch(idEntity *other, trace_t *trace);
+	void					Event_FindEnemy(int useFOV);
+	void					Event_FindEnemyAI(int useFOV);
+	void					Event_FindEnemyInCombatNodes(void);
+	void					Event_ClosestReachableEnemyOfEntity(idEntity *team_mate);
+	void					Event_HeardSound(int ignore_team);
+	void					Event_SetEnemy(idEntity *ent);
+	void					Event_ClearEnemy(void);
+	void					Event_MuzzleFlash(const char *jointname);
+	void					Event_CreateMissile(const char *jointname);
+	void					Event_AttackMissile(const char *jointname);
+	void					Event_FireMissileAtTarget(const char *jointname, const char *targetname);
+	void					Event_LaunchMissile(const idVec3 &muzzle, const idAngles &ang);
 #ifdef _D3XP
-	void					Event_LaunchProjectile( const char *entityDefName );
+	void					Event_LaunchProjectile(const char *entityDefName);
 #endif
-	void					Event_AttackMelee( const char *meleeDefName );
-	void					Event_DirectDamage( idEntity *damageTarget, const char *damageDefName );
-	void					Event_RadiusDamageFromJoint( const char *jointname, const char *damageDefName );
-	void					Event_BeginAttack( const char *name );
-	void					Event_EndAttack( void );
-	void					Event_MeleeAttackToJoint( const char *jointname, const char *meleeDefName );
-	void					Event_RandomPath( void );
-	void					Event_CanBecomeSolid( void );
-	void					Event_BecomeSolid( void );
-	void					Event_BecomeNonSolid( void );
-	void					Event_BecomeRagdoll( void );
-	void					Event_StopRagdoll( void );
-	void					Event_SetHealth( float newHealth );
-	void					Event_GetHealth( void );
-	void					Event_AllowDamage( void );
-	void					Event_IgnoreDamage( void );
-	void					Event_GetCurrentYaw( void );
-	void					Event_TurnTo( float angle );
-	void					Event_TurnToPos( const idVec3 &pos );
-	void					Event_TurnToEntity( idEntity *ent );
-	void					Event_MoveStatus( void );
-	void					Event_StopMove( void );
-	void					Event_MoveToCover( void );
-	void					Event_MoveToEnemy( void );
-	void					Event_MoveToEnemyHeight( void );
-	void					Event_MoveOutOfRange( idEntity *entity, float range );
-	void					Event_MoveToAttackPosition( idEntity *entity, const char *attack_anim );
-	void					Event_MoveToEntity( idEntity *ent );
-	void					Event_MoveToPosition( const idVec3 &pos );
-	void					Event_SlideTo( const idVec3 &pos, float time );
-	void					Event_Wander( void );
-	void					Event_FacingIdeal( void );
-	void					Event_FaceEnemy( void );
-	void					Event_FaceEntity( idEntity *ent );
-	void					Event_WaitAction( const char *waitForState );
-	void					Event_GetCombatNode( void );
-	void					Event_EnemyInCombatCone( idEntity *ent, int use_current_enemy_location );
-	void					Event_WaitMove( void );
-	void					Event_GetJumpVelocity( const idVec3 &pos, float speed, float max_height );
-	void					Event_EntityInAttackCone( idEntity *ent );
-	void					Event_CanSeeEntity( idEntity *ent );
-	void					Event_SetTalkTarget( idEntity *target );
-	void					Event_GetTalkTarget( void );
-	void					Event_SetTalkState( int state );
-	void					Event_EnemyRange( void );
-	void					Event_EnemyRange2D( void );
-	void					Event_GetEnemy( void );
-	void					Event_GetEnemyPos( void );
-	void					Event_GetEnemyEyePos( void );
-	void					Event_PredictEnemyPos( float time );
-	void					Event_CanHitEnemy( void );
-	void					Event_CanHitEnemyFromAnim( const char *animname );
-	void					Event_CanHitEnemyFromJoint( const char *jointname );
-	void					Event_EnemyPositionValid( void );
-	void					Event_ChargeAttack( const char *damageDef );
-	void					Event_TestChargeAttack( void );
-	void					Event_TestAnimMoveTowardEnemy( const char *animname );
-	void					Event_TestAnimMove( const char *animname );
-	void					Event_TestMoveToPosition( const idVec3 &position );
-	void					Event_TestMeleeAttack( void );
-	void					Event_TestAnimAttack( const char *animname );
-	void					Event_Shrivel( float shirvel_time );
-	void					Event_Burn( void );
-	void					Event_PreBurn( void );
-	void					Event_ClearBurn( void );
-	void					Event_SetSmokeVisibility( int num, int on );
-	void					Event_NumSmokeEmitters( void );
-	void					Event_StopThinking( void );
-	void					Event_GetTurnDelta( void );
-	void					Event_GetMoveType( void );
-	void					Event_SetMoveType( int moveType );
-	void					Event_SaveMove( void );
-	void					Event_RestoreMove( void );
-	void					Event_AllowMovement( float flag );
-	void					Event_JumpFrame( void );
-	void					Event_EnableClip( void );
-	void					Event_DisableClip( void );
-	void					Event_EnableGravity( void );
-	void					Event_DisableGravity( void );
-	void					Event_EnableAFPush( void );
-	void					Event_DisableAFPush( void );
-	void					Event_SetFlySpeed( float speed );
-	void					Event_SetFlyOffset( int offset );
-	void					Event_ClearFlyOffset( void );
-	void					Event_GetClosestHiddenTarget( const char *type );
-	void					Event_GetRandomTarget( const char *type );
-	void					Event_TravelDistanceToPoint( const idVec3 &pos );
-	void					Event_TravelDistanceToEntity( idEntity *ent );
-	void					Event_TravelDistanceBetweenPoints( const idVec3 &source, const idVec3 &dest );
-	void					Event_TravelDistanceBetweenEntities( idEntity *source, idEntity *dest );
-	void					Event_LookAtEntity( idEntity *ent, float duration );
-	void					Event_LookAtEnemy( float duration );
-	void					Event_SetJointMod( int allowJointMod );
-	void					Event_ThrowMoveable( void );
-	void					Event_ThrowAF( void );
-	void					Event_SetAngles( idAngles const &ang );
-	void					Event_GetAngles( void );
-	void					Event_RealKill( void );
-	void					Event_Kill( void );
-	void					Event_WakeOnFlashlight( int enable );
-	void					Event_LocateEnemy( void );
-	void					Event_KickObstacles( idEntity *kickEnt, float force );
-	void					Event_GetObstacle( void );
-	void					Event_PushPointIntoAAS( const idVec3 &pos );
-	void					Event_GetTurnRate( void );
-	void					Event_SetTurnRate( float rate );
-	void					Event_AnimTurn( float angles );
-	void					Event_AllowHiddenMovement( int enable );
-	void					Event_TriggerParticles( const char *jointName );
-	void					Event_FindActorsInBounds( const idVec3 &mins, const idVec3 &maxs );
-	void					Event_CanReachPosition( const idVec3 &pos );
-	void					Event_CanReachEntity( idEntity *ent );
-	void					Event_CanReachEnemy( void );
-	void					Event_GetReachableEntityPosition( idEntity *ent );
+	void					Event_AttackMelee(const char *meleeDefName);
+	void					Event_DirectDamage(idEntity *damageTarget, const char *damageDefName);
+	void					Event_RadiusDamageFromJoint(const char *jointname, const char *damageDefName);
+	void					Event_BeginAttack(const char *name);
+	void					Event_EndAttack(void);
+	void					Event_MeleeAttackToJoint(const char *jointname, const char *meleeDefName);
+	void					Event_RandomPath(void);
+	void					Event_CanBecomeSolid(void);
+	void					Event_BecomeSolid(void);
+	void					Event_BecomeNonSolid(void);
+	void					Event_BecomeRagdoll(void);
+	void					Event_StopRagdoll(void);
+	void					Event_SetHealth(float newHealth);
+	void					Event_GetHealth(void);
+	void					Event_AllowDamage(void);
+	void					Event_IgnoreDamage(void);
+	void					Event_GetCurrentYaw(void);
+	void					Event_TurnTo(float angle);
+	void					Event_TurnToPos(const idVec3 &pos);
+	void					Event_TurnToEntity(idEntity *ent);
+	void					Event_MoveStatus(void);
+	void					Event_StopMove(void);
+	void					Event_MoveToCover(void);
+	void					Event_MoveToEnemy(void);
+	void					Event_MoveToEnemyHeight(void);
+	void					Event_MoveOutOfRange(idEntity *entity, float range);
+	void					Event_MoveToAttackPosition(idEntity *entity, const char *attack_anim);
+	void					Event_MoveToEntity(idEntity *ent);
+	void					Event_MoveToPosition(const idVec3 &pos);
+	void					Event_SlideTo(const idVec3 &pos, float time);
+	void					Event_Wander(void);
+	void					Event_FacingIdeal(void);
+	void					Event_FaceEnemy(void);
+	void					Event_FaceEntity(idEntity *ent);
+	void					Event_WaitAction(const char *waitForState);
+	void					Event_GetCombatNode(void);
+	void					Event_EnemyInCombatCone(idEntity *ent, int use_current_enemy_location);
+	void					Event_WaitMove(void);
+	void					Event_GetJumpVelocity(const idVec3 &pos, float speed, float max_height);
+	void					Event_EntityInAttackCone(idEntity *ent);
+	void					Event_CanSeeEntity(idEntity *ent);
+	void					Event_SetTalkTarget(idEntity *target);
+	void					Event_GetTalkTarget(void);
+	void					Event_SetTalkState(int state);
+	void					Event_EnemyRange(void);
+	void					Event_EnemyRange2D(void);
+	void					Event_GetEnemy(void);
+	void					Event_GetEnemyPos(void);
+	void					Event_GetEnemyEyePos(void);
+	void					Event_PredictEnemyPos(float time);
+	void					Event_CanHitEnemy(void);
+	void					Event_CanHitEnemyFromAnim(const char *animname);
+	void					Event_CanHitEnemyFromJoint(const char *jointname);
+	void					Event_EnemyPositionValid(void);
+	void					Event_ChargeAttack(const char *damageDef);
+	void					Event_TestChargeAttack(void);
+	void					Event_TestAnimMoveTowardEnemy(const char *animname);
+	void					Event_TestAnimMove(const char *animname);
+	void					Event_TestMoveToPosition(const idVec3 &position);
+	void					Event_TestMeleeAttack(void);
+	void					Event_TestAnimAttack(const char *animname);
+	void					Event_Shrivel(float shirvel_time);
+	void					Event_Burn(void);
+	void					Event_PreBurn(void);
+	void					Event_ClearBurn(void);
+	void					Event_SetSmokeVisibility(int num, int on);
+	void					Event_NumSmokeEmitters(void);
+	void					Event_StopThinking(void);
+	void					Event_GetTurnDelta(void);
+	void					Event_GetMoveType(void);
+	void					Event_SetMoveType(int moveType);
+	void					Event_SaveMove(void);
+	void					Event_RestoreMove(void);
+	void					Event_AllowMovement(float flag);
+	void					Event_JumpFrame(void);
+	void					Event_EnableClip(void);
+	void					Event_DisableClip(void);
+	void					Event_EnableGravity(void);
+	void					Event_DisableGravity(void);
+	void					Event_EnableAFPush(void);
+	void					Event_DisableAFPush(void);
+	void					Event_SetFlySpeed(float speed);
+	void					Event_SetFlyOffset(int offset);
+	void					Event_ClearFlyOffset(void);
+	void					Event_GetClosestHiddenTarget(const char *type);
+	void					Event_GetRandomTarget(const char *type);
+	void					Event_TravelDistanceToPoint(const idVec3 &pos);
+	void					Event_TravelDistanceToEntity(idEntity *ent);
+	void					Event_TravelDistanceBetweenPoints(const idVec3 &source, const idVec3 &dest);
+	void					Event_TravelDistanceBetweenEntities(idEntity *source, idEntity *dest);
+	void					Event_LookAtEntity(idEntity *ent, float duration);
+	void					Event_LookAtEnemy(float duration);
+	void					Event_SetJointMod(int allowJointMod);
+	void					Event_ThrowMoveable(void);
+	void					Event_ThrowAF(void);
+	void					Event_SetAngles(idAngles const &ang);
+	void					Event_GetAngles(void);
+	void					Event_RealKill(void);
+	void					Event_Kill(void);
+	void					Event_WakeOnFlashlight(int enable);
+	void					Event_LocateEnemy(void);
+	void					Event_KickObstacles(idEntity *kickEnt, float force);
+	void					Event_GetObstacle(void);
+	void					Event_PushPointIntoAAS(const idVec3 &pos);
+	void					Event_GetTurnRate(void);
+	void					Event_SetTurnRate(float rate);
+	void					Event_AnimTurn(float angles);
+	void					Event_AllowHiddenMovement(int enable);
+	void					Event_TriggerParticles(const char *jointName);
+	void					Event_FindActorsInBounds(const idVec3 &mins, const idVec3 &maxs);
+	void					Event_CanReachPosition(const idVec3 &pos);
+	void					Event_CanReachEntity(idEntity *ent);
+	void					Event_CanReachEnemy(void);
+	void					Event_GetReachableEntityPosition(idEntity *ent);
 #ifdef _D3XP
-	void					Event_MoveToPositionDirect( const idVec3 &pos );
-	void					Event_AvoidObstacles( int ignore);
-	void					Event_TriggerFX( const char* joint, const char* fx );
+	void					Event_MoveToPositionDirect(const idVec3 &pos);
+	void					Event_AvoidObstacles(int ignore);
+	void					Event_TriggerFX(const char* joint, const char* fx);
 
-	void					Event_StartEmitter( const char* name, const char* joint, const char* particle );
-	void					Event_GetEmitter( const char* name );
-	void					Event_StopEmitter( const char* name );
+	void					Event_StartEmitter(const char* name, const char* joint, const char* particle);
+	void					Event_GetEmitter(const char* name);
+	void					Event_StopEmitter(const char* name);
 #endif
 };
 
 class idCombatNode : public idEntity {
 public:
-	CLASS_PROTOTYPE( idCombatNode );
+	CLASS_PROTOTYPE(idCombatNode);
 
-						idCombatNode();
+	idCombatNode();
 
-	void				Save( idSaveGame *savefile ) const;
-	void				Restore( idRestoreGame *savefile );
+	void				Save(idSaveGame *savefile) const;
+	void				Restore(idRestoreGame *savefile);
 
-	void				Spawn( void );
-	bool				IsDisabled( void ) const;
-	bool				EntityInView( idActor *actor, const idVec3 &pos );
-	static void			DrawDebugInfo( void );
+	void				Spawn(void);
+	bool				IsDisabled(void) const;
+	bool				EntityInView(idActor *actor, const idVec3 &pos);
+	static void			DrawDebugInfo(void);
 
 private:
 	float				min_dist;
@@ -738,8 +741,8 @@ private:
 	idVec3				offset;
 	bool				disabled;
 
-	void				Event_Activate( idEntity *activator );
-	void				Event_MarkUsed( void );
+	void				Event_Activate(idEntity *activator);
+	void				Event_MarkUsed(void);
 };
 
 #endif /* !__AI_H__ */
