@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "idlib/containers/PlaneSet.h"
 #include "idlib/geometry/Winding.h"
+#include "idlib/Str.h"
 
 /*
 ===============================================================================
