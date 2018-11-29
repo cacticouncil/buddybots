@@ -249,7 +249,7 @@ void idGameLocal::Clear( void ) {
 	locationEntities = NULL;
 	smokeParticles = NULL;
 	editEntities = NULL;
-	entityHash.clear();
+	entityHash.Clear( 1024, MAX_GENTITIES );
 	inCinematic = false;
 	cinematicSkipTime = 0;
 	cinematicStopTime = 0;
@@ -1683,7 +1683,7 @@ void idGameLocal::MapClear( bool clearClients ) {
 		spawnIds[ i ] = -1;
 	}
 
-	entityHash.clear();
+	entityHash.Clear( 1024, MAX_GENTITIES );
 
 	if ( !clearClients ) {
 		// add back the hashes of the clients
@@ -1691,7 +1691,7 @@ void idGameLocal::MapClear( bool clearClients ) {
 			if ( !entities[ i ] ) {
 				continue;
 			}
-			entityHash.insert({ (int)std::hash<std::string>{}(entities[i]->name.c_str()), i });
+			entityHash.Add( entityHash.GenerateKey( entities[ i ]->name.c_str(), true ), i );
 		}
 	}
 
@@ -3643,7 +3643,7 @@ void idGameLocal::AddEntityToHash( const char *name, idEntity *ent ) {
 	if ( FindEntity( name ) ) {
 		Error( "Multiple entities named '%s'", name );
 	}
-	entityHash.insert({ (int)std::hash<std::string>{}(name), ent->entityNumber });
+	entityHash.Add( entityHash.GenerateKey( name, true ), ent->entityNumber );
 }
 
 /*
@@ -3654,11 +3654,10 @@ idGameLocal::RemoveEntityFromHash
 bool idGameLocal::RemoveEntityFromHash( const char *name, idEntity *ent ) {
 	int hash, i;
 
-	hash = (int)std::hash<std::string>{}(name);
-	for ( auto j = entityHash.begin(); j != entityHash.end(); ++j ) {
-		i = j->second;
+	hash = entityHash.GenerateKey( name, true );
+	for ( i = entityHash.First( hash ); i != -1; i = entityHash.Next( i ) ) {
 		if ( entities[i] && entities[i] == ent && entities[i]->name.Icmp( name ) == 0 ) {
-			entityHash.erase( hash );
+			entityHash.Remove( hash, i );
 			return true;
 		}
 	}
@@ -3742,10 +3741,8 @@ Returns the entity whose name matches the specified string.
 idEntity *idGameLocal::FindEntity( const char *name ) const {
 	int hash, i;
 
-
-	hash = (int)std::hash<std::string>{}(name);
-	for (auto j = entityHash.begin(); j != entityHash.end(); ++j) {
-		i = j->second;
+	hash = entityHash.GenerateKey( name, true );
+	for ( i = entityHash.First( hash ); i != -1; i = entityHash.Next( i ) ) {
 		if ( entities[i] && entities[i]->name.Icmp( name ) == 0 ) {
 			return entities[i];
 		}

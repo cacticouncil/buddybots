@@ -29,9 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __PLANESET_H__
 #define __PLANESET_H__
 
-#include <unordered_map>
-
 #include "idlib/containers/List.h"
+#include "idlib/containers/HashIndex.h"
 #include "idlib/math/Plane.h"
 
 /*
@@ -45,12 +44,12 @@ If you have questions concerning this license or the applicable additional terms
 class idPlaneSet : public idList<idPlane> {
 public:
 
-	void					Clear( void ) { idList<idPlane>::Clear(); hash.clear(); }
+	void					Clear( void ) { idList<idPlane>::Clear(); hash.Free(); }
 
 	int						FindPlane( const idPlane &plane, const float normalEps, const float distEps );
 
 private:
-	std::unordered_map<int,int>				hash;
+	idHashIndex				hash;
 };
 
 ID_INLINE int idPlaneSet::FindPlane( const idPlane &plane, const float normalEps, const float distEps ) {
@@ -60,8 +59,7 @@ ID_INLINE int idPlaneSet::FindPlane( const idPlane &plane, const float normalEps
 
 	hashKey = (int)( idMath::Fabs( plane.Dist() ) * 0.125f );
 	for ( border = -1; border <= 1; border++ ) {
-		for ( auto j = hash.begin(); j != hash.end(); ++j ) {
-			i = j->second;
+		for ( i = hash.First( hashKey + border ); i >= 0; i = hash.Next( i ) ) {
 			if ( (*this)[i].Compare( plane, normalEps, distEps ) ) {
 				return i;
 			}
@@ -70,16 +68,16 @@ ID_INLINE int idPlaneSet::FindPlane( const idPlane &plane, const float normalEps
 
 	if ( plane.Type() >= PLANETYPE_NEGX && plane.Type() < PLANETYPE_TRUEAXIAL ) {
 		Append( -plane );
-		hash.insert({ hashKey, Num() - 1 });
+		hash.Add( hashKey, Num()-1 );
 		Append( plane );
-		hash.insert({ hashKey, Num() - 1 });
+		hash.Add( hashKey, Num()-1 );
 		return ( Num() - 1 );
 	}
 	else {
 		Append( plane );
-		hash.insert({ hashKey, Num() - 1 });
+		hash.Add( hashKey, Num()-1 );
 		Append( -plane );
-		hash.insert({ hashKey, Num() - 1 });
+		hash.Add( hashKey, Num()-1 );
 		return ( Num() - 2 );
 	}
 }

@@ -26,8 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include <unordered_map>
-
 #include "sys/platform.h"
 #include "gamesys/SaveGame.h"
 #include "Entity.h"
@@ -75,7 +73,7 @@ idBlockAlloc<clipLink_t, 1024>	clipLinkAllocator;
 */
 
 static idList<trmCache_s*>		traceModelCache;
-static std::unordered_map<int, int>				traceModelHash;
+static idHashIndex				traceModelHash;
 
 /*
 ===============
@@ -84,7 +82,7 @@ idClipModel::ClearTraceModelCache
 */
 void idClipModel::ClearTraceModelCache( void ) {
 	traceModelCache.DeleteContents( true );
-	traceModelHash.clear();
+	traceModelHash.Free();
 }
 
 /*
@@ -106,10 +104,10 @@ int idClipModel::AllocTraceModel( const idTraceModel &trm ) {
 	trmCache_t *entry;
 
 	hashKey = GetTraceModelHashKey( trm );
-	for ( auto j = traceModelHash.begin(); j != traceModelHash.end(); ++j ) {
-		if ( traceModelCache[j->second]->trm == trm ) {
-			traceModelCache[j->second]->refCount++;
-			return j->second;
+	for ( i = traceModelHash.First( hashKey ); i >= 0; i = traceModelHash.Next( i ) ) {
+		if ( traceModelCache[i]->trm == trm ) {
+			traceModelCache[i]->refCount++;
+			return i;
 		}
 	}
 
@@ -119,7 +117,7 @@ int idClipModel::AllocTraceModel( const idTraceModel &trm ) {
 	entry->refCount = 1;
 
 	traceModelIndex = traceModelCache.Append( entry );
-	traceModelHash[hashKey] = traceModelIndex;
+	traceModelHash.Add( hashKey, traceModelIndex );
 	return traceModelIndex;
 }
 
@@ -198,7 +196,7 @@ void idClipModel::RestoreTraceModels( idRestoreGame *savefile ) {
 		entry->refCount = 0;
 
 		traceModelCache[i] = entry;
-		traceModelHash[GetTraceModelHashKey( entry->trm )] =  i ;
+		traceModelHash.Add( GetTraceModelHashKey( entry->trm ), i );
 	}
 }
 

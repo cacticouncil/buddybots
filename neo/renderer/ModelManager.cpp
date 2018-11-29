@@ -26,8 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#include <unordered_map>
-
 #include "sys/platform.h"
 #include "framework/CVarSystem.h"
 #include "framework/Session.h"
@@ -61,7 +59,7 @@ public:
 
 private:
 	idList<idRenderModel*>	models;
-	std::unordered_map<int,int>				hash;
+	idHashIndex				hash;
 	idRenderModel *			defaultModel;
 	idRenderModel *			beamModel;
 	idRenderModel *			spriteModel;
@@ -246,7 +244,7 @@ idRenderModelManagerLocal::Shutdown
 */
 void idRenderModelManagerLocal::Shutdown() {
 	models.DeleteContents( true );
-	hash.clear();
+	hash.Free();
 }
 
 /*
@@ -266,9 +264,8 @@ idRenderModel *idRenderModelManagerLocal::GetModel( const char *modelName, bool 
 	canonical.ToLower();
 
 	// see if it is already present
-	int key = (int)std::hash<std::string>{}(modelName);
-	for (auto j = hash.begin(); j != hash.end(); ++j) {
-		int i = j->second;
+	int key = hash.GenerateKey( modelName, false );
+	for ( int i = hash.First( key ); i != -1; i = hash.Next( i ) ) {
 		idRenderModel *model = models[i];
 
 		if ( canonical.Icmp( model->Name() ) == 0 ) {
@@ -416,7 +413,7 @@ idRenderModelManagerLocal::AddModel
 =================
 */
 void idRenderModelManagerLocal::AddModel( idRenderModel *model ) {
-	hash.insert({ (int)std::hash<std::string>{}(model->Name()), models.Append(model) });
+	hash.Add( hash.GenerateKey( model->Name(), false ), models.Append( model ) );
 }
 
 /*
@@ -426,7 +423,7 @@ idRenderModelManagerLocal::RemoveModel
 */
 void idRenderModelManagerLocal::RemoveModel( idRenderModel *model ) {
 	int index = models.FindIndex( model );
-	hash.erase((int)std::hash<std::string>{}(model->Name()));
+	hash.RemoveIndex( hash.GenerateKey( model->Name(), false ), index );
 	models.RemoveIndex( index );
 }
 

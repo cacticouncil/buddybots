@@ -39,8 +39,8 @@ idLangDict::idLangDict
 */
 idLangDict::idLangDict( void ) {
 	args.SetGranularity( 256 );
-	//hash.SetGranularity( 256 );
-	hash.clear();
+	hash.SetGranularity( 256 );
+	hash.Clear( 4096, 8192 );
 	baseID = 0;
 }
 
@@ -60,7 +60,7 @@ idLangDict::Clear
 */
 void idLangDict::Clear( void ) {
 	args.Clear();
-	hash.clear();
+	hash.Clear();
 }
 
 /*
@@ -101,7 +101,7 @@ bool idLangDict::Load( const char *fileName, bool clear /* _D3XP */ ) {
 			kv.key = tok;
 			kv.value = tok2;
 			assert( kv.key.Cmpn( STRTABLE_ID, STRTABLE_ID_LENGTH ) == 0 );
-			hash.insert({ GetHashKey(kv.key), args.Append(kv) });
+			hash.Add( GetHashKey( kv.key ), args.Append( kv ) );
 		}
 	}
 	idLib::common->Printf( "%i strings read from %s\n", args.Num(), fileName );
@@ -158,8 +158,7 @@ const char *idLangDict::GetString( const char *str ) const {
 	}
 
 	int hashKey = GetHashKey( str );
-	for ( auto j = hash.begin(); j != hash.end(); ++j ) {
-		int i = j->second;
+	for ( int i = hash.First( hashKey ); i != -1; i = hash.Next( i ) ) {
 		if ( args[i].key.Cmp( str ) == 0 ) {
 			return args[i].value;
 		}
@@ -195,7 +194,7 @@ const char *idLangDict::AddString( const char *str ) {
 	kv.value = str;
 	c = args.Append( kv );
 	assert( kv.key.Cmpn( STRTABLE_ID, STRTABLE_ID_LENGTH ) == 0 );
-	hash.insert({ GetHashKey(kv.key), c });
+	hash.Add( GetHashKey( kv.key ), c );
 	return args[c].key;
 }
 
@@ -227,7 +226,7 @@ void idLangDict::AddKeyVal( const char *key, const char *val ) {
 	kv.key = key;
 	kv.value = val;
 	assert( kv.key.Cmpn( STRTABLE_ID, STRTABLE_ID_LENGTH ) == 0 );
-	hash.insert({ GetHashKey(kv.key), args.Append(kv) });
+	hash.Add( GetHashKey( kv.key ), args.Append( kv ) );
 }
 
 /*

@@ -630,7 +630,7 @@ public:
 private:
 	std::unordered_map<std::string, idMD5Anim *>	animations;
 	idStrList					jointnames;
-	std::unordered_map<int,int>					jointnamesHash;
+	idHashIndex					jointnamesHash;
 };
 
 #endif /* !__ANIM_H__ */

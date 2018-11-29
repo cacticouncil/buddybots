@@ -1204,9 +1204,8 @@ idProgram::GetDefList
 idVarDef *idProgram::GetDefList( const char *name ) const {
 	int i, hash;
 
-	hash = (int)std::hash<std::string>{}(name);
-	for (auto j = varDefNameHash.begin(); j != varDefNameHash.end(); ++j) {
-		i = j->second;
+	hash = varDefNameHash.GenerateKey( name, true );
+	for ( i = varDefNameHash.First( hash ); i != -1; i = varDefNameHash.Next( i ) ) {
 		if ( idStr::Cmp( varDefNames[i]->Name(), name ) == 0 ) {
 			return varDefNames[i]->GetDefs();
 		}
@@ -1222,16 +1221,15 @@ idProgram::AddDefToNameList
 void idProgram::AddDefToNameList( idVarDef *def, const char *name ) {
 	int i, hash;
 
-	hash = (int)std::hash<std::string>{}(name);
-	for (auto j = varDefNameHash.begin(); j != varDefNameHash.end(); ++j) {
-		i = j->second;
+	hash = varDefNameHash.GenerateKey( name, true );
+	for ( i = varDefNameHash.First( hash ); i != -1; i = varDefNameHash.Next( i ) ) {
 		if ( idStr::Cmp( varDefNames[i]->Name(), name ) == 0 ) {
 			break;
 		}
 	}
 	if ( i == -1 ) {
 		i = varDefNames.Append( new idVarDefName( name ) );
-		varDefNameHash.insert({ hash, i });
+		varDefNameHash.Add( hash, i );
 	}
 	varDefNames[i]->AddDef( def );
 }
@@ -1923,7 +1921,7 @@ void idProgram::FreeData( void ) {
 	// free the defs
 	varDefs.DeleteContents( true );
 	varDefNames.DeleteContents( true );
-	varDefNameHash.clear();
+	varDefNameHash.Free();
 
 	returnDef		= NULL;
 	returnStringDef = NULL;

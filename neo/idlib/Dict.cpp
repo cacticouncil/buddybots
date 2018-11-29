@@ -151,7 +151,7 @@ void idDict::Copy( const idDict &other ) {
 		} else {
 			kv.key = globalKeys.CopyString( other.args[i].key );
 			kv.value = globalValues.CopyString( other.args[i].value );
-			argHash.insert({ (int)std::hash<std::string>{}(kv.GetKey().c_str()), args.Append(kv) });
+			argHash.Add( argHash.GenerateKey( kv.GetKey(), false ), args.Append( kv ) );
 		}
 	}
 }
@@ -186,7 +186,7 @@ void idDict::TransferKeyValues( idDict &other ) {
 	argHash = other.argHash;
 
 	other.args.Clear();
-	other.argHash.clear();
+	other.argHash.Free();
 }
 
 /*
@@ -243,7 +243,7 @@ void idDict::SetDefaults( const idDict *dict ) {
 		if ( !kv ) {
 			newkv.key = globalKeys.CopyString( def->key );
 			newkv.value = globalValues.CopyString( def->value );
-			argHash.insert({ (int)std::hash<std::string>{}(newkv.GetKey().c_str()), args.Append(newkv) });
+			argHash.Add( argHash.GenerateKey( newkv.GetKey(), false ), args.Append( newkv ) );
 		}
 	}
 }
@@ -262,7 +262,7 @@ void idDict::Clear( void ) {
 	}
 
 	args.Clear();
-	argHash.clear();
+	argHash.Free();
 }
 
 /*
@@ -314,7 +314,7 @@ size_t idDict::Allocated( void ) const {
 	int		i;
 	size_t	size;
 
-	size = args.Allocated() + argHash.size();
+	size = args.Allocated() + argHash.Allocated();
 	for( i = 0; i < args.Num(); i++ ) {
 		size += args[i].Size();
 	}
@@ -345,7 +345,7 @@ void idDict::Set( const char *key, const char *value ) {
 	} else {
 		kv.key = globalKeys.AllocString( key );
 		kv.value = globalValues.AllocString( value );
-		argHash.insert({ (int)std::hash<std::string>{}(kv.GetKey().c_str()), args.Append(kv) });
+		argHash.Add( argHash.GenerateKey( kv.GetKey(), false ), args.Append( kv ) );
 	}
 }
 
@@ -512,9 +512,8 @@ const idKeyValue *idDict::FindKey( const char *key ) const {
 		return NULL;
 	}
 
-	hash = (int)std::hash<std::string>{}(key);
-	for ( auto j = argHash.begin(); j != argHash.end(); ++j ) {
-		i = j->second;
+	hash = argHash.GenerateKey( key, false );
+	for ( i = argHash.First( hash ); i != -1; i = argHash.Next( i ) ) {
 		if ( args[i].GetKey().Icmp( key ) == 0 ) {
 			return &args[i];
 		}
@@ -535,9 +534,8 @@ int idDict::FindKeyIndex( const char *key ) const {
 		return 0;
 	}
 
-	int hash = (int)std::hash<std::string>{}(key);
-	for ( auto j = argHash.begin(); j != argHash.end(); ++j ) {
-		int i = j->second;
+	int hash = argHash.GenerateKey( key, false );
+	for ( int i = argHash.First( hash ); i != -1; i = argHash.Next( i ) ) {
 		if ( args[i].GetKey().Icmp( key ) == 0 ) {
 			return i;
 		}
@@ -554,14 +552,13 @@ idDict::Delete
 void idDict::Delete( const char *key ) {
 	int hash, i;
 
-	hash = (int)std::hash<std::string>{}(key);
-	for ( auto j = argHash.begin(); j != argHash.end(); ++j ) {
-		i = j->second;
+	hash = argHash.GenerateKey( key, false );
+	for ( i = argHash.First( hash ); i != -1; i = argHash.Next( i ) ) {
 		if ( args[i].GetKey().Icmp( key ) == 0 ) {
 			globalKeys.FreeString( args[i].key );
 			globalValues.FreeString( args[i].value );
 			args.RemoveIndex( i );
-			argHash.erase( hash );
+			argHash.RemoveIndex( hash, i );
 			break;
 		}
 	}

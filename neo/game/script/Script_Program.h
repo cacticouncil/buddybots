@@ -29,10 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SCRIPT_PROGRAM_H__
 #define __SCRIPT_PROGRAM_H__
 
-#include <unordered_map>
-
 #include "idlib/containers/StrList.h"
 #include "idlib/containers/StaticList.h"
+#include "idlib/containers/HashIndex.h"
 #include "idlib/math/Vector.h"
 
 #include "GameBase.h"
@@ -464,7 +463,7 @@ private:
 	idStaticList<statement_t,MAX_STATEMENTS>	statements;
 	idList<idTypeDef *>							types;
 	idList<idVarDefName *>						varDefNames;
-	std::unordered_map<int,int>									varDefNameHash;
+	idHashIndex									varDefNameHash;
 	idList<idVarDef *>							varDefs;
 
 	idVarDef									*sysDef;
