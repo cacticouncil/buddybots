@@ -951,7 +951,7 @@ idAnimManager::Shutdown
 void idAnimManager::Shutdown(void) {
 	animations.clear();
 	jointnames.Clear();
-	jointnamesHash.Free();
+	jointnamesHash.clear();
 }
 
 /*
@@ -1026,15 +1026,17 @@ idAnimManager::JointIndex
 int	idAnimManager::JointIndex(const char *name) {
 	int i, hash;
 
-	hash = jointnamesHash.GenerateKey(name);
-	for (i = jointnamesHash.First(hash); i != -1; i = jointnamesHash.Next(i)) {
-		if (jointnames[i].Cmp(name) == 0) {
+
+	hash = (int)std::hash<std::string>{}(name);
+	for (auto j = jointnamesHash.begin(); j != jointnamesHash.end(); ++j) {
+		i = j->second;
+		if ( jointnames[i].Cmp( name ) == 0 ) {
 			return i;
 		}
 	}
 
-	i = jointnames.Append(name);
-	jointnamesHash.Add(hash, i);
+	i = jointnames.Append( name );
+	jointnamesHash.insert({ hash, i });
 	return i;
 }
 
@@ -1075,9 +1077,9 @@ void idAnimManager::ListAnims(void) const {
 		}
 	}
 
-	namesize = jointnames.Size() + jointnamesHash.Size();
-	for (i = 0; i < jointnames.Num(); i++) {
-		namesize += jointnames[i].Size();
+	namesize = jointnames.Size() + jointnamesHash.size();
+	for( i = 0; i < jointnames.Num(); i++ ) {
+		namesize += jointnames[ i ].Size();
 	}
 
 	gameLocal.Printf("\n%zd memory used in %d anims\n", size, num);

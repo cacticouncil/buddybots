@@ -42,6 +42,8 @@ If you have questions concerning this license or the applicable additional terms
 	#include <curl/curl.h>
 #endif
 
+#include <unordered_map>
+
 #include "idlib/hashing/MD4.h"
 #include "framework/Licensee.h"
 #include "framework/Unzip.h"
@@ -443,11 +445,11 @@ private:
 	FILE *					OpenOSFileCorrectName( idStr &path, const char *mode );
 	int						DirectFileLength( FILE *o );
 	void					CopyFile( idFile *src, const char *toOSPath );
-	int						AddUnique( const char *name, idStrList &list, idHashIndex &hashIndex ) const;
+	int						AddUnique( const char *name, idStrList &list, std::unordered_map<int,int> &unorderedMap ) const;
 	void					GetExtensionList( const char *extension, idStrList &extensionList ) const;
-	int						GetFileList( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, bool fullRelativePath, const char* gamedir = NULL );
+	int						GetFileList( const char *relativePath, const idStrList &extensions, idStrList &list, std::unordered_map<int, int> &unorderedMap, bool fullRelativePath, const char* gamedir = NULL );
 
-	int						GetFileListTree( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, const char* gamedir = NULL );
+	int						GetFileListTree( const char *relativePath, const idStrList &extensions, idStrList &list, std::unordered_map<int, int> &unorderedMap, const char* gamedir = NULL );
 	pack_t *				LoadZipFile( const char *zipfile );
 	void					AddGameDirectory( const char *path, const char *dir );
 	void					SetupGameDirectories( const char *gameName );
@@ -1421,17 +1423,18 @@ int idFileSystemLocal::AddZipFile( const char *path ) {
 idFileSystemLocal::AddUnique
 ===============
 */
-int idFileSystemLocal::AddUnique( const char *name, idStrList &list, idHashIndex &hashIndex ) const {
+int idFileSystemLocal::AddUnique( const char *name, idStrList &list, std::unordered_map<int, int> &unorderedMap ) const {
 	int i, hashKey;
 
-	hashKey = hashIndex.GenerateKey( name );
-	for ( i = hashIndex.First( hashKey ); i >= 0; i = hashIndex.Next( i ) ) {
+	hashKey = (int)std::hash<std::string>{}(name);
+	for (auto j = unorderedMap.begin(); j != unorderedMap.end(); ++j ) {
+		i = j->second;
 		if ( list[i].Icmp( name ) == 0 ) {
 			return i;
 		}
 	}
 	i = list.Append( name );
-	hashIndex.Add( hashKey, i );
+	unorderedMap.insert({ hashKey, i });
 	return i;
 }
 
@@ -1465,7 +1468,7 @@ Does not clear the list first so this can be used to progressively build a file 
 When 'sort' is true only the new files added to the list are sorted.
 ===============
 */
-int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, bool fullRelativePath, const char* gamedir ) {
+int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &extensions, idStrList &list, std::unordered_map<int,int> &unorderedMap, bool fullRelativePath, const char* gamedir ) {
 	searchpath_t *	search;
 	fileInPack_t *	buildBuffer;
 	int				i, j;
@@ -1522,10 +1525,10 @@ int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &e
 						work = relativePath;
 						work += "/";
 						work += sysFiles[j];
-						AddUnique( work, list, hashIndex );
+						AddUnique( work, list, unorderedMap );
 					}
 					else {
-						AddUnique( sysFiles[j], list, hashIndex );
+						AddUnique( sysFiles[j], list, unorderedMap );
 					}
 				}
 			}
@@ -1590,11 +1593,11 @@ int idFileSystemLocal::GetFileList( const char *relativePath, const idStrList &e
 					work += "/";
 					work += name + pathLength;
 					work.StripTrailing( '/' );
-					AddUnique( work, list, hashIndex );
+					AddUnique( work, list, unorderedMap );
 				} else {
 					work = name + pathLength;
 					work.StripTrailing( '/' );
-					AddUnique( work, list, hashIndex );
+					AddUnique( work, list, unorderedMap );
 				}
 			}
 		}
@@ -1609,7 +1612,9 @@ idFileSystemLocal::ListFiles
 ===============
 */
 idFileList *idFileSystemLocal::ListFiles( const char *relativePath, const char *extension, bool sort, bool fullRelativePath, const char* gamedir ) {
-	idHashIndex hashIndex( 4096, 4096 );
+	std::unordered_map<int,int> unorderedMap;
+	unorderedMap.reserve(4096);
+
 	idStrList extensionList;
 
 	idFileList *fileList = new idFileList;
@@ -1617,7 +1622,7 @@ idFileList *idFileSystemLocal::ListFiles( const char *relativePath, const char *
 
 	GetExtensionList( extension, extensionList );
 
-	GetFileList( relativePath, extensionList, fileList->list, hashIndex, fullRelativePath, gamedir );
+	GetFileList( relativePath, extensionList, fileList->list, unorderedMap, fullRelativePath, gamedir );
 
 	if ( sort ) {
 		idStrListSortPaths( fileList->list );
@@ -1631,14 +1636,15 @@ idFileList *idFileSystemLocal::ListFiles( const char *relativePath, const char *
 idFileSystemLocal::GetFileListTree
 ===============
 */
-int idFileSystemLocal::GetFileListTree( const char *relativePath, const idStrList &extensions, idStrList &list, idHashIndex &hashIndex, const char* gamedir ) {
+int idFileSystemLocal::GetFileListTree( const char *relativePath, const idStrList &extensions, idStrList &list, std::unordered_map<int,int> &unorderedMap, const char* gamedir ) {
 	int i;
 	idStrList slash, folders( 128 );
-	idHashIndex folderHashIndex( 1024, 128 );
+	std::unordered_map<int,int> folderUnorderedMap;
+	folderUnorderedMap.reserve(1024);
 
 	// recurse through the subdirectories
 	slash.Append( "/" );
-	GetFileList( relativePath, slash, folders, folderHashIndex, true, gamedir );
+	GetFileList( relativePath, slash, folders, folderUnorderedMap, true, gamedir );
 	for ( i = 0; i < folders.Num(); i++ ) {
 		if ( folders[i][0] == '.' ) {
 			continue;
@@ -1646,11 +1652,11 @@ int idFileSystemLocal::GetFileListTree( const char *relativePath, const idStrLis
 		if ( folders[i].Icmp( relativePath ) == 0 ){
 			continue;
 		}
-		GetFileListTree( folders[i], extensions, list, hashIndex, gamedir );
+		GetFileListTree( folders[i], extensions, list, unorderedMap, gamedir );
 	}
 
 	// list files in the current directory
-	GetFileList( relativePath, extensions, list, hashIndex, true, gamedir );
+	GetFileList( relativePath, extensions, list, unorderedMap, true, gamedir );
 
 	return list.Num();
 }
@@ -1661,7 +1667,8 @@ idFileSystemLocal::ListFilesTree
 ===============
 */
 idFileList *idFileSystemLocal::ListFilesTree( const char *relativePath, const char *extension, bool sort, const char* gamedir ) {
-	idHashIndex hashIndex( 4096, 4096 );
+	std::unordered_map<int,int> unorderedMap;
+	unorderedMap.reserve(4096);
 	idStrList extensionList;
 
 	idFileList *fileList = new idFileList();
@@ -1670,7 +1677,7 @@ idFileList *idFileSystemLocal::ListFilesTree( const char *relativePath, const ch
 
 	GetExtensionList( extension, extensionList );
 
-	GetFileListTree( relativePath, extensionList, fileList->list, hashIndex, gamedir );
+	GetFileListTree( relativePath, extensionList, fileList->list, unorderedMap, gamedir );
 
 	if ( sort ) {
 		idStrListSortPaths( fileList->list );
@@ -2836,7 +2843,7 @@ idFileSystemLocal::GetPackStatus
 ===========
 */
 pureStatus_t idFileSystemLocal::GetPackStatus( pack_t *pak ) {
-	int				i, l, hashindex;
+	int				i, l, unorderedMap;
 	fileInPack_t	*file;
 	bool			abrt;
 	idStr			name;
@@ -2848,9 +2855,9 @@ pureStatus_t idFileSystemLocal::GetPackStatus( pack_t *pak ) {
 	// check content for PURE_NEVER
 	i = 0;
 	file = pak->buildBuffer;
-	for ( hashindex = 0; hashindex < FILE_HASH_SIZE; hashindex++ ) {
+	for ( unorderedMap = 0; unorderedMap < FILE_HASH_SIZE; unorderedMap++ ) {
 		abrt = false;
-		file = pak->hashTable[ hashindex ];
+		file = pak->hashTable[ unorderedMap ];
 		while ( file ) {
 			abrt = true;
 			l = file->name.Length();

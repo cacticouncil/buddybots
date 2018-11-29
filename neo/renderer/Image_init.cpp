@@ -2108,7 +2108,7 @@ idImageManager::StartBuild
 */
 void idImageManager::StartBuild() {
 	ddsList.Clear();
-	ddsHash.Free();
+	ddsHash.clear();
 }
 
 /*
@@ -2150,7 +2150,7 @@ void idImageManager::FinishBuild( bool removeDups ) {
 		fileSystem->CloseFile( batchFile );
 	}
 	ddsList.Clear();
-	ddsHash.Free();
+	ddsHash.clear();
 }
 
 /*
@@ -2165,8 +2165,8 @@ void idImageManager::AddDDSCommand( const char *cmd ) {
 		return;
 	}
 
-	key = ddsHash.GenerateKey( cmd, false );
-	for ( i = ddsHash.First( key ); i != -1; i = ddsHash.Next( i ) ) {
+	key = (int)std::hash<std::string>{}(cmd);
+	for (auto j = ddsHash.begin(); j != ddsHash.end(); ++j ) {
 		if ( ddsList[i].Icmp( cmd ) == 0 ) {
 			break;
 		}

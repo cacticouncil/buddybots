@@ -29,8 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __VECTORSET_H__
 #define __VECTORSET_H__
 
+#include <unordered_map>
+
 #include "idlib/containers/List.h"
-#include "idlib/containers/HashIndex.h"
 
 /*
 ===============================================================================
@@ -60,7 +61,7 @@ public:
 	int						FindVector( const type &v, const float epsilon );
 
 private:
-	idHashIndex				hash;
+	std::unordered_map<int,int>				hash;
 	type					mins;
 	type					maxs;
 	int						boxHashSize;
@@ -70,7 +71,7 @@ private:
 
 template< class type, int dimension >
 ID_INLINE idVectorSet<type,dimension>::idVectorSet( void ) {
-	hash.Clear( idMath::IPow( boxHashSize, dimension ), 128 );
+	hash.clear();
 	boxHashSize = 16;
 	memset( boxInvSize, 0, dimension * sizeof( boxInvSize[0] ) );
 	memset( boxHalfSize, 0, dimension * sizeof( boxHalfSize[0] ) );
@@ -89,7 +90,7 @@ ID_INLINE void idVectorSet<type,dimension>::Init( const type &mins, const type &
 	idList<type>::AssureSize( initialSize );
 	idList<type>::SetNum( 0, false );
 
-	hash.Clear( idMath::IPow( boxHashSize, dimension ), initialSize );
+	hash.clear();
 
 	this->mins = mins;
 	this->maxs = maxs;
@@ -131,7 +132,8 @@ ID_INLINE int idVectorSet<type,dimension>::FindVector( const type &v, const floa
 			hashKey += partialHashKey[j] + ( ( i >> j ) & 1 );
 		}
 
-		for ( j = hash.First( hashKey ); j >= 0; j = hash.Next( j ) ) {
+		for ( auto l = hash.begin(); l != hash.end(); ++l ) {
+			j = l->second;
 			const type &lv = (*this)[j];
 			for ( k = 0; k < dimension; k++ ) {
 				if ( idMath::Fabs( lv[k] - v[k] ) > epsilon ) {
@@ -150,7 +152,7 @@ ID_INLINE int idVectorSet<type,dimension>::FindVector( const type &v, const floa
 		hashKey += (int) ( ( v[i] - mins[i] ) * boxInvSize[i] );
 	}
 
-	hash.Add( hashKey, idList<type>::Num() );
+	hash.insert({ hashKey, idList<type>::Num() });
 	this->Append( v );
 	return idList<type>::Num()-1;
 }
@@ -184,7 +186,7 @@ public:
 	int						FindVector( const type *vectorList, const int vectorNum, const float epsilon );
 
 private:
-	idHashIndex				hash;
+	std::unordered_map<int,int>				hash;
 	type					mins;
 	type					maxs;
 	int						boxHashSize;
@@ -194,7 +196,7 @@ private:
 
 template< class type, int dimension >
 ID_INLINE idVectorSubset<type,dimension>::idVectorSubset( void ) {
-	hash.Clear( idMath::IPow( boxHashSize, dimension ), 128 );
+	hash.clear();
 	boxHashSize = 16;
 	memset( boxInvSize, 0, dimension * sizeof( boxInvSize[0] ) );
 	memset( boxHalfSize, 0, dimension * sizeof( boxHalfSize[0] ) );
@@ -210,7 +212,7 @@ ID_INLINE void idVectorSubset<type,dimension>::Init( const type &mins, const typ
 	int i;
 	float boxSize;
 
-	hash.Clear( idMath::IPow( boxHashSize, dimension ), initialSize );
+	hash.clear();
 
 	this->mins = mins;
 	this->maxs = maxs;
@@ -247,7 +249,8 @@ ID_INLINE int idVectorSubset<type,dimension>::FindVector( const type *vectorList
 			hashKey += partialHashKey[j] + ( ( i >> j ) & 1 );
 		}
 
-		for ( j = hash.First( hashKey ); j >= 0; j = hash.Next( j ) ) {
+		for ( auto l = hash.begin(); l != hash.end(); ++l ) {
+			j = l->second;
 			const type &lv = vectorList[j];
 			for ( k = 0; k < dimension; k++ ) {
 				if ( idMath::Fabs( lv[k] - v[k] ) > epsilon ) {
@@ -266,7 +269,7 @@ ID_INLINE int idVectorSubset<type,dimension>::FindVector( const type *vectorList
 		hashKey += (int) ( ( v[i] - mins[i] ) * boxInvSize[i] );
 	}
 
-	hash.Add( hashKey, vectorNum );
+	hash.insert({ hashKey, vectorNum });
 	return vectorNum;
 }
 

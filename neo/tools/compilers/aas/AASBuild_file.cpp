@@ -26,6 +26,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#include <unordered_map>
+
 #include "sys/platform.h"
 
 #include "tools/compilers/aas/AASBuild_local.h"
@@ -41,8 +43,8 @@ If you have questions concerning this license or the applicable additional terms
 #define AAS_PLANE_DIST_EPSILON			0.01f
 
 
-idHashIndex *aas_vertexHash;
-idHashIndex *aas_edgeHash;
+std::unordered_map<int,int> *aas_vertexHash;
+std::unordered_map<int,int> *aas_edgeHash;
 idBounds aas_vertexBounds;
 int aas_vertexShift;
 
@@ -52,8 +54,10 @@ idAASBuild::SetupHash
 ================
 */
 void idAASBuild::SetupHash( void ) {
-	aas_vertexHash = new idHashIndex( VERTEX_HASH_SIZE, 1024 );
-	aas_edgeHash = new idHashIndex( EDGE_HASH_SIZE, 1024 );
+	aas_vertexHash = new std::unordered_map<int,int>;
+	aas_vertexHash->reserve(VERTEX_HASH_SIZE);
+	aas_edgeHash = new std::unordered_map<int, int>;
+	aas_edgeHash->reserve(EDGE_HASH_SIZE);
 }
 
 /*
@@ -75,8 +79,8 @@ void idAASBuild::ClearHash( const idBounds &bounds ) {
 	int i;
 	float f, max;
 
-	aas_vertexHash->Clear();
-	aas_edgeHash->Clear();
+	aas_vertexHash->clear();
+	aas_edgeHash->clear();
 	aas_vertexBounds = bounds;
 
 	max = bounds[1].x - bounds[0].x;
@@ -128,20 +132,20 @@ bool idAASBuild::GetVertex( const idVec3 &v, int *vertexNum ) {
 
 	hashKey = idAASBuild::HashVec( vert );
 
-	for ( vn = aas_vertexHash->First( hashKey ); vn >= 0; vn = aas_vertexHash->Next( vn ) ) {
-		p = &file->vertices[vn];
+	for ( auto j = aas_vertexHash->begin(); j != aas_vertexHash->end(); ++j ) {
+		p = &file->vertices[j->second];
 		// first compare z-axis because hash is based on x-y plane
 		if (idMath::Fabs( vert.z - p->z ) < VERTEX_EPSILON &&
 			idMath::Fabs( vert.x - p->x ) < VERTEX_EPSILON &&
 			idMath::Fabs( vert.y - p->y ) < VERTEX_EPSILON )
 		{
-			*vertexNum = vn;
+			*vertexNum = j->second;
 			return true;
 		}
 	}
 
 	*vertexNum = file->vertices.Num();
-	aas_vertexHash->Add( hashKey, file->vertices.Num() );
+	aas_vertexHash->insert({ hashKey, file->vertices.Num() });
 	file->vertices.Append( vert );
 
 	return false;
@@ -170,34 +174,35 @@ bool idAASBuild::GetEdge( const idVec3 &v1, const idVec3 &v2, int *edgeNum, int 
 		*edgeNum = 0;
 		return true;
 	}
-	hashKey = aas_edgeHash->GenerateKey( v1num, v2num );
+	hashKey = (v1num + v2num) & (EDGE_HASH_SIZE - 1);
 	// if both vertexes where already stored
 	if ( found ) {
-		for ( e = aas_edgeHash->First( hashKey ); e >= 0; e = aas_edgeHash->Next( e ) ) {
+		auto j = aas_edgeHash->begin();
+		for ( j = aas_edgeHash->begin(); j != aas_edgeHash->end(); ++j) {
 
-			vertexNum = file->edges[e].vertexNum;
+			vertexNum = file->edges[j->second].vertexNum;
 			if ( vertexNum[0] == v2num ) {
 				if ( vertexNum[1] == v1num ) {
 					// negative for a reversed edge
-					*edgeNum = -e;
+					*edgeNum = -(j->second);
 					break;
 				}
 			}
 			else if ( vertexNum[0] == v1num ) {
 				if ( vertexNum[1] == v2num ) {
-					*edgeNum = e;
+					*edgeNum = j->second;
 					break;
 				}
 			}
 		}
 		// if edge found in hash
-		if ( e >= 0 ) {
+		if ( j != aas_edgeHash->end()) {
 			return true;
 		}
 	}
 
 	*edgeNum = file->edges.Num();
-	aas_edgeHash->Add( hashKey, file->edges.Num() );
+	aas_edgeHash->insert({ hashKey, file->edges.Num() });
 
 	edge.vertexNum[0] = v1num;
 	edge.vertexNum[1] = v2num;

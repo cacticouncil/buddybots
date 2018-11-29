@@ -29,9 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __STRPOOL_H__
 #define __STRPOOL_H__
 
-#include "idlib/containers/List.h"
-#include "idlib/containers/HashIndex.h"
+#include <unordered_map>
 
+#include "idlib/containers/List.h"
+#include "idlib/math/Vector.h"
+#include "idlib/Str.h"
 /*
 ===============================================================================
 
@@ -81,7 +83,7 @@ public:
 private:
 	bool				caseSensitive;
 	idList<idPoolStr *>	pool;
-	idHashIndex			poolHash;
+	std::unordered_map<int,int>			poolHash;
 };
 
 /*
@@ -102,16 +104,18 @@ ID_INLINE const idPoolStr *idStrPool::AllocString( const char *string ) {
 	int i, hash;
 	idPoolStr *poolStr;
 
-	hash = poolHash.GenerateKey( string, caseSensitive );
+	hash = (int)std::hash<std::string>{}(string);
 	if ( caseSensitive ) {
-		for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
+		for (auto j = poolHash.begin(); j != poolHash.end(); ++j ) {
+			i = j->second;
 			if ( pool[i]->Cmp( string ) == 0 ) {
 				pool[i]->numUsers++;
 				return pool[i];
 			}
 		}
 	} else {
-		for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
+		for (auto j = poolHash.begin(); j != poolHash.end(); ++j ) {
+			i = j->second;
 			if ( pool[i]->Icmp( string ) == 0 ) {
 				pool[i]->numUsers++;
 				return pool[i];
@@ -123,7 +127,7 @@ ID_INLINE const idPoolStr *idStrPool::AllocString( const char *string ) {
 	*static_cast<idStr *>(poolStr) = string;
 	poolStr->pool = this;
 	poolStr->numUsers = 1;
-	poolHash.Add( hash, pool.Append( poolStr ) );
+	poolHash.insert({ hash, pool.Append(poolStr) });
 	return poolStr;
 }
 
@@ -140,15 +144,17 @@ ID_INLINE void idStrPool::FreeString( const idPoolStr *poolStr ) {
 
 	poolStr->numUsers--;
 	if ( poolStr->numUsers <= 0 ) {
-		hash = poolHash.GenerateKey( poolStr->c_str(), caseSensitive );
+		hash = (int)std::hash<std::string>{}(poolStr->c_str());
 		if ( caseSensitive ) {
-			for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
+			for (auto j = poolHash.begin(); j != poolHash.end(); ++j) {
+				i = j->second;
 				if ( pool[i]->Cmp( poolStr->c_str() ) == 0 ) {
 					break;
 				}
 			}
 		} else {
-			for ( i = poolHash.First( hash ); i != -1; i = poolHash.Next( i ) ) {
+			for (auto j = poolHash.begin(); j != poolHash.end(); ++j) {
+				i = j->second;
 				if ( pool[i]->Icmp( poolStr->c_str() ) == 0 ) {
 					break;
 				}
@@ -158,7 +164,7 @@ ID_INLINE void idStrPool::FreeString( const idPoolStr *poolStr ) {
 		assert( pool[i] == poolStr );
 		delete pool[i];
 		pool.RemoveIndex( i );
-		poolHash.RemoveIndex( hash, i );
+		poolHash.erase( hash );
 	}
 }
 
@@ -193,7 +199,7 @@ ID_INLINE void idStrPool::Clear( void ) {
 		pool[i]->numUsers = 0;
 	}
 	pool.DeleteContents( true );
-	poolHash.Free();
+	poolHash.clear();
 }
 
 /*
@@ -205,7 +211,7 @@ ID_INLINE size_t idStrPool::Allocated( void ) const {
 	int i;
 	size_t size;
 
-	size = pool.Allocated() + poolHash.Allocated();
+	size = pool.Allocated() + poolHash.bucket_count();
 	for ( i = 0; i < pool.Num(); i++ ) {
 		size += pool[i]->Allocated();
 	}
@@ -221,7 +227,7 @@ ID_INLINE size_t idStrPool::Size( void ) const {
 	int i;
 	size_t size;
 
-	size = pool.Size() + poolHash.Size();
+	size = pool.Size() + poolHash.size();
 	for ( i = 0; i < pool.Num(); i++ ) {
 		size += pool[i]->Size();
 	}

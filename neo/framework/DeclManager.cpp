@@ -25,10 +25,10 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+#include <unordered_map>
 
 #include "sys/platform.h"
 #include "idlib/containers/List.h"
-#include "idlib/containers/HashIndex.h"
 #include "idlib/hashing/MD5.h"
 #include "idlib/BitMsg.h"
 #include "framework/FileSystem.h"
@@ -242,7 +242,7 @@ private:
 	idList<idDeclFolder *>		declFolders;
 
 	idList<idDeclFile *>		loadedFiles;
-	idHashIndex					hashTables[DECL_MAX_TYPES];
+	std::unordered_map<int,int>					hashTables[DECL_MAX_TYPES];
 	idList<idDeclLocal *>		linearLists[DECL_MAX_TYPES];
 	idDeclFile					implicitDecls;	// this holds all the decls that were created because explicit
 												// text definitions were not found. Decls that became default
@@ -901,7 +901,7 @@ void idDeclManagerLocal::Shutdown( void ) {
 			delete decl;
 		}
 		linearLists[i].Clear();
-		hashTables[i].Free();
+		hashTables[i].clear();
 	}
 
 	// free decl files
@@ -1371,8 +1371,9 @@ idDecl *idDeclManagerLocal::CreateNewDecl( declType_t type, const char *name, co
 	fileName.BackSlashesToSlashes();
 
 	// see if it already exists
-	hash = hashTables[typeIndex].GenerateKey( canonicalName, false );
-	for ( i = hashTables[typeIndex].First( hash ); i >= 0; i = hashTables[typeIndex].Next( i ) ) {
+	hash = (int)std::hash<std::string>{}(canonicalName);
+	for ( auto j = hashTables[typeIndex].begin(); j != hashTables[typeIndex].end(); ++j) {
+		i = j->second;
 		if ( linearLists[typeIndex][i]->name.Icmp( canonicalName ) == 0 ) {
 			linearLists[typeIndex][i]->AllocateSelf();
 			return linearLists[typeIndex][i]->self;
@@ -1426,7 +1427,7 @@ idDecl *idDeclManagerLocal::CreateNewDecl( declType_t type, const char *name, co
 
 	// add it to the hash table and linear list
 	decl->index = linearLists[typeIndex].Num();
-	hashTables[typeIndex].Add( hash, linearLists[typeIndex].Append( decl ) );
+	hashTables[typeIndex].insert({ hash, linearLists[typeIndex].Append(decl) });
 
 	return decl->self;
 }
@@ -1449,8 +1450,9 @@ bool idDeclManagerLocal::RenameDecl( declType_t type, const char* oldName, const
 	// make sure it already exists
 	int typeIndex = (int)type;
 	int i, hash;
-	hash = hashTables[typeIndex].GenerateKey( canonicalOldName, false );
-	for ( i = hashTables[typeIndex].First( hash ); i >= 0; i = hashTables[typeIndex].Next( i ) ) {
+	hash = (int)std::hash<std::string>{}(canonicalOldName);
+	for (auto j = hashTables[typeIndex].begin(); j != hashTables[typeIndex].end(); ++j ) {
+		i = j->second;
 		if ( linearLists[typeIndex][i]->name.Icmp( canonicalOldName ) == 0 ) {
 			decl = linearLists[typeIndex][i];
 			break;
@@ -1470,11 +1472,11 @@ bool idDeclManagerLocal::RenameDecl( declType_t type, const char* oldName, const
 
 	// add it to the hash table
 	//hashTables[(int)decl->type].Set( decl->name, decl );
-	int newhash = hashTables[typeIndex].GenerateKey( canonicalNewName, false );
-	hashTables[typeIndex].Add( newhash, decl->index );
+	int newhash = (int)std::hash<std::string>{}(canonicalNewName);
+	hashTables[typeIndex].insert({ newhash, decl->index });
 
 	//Remove the old hash item
-	hashTables[typeIndex].Remove(hash, decl->index);
+	hashTables[typeIndex].erase(hash);
 
 	return true;
 }
@@ -1716,8 +1718,9 @@ idDeclLocal *idDeclManagerLocal::FindTypeWithoutParsing( declType_t type, const 
 	MakeNameCanonical( name, canonicalName, sizeof( canonicalName ) );
 
 	// see if it already exists
-	hash = hashTables[typeIndex].GenerateKey( canonicalName, false );
-	for ( i = hashTables[typeIndex].First( hash ); i >= 0; i = hashTables[typeIndex].Next( i ) ) {
+	hash = (int)std::hash<std::string>{}(canonicalName);
+	for (auto j = hashTables[typeIndex].begin(); j != hashTables[typeIndex].end(); ++j ) {
+		i = j->second;
 		if ( linearLists[typeIndex][i]->name.Icmp( canonicalName ) == 0 ) {
 			// only print these when decl_show is set to 2, because it can be a lot of clutter
 			if ( decl_show.GetInteger() > 1 ) {
@@ -1745,7 +1748,7 @@ idDeclLocal *idDeclManagerLocal::FindTypeWithoutParsing( declType_t type, const 
 
 	// add it to the linear list and hash table
 	decl->index = linearLists[typeIndex].Num();
-	hashTables[typeIndex].Add( hash, linearLists[typeIndex].Append( decl ) );
+	hashTables[typeIndex].insert({ hash, linearLists[typeIndex].Append(decl) });
 
 	return decl;
 }
