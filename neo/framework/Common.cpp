@@ -27,9 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include <SDL.h>
+#include <unordered_map>
 
 #include "sys/platform.h"
-#include "idlib/containers/HashTable.h"
 #include "idlib/LangDict.h"
 #include "idlib/MapFile.h"
 #include "cm/CollisionModel.h"
@@ -1753,7 +1753,7 @@ void Com_ReloadLanguage_f( const idCmdArgs &args ) {
 	commonLocal.InitLanguageDict();
 }
 
-typedef idHashTable<idStrList> ListHash;
+typedef std::unordered_map<std::string, idStrList> ListHash;
 void LoadMapLocalizeData(ListHash& listHash) {
 
 	idStr fileName = "map_localize.cfg";
@@ -1780,7 +1780,7 @@ void LoadMapLocalizeData(ListHash& listHash) {
 					list.Append(token);
 				}
 
-				listHash.Set(classname, list);
+				listHash[(std::string)classname] = list;
 			}
 		}
 		fileSystem->FreeFile( (void*)buffer );
@@ -1890,8 +1890,16 @@ int LocalizeMap(const char* mapName, idLangDict &langDict, ListHash& listHash, i
 				bool hasLocation = false;
 
 				idStrList* list;
-				listHash.Get(classname, &list);
-				if(list) {
+				bool isList;
+
+				try {
+					list = &listHash.at((std::string)classname);
+					isList = true;
+				} catch (const std::out_of_range& oor) {
+					isList = false;
+				}
+
+				if(isList) {
 
 					for(int k = 0; k < list->Num(); k++) {
 
@@ -1912,8 +1920,15 @@ int LocalizeMap(const char* mapName, idLangDict &langDict, ListHash& listHash, i
 					}
 				}
 
-				listHash.Get("all", &list);
-				if(list) {
+				try {
+					list = &listHash.at("all");
+					isList = true;
+				}
+				catch (const std::out_of_range& oor) {
+					isList = false;
+				}
+
+				if(isList) {
 					for(int k = 0; k < list->Num(); k++) {
 						idStr val = ent->epairs.GetString((*list)[k], "");
 						if(val.Length() && TestMapVal(val)) {
@@ -2160,8 +2175,16 @@ void Com_LocalizeMapsTest_f( const idCmdArgs &args ) {
 					bool hasLocation = false;
 
 					idStrList* list;
-					listHash.Get(classname, &list);
-					if(list) {
+					bool isList;
+
+					try {
+						list = &listHash.at((std::string)classname);
+						isList = true;
+					}
+					catch (const std::out_of_range& oor) {
+						isList = false;
+					}
+					if(isList) {
 
 						for(int k = 0; k < list->Num(); k++) {
 
@@ -2181,8 +2204,14 @@ void Com_LocalizeMapsTest_f( const idCmdArgs &args ) {
 						}
 					}
 
-					listHash.Get("all", &list);
-					if(list) {
+					try {
+						list = &listHash.at("all");
+						isList = true;
+					}
+					catch (const std::out_of_range& oor) {
+						isList = false;
+					}
+					if(isList) {
 						for(int k = 0; k < list->Num(); k++) {
 							idStr val = ent->epairs.GetString((*list)[k], "");
 							if(val.Length() && TestMapVal(val)) {

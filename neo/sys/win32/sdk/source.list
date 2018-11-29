@@ -199,8 +199,7 @@ idlib/containers/BTree.h
 idlib/containers/BinSearch.h
 idlib/containers/HashIndex.cpp
 idlib/containers/HashIndex.h
-idlib/containers/HashTable.h
-idlib/containers/Hierarchy.h
+sidlib/containers/Hierarchy.h
 idlib/containers/LinkList.h
 idlib/containers/List.h
 idlib/containers/PlaneSet.h

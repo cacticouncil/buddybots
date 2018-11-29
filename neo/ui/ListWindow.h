@@ -28,8 +28,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __LISTWINDOW_H
 #define __LISTWINDOW_H
 
+#include <unordered_map>
+#include <string>
+
 #include "idlib/containers/StrList.h"
-#include "idlib/containers/HashTable.h"
 #include "ui/Window.h"
 
 class idSliderWindow;
@@ -85,7 +87,7 @@ private:
 	idStr				tabTypeStr;
 	idStr				tabIconSizeStr;
 	idStr				tabIconVOffsetStr;
-	idHashTable<const idMaterial*> iconMaterials;
+	std::unordered_map<std::string, const idMaterial*> iconMaterials;
 	bool				multipleSel;
 
 	idStrList			listItems;

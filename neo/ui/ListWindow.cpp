@@ -27,7 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "sys/platform.h"
-#include "idlib/containers/HashTable.h"
 #include "framework/Session_local.h"
 #include "ui/DeviceContext.h"
 #include "ui/Window.h"
@@ -288,7 +287,7 @@ bool idListWindow::ParseInternalVar(const char *_name, idParser *src) {
 		if ( mat && !mat->TestMaterialFlag( MF_DEFAULTED ) ) {
 			mat->SetSort(SS_GUI );
 		}
-		iconMaterials.Set(_name, mat);
+		iconMaterials[_name] = mat;
 		return true;
 	}
 
@@ -522,7 +521,14 @@ void idListWindow::Draw(int time, float x, float y) {
 					// leaving the icon name empty doesn't draw anything
 					if ( work[0] != '\0' ) {
 
-						if ( iconMaterials.Get(work, &hashMat) == false ) {
+						bool isIconMaterials;
+						try {
+							iconMaterials.at((std::string)work);
+							isIconMaterials = true;
+						}catch (const std::out_of_range& oor) {
+							isIconMaterials = false;
+						}
+						if ( isIconMaterials == false ) {
 							iconMat = declManager->FindMaterial("_default");
 						} else {
 							iconMat = *hashMat;
